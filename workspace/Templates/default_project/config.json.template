@@ -1,0 +1,10 @@
+{
+    "project_name": "{{PROJECT_NAME}}",
+    "author": "{{AUTHOR}}",
+    "description": "{{DESCRIPTION}}",
+    "version": "1.0",
+    "created_at": "{{CREATED_AT}}",
+    "dataset": "",
+    "target": "",
+    "status": "NEW"
+}

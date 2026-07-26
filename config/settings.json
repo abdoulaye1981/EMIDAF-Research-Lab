@@ -1,0 +1,7 @@
+{
+    "theme": "flatly",
+    "language": "fr",
+    "workspace": "workspace/projects",
+    "database": "database/emidaf.db",
+    "version": "1.0"
+}
