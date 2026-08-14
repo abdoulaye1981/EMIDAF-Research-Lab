@@ -1,7 +1,11 @@
 {
-    "theme": "flatly",
+    "application": "EMIDAF Research Lab",
+    "version": "1.0.0",
+    "theme": "EMIDAF",
     "language": "fr",
     "workspace": "workspace/projects",
     "database": "database/emidaf.db",
-    "version": "1.0"
+    "debug": true,
+    "autosave": true,
+    "log_level": "INFO"
 }

@@ -1,13 +1,71 @@
+from pathlib import Path
+
 from emidaf_core.managers.logger_manager import LoggerManager
 
-logger = LoggerManager()
 
-logger.info("Projet créé")
+def main():
 
-logger.warning("Import CSV")
+    logger = LoggerManager()
 
-logger.error("Erreur de lecture")
+    logger.info("Framework EMIDAF démarré.")
 
-logger.critical("Erreur critique")
+    logger.project.info("Projet créé.")
 
-print("LoggerManager OK")
+    logger.importer.info("Import CSV.")
+
+    logger.inspection.info("Inspection terminée.")
+
+    logger.error.error("Erreur simulée.")
+
+    print()
+
+    print("=" * 60)
+    print("TEST LOGGER MANAGER")
+    print("=" * 60)
+
+    print()
+
+    print("Loggers enregistrés")
+
+    print("-------------------")
+
+    for name in logger.list():
+
+        print(name)
+
+    print()
+
+    print("Fichiers")
+
+    print("---------")
+
+    for file in [
+
+        "application.log",
+
+        "project.log",
+
+        "import.log",
+
+        "inspection.log",
+
+        "error.log"
+
+    ]:
+
+        path = Path("logs") / file
+
+        print(
+
+            f"{file:<20} : {'OK' if path.exists() else 'ERREUR'}"
+
+        )
+
+    print()
+
+    print("LoggerManager OK")
+
+
+if __name__ == "__main__":
+
+    main()

@@ -1,0 +1,33 @@
+workspace:
+
+  name: Mon Workspace
+
+  language: fr
+
+  theme: light
+
+  autosave: true
+
+  timezone: Africa/Dakar
+
+database:
+
+  provider: sqlite
+
+  file: database/emidaf.db
+
+logging:
+
+  level: INFO
+
+  directory: logs
+
+reports:
+
+  format: pdf
+
+  template: default
+
+visualization:
+
+  theme: plotly_white

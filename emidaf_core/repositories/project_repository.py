@@ -1,71 +1,122 @@
-from sqlalchemy.orm import Session
+"""
+=========================================================
+EMIDAF Framework v1.0
+Project Repository
+---------------------------------------------------------
+Gestion de la persistance des projets.
+=========================================================
+"""
 
-from database.database import SessionLocal
-from database.models import Project as ProjectModel
+from __future__ import annotations
 
-from emidaf_core.entities.project import Project
+from typing import List
+from typing import Optional
+
+from sqlalchemy import delete
+from sqlalchemy import exists
+from sqlalchemy import func
+from sqlalchemy import select
+
+from database.database_manager import DatabaseManager
+from database.models.project_model import ProjectModel
 
 
 class ProjectRepository:
+    """
+    Repository des projets.
+    """
 
-    def __init__(self):
+    def __init__(self, database_manager: DatabaseManager) -> None:
 
-        self.db: Session = SessionLocal()
+        self._database = database_manager
 
-    def create(self, project: Project):
+    # =====================================================
+    # CREATE
+    # =====================================================
 
-        db_project = ProjectModel(
+    def add(self, project: ProjectModel) -> ProjectModel:
 
-            name=project.name,
+        with self._database.session_scope() as session:
 
-            description=project.description,
+            session.add(project)
 
-            author=project.author,
+            session.flush()
 
-            created_at=project.created_at,
+            session.refresh(project)
 
-            updated_at=project.updated_at
+            return project
 
-        )
+    # =====================================================
+    # READ
+    # =====================================================
 
-        self.db.add(db_project)
+    def get_by_id(self, project_id: int) -> Optional[ProjectModel]:
 
-        self.db.commit()
+        with self._database.session_scope() as session:
 
-        self.db.refresh(db_project)
+            return session.get(ProjectModel, project_id)
 
-        project.id = db_project.id
+    def get_all(self) -> List[ProjectModel]:
 
-        return project
+        with self._database.session_scope() as session:
 
-    def get_all(self):
+            statement = select(ProjectModel)
 
-        projects = self.db.query(ProjectModel).all()
+            return list(session.scalars(statement).all())
 
-        result = []
+    def exists(self, project_id: int) -> bool:
 
-        for p in projects:
+        with self._database.session_scope() as session:
 
-            result.append(
-
-                Project(
-
-                    id=p.id,
-
-                    name=p.name,
-
-                    description=p.description,
-
-                    author=p.author,
-
-                    workspace="",
-
-                    created_at=p.created_at,
-
-                    updated_at=p.updated_at
-
-                )
-
+            statement = select(
+                exists().where(ProjectModel.id == project_id)
             )
 
-        return result
+            return bool(session.scalar(statement))
+
+    def count(self) -> int:
+
+        with self._database.session_scope() as session:
+
+            statement = select(func.count(ProjectModel.id))
+
+            return session.scalar(statement) or 0
+
+    # =====================================================
+    # UPDATE
+    # =====================================================
+
+    def update(self, project: ProjectModel) -> ProjectModel:
+
+        with self._database.session_scope() as session:
+
+            project = session.merge(project)
+
+            session.flush()
+
+            session.refresh(project)
+
+            return project
+
+    # =====================================================
+    # DELETE
+    # =====================================================
+
+    def delete(self, project_id: int) -> bool:
+
+        with self._database.session_scope() as session:
+
+            project = session.get(ProjectModel, project_id)
+
+            if project is None:
+                return False
+
+            session.delete(project)
+
+            return True
+
+    def delete_all(self) -> None:
+
+        with self._database.session_scope() as session:
+
+            session.execute(delete(ProjectModel))

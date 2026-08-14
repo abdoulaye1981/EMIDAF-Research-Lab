@@ -1,0 +1,2802 @@
+emidaf_core/statistics/power_analysis/nonparametric.py:    def mann_whitney(
+emidaf_core/statistics/power_analysis/nonparametric.py:    def wilcoxon(
+emidaf_core/statistics/power_analysis/nonparametric.py:    def kruskal(
+emidaf_core/statistics/power_analysis/nonparametric.py:    def friedman(
+emidaf_core/statistics/power_analysis/nonparametric.py:    def sign_test(
+emidaf_core/statistics/power_analysis/nonparametric.py:    def spearman(
+emidaf_core/statistics/power_analysis/nonparametric.py:    def kendall(
+emidaf_core/statistics/power_analysis/nonparametric.py:    def compute_sample_size(
+emidaf_core/statistics/power_analysis/nonparametric.py:    def compute_power(
+emidaf_core/statistics/power_analysis/nonparametric.py:    def solve(
+emidaf_core/statistics/power_analysis/regression.py:    def simple(
+emidaf_core/statistics/power_analysis/regression.py:    def multiple(
+emidaf_core/statistics/power_analysis/regression.py:    def hierarchical(
+emidaf_core/statistics/power_analysis/regression.py:    def compute_power(
+emidaf_core/statistics/power_analysis/regression.py:    def compute_sample_size(
+emidaf_core/statistics/power_analysis/regression.py:    def compute_effect_size(
+emidaf_core/statistics/power_analysis/regression.py:    def compute_alpha(
+emidaf_core/statistics/power_analysis/regression.py:    def solve(
+emidaf_core/statistics/power_analysis/anova.py:    def one_way(
+emidaf_core/statistics/power_analysis/anova.py:    def two_way(
+emidaf_core/statistics/power_analysis/anova.py:    def factorial(
+emidaf_core/statistics/power_analysis/anova.py:    def repeated_measures(
+emidaf_core/statistics/power_analysis/anova.py:    def mixed(
+emidaf_core/statistics/power_analysis/anova.py:    def manova(
+emidaf_core/statistics/power_analysis/anova.py:    def ancova(
+emidaf_core/statistics/power_analysis/anova.py:    def compute_sample_size(
+emidaf_core/statistics/power_analysis/anova.py:    def compute_power(
+emidaf_core/statistics/power_analysis/anova.py:    def solve(
+emidaf_core/statistics/power_analysis/ttest.py:    def one_sample(
+emidaf_core/statistics/power_analysis/ttest.py:    def paired(
+emidaf_core/statistics/power_analysis/ttest.py:    def independent(
+emidaf_core/statistics/power_analysis/ttest.py:    def welch(
+emidaf_core/statistics/power_analysis/ttest.py:    def compute_power(
+emidaf_core/statistics/power_analysis/ttest.py:    def compute_sample_size(
+emidaf_core/statistics/power_analysis/ttest.py:    def compute_effect_size(
+emidaf_core/statistics/power_analysis/ttest.py:    def compute_alpha(
+emidaf_core/statistics/power_analysis/ttest.py:    def solve(
+emidaf_core/statistics/power_analysis/chi_square.py:    def goodness_of_fit(
+emidaf_core/statistics/power_analysis/chi_square.py:    def independence(
+emidaf_core/statistics/power_analysis/chi_square.py:    def contingency(
+emidaf_core/statistics/power_analysis/chi_square.py:    def compute_sample_size(
+emidaf_core/statistics/power_analysis/chi_square.py:    def compute_power(
+emidaf_core/statistics/power_analysis/chi_square.py:    def compute_effect_size(
+emidaf_core/statistics/power_analysis/chi_square.py:    def compute_alpha(
+emidaf_core/statistics/power_analysis/chi_square.py:    def solve(
+emidaf_core/statistics/power_analysis/sensitivity.py:    def ttest(
+emidaf_core/statistics/power_analysis/sensitivity.py:    def independent_ttest(
+emidaf_core/statistics/power_analysis/sensitivity.py:    def anova(
+emidaf_core/statistics/power_analysis/sensitivity.py:    def regression(
+emidaf_core/statistics/power_analysis/sensitivity.py:    def chi_square(
+emidaf_core/statistics/power_analysis/sensitivity.py:    def solve(
+emidaf_core/statistics/power_analysis/precision.py:    def mean(
+emidaf_core/statistics/power_analysis/precision.py:    def proportion(
+emidaf_core/statistics/power_analysis/precision.py:    def correlation(
+emidaf_core/statistics/power_analysis/precision.py:    def variance(
+emidaf_core/statistics/power_analysis/precision.py:    def confidence_interval_width(
+emidaf_core/statistics/power_analysis/precision.py:    def margin_of_error(
+emidaf_core/statistics/power_analysis/precision.py:    def solve(
+emidaf_core/statistics/power_analysis/interpretation.py:    def power(
+emidaf_core/statistics/power_analysis/interpretation.py:    def effect_size(
+emidaf_core/statistics/power_analysis/interpretation.py:    def sample_size(
+emidaf_core/statistics/power_analysis/interpretation.py:    def beta(
+emidaf_core/statistics/power_analysis/interpretation.py:    def recommendation(
+emidaf_core/statistics/power_analysis/interpretation.py:    def interpret(
+emidaf_core/statistics/power_analysis/summary.py:    def __init__(
+emidaf_core/statistics/power_analysis/summary.py:    def add(
+emidaf_core/statistics/power_analysis/summary.py:    def extend(
+emidaf_core/statistics/power_analysis/summary.py:    def n_analyses(
+emidaf_core/statistics/power_analysis/summary.py:    def table(
+emidaf_core/statistics/power_analysis/summary.py:    def values(
+emidaf_core/statistics/power_analysis/summary.py:    def interpretations(
+emidaf_core/statistics/power_analysis/summary.py:    def best_power(
+emidaf_core/statistics/power_analysis/summary.py:    def smallest_sample(
+emidaf_core/statistics/power_analysis/summary.py:    def summary(
+emidaf_core/statistics/power_analysis/summary.py:    def create():
+emidaf_core/statistics/power_analysis/equivalence.py:    def tost(
+emidaf_core/statistics/power_analysis/equivalence.py:    def equivalence(
+emidaf_core/statistics/power_analysis/equivalence.py:    def non_inferiority(
+emidaf_core/statistics/power_analysis/equivalence.py:    def superiority(
+emidaf_core/statistics/power_analysis/equivalence.py:    def compute_sample_size(
+emidaf_core/statistics/power_analysis/equivalence.py:    def compute_power(
+emidaf_core/statistics/power_analysis/equivalence.py:    def solve(
+emidaf_core/statistics/power_analysis/correlation.py:    def pearson(
+emidaf_core/statistics/power_analysis/correlation.py:    def spearman(
+emidaf_core/statistics/power_analysis/correlation.py:    def kendall(
+emidaf_core/statistics/power_analysis/correlation.py:    def partial(
+emidaf_core/statistics/power_analysis/correlation.py:    def semi_partial(
+emidaf_core/statistics/power_analysis/correlation.py:    def compute_power(
+emidaf_core/statistics/power_analysis/correlation.py:    def compute_sample_size(
+emidaf_core/statistics/power_analysis/correlation.py:    def compute_effect_size(
+emidaf_core/statistics/power_analysis/correlation.py:    def solve(
+emidaf_core/statistics/power_analysis/base.py:    def solve(
+emidaf_core/statistics/power_analysis/report.py:    def __init__(
+emidaf_core/statistics/power_analysis/report.py:    def to_dict(
+emidaf_core/statistics/power_analysis/report.py:    def to_json(
+emidaf_core/statistics/power_analysis/report.py:    def to_dataframe(
+emidaf_core/statistics/power_analysis/report.py:    def to_markdown(
+emidaf_core/statistics/power_analysis/report.py:    def to_html(
+emidaf_core/statistics/power_analysis/report.py:    def to_latex(
+emidaf_core/statistics/power_analysis/report.py:    def to_csv(
+emidaf_core/statistics/power_analysis/report.py:    def to_excel(
+emidaf_core/statistics/power_analysis/report.py:    def generate(
+emidaf_core/statistics/outliers/statistical.py:    def detect(
+emidaf_core/statistics/outliers/statistical.py:    def fit(cls, values, **kwargs):
+emidaf_core/statistics/outliers/statistical.py:    def fit_predict(cls, values, **kwargs):
+emidaf_core/statistics/outliers/statistical.py:    def detect(
+emidaf_core/statistics/outliers/statistical.py:    def detect(
+emidaf_core/statistics/outliers/statistical.py:    def detect(
+emidaf_core/statistics/outliers/statistical.py:    def detect(
+emidaf_core/statistics/outliers/statistical.py:    def detect(
+emidaf_core/statistics/outliers/statistical.py:    def detect(
+emidaf_core/statistics/outliers/statistical.py:    def compute(values):
+emidaf_core/statistics/outliers/clustering.py:    def detect(
+emidaf_core/statistics/outliers/clustering.py:    def detect(
+emidaf_core/statistics/outliers/clustering.py:    def detect(
+emidaf_core/statistics/outliers/clustering.py:    def detect(
+emidaf_core/statistics/outliers/clustering.py:    def compute(
+emidaf_core/statistics/outliers/treatment.py:    def build_result(
+emidaf_core/statistics/outliers/treatment.py:    def apply(
+emidaf_core/statistics/outliers/treatment.py:    def apply(
+emidaf_core/statistics/outliers/treatment.py:    def apply(
+emidaf_core/statistics/outliers/treatment.py:    def apply(
+emidaf_core/statistics/outliers/treatment.py:    def apply(
+emidaf_core/statistics/outliers/treatment.py:    def apply(
+emidaf_core/statistics/outliers/treatment.py:    def apply(
+emidaf_core/statistics/outliers/treatment.py:    def apply(
+emidaf_core/statistics/outliers/treatment.py:    def remove(
+emidaf_core/statistics/outliers/treatment.py:    def winsorize(
+emidaf_core/statistics/outliers/treatment.py:    def cap(
+emidaf_core/statistics/outliers/treatment.py:    def floor(
+emidaf_core/statistics/outliers/treatment.py:    def mean(
+emidaf_core/statistics/outliers/treatment.py:    def median(
+emidaf_core/statistics/outliers/treatment.py:    def quantile(
+emidaf_core/statistics/outliers/treatment.py:    def adaptive(
+emidaf_core/statistics/outliers/distance.py:    def detect(
+emidaf_core/statistics/outliers/distance.py:    def detect(
+emidaf_core/statistics/outliers/distance.py:    def detect(
+emidaf_core/statistics/outliers/distance.py:    def detect(
+emidaf_core/statistics/outliers/distance.py:    def compute(
+emidaf_core/statistics/outliers/density.py:    def detect(
+emidaf_core/statistics/outliers/density.py:    def detect(
+emidaf_core/statistics/outliers/density.py:    def detect(
+emidaf_core/statistics/outliers/density.py:    def compute(
+emidaf_core/statistics/outliers/ensemble.py:    def detect(
+emidaf_core/statistics/outliers/ensemble.py:    def detect(
+emidaf_core/statistics/outliers/ensemble.py:    def detect(
+emidaf_core/statistics/outliers/ensemble.py:    def detect(
+emidaf_core/statistics/outliers/ensemble.py:    def detect(
+emidaf_core/statistics/outliers/ensemble.py:    def detect(
+emidaf_core/statistics/outliers/ensemble.py:    def detect(
+emidaf_core/statistics/outliers/ensemble.py:    def compute(
+emidaf_core/statistics/outliers/multivariate.py:    def detect(
+emidaf_core/statistics/outliers/multivariate.py:    def detect(
+emidaf_core/statistics/outliers/multivariate.py:    def detect(
+emidaf_core/statistics/outliers/multivariate.py:    def detect(
+emidaf_core/statistics/outliers/multivariate.py:    def detect(
+emidaf_core/statistics/outliers/multivariate.py:    def compute(
+emidaf_core/statistics/outliers/base.py:    def validate(
+emidaf_core/statistics/outliers/base.py:    def build_result(
+emidaf_core/statistics/outliers/base.py:    def detect(
+emidaf_core/statistics/outliers/report.py:    def generate(
+emidaf_core/statistics/outliers/report.py:    def summary(
+emidaf_core/statistics/outliers/report.py:    def statistics(
+emidaf_core/statistics/outliers/report.py:    def export(
+emidaf_core/statistics/descriptive.py:    def compute(
+emidaf_core/statistics/descriptive.py:    def compute(
+emidaf_core/statistics/descriptive.py:    def compute(
+emidaf_core/statistics/descriptive.py:    def compute(
+emidaf_core/statistics/descriptive.py:    def compute(
+emidaf_core/statistics/descriptive.py:    def compute(
+emidaf_core/statistics/descriptive.py:    def compute(
+emidaf_core/statistics/descriptive.py:    def compute(
+emidaf_core/statistics/descriptive.py:    def compute(
+emidaf_core/statistics/descriptive.py:    def compute(
+emidaf_core/statistics/descriptive.py:    def compute(
+emidaf_core/statistics/descriptive.py:    def compute(
+emidaf_core/statistics/hypothesis/categorical.py:    def compute(
+emidaf_core/statistics/hypothesis/categorical.py:    def compute(
+emidaf_core/statistics/hypothesis/categorical.py:    def compute(
+emidaf_core/statistics/hypothesis/categorical.py:    def compute(
+emidaf_core/statistics/hypothesis/categorical.py:    def chi_square(
+emidaf_core/statistics/hypothesis/categorical.py:    def fisher(
+emidaf_core/statistics/hypothesis/categorical.py:    def mcnemar(
+emidaf_core/statistics/hypothesis/categorical.py:    def cochran_q(
+emidaf_core/statistics/hypothesis/categorical.py:    def compute(
+emidaf_core/statistics/hypothesis/independence.py:    def test(
+emidaf_core/statistics/hypothesis/independence.py:    def _cramers_v(
+emidaf_core/statistics/hypothesis/independence.py:    def test(
+emidaf_core/statistics/hypothesis/independence.py:def chi_square_independence_test(
+emidaf_core/statistics/hypothesis/independence.py:def chi_square_goodness_of_fit_test(
+emidaf_core/statistics/hypothesis/independence.py:def cramers_v(
+emidaf_core/statistics/hypothesis/nonparametric.py:    def test(
+emidaf_core/statistics/hypothesis/nonparametric.py:    def test(
+emidaf_core/statistics/hypothesis/nonparametric.py:    def test(self, *groups):
+emidaf_core/statistics/hypothesis/nonparametric.py:    def test(self, *groups):
+emidaf_core/statistics/hypothesis/nonparametric.py:    def test(
+emidaf_core/statistics/hypothesis/nonparametric.py:def mann_whitney_test(
+emidaf_core/statistics/hypothesis/nonparametric.py:def wilcoxon_test(
+emidaf_core/statistics/hypothesis/nonparametric.py:def kruskal_wallis_test(
+emidaf_core/statistics/hypothesis/nonparametric.py:def friedman_test(
+emidaf_core/statistics/hypothesis/nonparametric.py:def spearman_test(
+emidaf_core/statistics/hypothesis/parametric.py:    def compute(
+emidaf_core/statistics/hypothesis/parametric.py:    def compute(
+emidaf_core/statistics/hypothesis/parametric.py:    def compute(
+emidaf_core/statistics/hypothesis/parametric.py:    def compute(
+emidaf_core/statistics/hypothesis/parametric.py:    def compute(
+emidaf_core/statistics/hypothesis/parametric.py:    def compute(
+emidaf_core/statistics/hypothesis/parametric.py:    def compute(
+emidaf_core/statistics/hypothesis/multiple.py:    def __init__(
+emidaf_core/statistics/hypothesis/multiple.py:    def adjust(
+emidaf_core/statistics/hypothesis/multiple.py:    def summary(self):
+emidaf_core/statistics/hypothesis/multiple.py:    def to_dict(self):
+emidaf_core/statistics/hypothesis/multiple.py:def adjust_pvalues(
+emidaf_core/statistics/hypothesis/multiple.py:def bonferroni_correction(
+emidaf_core/statistics/hypothesis/multiple.py:def holm_correction(
+emidaf_core/statistics/hypothesis/multiple.py:def fdr_bh_correction(
+emidaf_core/statistics/hypothesis/multiple.py:def fdr_by_correction(
+emidaf_core/statistics/hypothesis/multiple.py:def sidak_correction(
+emidaf_core/statistics/hypothesis/multiple.py:def compare_methods(
+emidaf_core/statistics/hypothesis/variance.py:    def test(self, *groups):
+emidaf_core/statistics/hypothesis/variance.py:    def test(self, *groups):
+emidaf_core/statistics/hypothesis/variance.py:def levene_test(
+emidaf_core/statistics/hypothesis/variance.py:def bartlett_test(
+emidaf_core/statistics/hypothesis/proportion.py:    def test(
+emidaf_core/statistics/hypothesis/proportion.py:    def _alternative_symbol(
+emidaf_core/statistics/hypothesis/proportion.py:    def test(
+emidaf_core/statistics/hypothesis/proportion.py:    def _alternative_symbol(
+emidaf_core/statistics/hypothesis/proportion.py:def one_sample_proportion_test(
+emidaf_core/statistics/hypothesis/proportion.py:def two_sample_proportion_test(
+emidaf_core/statistics/hypothesis/mean.py:    def test(
+emidaf_core/statistics/hypothesis/mean.py:    def __init__(
+emidaf_core/statistics/hypothesis/mean.py:    def test(
+emidaf_core/statistics/hypothesis/mean.py:    def test(
+emidaf_core/statistics/hypothesis/mean.py:def one_sample_t_test(
+emidaf_core/statistics/hypothesis/mean.py:def independent_t_test(
+emidaf_core/statistics/hypothesis/mean.py:def welch_t_test(
+emidaf_core/statistics/hypothesis/mean.py:def paired_t_test(
+emidaf_core/statistics/hypothesis/result.py:    def __post_init__(self):
+emidaf_core/statistics/hypothesis/result.py:    def significant(self):
+emidaf_core/statistics/hypothesis/result.py:    def to_dict(self):
+emidaf_core/statistics/hypothesis/result.py:    def summary(self):
+emidaf_core/statistics/hypothesis/result.py:    def __repr__(self):
+emidaf_core/statistics/hypothesis/normality.py:    def test(self, data):
+emidaf_core/statistics/hypothesis/normality.py:    def test(self, data):
+emidaf_core/statistics/hypothesis/normality.py:    def test(self, data):
+emidaf_core/statistics/hypothesis/normality.py:def shapiro_test(
+emidaf_core/statistics/hypothesis/normality.py:def normality_test(
+emidaf_core/statistics/hypothesis/normality.py:def anderson_test(
+emidaf_core/statistics/hypothesis/missing_data.py:    def compute(
+emidaf_core/statistics/hypothesis/missing_data.py:    def compute(
+emidaf_core/statistics/hypothesis/missing_data.py:    def compute(
+emidaf_core/statistics/hypothesis/missing_data.py:    def compute(
+emidaf_core/statistics/hypothesis/missing_data.py:    def compute(
+emidaf_core/statistics/hypothesis/non_parametric.py:    def compute(
+emidaf_core/statistics/hypothesis/non_parametric.py:    def compute(
+emidaf_core/statistics/hypothesis/non_parametric.py:    def compute(
+emidaf_core/statistics/hypothesis/non_parametric.py:    def compute(
+emidaf_core/statistics/hypothesis/non_parametric.py:    def compute(
+emidaf_core/statistics/hypothesis/non_parametric.py:    def compute(
+emidaf_core/statistics/hypothesis/non_parametric.py:    def compute(
+emidaf_core/statistics/hypothesis/base.py:    def __init__(
+emidaf_core/statistics/hypothesis/base.py:    def test(
+emidaf_core/statistics/hypothesis/base.py:    def _create_result(
+emidaf_core/statistics/hypothesis/base.py:    def significant(self):
+emidaf_core/statistics/hypothesis/base.py:    def p_value(self):
+emidaf_core/statistics/hypothesis/base.py:    def statistic(self):
+emidaf_core/statistics/hypothesis/base.py:    def summary(self):
+emidaf_core/statistics/hypothesis/base.py:    def to_dict(self):
+emidaf_core/statistics/descriptive/validator.py:    def series(
+emidaf_core/statistics/descriptive/validator.py:    def dataframe(
+emidaf_core/statistics/descriptive/validator.py:    def numeric_series(
+emidaf_core/statistics/descriptive/validator.py:    def is_empty(
+emidaf_core/statistics/descriptive/validator.py:    def has_missing(
+emidaf_core/statistics/descriptive/validator.py:    def has_infinite(
+emidaf_core/statistics/descriptive/validator.py:    def has_variance(
+emidaf_core/statistics/descriptive/validator.py:    def information(
+emidaf_core/statistics/descriptive/validator.py:    def require_non_empty(
+emidaf_core/statistics/descriptive/validator.py:    def require_variance(
+emidaf_core/statistics/descriptive/validator.py:    def require_numeric(
+emidaf_core/statistics/descriptive/frequency.py:    def compute(cls, values):
+emidaf_core/statistics/descriptive/frequency.py:    def compute(cls, values):
+emidaf_core/statistics/descriptive/frequency.py:    def compute(cls, values):
+emidaf_core/statistics/descriptive/frequency.py:    def compute(cls, values):
+emidaf_core/statistics/descriptive/frequency.py:    def compute(cls, values):
+emidaf_core/statistics/descriptive/frequency.py:    def compute(cls, values):
+emidaf_core/statistics/descriptive/frequency.py:    def compute(cls, values):
+emidaf_core/statistics/descriptive/frequency.py:    def compute(
+emidaf_core/statistics/descriptive/frequency.py:    def compute(
+emidaf_core/statistics/descriptive/frequency.py:    def compute(values):
+emidaf_core/statistics/descriptive/weighted.py:    def compute(
+emidaf_core/statistics/descriptive/weighted.py:    def compute(
+emidaf_core/statistics/descriptive/weighted.py:    def compute(
+emidaf_core/statistics/descriptive/weighted.py:    def compute(
+emidaf_core/statistics/descriptive/weighted.py:    def compute(
+emidaf_core/statistics/descriptive/weighted.py:    def __init__(
+emidaf_core/statistics/descriptive/weighted.py:    def compute(
+emidaf_core/statistics/descriptive/weighted.py:    def __init__(
+emidaf_core/statistics/descriptive/weighted.py:    def __init__(
+emidaf_core/statistics/descriptive/weighted.py:    def compute(
+emidaf_core/statistics/descriptive/weighted.py:    def compute(
+emidaf_core/statistics/descriptive/weighted.py:    def all(
+emidaf_core/statistics/descriptive/distribution.py:    def compute(cls, values):
+emidaf_core/statistics/descriptive/distribution.py:    def compute(cls, values):
+emidaf_core/statistics/descriptive/distribution.py:    def compute(cls, values):
+emidaf_core/statistics/descriptive/distribution.py:    def compute(cls, values):
+emidaf_core/statistics/descriptive/distribution.py:    def compute(cls, values):
+emidaf_core/statistics/descriptive/distribution.py:    def compute(cls, values):
+emidaf_core/statistics/descriptive/distribution.py:    def compute(values):
+emidaf_core/statistics/descriptive/circular.py:    def __init__(
+emidaf_core/statistics/descriptive/circular.py:    def compute(
+emidaf_core/statistics/descriptive/circular.py:    def __init__(
+emidaf_core/statistics/descriptive/circular.py:    def compute(
+emidaf_core/statistics/descriptive/circular.py:    def __init__(
+emidaf_core/statistics/descriptive/circular.py:    def compute(
+emidaf_core/statistics/descriptive/circular.py:    def compute(
+emidaf_core/statistics/descriptive/circular.py:    def compute(
+emidaf_core/statistics/descriptive/circular.py:    def compute(
+emidaf_core/statistics/descriptive/circular.py:    def compute(
+emidaf_core/statistics/descriptive/circular.py:    def all(
+emidaf_core/statistics/descriptive/location.py:    def compute(cls, values):
+emidaf_core/statistics/descriptive/location.py:    def compute(cls, values):
+emidaf_core/statistics/descriptive/location.py:    def compute(cls, values):
+emidaf_core/statistics/descriptive/location.py:    def compute(cls, values):
+emidaf_core/statistics/descriptive/location.py:    def compute(cls, values):
+emidaf_core/statistics/descriptive/location.py:    def compute(cls, values):
+emidaf_core/statistics/descriptive/location.py:    def compute(cls, values):
+emidaf_core/statistics/descriptive/location.py:    def compute(
+emidaf_core/statistics/descriptive/location.py:    def compute(values):
+emidaf_core/statistics/descriptive/interpretation.py:    def __init__(
+emidaf_core/statistics/descriptive/interpretation.py:    def skewness(
+emidaf_core/statistics/descriptive/interpretation.py:    def kurtosis(
+emidaf_core/statistics/descriptive/interpretation.py:    def coefficient_variation(
+emidaf_core/statistics/descriptive/interpretation.py:    def outliers(
+emidaf_core/statistics/descriptive/interpretation.py:    def conclusion(
+emidaf_core/statistics/descriptive/interpretation.py:    def recommendations(
+emidaf_core/statistics/descriptive/interpretation.py:    def report(
+emidaf_core/statistics/descriptive/interpretation.py:    def interpret(
+emidaf_core/statistics/descriptive/summary.py:    def __init__(
+emidaf_core/statistics/descriptive/summary.py:    def central(
+emidaf_core/statistics/descriptive/summary.py:    def dispersion(
+emidaf_core/statistics/descriptive/summary.py:    def position(
+emidaf_core/statistics/descriptive/summary.py:    def shape(
+emidaf_core/statistics/descriptive/summary.py:    def robust(
+emidaf_core/statistics/descriptive/summary.py:    def compute(
+emidaf_core/statistics/descriptive/summary.py:    def to_dataframe(
+emidaf_core/statistics/descriptive/summary.py:    def to_text(
+emidaf_core/statistics/descriptive/summary.py:    def to_json(
+emidaf_core/statistics/descriptive/summary.py:    def describe(
+emidaf_core/statistics/descriptive/position.py:    def compute(
+emidaf_core/statistics/descriptive/position.py:    def compute(
+emidaf_core/statistics/descriptive/position.py:    def compute(
+emidaf_core/statistics/descriptive/position.py:    def compute(
+emidaf_core/statistics/descriptive/position.py:    def compute(
+emidaf_core/statistics/descriptive/position.py:    def compute(
+emidaf_core/statistics/descriptive/position.py:    def __init__(
+emidaf_core/statistics/descriptive/position.py:    def compute(
+emidaf_core/statistics/descriptive/position.py:    def __init__(
+emidaf_core/statistics/descriptive/position.py:    def compute(
+emidaf_core/statistics/descriptive/position.py:    def compute(
+emidaf_core/statistics/descriptive/position.py:    def all(
+emidaf_core/statistics/descriptive/multivariate.py:    def compute(
+emidaf_core/statistics/descriptive/multivariate.py:    def compute(
+emidaf_core/statistics/descriptive/multivariate.py:    def compute(
+emidaf_core/statistics/descriptive/multivariate.py:    def compute(
+emidaf_core/statistics/descriptive/multivariate.py:    def compute(
+emidaf_core/statistics/descriptive/multivariate.py:    def compute(
+emidaf_core/statistics/descriptive/multivariate.py:    def compute(
+emidaf_core/statistics/descriptive/multivariate.py:    def compute(
+emidaf_core/statistics/descriptive/multivariate.py:    def compute(
+emidaf_core/statistics/descriptive/multivariate.py:    def compute(
+emidaf_core/statistics/descriptive/multivariate.py:    def __init__(
+emidaf_core/statistics/descriptive/multivariate.py:    def compute(
+emidaf_core/statistics/descriptive/multivariate.py:    def compute(
+emidaf_core/statistics/descriptive/multivariate.py:    def compute(
+emidaf_core/statistics/descriptive/multivariate.py:    def get(
+emidaf_core/statistics/descriptive/shape.py:    def __init__(
+emidaf_core/statistics/descriptive/shape.py:    def compute(
+emidaf_core/statistics/descriptive/shape.py:    def __init__(
+emidaf_core/statistics/descriptive/shape.py:    def compute(
+emidaf_core/statistics/descriptive/shape.py:    def compute(
+emidaf_core/statistics/descriptive/shape.py:    def compute(
+emidaf_core/statistics/descriptive/shape.py:    def compute(
+emidaf_core/statistics/descriptive/shape.py:    def compute(
+emidaf_core/statistics/descriptive/shape.py:    def compute(
+emidaf_core/statistics/descriptive/shape.py:    def all(
+emidaf_core/statistics/descriptive/robust.py:    def compute(
+emidaf_core/statistics/descriptive/robust.py:    def __init__(
+emidaf_core/statistics/descriptive/robust.py:    def compute(
+emidaf_core/statistics/descriptive/robust.py:    def __init__(
+emidaf_core/statistics/descriptive/robust.py:    def compute(
+emidaf_core/statistics/descriptive/robust.py:    def __init__(
+emidaf_core/statistics/descriptive/robust.py:    def compute(
+emidaf_core/statistics/descriptive/robust.py:    def compute(
+emidaf_core/statistics/descriptive/robust.py:    def compute(
+emidaf_core/statistics/descriptive/robust.py:    def compute(
+emidaf_core/statistics/descriptive/robust.py:    def compute(
+emidaf_core/statistics/descriptive/robust.py:    def compute(
+emidaf_core/statistics/descriptive/robust.py:    def compute(
+emidaf_core/statistics/descriptive/robust.py:    def all(
+emidaf_core/statistics/descriptive/dispersion.py:    def __init__(
+emidaf_core/statistics/descriptive/dispersion.py:    def compute(
+emidaf_core/statistics/descriptive/dispersion.py:    def __init__(
+emidaf_core/statistics/descriptive/dispersion.py:    def compute(
+emidaf_core/statistics/descriptive/dispersion.py:    def compute(
+emidaf_core/statistics/descriptive/dispersion.py:    def compute(
+emidaf_core/statistics/descriptive/dispersion.py:    def compute(
+emidaf_core/statistics/descriptive/dispersion.py:    def compute(
+emidaf_core/statistics/descriptive/dispersion.py:    def compute(
+emidaf_core/statistics/descriptive/dispersion.py:    def compute(
+emidaf_core/statistics/descriptive/dispersion.py:    def compute(
+emidaf_core/statistics/descriptive/dispersion.py:    def all(
+emidaf_core/statistics/descriptive/report.py:    def __init__(
+emidaf_core/statistics/descriptive/report.py:    def to_dict(
+emidaf_core/statistics/descriptive/report.py:    def to_dataframe(
+emidaf_core/statistics/descriptive/report.py:    def to_dataframe(
+emidaf_core/statistics/descriptive/report.py:    def to_markdown(
+emidaf_core/statistics/descriptive/report.py:    def to_html(
+emidaf_core/statistics/descriptive/report.py:    def to_latex(
+emidaf_core/statistics/descriptive/report.py:    def to_text(
+emidaf_core/statistics/descriptive/report.py:    def generate(
+emidaf_core/statistics/descriptive/profiling.py:    def __init__(
+emidaf_core/statistics/descriptive/profiling.py:    def general_information(
+emidaf_core/statistics/descriptive/profiling.py:    def variable_types(
+emidaf_core/statistics/descriptive/profiling.py:    def missing_values(
+emidaf_core/statistics/descriptive/profiling.py:    def numeric_profile(
+emidaf_core/statistics/descriptive/profiling.py:    def categorical_profile(
+emidaf_core/statistics/descriptive/profiling.py:    def correlation(
+emidaf_core/statistics/descriptive/profiling.py:    def report(
+emidaf_core/statistics/descriptive/profiling.py:    def profile(
+emidaf_core/statistics/descriptive/summary_statistics.py:    def compute(values) -> dict:
+emidaf_core/statistics/preprocessing/scaling.py:    def __init__(
+emidaf_core/statistics/preprocessing/scaling.py:    def _get_columns(self, X):
+emidaf_core/statistics/preprocessing/scaling.py:    def fit(self, X, y=None):
+emidaf_core/statistics/preprocessing/scaling.py:    def transform(self, X):
+emidaf_core/statistics/preprocessing/scaling.py:    def fit_transform(self, X, y=None):
+emidaf_core/statistics/preprocessing/scaling.py:    def __init__(
+emidaf_core/statistics/preprocessing/scaling.py:    def _get_columns(self, X):
+emidaf_core/statistics/preprocessing/scaling.py:    def fit(self, X, y=None):
+emidaf_core/statistics/preprocessing/scaling.py:    def transform(self, X):
+emidaf_core/statistics/preprocessing/scaling.py:    def fit_transform(self, X, y=None):
+emidaf_core/statistics/preprocessing/scaling.py:    def __init__(
+emidaf_core/statistics/preprocessing/scaling.py:    def _get_columns(self, X):
+emidaf_core/statistics/preprocessing/scaling.py:    def fit(self, X, y=None):
+emidaf_core/statistics/preprocessing/scaling.py:    def transform(self, X):
+emidaf_core/statistics/preprocessing/scaling.py:    def fit_transform(self, X, y=None):
+emidaf_core/statistics/preprocessing/scaling.py:    def __init__(
+emidaf_core/statistics/preprocessing/scaling.py:    def _get_columns(self, X):
+emidaf_core/statistics/preprocessing/scaling.py:    def fit(self, X, y=None):
+emidaf_core/statistics/preprocessing/scaling.py:    def transform(self, X):
+emidaf_core/statistics/preprocessing/scaling.py:    def fit_transform(self, X, y=None):
+emidaf_core/statistics/preprocessing/scaling.py:    def __init__(
+emidaf_core/statistics/preprocessing/scaling.py:    def _get_columns(self, X):
+emidaf_core/statistics/preprocessing/scaling.py:    def fit(self, X, y=None):
+emidaf_core/statistics/preprocessing/scaling.py:    def transform(self, X):
+emidaf_core/statistics/preprocessing/scaling.py:    def fit_transform(self, X, y=None):
+emidaf_core/statistics/preprocessing/scaling.py:def standardize(
+emidaf_core/statistics/preprocessing/scaling.py:def minmax_scale(
+emidaf_core/statistics/preprocessing/scaling.py:def robust_scale(
+emidaf_core/statistics/preprocessing/scaling.py:def maxabs_scale(
+emidaf_core/statistics/preprocessing/scaling.py:def normalize(
+emidaf_core/statistics/preprocessing/transformation.py:    def __init__(
+emidaf_core/statistics/preprocessing/transformation.py:    def _get_columns(self, X):
+emidaf_core/statistics/preprocessing/transformation.py:    def fit(
+emidaf_core/statistics/preprocessing/transformation.py:    def transform(
+emidaf_core/statistics/preprocessing/transformation.py:    def fit_transform(
+emidaf_core/statistics/preprocessing/transformation.py:    def _transform_series(
+emidaf_core/statistics/preprocessing/transformation.py:    def __init__(
+emidaf_core/statistics/preprocessing/transformation.py:    def __init__(
+emidaf_core/statistics/preprocessing/transformation.py:    def __init__(
+emidaf_core/statistics/preprocessing/transformation.py:    def __init__(
+emidaf_core/statistics/preprocessing/transformation.py:    def __init__(
+emidaf_core/statistics/preprocessing/transformation.py:    def __init__(
+emidaf_core/statistics/preprocessing/transformation.py:def log_transform(
+emidaf_core/statistics/preprocessing/transformation.py:def log10_transform(
+emidaf_core/statistics/preprocessing/transformation.py:def sqrt_transform(
+emidaf_core/statistics/preprocessing/transformation.py:def square_transform(
+emidaf_core/statistics/preprocessing/transformation.py:def cube_transform(
+emidaf_core/statistics/preprocessing/transformation.py:def reciprocal_transform(
+emidaf_core/statistics/preprocessing/transformation.py:def rank_transform(
+emidaf_core/statistics/preprocessing/transformation.py:def power_transform(
+emidaf_core/statistics/preprocessing/transformation.py:def clip_values(
+emidaf_core/statistics/preprocessing/transformation.py:def winsorize(
+emidaf_core/statistics/preprocessing/feature_engineering.py:    def __init__(self):
+emidaf_core/statistics/preprocessing/feature_engineering.py:    def fit(self, X, y=None):
+emidaf_core/statistics/preprocessing/feature_engineering.py:    def transform(self, X):
+emidaf_core/statistics/preprocessing/feature_engineering.py:    def fit_transform(self, X, y=None):
+emidaf_core/statistics/preprocessing/feature_engineering.py:    def __init__(
+emidaf_core/statistics/preprocessing/feature_engineering.py:    def fit(self, X, y=None):
+emidaf_core/statistics/preprocessing/feature_engineering.py:    def transform(self, X):
+emidaf_core/statistics/preprocessing/feature_engineering.py:    def fit_transform(self, X, y=None):
+emidaf_core/statistics/preprocessing/feature_engineering.py:    def __init__(
+emidaf_core/statistics/preprocessing/feature_engineering.py:    def fit(self, X, y=None):
+emidaf_core/statistics/preprocessing/feature_engineering.py:    def transform(self, X):
+emidaf_core/statistics/preprocessing/feature_engineering.py:    def fit_transform(self, X, y=None):
+emidaf_core/statistics/preprocessing/feature_engineering.py:    def __init__(
+emidaf_core/statistics/preprocessing/feature_engineering.py:    def fit(self, X, y=None):
+emidaf_core/statistics/preprocessing/feature_engineering.py:    def transform(self, X):
+emidaf_core/statistics/preprocessing/feature_engineering.py:    def fit_transform(self, X, y=None):
+emidaf_core/statistics/preprocessing/feature_engineering.py:    def __init__(
+emidaf_core/statistics/preprocessing/feature_engineering.py:    def fit(self, X, y=None):
+emidaf_core/statistics/preprocessing/feature_engineering.py:    def transform(self, X):
+emidaf_core/statistics/preprocessing/feature_engineering.py:    def fit_transform(self, X, y=None):
+emidaf_core/statistics/preprocessing/feature_engineering.py:def create_interaction(
+emidaf_core/statistics/preprocessing/feature_engineering.py:def create_ratio(
+emidaf_core/statistics/preprocessing/feature_engineering.py:def create_polynomial_features(
+emidaf_core/statistics/preprocessing/feature_engineering.py:def create_aggregations(
+emidaf_core/statistics/preprocessing/feature_engineering.py:def create_bmi(
+emidaf_core/statistics/preprocessing/feature_engineering.py:def create_age_group(
+emidaf_core/statistics/preprocessing/feature_engineering.py:def create_date_features(
+emidaf_core/statistics/preprocessing/feature_engineering.py:def create_log_features(
+emidaf_core/statistics/preprocessing/feature_engineering.py:def create_sqrt_features(
+emidaf_core/statistics/preprocessing/feature_engineering.py:def create_polynomial_column(
+emidaf_core/statistics/preprocessing/feature_engineering.py:def create_missing_indicators(
+emidaf_core/statistics/preprocessing/duplicates.py:    def __init__(
+emidaf_core/statistics/preprocessing/duplicates.py:    def fit(
+emidaf_core/statistics/preprocessing/duplicates.py:    def transform(
+emidaf_core/statistics/preprocessing/duplicates.py:    def fit_transform(
+emidaf_core/statistics/preprocessing/duplicates.py:    def count(
+emidaf_core/statistics/preprocessing/duplicates.py:    def percentage(
+emidaf_core/statistics/preprocessing/duplicates.py:    def report(
+emidaf_core/statistics/preprocessing/duplicates.py:    def __init__(
+emidaf_core/statistics/preprocessing/duplicates.py:    def mask(
+emidaf_core/statistics/preprocessing/duplicates.py:    def count(
+emidaf_core/statistics/preprocessing/duplicates.py:    def groups(
+emidaf_core/statistics/preprocessing/duplicates.py:    def report(
+emidaf_core/statistics/preprocessing/duplicates.py:def duplicate_mask(
+emidaf_core/statistics/preprocessing/duplicates.py:def duplicate_count(
+emidaf_core/statistics/preprocessing/duplicates.py:def duplicate_percentage(
+emidaf_core/statistics/preprocessing/duplicates.py:def remove_duplicates(
+emidaf_core/statistics/preprocessing/duplicates.py:def duplicate_summary(
+emidaf_core/statistics/preprocessing/duplicates.py:def find_duplicate_groups(
+emidaf_core/statistics/preprocessing/duplicates.py:def remove_duplicate_columns(
+emidaf_core/statistics/preprocessing/feature_selection.py:    def __init__(
+emidaf_core/statistics/preprocessing/feature_selection.py:    def fit(
+emidaf_core/statistics/preprocessing/feature_selection.py:    def transform(
+emidaf_core/statistics/preprocessing/feature_selection.py:    def fit_transform(
+emidaf_core/statistics/preprocessing/feature_selection.py:    def get_support(self):
+emidaf_core/statistics/preprocessing/feature_selection.py:    def __init__(
+emidaf_core/statistics/preprocessing/feature_selection.py:    def fit(
+emidaf_core/statistics/preprocessing/feature_selection.py:    def transform(
+emidaf_core/statistics/preprocessing/feature_selection.py:    def fit_transform(
+emidaf_core/statistics/preprocessing/feature_selection.py:    def get_support(self):
+emidaf_core/statistics/preprocessing/feature_selection.py:    def __init__(
+emidaf_core/statistics/preprocessing/feature_selection.py:    def fit(
+emidaf_core/statistics/preprocessing/feature_selection.py:    def transform(
+emidaf_core/statistics/preprocessing/feature_selection.py:    def fit_transform(
+emidaf_core/statistics/preprocessing/feature_selection.py:    def get_support(self):
+emidaf_core/statistics/preprocessing/feature_selection.py:    def get_removed(self):
+emidaf_core/statistics/preprocessing/feature_selection.py:    def __init__(
+emidaf_core/statistics/preprocessing/feature_selection.py:    def fit(
+emidaf_core/statistics/preprocessing/feature_selection.py:    def transform(
+emidaf_core/statistics/preprocessing/feature_selection.py:    def fit_transform(
+emidaf_core/statistics/preprocessing/feature_selection.py:    def scores(self):
+emidaf_core/statistics/preprocessing/feature_selection.py:def variance_threshold(
+emidaf_core/statistics/preprocessing/feature_selection.py:def remove_correlated_features(
+emidaf_core/statistics/preprocessing/feature_selection.py:def correlation_matrix(
+emidaf_core/statistics/preprocessing/feature_selection.py:def highly_correlated_features(
+emidaf_core/statistics/preprocessing/feature_selection.py:def select_by_correlation(
+emidaf_core/statistics/preprocessing/missing.py:    def __init__(
+emidaf_core/statistics/preprocessing/missing.py:    def _get_columns(
+emidaf_core/statistics/preprocessing/missing.py:    def fit(
+emidaf_core/statistics/preprocessing/missing.py:    def transform(
+emidaf_core/statistics/preprocessing/missing.py:    def fit_transform(
+emidaf_core/statistics/preprocessing/missing.py:    def missing_count(
+emidaf_core/statistics/preprocessing/missing.py:    def missing_percentage(
+emidaf_core/statistics/preprocessing/missing.py:    def report(
+emidaf_core/statistics/preprocessing/missing.py:    def __init__(
+emidaf_core/statistics/preprocessing/missing.py:    def fit(
+emidaf_core/statistics/preprocessing/missing.py:    def transform(
+emidaf_core/statistics/preprocessing/missing.py:    def fit_transform(
+emidaf_core/statistics/preprocessing/missing.py:def missing_summary(
+emidaf_core/statistics/preprocessing/missing.py:def missing_columns(
+emidaf_core/statistics/preprocessing/missing.py:def complete_columns(
+emidaf_core/statistics/preprocessing/missing.py:def complete_cases(
+emidaf_core/statistics/preprocessing/missing.py:def remove_missing_rows(
+emidaf_core/statistics/preprocessing/missing.py:def remove_missing_columns(
+emidaf_core/statistics/preprocessing/missing.py:def fill_constant(
+emidaf_core/statistics/preprocessing/missing.py:def fill_mean(
+emidaf_core/statistics/preprocessing/missing.py:def fill_median(
+emidaf_core/statistics/preprocessing/missing.py:def fill_mode(
+emidaf_core/statistics/preprocessing/encoding.py:    def __init__(
+emidaf_core/statistics/preprocessing/encoding.py:    def _get_columns(self, X):
+emidaf_core/statistics/preprocessing/encoding.py:    def fit(self, X, y=None):
+emidaf_core/statistics/preprocessing/encoding.py:    def transform(self, X):
+emidaf_core/statistics/preprocessing/encoding.py:    def fit_transform(self, X, y=None):
+emidaf_core/statistics/preprocessing/encoding.py:    def get_feature_names_out(self):
+emidaf_core/statistics/preprocessing/encoding.py:    def __init__(
+emidaf_core/statistics/preprocessing/encoding.py:    def _get_columns(self, X):
+emidaf_core/statistics/preprocessing/encoding.py:    def fit(self, X, y=None):
+emidaf_core/statistics/preprocessing/encoding.py:    def transform(self, X):
+emidaf_core/statistics/preprocessing/encoding.py:    def fit_transform(self, X, y=None):
+emidaf_core/statistics/preprocessing/encoding.py:    def __init__(
+emidaf_core/statistics/preprocessing/encoding.py:    def fit(self, X, y=None):
+emidaf_core/statistics/preprocessing/encoding.py:    def transform(self, X):
+emidaf_core/statistics/preprocessing/encoding.py:    def fit_transform(self, X, y=None):
+emidaf_core/statistics/preprocessing/encoding.py:    def __init__(
+emidaf_core/statistics/preprocessing/encoding.py:    def fit(self, X, y=None):
+emidaf_core/statistics/preprocessing/encoding.py:    def transform(self, X):
+emidaf_core/statistics/preprocessing/encoding.py:    def fit_transform(self, X, y=None):
+emidaf_core/statistics/preprocessing/encoding.py:def one_hot_encode(
+emidaf_core/statistics/preprocessing/encoding.py:def ordinal_encode(
+emidaf_core/statistics/preprocessing/encoding.py:def frequency_encode(
+emidaf_core/statistics/preprocessing/encoding.py:def target_encode(
+emidaf_core/statistics/preprocessing/encoding.py:def binary_encode(
+emidaf_core/statistics/preprocessing/splitting.py:    def __init__(
+emidaf_core/statistics/preprocessing/splitting.py:    def fit(self, X, y=None):
+emidaf_core/statistics/preprocessing/splitting.py:    def split(self, X, y=None):
+emidaf_core/statistics/preprocessing/splitting.py:    def fit_split(self, X, y=None):
+emidaf_core/statistics/preprocessing/splitting.py:    def __init__(
+emidaf_core/statistics/preprocessing/splitting.py:    def split(self, X, y):
+emidaf_core/statistics/preprocessing/splitting.py:    def __init__(
+emidaf_core/statistics/preprocessing/splitting.py:    def split(self, X, y=None):
+emidaf_core/statistics/preprocessing/splitting.py:    def get_n_splits(self):
+emidaf_core/statistics/preprocessing/splitting.py:    def __init__(
+emidaf_core/statistics/preprocessing/splitting.py:    def split(self, X, y):
+emidaf_core/statistics/preprocessing/splitting.py:    def get_n_splits(self):
+emidaf_core/statistics/preprocessing/splitting.py:    def __init__(
+emidaf_core/statistics/preprocessing/splitting.py:    def split(self, X, y=None):
+emidaf_core/statistics/preprocessing/splitting.py:    def get_n_splits(self):
+emidaf_core/statistics/preprocessing/splitting.py:def train_test_split_data(
+emidaf_core/statistics/preprocessing/splitting.py:def split_dataframe(
+emidaf_core/statistics/preprocessing/splitting.py:def kfold_split(
+emidaf_core/statistics/preprocessing/splitting.py:def stratified_kfold_split(
+emidaf_core/statistics/preprocessing/splitting.py:def time_series_split(
+emidaf_core/statistics/preprocessing/splitting.py:def split_train_validation_test(
+emidaf_core/statistics/preprocessing/splitting.py:def chronological_split(
+emidaf_core/statistics/preprocessing/splitting.py:def get_split_sizes(
+emidaf_core/statistics/preprocessing/balancing.py:    def __init__(
+emidaf_core/statistics/preprocessing/balancing.py:    def fit(
+emidaf_core/statistics/preprocessing/balancing.py:    def fit_resample(
+emidaf_core/statistics/preprocessing/balancing.py:    def __init__(
+emidaf_core/statistics/preprocessing/balancing.py:    def fit(
+emidaf_core/statistics/preprocessing/balancing.py:    def fit_resample(
+emidaf_core/statistics/preprocessing/balancing.py:    def __init__(
+emidaf_core/statistics/preprocessing/balancing.py:    def fit_resample(
+emidaf_core/statistics/preprocessing/balancing.py:def class_distribution(
+emidaf_core/statistics/preprocessing/balancing.py:def imbalance_ratio(
+emidaf_core/statistics/preprocessing/balancing.py:def is_imbalanced(
+emidaf_core/statistics/preprocessing/balancing.py:def undersample(
+emidaf_core/statistics/preprocessing/balancing.py:def oversample(
+emidaf_core/statistics/preprocessing/balancing.py:def balance_classes(
+emidaf_core/statistics/preprocessing/balancing.py:def balancing_report(
+emidaf_core/statistics/preprocessing/discretization.py:    def __init__(
+emidaf_core/statistics/preprocessing/discretization.py:    def _get_columns(self, X):
+emidaf_core/statistics/preprocessing/discretization.py:    def fit(self, X, y=None):
+emidaf_core/statistics/preprocessing/discretization.py:    def transform(self, X):
+emidaf_core/statistics/preprocessing/discretization.py:    def fit_transform(self, X, y=None):
+emidaf_core/statistics/preprocessing/discretization.py:    def __init__(
+emidaf_core/statistics/preprocessing/discretization.py:    def fit(self, X, y=None):
+emidaf_core/statistics/preprocessing/discretization.py:    def transform(self, X):
+emidaf_core/statistics/preprocessing/discretization.py:    def fit_transform(self, X, y=None):
+emidaf_core/statistics/preprocessing/discretization.py:    def __init__(
+emidaf_core/statistics/preprocessing/discretization.py:    def fit(self, X, y=None):
+emidaf_core/statistics/preprocessing/discretization.py:    def transform(self, X):
+emidaf_core/statistics/preprocessing/discretization.py:    def fit_transform(self, X, y=None):
+emidaf_core/statistics/preprocessing/discretization.py:    def __init__(
+emidaf_core/statistics/preprocessing/discretization.py:    def fit(self, X, y=None):
+emidaf_core/statistics/preprocessing/discretization.py:    def transform(self, X):
+emidaf_core/statistics/preprocessing/discretization.py:    def fit_transform(self, X, y=None):
+emidaf_core/statistics/preprocessing/discretization.py:def equal_width_bins(
+emidaf_core/statistics/preprocessing/discretization.py:def quantile_bins(
+emidaf_core/statistics/preprocessing/discretization.py:def custom_bins(
+emidaf_core/statistics/preprocessing/discretization.py:def bin_numeric_columns(
+emidaf_core/statistics/preprocessing/inspection.py:    def __init__(
+emidaf_core/statistics/preprocessing/inspection.py:    def fit(
+emidaf_core/statistics/preprocessing/inspection.py:    def transform(
+emidaf_core/statistics/preprocessing/inspection.py:    def shape(
+emidaf_core/statistics/preprocessing/inspection.py:    def columns(
+emidaf_core/statistics/preprocessing/inspection.py:    def dtypes(
+emidaf_core/statistics/preprocessing/inspection.py:    def numeric_columns(
+emidaf_core/statistics/preprocessing/inspection.py:    def categorical_columns(
+emidaf_core/statistics/preprocessing/inspection.py:    def datetime_columns(
+emidaf_core/statistics/preprocessing/inspection.py:    def missing(
+emidaf_core/statistics/preprocessing/inspection.py:    def duplicates(
+emidaf_core/statistics/preprocessing/inspection.py:    def unique_values(
+emidaf_core/statistics/preprocessing/inspection.py:    def describe(
+emidaf_core/statistics/preprocessing/inspection.py:    def numeric_summary(
+emidaf_core/statistics/preprocessing/inspection.py:    def categorical_summary(
+emidaf_core/statistics/preprocessing/inspection.py:    def overview(
+emidaf_core/statistics/preprocessing/inspection.py:    def summary(
+emidaf_core/statistics/preprocessing/interpretation.py:def interpret_missing_percentage(
+emidaf_core/statistics/preprocessing/interpretation.py:def interpret_skewness(
+emidaf_core/statistics/preprocessing/interpretation.py:def interpret_kurtosis(
+emidaf_core/statistics/preprocessing/interpretation.py:def interpret_coefficient_variation(
+emidaf_core/statistics/preprocessing/interpretation.py:def interpret_vif(
+emidaf_core/statistics/preprocessing/interpretation.py:def interpret_correlation(
+emidaf_core/statistics/preprocessing/interpretation.py:def interpret_imbalance_ratio(
+emidaf_core/statistics/preprocessing/interpretation.py:def interpret_numeric_variable(
+emidaf_core/statistics/preprocessing/interpretation.py:def interpret_vif_table(
+emidaf_core/statistics/preprocessing/interpretation.py:def interpret_missing_table(
+emidaf_core/statistics/preprocessing/summary.py:def missing_summary(X):
+emidaf_core/statistics/preprocessing/summary.py:def duplicate_summary(X):
+emidaf_core/statistics/preprocessing/summary.py:def categorical_summary(X):
+emidaf_core/statistics/preprocessing/summary.py:def numeric_summary(X):
+emidaf_core/statistics/preprocessing/summary.py:def unique_summary(X):
+emidaf_core/statistics/preprocessing/summary.py:def constant_columns(X):
+emidaf_core/statistics/preprocessing/summary.py:def high_cardinality_columns(
+emidaf_core/statistics/preprocessing/summary.py:def data_types_summary(X):
+emidaf_core/statistics/preprocessing/summary.py:def memory_usage_summary(X):
+emidaf_core/statistics/preprocessing/summary.py:def shape_summary(X):
+emidaf_core/statistics/preprocessing/summary.py:def complete_cases_summary(X):
+emidaf_core/statistics/preprocessing/summary.py:def preprocessing_summary(X):
+emidaf_core/statistics/preprocessing/summary.py:    def __init__(self):
+emidaf_core/statistics/preprocessing/summary.py:    def fit(
+emidaf_core/statistics/preprocessing/summary.py:    def transform(
+emidaf_core/statistics/preprocessing/summary.py:    def fit_transform(
+emidaf_core/statistics/preprocessing/summary.py:    def get_summary(self):
+emidaf_core/statistics/preprocessing/summary.py:def print_preprocessing_summary(
+emidaf_core/statistics/preprocessing/outliers.py:    def __init__(
+emidaf_core/statistics/preprocessing/outliers.py:    def _get_columns(self, X):
+emidaf_core/statistics/preprocessing/outliers.py:    def fit(
+emidaf_core/statistics/preprocessing/outliers.py:    def transform(
+emidaf_core/statistics/preprocessing/outliers.py:    def fit_transform(
+emidaf_core/statistics/preprocessing/outliers.py:    def mask(
+emidaf_core/statistics/preprocessing/outliers.py:    def count(
+emidaf_core/statistics/preprocessing/outliers.py:    def percentage(
+emidaf_core/statistics/preprocessing/outliers.py:    def report(
+emidaf_core/statistics/preprocessing/outliers.py:    def __init__(
+emidaf_core/statistics/preprocessing/outliers.py:    def __init__(
+emidaf_core/statistics/preprocessing/outliers.py:    def __init__(
+emidaf_core/statistics/preprocessing/outliers.py:def iqr_bounds(
+emidaf_core/statistics/preprocessing/outliers.py:def iqr_mask(
+emidaf_core/statistics/preprocessing/outliers.py:def zscore(
+emidaf_core/statistics/preprocessing/outliers.py:def zscore_mask(
+emidaf_core/statistics/preprocessing/outliers.py:def mad_score(
+emidaf_core/statistics/preprocessing/outliers.py:def mad_mask(
+emidaf_core/statistics/preprocessing/outliers.py:def outlier_mask(
+emidaf_core/statistics/preprocessing/outliers.py:def remove_outliers(
+emidaf_core/statistics/preprocessing/outliers.py:def outlier_summary(
+emidaf_core/statistics/preprocessing/outliers.py:def winsorize(
+emidaf_core/statistics/preprocessing/utils.py:def get_numeric_columns(X):
+emidaf_core/statistics/preprocessing/utils.py:def get_categorical_columns(X):
+emidaf_core/statistics/preprocessing/utils.py:def copy_data(X):
+emidaf_core/statistics/preprocessing/utils.py:def ensure_dataframe(X):
+emidaf_core/statistics/preprocessing/utils.py:def replace_inf_with_nan(X):
+emidaf_core/statistics/preprocessing/utils.py:def remove_empty_columns(X):
+emidaf_core/statistics/preprocessing/utils.py:def remove_empty_rows(X):
+emidaf_core/statistics/preprocessing/utils.py:def normalize_column_names(X):
+emidaf_core/statistics/preprocessing/utils.py:def strip_string_columns(X):
+emidaf_core/statistics/preprocessing/utils.py:def preprocessing_copy(X):
+emidaf_core/statistics/preprocessing/pipeline.py:    def __init__(
+emidaf_core/statistics/preprocessing/pipeline.py:    def add_step(
+emidaf_core/statistics/preprocessing/pipeline.py:    def remove_step(
+emidaf_core/statistics/preprocessing/pipeline.py:    def step_names(self):
+emidaf_core/statistics/preprocessing/pipeline.py:    def fit(
+emidaf_core/statistics/preprocessing/pipeline.py:    def transform(
+emidaf_core/statistics/preprocessing/pipeline.py:    def fit_transform(
+emidaf_core/statistics/preprocessing/pipeline.py:    def _extract_output(
+emidaf_core/statistics/preprocessing/pipeline.py:    def summary(self):
+emidaf_core/statistics/preprocessing/pipeline.py:    def clone(self):
+emidaf_core/statistics/preprocessing/pipeline.py:    def reset(self):
+emidaf_core/statistics/preprocessing/pipeline.py:    def __init__(
+emidaf_core/statistics/preprocessing/pipeline.py:    def add_conditional_step(
+emidaf_core/statistics/preprocessing/pipeline.py:    def fit(
+emidaf_core/statistics/preprocessing/pipeline.py:def make_pipeline(
+emidaf_core/statistics/preprocessing/multicollinearity.py:def correlation_matrix(
+emidaf_core/statistics/preprocessing/multicollinearity.py:def highly_correlated_pairs(
+emidaf_core/statistics/preprocessing/multicollinearity.py:def calculate_vif(
+emidaf_core/statistics/preprocessing/multicollinearity.py:    def __init__(
+emidaf_core/statistics/preprocessing/multicollinearity.py:    def fit(
+emidaf_core/statistics/preprocessing/multicollinearity.py:    def transform(
+emidaf_core/statistics/preprocessing/multicollinearity.py:    def fit_transform(
+emidaf_core/statistics/preprocessing/multicollinearity.py:    def get_support(self):
+emidaf_core/statistics/preprocessing/multicollinearity.py:    def get_removed(self):
+emidaf_core/statistics/preprocessing/multicollinearity.py:    def get_vif(self):
+emidaf_core/statistics/preprocessing/multicollinearity.py:def remove_multicollinearity(
+emidaf_core/statistics/preprocessing/multicollinearity.py:def condition_number(
+emidaf_core/statistics/preprocessing/multicollinearity.py:def multicollinearity_report(
+emidaf_core/statistics/preprocessing/base.py:    def __init__(
+emidaf_core/statistics/preprocessing/base.py:    def __repr__(self):
+emidaf_core/statistics/preprocessing/base.py:    def __init__(
+emidaf_core/statistics/preprocessing/base.py:    def fit(
+emidaf_core/statistics/preprocessing/base.py:    def transform(
+emidaf_core/statistics/preprocessing/base.py:    def fit_transform(
+emidaf_core/statistics/preprocessing/base.py:    def _validate_input(
+emidaf_core/statistics/preprocessing/base.py:    def _set_feature_names_in(
+emidaf_core/statistics/preprocessing/base.py:    def _set_feature_names_out(
+emidaf_core/statistics/preprocessing/base.py:    def _mark_fitted(
+emidaf_core/statistics/preprocessing/base.py:    def check_is_fitted(
+emidaf_core/statistics/preprocessing/base.py:    def summary(self):
+emidaf_core/statistics/preprocessing/base.py:    def get_feature_names_out(
+emidaf_core/statistics/preprocessing/base.py:    def reset(
+emidaf_core/statistics/preprocessing/report.py:    def __init__(
+emidaf_core/statistics/preprocessing/report.py:    def fit(
+emidaf_core/statistics/preprocessing/report.py:    def transform(
+emidaf_core/statistics/preprocessing/report.py:    def fit_transform(
+emidaf_core/statistics/preprocessing/report.py:    def get_summary(self):
+emidaf_core/statistics/preprocessing/report.py:    def to_dict(self):
+emidaf_core/statistics/preprocessing/report.py:    def print_report(self):
+emidaf_core/statistics/preprocessing/report.py:    def save_csv(
+emidaf_core/statistics/preprocessing/report.py:    def save_excel(
+emidaf_core/statistics/preprocessing/report.py:def generate_report(
+emidaf_core/statistics/preprocessing/report.py:def report_to_dict(
+emidaf_core/statistics/preprocessing/report.py:def save_missing_report(
+emidaf_core/statistics/preprocessing/report.py:def save_numeric_report(
+emidaf_core/statistics/preprocessing/report.py:def save_categorical_report(
+emidaf_core/statistics/preprocessing/report.py:def save_report_excel(
+emidaf_core/statistics/effect_size/mean_difference.py:    def pooled_sd(
+emidaf_core/statistics/effect_size/mean_difference.py:    def cohen_d(
+emidaf_core/statistics/effect_size/mean_difference.py:    def hedges_g(
+emidaf_core/statistics/effect_size/mean_difference.py:    def glass_delta(
+emidaf_core/statistics/effect_size/mean_difference.py:    def mean_difference(
+emidaf_core/statistics/effect_size/mean_difference.py:    def smd(
+emidaf_core/statistics/effect_size/mean_difference.py:    def cohen_dz(
+emidaf_core/statistics/effect_size/mean_difference.py:    def cohen_dav(
+emidaf_core/statistics/effect_size/mean_difference.py:    def srm(
+emidaf_core/statistics/effect_size/mean_difference.py:    def compute(
+emidaf_core/statistics/effect_size/nonparametric.py:    def rank_biserial(
+emidaf_core/statistics/effect_size/nonparametric.py:    def cliffs_delta(
+emidaf_core/statistics/effect_size/nonparametric.py:    def vargha_delaney(
+emidaf_core/statistics/effect_size/nonparametric.py:    def common_language(
+emidaf_core/statistics/effect_size/nonparametric.py:    def rosenthal_r(
+emidaf_core/statistics/effect_size/nonparametric.py:    def kendall_w(
+emidaf_core/statistics/effect_size/nonparametric.py:    def freeman_theta(
+emidaf_core/statistics/effect_size/nonparametric.py:    def matched_rank_biserial(
+emidaf_core/statistics/effect_size/nonparametric.py:    def rank_eta_squared(
+emidaf_core/statistics/effect_size/nonparametric.py:    def compute(
+emidaf_core/statistics/effect_size/regression.py:    def multiple_r(
+emidaf_core/statistics/effect_size/regression.py:    def r_squared(
+emidaf_core/statistics/effect_size/regression.py:    def adjusted_r_squared(
+emidaf_core/statistics/effect_size/regression.py:    def cohen_f2(
+emidaf_core/statistics/effect_size/regression.py:    def partial_r(
+emidaf_core/statistics/effect_size/regression.py:    def semi_partial_r(
+emidaf_core/statistics/effect_size/regression.py:    def eta_squared(
+emidaf_core/statistics/effect_size/regression.py:    def omega_squared(
+emidaf_core/statistics/effect_size/regression.py:    def cohen_q(
+emidaf_core/statistics/effect_size/regression.py:    def compute(
+emidaf_core/statistics/effect_size/anova.py:    def eta_squared(
+emidaf_core/statistics/effect_size/anova.py:    def partial_eta_squared(
+emidaf_core/statistics/effect_size/anova.py:    def generalized_eta_squared(
+emidaf_core/statistics/effect_size/anova.py:    def omega_squared(
+emidaf_core/statistics/effect_size/anova.py:    def partial_omega_squared(
+emidaf_core/statistics/effect_size/anova.py:    def epsilon_squared(
+emidaf_core/statistics/effect_size/anova.py:    def cohen_f(
+emidaf_core/statistics/effect_size/anova.py:    def cohen_f2(
+emidaf_core/statistics/effect_size/anova.py:    def compute(
+emidaf_core/statistics/effect_size/interpretation.py:    def cohen_d(value):
+emidaf_core/statistics/effect_size/interpretation.py:    def correlation(value):
+emidaf_core/statistics/effect_size/interpretation.py:    def eta_squared(value):
+emidaf_core/statistics/effect_size/interpretation.py:    def omega_squared(value):
+emidaf_core/statistics/effect_size/interpretation.py:    def cohen_h(value):
+emidaf_core/statistics/effect_size/interpretation.py:    def phi(value):
+emidaf_core/statistics/effect_size/interpretation.py:    def cramers_v(value):
+emidaf_core/statistics/effect_size/interpretation.py:    def cliffs_delta(value):
+emidaf_core/statistics/effect_size/interpretation.py:    def odds_ratio(value):
+emidaf_core/statistics/effect_size/interpretation.py:    def cohen_f(value):
+emidaf_core/statistics/effect_size/interpretation.py:    def interpret(result):
+emidaf_core/statistics/effect_size/summary.py:    def __init__(
+emidaf_core/statistics/effect_size/summary.py:    def add(
+emidaf_core/statistics/effect_size/summary.py:    def extend(
+emidaf_core/statistics/effect_size/summary.py:    def n_effects(
+emidaf_core/statistics/effect_size/summary.py:    def values(
+emidaf_core/statistics/effect_size/summary.py:    def magnitudes(
+emidaf_core/statistics/effect_size/summary.py:    def names(
+emidaf_core/statistics/effect_size/summary.py:    def table(
+emidaf_core/statistics/effect_size/summary.py:    def largest(
+emidaf_core/statistics/effect_size/summary.py:    def smallest(
+emidaf_core/statistics/effect_size/summary.py:    def summary(
+emidaf_core/statistics/effect_size/summary.py:    def create():
+emidaf_core/statistics/effect_size/proportions.py:    def cohen_h(
+emidaf_core/statistics/effect_size/proportions.py:    def odds_ratio(
+emidaf_core/statistics/effect_size/proportions.py:    def log_odds_ratio(
+emidaf_core/statistics/effect_size/proportions.py:    def relative_risk(
+emidaf_core/statistics/effect_size/proportions.py:    def risk_difference(
+emidaf_core/statistics/effect_size/proportions.py:    def number_needed_to_treat(
+emidaf_core/statistics/effect_size/proportions.py:    def attributable_risk(
+emidaf_core/statistics/effect_size/proportions.py:    def population_attributable_risk(
+emidaf_core/statistics/effect_size/proportions.py:    def prevented_fraction(
+emidaf_core/statistics/effect_size/contingency.py:    def phi(
+emidaf_core/statistics/effect_size/contingency.py:    def cramers_v(
+emidaf_core/statistics/effect_size/contingency.py:    def tschuprow_t(
+emidaf_core/statistics/effect_size/contingency.py:    def pearson_contingency(
+emidaf_core/statistics/effect_size/contingency.py:    def generalized_odds_ratio(
+emidaf_core/statistics/effect_size/contingency.py:    def goodman_kruskal_lambda(
+emidaf_core/statistics/effect_size/contingency.py:    def goodman_kruskal_tau(
+emidaf_core/statistics/effect_size/contingency.py:    def theils_u(
+emidaf_core/statistics/effect_size/contingency.py:    def yule_q(
+emidaf_core/statistics/effect_size/contingency.py:    def yule_y(
+emidaf_core/statistics/effect_size/contingency.py:    def compute(
+emidaf_core/statistics/effect_size/correlation.py:    def pearson(
+emidaf_core/statistics/effect_size/correlation.py:    def spearman(
+emidaf_core/statistics/effect_size/correlation.py:    def kendall(
+emidaf_core/statistics/effect_size/correlation.py:    def r_squared(
+emidaf_core/statistics/effect_size/correlation.py:    def adjusted_r_squared(
+emidaf_core/statistics/effect_size/correlation.py:    def fisher_z(
+emidaf_core/statistics/effect_size/correlation.py:    def multiple_r(
+emidaf_core/statistics/effect_size/correlation.py:    def partial_r(
+emidaf_core/statistics/effect_size/correlation.py:    def semi_partial_r(
+emidaf_core/statistics/effect_size/correlation.py:    def compute(
+emidaf_core/statistics/effect_size/base.py:    def compute(
+emidaf_core/statistics/effect_size/report.py:    def __init__(
+emidaf_core/statistics/effect_size/report.py:    def to_dict(
+emidaf_core/statistics/effect_size/report.py:    def to_json(
+emidaf_core/statistics/effect_size/report.py:    def to_dataframe(
+emidaf_core/statistics/effect_size/report.py:    def to_markdown(
+emidaf_core/statistics/effect_size/report.py:    def to_html(
+emidaf_core/statistics/effect_size/report.py:    def to_latex(
+emidaf_core/statistics/effect_size/report.py:    def to_text(
+emidaf_core/statistics/effect_size/report.py:    def to_csv(
+emidaf_core/statistics/effect_size/report.py:    def to_excel(
+emidaf_core/statistics/effect_size/report.py:    def generate(
+emidaf_core/statistics/distributions/random_sampling.py:    def __init__(
+emidaf_core/statistics/distributions/random_sampling.py:    def simple(
+emidaf_core/statistics/distributions/random_sampling.py:    def bootstrap(
+emidaf_core/statistics/distributions/random_sampling.py:    def stratified(
+emidaf_core/statistics/distributions/random_sampling.py:    def systematic(
+emidaf_core/statistics/distributions/random_sampling.py:    def weighted(
+emidaf_core/statistics/distributions/random_sampling.py:    def cluster(
+emidaf_core/statistics/distributions/random_sampling.py:    def latin_hypercube(
+emidaf_core/statistics/distributions/random_sampling.py:    def sobol(
+emidaf_core/statistics/distributions/random_sampling.py:    def halton(
+emidaf_core/statistics/distributions/random_sampling.py:    def monte_carlo(
+emidaf_core/statistics/distributions/mixture.py:    def __init__(
+emidaf_core/statistics/distributions/mixture.py:    def fit(
+emidaf_core/statistics/distributions/mixture.py:    def pdf(
+emidaf_core/statistics/distributions/mixture.py:    def logpdf(
+emidaf_core/statistics/distributions/mixture.py:    def posterior(
+emidaf_core/statistics/distributions/mixture.py:    def predict(
+emidaf_core/statistics/distributions/mixture.py:    def rvs(
+emidaf_core/statistics/distributions/mixture.py:    def summary(
+emidaf_core/statistics/distributions/mixture.py:    def fit(
+emidaf_core/statistics/distributions/goodness_of_fit.py:    def kolmogorov_smirnov(
+emidaf_core/statistics/distributions/goodness_of_fit.py:    def anderson(
+emidaf_core/statistics/distributions/goodness_of_fit.py:    def shapiro(
+emidaf_core/statistics/distributions/goodness_of_fit.py:    def jarque_bera(
+emidaf_core/statistics/distributions/goodness_of_fit.py:    def dagostino(
+emidaf_core/statistics/distributions/goodness_of_fit.py:    def cramervonmises(
+emidaf_core/statistics/distributions/goodness_of_fit.py:    def lilliefors(
+emidaf_core/statistics/distributions/goodness_of_fit.py:    def chi_square(
+emidaf_core/statistics/distributions/discrete.py:    def __init__(
+emidaf_core/statistics/distributions/discrete.py:    def fit(
+emidaf_core/statistics/distributions/discrete.py:    def estimate(
+emidaf_core/statistics/distributions/discrete.py:    def pdf(
+emidaf_core/statistics/distributions/discrete.py:    def cdf(
+emidaf_core/statistics/distributions/discrete.py:    def ppf(
+emidaf_core/statistics/distributions/discrete.py:    def rvs(
+emidaf_core/statistics/distributions/discrete.py:    def summary(
+emidaf_core/statistics/distributions/discrete.py:    def estimate(
+emidaf_core/statistics/distributions/discrete.py:    def estimate(
+emidaf_core/statistics/distributions/discrete.py:    def estimate(
+emidaf_core/statistics/distributions/discrete.py:    def estimate(
+emidaf_core/statistics/distributions/discrete.py:    def estimate(
+emidaf_core/statistics/distributions/discrete.py:    def estimate(
+emidaf_core/statistics/distributions/discrete.py:    def estimate(
+emidaf_core/statistics/distributions/discrete.py:    def estimate(
+emidaf_core/statistics/distributions/discrete.py:    def estimate(
+emidaf_core/statistics/distributions/visualization.py:    def histogram(
+emidaf_core/statistics/distributions/visualization.py:    def pdf(
+emidaf_core/statistics/distributions/visualization.py:    def cdf(
+emidaf_core/statistics/distributions/visualization.py:    def qqplot(
+emidaf_core/statistics/distributions/visualization.py:    def ecdf(
+emidaf_core/statistics/distributions/visualization.py:    def survival(
+emidaf_core/statistics/distributions/visualization.py:    def quantile(
+emidaf_core/statistics/distributions/visualization.py:    def compare(
+emidaf_core/statistics/distributions/interpretation.py:    def __init__(
+emidaf_core/statistics/distributions/interpretation.py:    def best_distribution(
+emidaf_core/statistics/distributions/interpretation.py:    def ranking(
+emidaf_core/statistics/distributions/interpretation.py:    def goodness_of_fit(
+emidaf_core/statistics/distributions/interpretation.py:    def aic(
+emidaf_core/statistics/distributions/interpretation.py:    def bic(
+emidaf_core/statistics/distributions/interpretation.py:    def recommendations(
+emidaf_core/statistics/distributions/interpretation.py:    def conclusion(
+emidaf_core/statistics/distributions/interpretation.py:    def report(
+emidaf_core/statistics/distributions/interpretation.py:    def interpret(
+emidaf_core/statistics/distributions/summary.py:    def __init__(
+emidaf_core/statistics/distributions/summary.py:    def best_distribution(
+emidaf_core/statistics/distributions/summary.py:    def ranking(
+emidaf_core/statistics/distributions/summary.py:    def top(
+emidaf_core/statistics/distributions/summary.py:    def goodness_of_fit(
+emidaf_core/statistics/distributions/summary.py:    def summary(
+emidaf_core/statistics/distributions/summary.py:    def analyze(
+emidaf_core/statistics/distributions/multivariate.py:    def __init__(
+emidaf_core/statistics/distributions/multivariate.py:    def fit(
+emidaf_core/statistics/distributions/multivariate.py:    def pdf(
+emidaf_core/statistics/distributions/multivariate.py:    def cdf(
+emidaf_core/statistics/distributions/multivariate.py:    def rvs(
+emidaf_core/statistics/distributions/multivariate.py:    def summary(
+emidaf_core/statistics/distributions/multivariate.py:    def fit(
+emidaf_core/statistics/distributions/multivariate.py:    def fit(
+emidaf_core/statistics/distributions/multivariate.py:    def fit(
+emidaf_core/statistics/distributions/multivariate.py:    def fit(
+emidaf_core/statistics/distributions/multivariate.py:    def pdf(
+emidaf_core/statistics/distributions/multivariate.py:    def rvs(
+emidaf_core/statistics/distributions/fitting.py:    def __init__(
+emidaf_core/statistics/distributions/fitting.py:    def fit_distribution(
+emidaf_core/statistics/distributions/fitting.py:    def fit_all(
+emidaf_core/statistics/distributions/fitting.py:    def ranking(
+emidaf_core/statistics/distributions/fitting.py:    def best(
+emidaf_core/statistics/distributions/fitting.py:    def top(
+emidaf_core/statistics/distributions/fitting.py:    def fit_best(
+emidaf_core/statistics/distributions/fitting.py:    def ranking(
+emidaf_core/statistics/distributions/fitting.py:    def top(
+emidaf_core/statistics/distributions/continuous.py:    def __init__(
+emidaf_core/statistics/distributions/continuous.py:    def fit(
+emidaf_core/statistics/distributions/continuous.py:    def pdf(
+emidaf_core/statistics/distributions/continuous.py:    def cdf(
+emidaf_core/statistics/distributions/continuous.py:    def ppf(
+emidaf_core/statistics/distributions/continuous.py:    def rvs(
+emidaf_core/statistics/distributions/continuous.py:    def summary(
+emidaf_core/statistics/distributions/truncated.py:    def __init__(
+emidaf_core/statistics/distributions/truncated.py:    def fit(
+emidaf_core/statistics/distributions/truncated.py:    def pdf(
+emidaf_core/statistics/distributions/truncated.py:    def cdf(
+emidaf_core/statistics/distributions/truncated.py:    def ppf(
+emidaf_core/statistics/distributions/truncated.py:    def rvs(
+emidaf_core/statistics/distributions/truncated.py:    def summary(
+emidaf_core/statistics/distributions/truncated.py:    def fit(
+emidaf_core/statistics/distributions/truncated.py:    def fit(
+emidaf_core/statistics/distributions/base.py:    def fit(
+emidaf_core/statistics/distributions/base.py:    def pdf(
+emidaf_core/statistics/distributions/base.py:    def cdf(
+emidaf_core/statistics/distributions/base.py:    def ppf(
+emidaf_core/statistics/distributions/base.py:    def rvs(
+emidaf_core/statistics/distributions/report.py:    def __init__(
+emidaf_core/statistics/distributions/report.py:    def to_dict(
+emidaf_core/statistics/distributions/report.py:    def to_json(
+emidaf_core/statistics/distributions/report.py:    def to_dataframe(
+emidaf_core/statistics/distributions/report.py:    def to_markdown(
+emidaf_core/statistics/distributions/report.py:    def to_html(
+emidaf_core/statistics/distributions/report.py:    def to_latex(
+emidaf_core/statistics/distributions/report.py:    def to_text(
+emidaf_core/statistics/distributions/report.py:    def generate(
+emidaf_core/statistics/base/base_statistic.py:    def validate(
+emidaf_core/statistics/base/base_statistic.py:    def is_empty(
+emidaf_core/statistics/base/base_statistic.py:    def size(
+emidaf_core/statistics/base/base_statistic.py:    def unique(
+emidaf_core/statistics/base/base_statistic.py:    def missing(
+emidaf_core/statistics/base/base_statistic.py:    def has_missing(
+emidaf_core/statistics/base/base_statistic.py:    def has_infinite(
+emidaf_core/statistics/base/base_statistic.py:    def has_variance(
+emidaf_core/statistics/base/base_statistic.py:    def as_numpy(
+emidaf_core/statistics/base/base_statistic.py:    def nan(cls):
+emidaf_core/statistics/base/base_statistic.py:    def compute(
+emidaf_core/statistics/base/base_statistic.py:    def __repr__(self):
+emidaf_core/statistics/base/base_statistic.py:    def __str__(self):
+emidaf_core/statistics/base/descriptive_statistic.py:    def compute(
+emidaf_core/statistics/base/descriptive_statistic.py:    def compute_dataframe(
+emidaf_core/statistics/base/descriptive_statistic.py:    def compute_many(
+emidaf_core/statistics/base/descriptive_statistic.py:    def summary(
+emidaf_core/statistics/base/descriptive_statistic.py:    def safe_compute(
+emidaf_core/statistics/base/descriptive_statistic.py:    def require_variance(
+emidaf_core/statistics/base/descriptive_statistic.py:    def require_non_empty(
+emidaf_core/statistics/base/descriptive_statistic.py:    def info(cls) -> dict:
+emidaf_core/statistics/base/descriptive_statistic.py:    def __repr__(self):
+emidaf_core/statistics/base/descriptive_statistic.py:    def __str__(self):
+emidaf_core/statistics/base/inferential_statistic.py:    def compute(
+emidaf_core/statistics/base/inferential_statistic.py:    def validate_sample(
+emidaf_core/statistics/base/inferential_statistic.py:    def validate_samples(
+emidaf_core/statistics/base/inferential_statistic.py:    def sample_size(
+emidaf_core/statistics/base/inferential_statistic.py:    def sample_mean(
+emidaf_core/statistics/base/inferential_statistic.py:    def sample_variance(
+emidaf_core/statistics/base/inferential_statistic.py:    def sample_std(
+emidaf_core/statistics/base/inferential_statistic.py:    def check_same_size(
+emidaf_core/statistics/base/inferential_statistic.py:    def safe_compute(
+emidaf_core/statistics/base/inferential_statistic.py:    def build_result(
+emidaf_core/statistics/base/inferential_statistic.py:    def summary(
+emidaf_core/statistics/base/inferential_statistic.py:    def info(cls) -> dict:
+emidaf_core/statistics/base/inferential_statistic.py:    def __repr__(self):
+emidaf_core/statistics/base/inferential_statistic.py:    def __str__(self):
+emidaf_core/statistics/base/hypothesis_test.py:    def compute(
+emidaf_core/statistics/base/hypothesis_test.py:    def reject_null(
+emidaf_core/statistics/base/hypothesis_test.py:    def decision(
+emidaf_core/statistics/base/hypothesis_test.py:    def significance(
+emidaf_core/statistics/base/hypothesis_test.py:    def interpretation(
+emidaf_core/statistics/base/hypothesis_test.py:    def build_result(
+emidaf_core/statistics/base/hypothesis_test.py:    def validate_alpha(
+emidaf_core/statistics/base/hypothesis_test.py:    def info(cls) -> dict:
+emidaf_core/statistics/base/hypothesis_test.py:    def __repr__(self):
+emidaf_core/statistics/base/hypothesis_test.py:    def __str__(self):
+emidaf_core/statistics/base/correlation_statistic.py:    def compute(
+emidaf_core/statistics/base/correlation_statistic.py:    def validate_pair(
+emidaf_core/statistics/base/correlation_statistic.py:    def validate_dataframe(
+emidaf_core/statistics/base/correlation_statistic.py:    def compute_matrix(
+emidaf_core/statistics/base/correlation_statistic.py:    def build_result(
+emidaf_core/statistics/base/correlation_statistic.py:    def safe_compute(
+emidaf_core/statistics/base/correlation_statistic.py:    def strength(
+emidaf_core/statistics/base/correlation_statistic.py:    def direction(
+emidaf_core/statistics/base/correlation_statistic.py:    def info(cls) -> dict:
+emidaf_core/statistics/base/correlation_statistic.py:    def __repr__(self):
+emidaf_core/statistics/base/correlation_statistic.py:    def __str__(self):
+emidaf_core/statistics/base/estimator.py:    def compute(
+emidaf_core/statistics/base/estimator.py:    def validate_sample(
+emidaf_core/statistics/base/estimator.py:    def confidence_interval(
+emidaf_core/statistics/base/estimator.py:    def standard_error(
+emidaf_core/statistics/base/estimator.py:    def summary(
+emidaf_core/statistics/base/estimator.py:    def safe_compute(
+emidaf_core/statistics/base/estimator.py:    def info(cls) -> dict:
+emidaf_core/statistics/base/estimator.py:    def __repr__(self):
+emidaf_core/statistics/base/estimator.py:    def __str__(self):
+emidaf_core/statistics/inferential/bootstrap.py:    def __init__(
+emidaf_core/statistics/inferential/bootstrap.py:    def resample(
+emidaf_core/statistics/inferential/bootstrap.py:    def distribution(
+emidaf_core/statistics/inferential/bootstrap.py:    def distribution(
+emidaf_core/statistics/inferential/bootstrap.py:    def basic_interval(
+emidaf_core/statistics/inferential/bootstrap.py:    def bias(
+emidaf_core/statistics/inferential/bootstrap.py:    def bias(
+emidaf_core/statistics/inferential/bootstrap.py:    def compute(
+emidaf_core/statistics/inferential/bootstrap.py:    def __init__(
+emidaf_core/statistics/inferential/bootstrap.py:    def compute(
+emidaf_core/statistics/inferential/bootstrap.py:    def __init__(
+emidaf_core/statistics/inferential/bootstrap.py:    def compute(
+emidaf_core/statistics/inferential/confidence.py:    def mean(
+emidaf_core/statistics/inferential/confidence.py:    def median(
+emidaf_core/statistics/inferential/confidence.py:    def median(
+emidaf_core/statistics/inferential/confidence.py:    def variance(
+emidaf_core/statistics/inferential/confidence.py:    def standard_deviation(
+emidaf_core/statistics/inferential/confidence.py:    def proportion(
+emidaf_core/statistics/inferential/confidence.py:    def difference_means(
+emidaf_core/statistics/inferential/confidence.py:    def correlation(
+emidaf_core/statistics/inferential/superiority.py:    def compute(
+emidaf_core/statistics/inferential/superiority.py:    def compute(
+emidaf_core/statistics/inferential/superiority.py:    def compute(
+emidaf_core/statistics/inferential/superiority.py:    def compute(
+emidaf_core/statistics/inferential/estimation.py:    def mean(
+emidaf_core/statistics/inferential/estimation.py:    def mean(
+emidaf_core/statistics/inferential/estimation.py:    def variance(
+emidaf_core/statistics/inferential/estimation.py:    def method_of_moments(
+emidaf_core/statistics/inferential/estimation.py:    def bootstrap(
+emidaf_core/statistics/inferential/estimation.py:    def jackknife(
+emidaf_core/statistics/inferential/estimation.py:    def robust_location(
+emidaf_core/statistics/inferential/estimation.py:    def robust_scale(
+emidaf_core/statistics/inferential/estimation.py:    def map_estimator(
+emidaf_core/statistics/inferential/estimation.py:    def posterior_mean(
+emidaf_core/statistics/inferential/variance.py:    def compute(
+emidaf_core/statistics/inferential/variance.py:    def compute(
+emidaf_core/statistics/inferential/variance.py:    def compute(
+emidaf_core/statistics/inferential/variance.py:    def compute(
+emidaf_core/statistics/inferential/variance.py:    def compute(
+emidaf_core/statistics/inferential/variance.py:    def compute(
+emidaf_core/statistics/inferential/variance.py:    def compute(
+emidaf_core/statistics/inferential/variance.py:    def compute(
+emidaf_core/statistics/inferential/variance.py:    def compute(
+emidaf_core/statistics/inferential/variance.py:    def compute(
+emidaf_core/statistics/inferential/one_sample.py:    def compute(
+emidaf_core/statistics/inferential/one_sample.py:    def compute(
+emidaf_core/statistics/inferential/one_sample.py:    def compute(
+emidaf_core/statistics/inferential/one_sample.py:    def compute(
+emidaf_core/statistics/inferential/non_inferiority.py:    def compute(
+emidaf_core/statistics/inferential/non_inferiority.py:    def compute(
+emidaf_core/statistics/inferential/non_inferiority.py:    def compute(
+emidaf_core/statistics/inferential/non_inferiority.py:    def compute(
+emidaf_core/statistics/inferential/non_inferiority.py:    def compute(
+emidaf_core/statistics/inferential/interpretation.py:    def __init__(
+emidaf_core/statistics/inferential/interpretation.py:    def decision(
+emidaf_core/statistics/inferential/interpretation.py:    def significance(
+emidaf_core/statistics/inferential/interpretation.py:    def confidence_interval(
+emidaf_core/statistics/inferential/interpretation.py:    def effect_size(
+emidaf_core/statistics/inferential/interpretation.py:    def power(
+emidaf_core/statistics/inferential/interpretation.py:    def recommendations(
+emidaf_core/statistics/inferential/interpretation.py:    def report(
+emidaf_core/statistics/inferential/interpretation.py:    def interpret(
+emidaf_core/statistics/inferential/summary.py:    def __init__(
+emidaf_core/statistics/inferential/summary.py:    def variable_type(
+emidaf_core/statistics/inferential/summary.py:    def number_of_groups(
+emidaf_core/statistics/inferential/summary.py:    def two_groups(
+emidaf_core/statistics/inferential/summary.py:    def automatic_test(
+emidaf_core/statistics/inferential/summary.py:    def confidence(
+emidaf_core/statistics/inferential/summary.py:    def bootstrap(
+emidaf_core/statistics/inferential/summary.py:    def estimation(
+emidaf_core/statistics/inferential/summary.py:    def summary(
+emidaf_core/statistics/inferential/summary.py:    def analyze(
+emidaf_core/statistics/inferential/proportions.py:    def compute(
+emidaf_core/statistics/inferential/proportions.py:    def compute(
+emidaf_core/statistics/inferential/proportions.py:    def compute(
+emidaf_core/statistics/inferential/proportions.py:    def compute(
+emidaf_core/statistics/inferential/proportions.py:    def compute(
+emidaf_core/statistics/inferential/proportions.py:    def compute(
+emidaf_core/statistics/inferential/proportions.py:    def compute(
+emidaf_core/statistics/inferential/proportions.py:    def compute(
+emidaf_core/statistics/inferential/two_samples.py:    def compute(
+emidaf_core/statistics/inferential/two_samples.py:    def compute(
+emidaf_core/statistics/inferential/two_samples.py:    def compute(
+emidaf_core/statistics/inferential/two_samples.py:    def compute(
+emidaf_core/statistics/inferential/two_samples.py:    def compute(
+emidaf_core/statistics/inferential/two_samples.py:    def compute(
+emidaf_core/statistics/inferential/two_samples.py:    def compute(
+emidaf_core/statistics/inferential/two_samples.py:    def compute(
+emidaf_core/statistics/inferential/two_samples.py:    def compute(
+emidaf_core/statistics/inferential/permutation.py:    def __init__(
+emidaf_core/statistics/inferential/permutation.py:    def permutation_distribution(
+emidaf_core/statistics/inferential/permutation.py:    def compute(
+emidaf_core/statistics/inferential/permutation.py:    def __init__(
+emidaf_core/statistics/inferential/permutation.py:    def compute(
+emidaf_core/statistics/inferential/permutation.py:    def __init__(
+emidaf_core/statistics/inferential/permutation.py:    def compute(
+emidaf_core/statistics/inferential/permutation.py:    def __init__(
+emidaf_core/statistics/inferential/permutation.py:    def compute(
+emidaf_core/statistics/inferential/permutation.py:    def compute(cls, method, **kwargs):
+emidaf_core/statistics/inferential/equivalence.py:    def compute(
+emidaf_core/statistics/inferential/equivalence.py:    def compute(
+emidaf_core/statistics/inferential/equivalence.py:    def compute(
+emidaf_core/statistics/inferential/equivalence.py:    def compute(
+emidaf_core/statistics/inferential/bayesian.py:    def posterior(
+emidaf_core/statistics/inferential/bayesian.py:    def posterior_mean(
+emidaf_core/statistics/inferential/bayesian.py:    def posterior_variance(
+emidaf_core/statistics/inferential/bayesian.py:    def map_estimate(
+emidaf_core/statistics/inferential/bayesian.py:    def hpd_interval(
+emidaf_core/statistics/inferential/bayesian.py:    def posterior_predictive(
+emidaf_core/statistics/inferential/bayesian.py:    def credible_interval(
+emidaf_core/statistics/inferential/paired.py:    def compute(
+emidaf_core/statistics/inferential/paired.py:    def compute(
+emidaf_core/statistics/inferential/paired.py:    def compute(
+emidaf_core/statistics/inferential/paired.py:    def compute(
+emidaf_core/statistics/inferential/paired.py:    def compute(
+emidaf_core/statistics/inferential/paired.py:    def compute(
+emidaf_core/statistics/inferential/base.py:    def compute(
+emidaf_core/statistics/inferential/report.py:    def __init__(
+emidaf_core/statistics/inferential/report.py:    def to_dict(
+emidaf_core/statistics/inferential/report.py:    def to_json(
+emidaf_core/statistics/inferential/report.py:    def to_dataframe(
+emidaf_core/statistics/inferential/report.py:    def to_markdown(
+emidaf_core/statistics/inferential/report.py:    def to_html(
+emidaf_core/statistics/inferential/report.py:    def to_latex(
+emidaf_core/statistics/inferential/report.py:    def to_text(
+emidaf_core/statistics/inferential/report.py:    def generate(
+emidaf_core/statistics/correlations/matrix.py:    def compute(
+emidaf_core/statistics/correlations/matrix.py:    def compute(
+emidaf_core/statistics/correlations/matrix.py:    def compute(
+emidaf_core/statistics/correlations/matrix.py:    def compute(
+emidaf_core/statistics/correlations/matrix.py:    def eta(
+emidaf_core/statistics/correlations/categorical.py:    def compute(
+emidaf_core/statistics/correlations/categorical.py:    def compute(
+emidaf_core/statistics/correlations/categorical.py:    def compute(
+emidaf_core/statistics/correlations/categorical.py:    def compute(
+emidaf_core/statistics/correlations/categorical.py:    def compute(
+emidaf_core/statistics/correlations/linear.py:    def compute(
+emidaf_core/statistics/correlations/linear.py:    def compute(
+emidaf_core/statistics/correlations/linear.py:    def compute(
+emidaf_core/statistics/correlations/linear.py:    def compute(
+emidaf_core/statistics/correlations/linear.py:    def compute(
+emidaf_core/statistics/correlations/linear.py:    def strength(value: float) -> str:
+emidaf_core/statistics/correlations/linear.py:    def direction(value: float) -> str:
+emidaf_core/statistics/correlations/linear.py:    def interpretation(value: float) -> str:
+emidaf_core/statistics/correlations/association.py:    def compute(
+emidaf_core/statistics/correlations/association.py:    def compute(
+emidaf_core/statistics/correlations/association.py:    def compute(
+emidaf_core/statistics/correlations/association.py:    def compute(
+emidaf_core/statistics/correlations/multicollinearity.py:    def compute(
+emidaf_core/statistics/correlations/multicollinearity.py:    def compute(
+emidaf_core/statistics/correlations/multicollinearity.py:    def summary(
+emidaf_core/bootstrap.py:    def __init__(self):
+emidaf_core/bootstrap.py:    def initialize(self):
+emidaf_core/bootstrap.py:    def _create_managers(self):
+emidaf_core/bootstrap.py:    def _initialize_managers(self):
+emidaf_core/bootstrap.py:    def _register_components(self):
+emidaf_core/visualization/matplotlib_style.py:def set_default_style(
+emidaf_core/visualization/matplotlib_style.py:def reset_style():
+emidaf_core/visualization/matplotlib_style.py:def set_figure_size(
+emidaf_core/visualization/matplotlib_style.py:def set_font_size(
+emidaf_core/visualization/matplotlib_style.py:def enable_grid():
+emidaf_core/visualization/matplotlib_style.py:def disable_grid():
+emidaf_core/visualization/categorical.py:def frequency_barplot(
+emidaf_core/visualization/categorical.py:def frequency_barh(
+emidaf_core/visualization/categorical.py:def frequency_pie(
+emidaf_core/visualization/categorical.py:def frequency_table(
+emidaf_core/visualization/categorical.py:def cumulative_frequency(
+emidaf_core/visualization/categorical.py:def compare_categories(
+emidaf_core/visualization/categorical.py:    def __init__(
+emidaf_core/visualization/categorical.py:    def frequency_barplot(
+emidaf_core/visualization/categorical.py:    def frequency_barh(
+emidaf_core/visualization/categorical.py:    def frequency_pie(
+emidaf_core/visualization/categorical.py:    def frequency_table(
+emidaf_core/visualization/categorical.py:    def cumulative_frequency(
+emidaf_core/visualization/categorical.py:    def compare_categories(
+emidaf_core/visualization/statistical.py:def mean_median_plot(
+emidaf_core/visualization/statistical.py:def confidence_interval_plot(
+emidaf_core/visualization/statistical.py:def group_mean_ci_plot(
+emidaf_core/visualization/statistical.py:def rank_plot(
+emidaf_core/visualization/statistical.py:def proportion_plot(
+emidaf_core/visualization/statistical.py:    def __init__(
+emidaf_core/visualization/statistical.py:    def mean_median(
+emidaf_core/visualization/statistical.py:    def confidence_interval(
+emidaf_core/visualization/statistical.py:    def group_mean_ci(
+emidaf_core/visualization/statistical.py:    def rank_plot(
+emidaf_core/visualization/statistical.py:    def proportion_plot(
+emidaf_core/visualization/univariate.py:def histogram(
+emidaf_core/visualization/univariate.py:def boxplot(
+emidaf_core/visualization/univariate.py:def barplot(
+emidaf_core/visualization/univariate.py:def piechart(
+emidaf_core/visualization/univariate.py:def density(
+emidaf_core/visualization/univariate.py:def frequency_table(
+emidaf_core/visualization/univariate.py:    def __init__(
+emidaf_core/visualization/univariate.py:    def histogram(
+emidaf_core/visualization/univariate.py:    def boxplot(
+emidaf_core/visualization/univariate.py:    def barplot(
+emidaf_core/visualization/univariate.py:    def piechart(
+emidaf_core/visualization/univariate.py:    def density(
+emidaf_core/visualization/bivariate.py:def scatterplot(
+emidaf_core/visualization/bivariate.py:def lineplot(
+emidaf_core/visualization/bivariate.py:def correlation_heatmap(
+emidaf_core/visualization/bivariate.py:def grouped_boxplot(
+emidaf_core/visualization/bivariate.py:def grouped_barplot(
+emidaf_core/visualization/bivariate.py:def mean_plot(
+emidaf_core/visualization/bivariate.py:    def __init__(
+emidaf_core/visualization/bivariate.py:    def scatterplot(
+emidaf_core/visualization/bivariate.py:    def lineplot(
+emidaf_core/visualization/bivariate.py:    def correlation_heatmap(
+emidaf_core/visualization/bivariate.py:    def grouped_boxplot(
+emidaf_core/visualization/bivariate.py:    def grouped_barplot(
+emidaf_core/visualization/bivariate.py:    def mean_plot(
+emidaf_core/visualization/diagnostics.py:def acf_plot(
+emidaf_core/visualization/diagnostics.py:def pacf_plot(
+emidaf_core/visualization/diagnostics.py:def residuals_plot(
+emidaf_core/visualization/diagnostics.py:def residuals_histogram(
+emidaf_core/visualization/diagnostics.py:def residuals_qqplot(
+emidaf_core/visualization/diagnostics.py:def residuals_acf(
+emidaf_core/visualization/diagnostics.py:    def __init__(
+emidaf_core/visualization/diagnostics.py:    def acf(
+emidaf_core/visualization/diagnostics.py:    def pacf(
+emidaf_core/visualization/diagnostics.py:    def residuals(
+emidaf_core/visualization/diagnostics.py:    def residuals_histogram(
+emidaf_core/visualization/diagnostics.py:    def residuals_qqplot(
+emidaf_core/visualization/diagnostics.py:    def residuals_acf(
+emidaf_core/visualization/time_series.py:def time_series_plot(
+emidaf_core/visualization/time_series.py:def rolling_mean_plot(
+emidaf_core/visualization/time_series.py:def rolling_std_plot(
+emidaf_core/visualization/time_series.py:def seasonal_boxplot(
+emidaf_core/visualization/time_series.py:    def __init__(
+emidaf_core/visualization/time_series.py:    def plot(
+emidaf_core/visualization/time_series.py:    def rolling_mean(
+emidaf_core/visualization/time_series.py:    def rolling_std(
+emidaf_core/visualization/time_series.py:    def seasonal_boxplot(
+emidaf_core/visualization/distribution.py:def histogram(
+emidaf_core/visualization/distribution.py:def empirical_cdf(
+emidaf_core/visualization/distribution.py:def qqplot(
+emidaf_core/visualization/distribution.py:def distribution_comparison(
+emidaf_core/visualization/distribution.py:def boxplot_distribution(
+emidaf_core/visualization/distribution.py:def probability_histogram(
+emidaf_core/visualization/distribution.py:    def __init__(
+emidaf_core/visualization/distribution.py:    def histogram(
+emidaf_core/visualization/distribution.py:    def empirical_cdf(
+emidaf_core/visualization/distribution.py:    def qqplot(
+emidaf_core/visualization/distribution.py:    def distribution_comparison(
+emidaf_core/visualization/distribution.py:    def boxplot_distribution(
+emidaf_core/visualization/distribution.py:    def probability_histogram(
+emidaf_core/visualization/multivariate.py:def pairplot(
+emidaf_core/visualization/multivariate.py:def correlation_matrix(
+emidaf_core/visualization/multivariate.py:def correlation_heatmap(
+emidaf_core/visualization/multivariate.py:def parallel_coordinates(
+emidaf_core/visualization/multivariate.py:def stacked_barplot(
+emidaf_core/visualization/multivariate.py:def cumulative_distribution(
+emidaf_core/visualization/multivariate.py:    def __init__(
+emidaf_core/visualization/multivariate.py:    def pairplot(
+emidaf_core/visualization/multivariate.py:    def correlation_heatmap(
+emidaf_core/visualization/multivariate.py:    def parallel_coordinates(
+emidaf_core/visualization/multivariate.py:    def stacked_barplot(
+emidaf_core/visualization/multivariate.py:    def cumulative_distribution(
+emidaf_core/visualization/base.py:    def __init__(
+emidaf_core/visualization/base.py:    def fit(
+emidaf_core/visualization/base.py:    def plot(
+emidaf_core/visualization/base.py:    def fit_plot(
+emidaf_core/visualization/base.py:    def show(self):
+emidaf_core/visualization/base.py:    def save(
+emidaf_core/visualization/base.py:    def close(self):
+emidaf_core/visualization/base.py:    def _create_figure(self):
+emidaf_core/visualization/base.py:    def __init__(
+emidaf_core/visualization/base.py:    def show(self):
+emidaf_core/visualization/base.py:    def save(
+emidaf_core/visualization/base.py:    def close(self):
+emidaf_core/context/app_context.py:    def __init__(self):
+emidaf_core/context/app_context.py:    def reset(self):
+emidaf_core/context/app_context.py:    def set_project(self, project):
+emidaf_core/context/app_context.py:    def get_project(self):
+emidaf_core/context/app_context.py:    def set_dataset(self, dataset):
+emidaf_core/context/app_context.py:    def get_dataset(self):
+emidaf_core/context/app_context.py:    def set_model(self, model):
+emidaf_core/context/app_context.py:    def get_model(self):
+emidaf_core/context/app_context.py:    def set_page(self, page):
+emidaf_core/context/app_context.py:    def get_page(self):
+emidaf_core/context/app_context.py:    def set_user(self, user):
+emidaf_core/context/app_context.py:    def get_user(self):
+emidaf_core/context/app_context.py:    def set_theme(self, theme):
+emidaf_core/context/app_context.py:    def get_theme(self):
+emidaf_core/context/app_context.py:    def set_language(self, language):
+emidaf_core/context/app_context.py:    def get_language(self):
+emidaf_core/context/app_context.py:    def set_workspace(self, workspace):
+emidaf_core/context/app_context.py:    def get_workspace(self):
+emidaf_core/core/base_context.py:    def __init__(
+emidaf_core/core/base_context.py:    def dataframe(self) -> pd.DataFrame:
+emidaf_core/core/base_context.py:    def dataframe(
+emidaf_core/core/base_context.py:    def original_dataframe(self) -> pd.DataFrame:
+emidaf_core/core/base_context.py:    def shape(self) -> tuple[int, int]:
+emidaf_core/core/base_context.py:    def rows(self) -> int:
+emidaf_core/core/base_context.py:    def columns(self) -> int:
+emidaf_core/core/base_context.py:    def column_names(self) -> list[str]:
+emidaf_core/core/base_context.py:    def configuration(self) -> Configuration:
+emidaf_core/core/base_context.py:    def logger(self) -> Logger:
+emidaf_core/core/base_context.py:    def cache(self) -> Cache:
+emidaf_core/core/base_context.py:    def put_cache(
+emidaf_core/core/base_context.py:    def get_cache(
+emidaf_core/core/base_context.py:    def has_cache(
+emidaf_core/core/base_context.py:    def clear_cache(self) -> None:
+emidaf_core/core/base_context.py:    def results(self) -> dict[str, Any]:
+emidaf_core/core/base_context.py:    def add_result(
+emidaf_core/core/base_context.py:    def get_result(
+emidaf_core/core/base_context.py:    def clear_results(self) -> None:
+emidaf_core/core/base_context.py:    def shared(self) -> dict[str, Any]:
+emidaf_core/core/base_context.py:    def put(
+emidaf_core/core/base_context.py:    def get(
+emidaf_core/core/base_context.py:    def clear_shared(self) -> None:
+emidaf_core/core/base_context.py:    def statistics(self) -> dict[str, Any]:
+emidaf_core/core/base_context.py:    def set_statistic(
+emidaf_core/core/base_context.py:    def get_statistic(
+emidaf_core/core/base_context.py:    def clear_statistics(self) -> None:
+emidaf_core/core/base_context.py:    def reset(self) -> None:
+emidaf_core/core/base_context.py:    def to_dict(self) -> dict[str, Any]:
+emidaf_core/core/base_context.py:    def __repr__(self) -> str:
+emidaf_core/core/base_builder.py:    def __init__(self) -> None:
+emidaf_core/core/base_builder.py:    def reset(self) -> None:
+emidaf_core/core/base_builder.py:    def build(
+emidaf_core/core/base_builder.py:    def validate(self) -> None:
+emidaf_core/core/base_builder.py:    def finalize(self):
+emidaf_core/core/base_repository.py:    def save(
+emidaf_core/core/base_repository.py:    def load(
+emidaf_core/core/base_repository.py:    def update(
+emidaf_core/core/base_repository.py:    def delete(
+emidaf_core/core/base_repository.py:    def exists(
+emidaf_core/core/base_repository.py:    def count(self) -> int:
+emidaf_core/core/base_repository.py:    def clear(self) -> None:
+emidaf_core/core/base_object.py:    def __init__(self) -> None:
+emidaf_core/core/base_object.py:    def id(self) -> str:
+emidaf_core/core/base_object.py:    def created_at(self) -> datetime:
+emidaf_core/core/base_object.py:    def metadata(self) -> dict[str, Any]:
+emidaf_core/core/base_object.py:    def tags(self) -> set[str]:
+emidaf_core/core/base_object.py:    def set_metadata(
+emidaf_core/core/base_object.py:    def get_metadata(
+emidaf_core/core/base_object.py:    def remove_metadata(
+emidaf_core/core/base_object.py:    def clear_metadata(self) -> None:
+emidaf_core/core/base_object.py:    def add_tag(
+emidaf_core/core/base_object.py:    def remove_tag(
+emidaf_core/core/base_object.py:    def has_tag(
+emidaf_core/core/base_object.py:    def clear_tags(self) -> None:
+emidaf_core/core/base_object.py:    def to_dict(self) -> dict[str, Any]:
+emidaf_core/core/base_object.py:    def __repr__(self) -> str:
+emidaf_core/core/base_object.py:    def __str__(self) -> str:
+emidaf_core/core/cache.py:    def __init__(self) -> None:
+emidaf_core/core/cache.py:    def put(
+emidaf_core/core/cache.py:    def get(
+emidaf_core/core/cache.py:    def exists(
+emidaf_core/core/cache.py:    def remove(
+emidaf_core/core/cache.py:    def clear(self) -> None:
+emidaf_core/core/cache.py:    def size(self) -> int:
+emidaf_core/core/cache.py:    def is_empty(self) -> bool:
+emidaf_core/core/cache.py:    def keys(self) -> list[str]:
+emidaf_core/core/cache.py:    def values(self) -> list[Any]:
+emidaf_core/core/cache.py:    def to_dict(self) -> dict[str, Any]:
+emidaf_core/core/cache.py:    def __contains__(
+emidaf_core/core/cache.py:    def __len__(self) -> int:
+emidaf_core/core/cache.py:    def __repr__(self) -> str:
+emidaf_core/core/base_registry.py:    def __init__(self) -> None:
+emidaf_core/core/base_registry.py:    def register(
+emidaf_core/core/base_registry.py:    def unregister(
+emidaf_core/core/base_registry.py:    def get(
+emidaf_core/core/base_registry.py:    def find(
+emidaf_core/core/base_registry.py:    def exists(
+emidaf_core/core/base_registry.py:    def clear(self) -> None:
+emidaf_core/core/base_registry.py:    def sort(self) -> None:
+emidaf_core/core/base_registry.py:    def names(self) -> list[str]:
+emidaf_core/core/base_registry.py:    def values(self) -> list[T]:
+emidaf_core/core/base_registry.py:    def items(self) -> list[tuple[str, T]]:
+emidaf_core/core/base_registry.py:    def size(self) -> int:
+emidaf_core/core/base_registry.py:    def is_empty(self) -> bool:
+emidaf_core/core/base_registry.py:    def __iter__(self) -> Iterator[T]:
+emidaf_core/core/base_registry.py:    def __len__(self) -> int:
+emidaf_core/core/base_registry.py:    def __contains__(
+emidaf_core/core/base_registry.py:    def to_dict(self) -> dict:
+emidaf_core/core/base_registry.py:    def __repr__(self) -> str:
+emidaf_core/core/base_analyzer.py:    def execute(
+emidaf_core/core/base_analyzer.py:    def validate(
+emidaf_core/core/base_analyzer.py:    def analyze(
+emidaf_core/core/base_analyzer.py:    def finalize(
+emidaf_core/core/base_analyzer.py:    def warning(
+emidaf_core/core/base_analyzer.py:    def error(
+emidaf_core/core/base_analyzer.py:    def recommendation(
+emidaf_core/core/base_analyzer.py:    def is_enabled(self) -> bool:
+emidaf_core/core/base_analyzer.py:    def __str__(self) -> str:
+emidaf_core/core/base_analyzer.py:    def __repr__(self) -> str:
+emidaf_core/core/logger.py:    def __new__(cls):
+emidaf_core/core/logger.py:    def __init__(
+emidaf_core/core/logger.py:    def logger(self):
+emidaf_core/core/logger.py:    def debug(self, message: str):
+emidaf_core/core/logger.py:    def info(self, message: str):
+emidaf_core/core/logger.py:    def warning(self, message: str):
+emidaf_core/core/logger.py:    def error(self, message: str):
+emidaf_core/core/logger.py:    def critical(self, message: str):
+emidaf_core/core/base_manager.py:    def __init__(
+emidaf_core/core/base_manager.py:    def service(self) -> BaseService:
+emidaf_core/core/base_manager.py:    def run(
+emidaf_core/core/base_manager.py:    def exists(
+emidaf_core/core/base_manager.py:    def count(self) -> int:
+emidaf_core/core/base_manager.py:    def clear(self) -> None:
+emidaf_core/core/base_manager.py:    def __repr__(self) -> str:
+emidaf_core/core/base_service.py:    def __init__(
+emidaf_core/core/base_service.py:    def repository(self) -> BaseRepository:
+emidaf_core/core/base_service.py:    def validate(
+emidaf_core/core/base_service.py:    def save(
+emidaf_core/core/base_service.py:    def load(
+emidaf_core/core/base_service.py:    def update(
+emidaf_core/core/base_service.py:    def delete(
+emidaf_core/core/base_service.py:    def exists(
+emidaf_core/core/base_service.py:    def count(self) -> int:
+emidaf_core/core/base_service.py:    def clear(self) -> None:
+emidaf_core/core/base_service.py:    def execute(
+emidaf_core/core/analyzer_result.py:    def __init__(
+emidaf_core/core/analyzer_result.py:    def analyzer(self) -> str:
+emidaf_core/core/analyzer_result.py:    def version(self) -> str:
+emidaf_core/core/analyzer_result.py:    def description(self) -> str:
+emidaf_core/core/analyzer_result.py:    def description(
+emidaf_core/core/analyzer_result.py:    def status(self) -> str:
+emidaf_core/core/analyzer_result.py:    def status(
+emidaf_core/core/analyzer_result.py:    def statistics(self) -> dict[str, Any]:
+emidaf_core/core/analyzer_result.py:    def set_statistic(
+emidaf_core/core/analyzer_result.py:    def statistic(
+emidaf_core/core/analyzer_result.py:    def finalize(self) -> None:
+emidaf_core/core/analyzer_result.py:    def to_dict(self) -> dict[str, Any]:
+emidaf_core/core/base_result.py:    def __init__(self) -> None:
+emidaf_core/core/base_result.py:    def success(self) -> bool:
+emidaf_core/core/base_result.py:    def success(
+emidaf_core/core/base_result.py:    def score(self) -> float:
+emidaf_core/core/base_result.py:    def score(
+emidaf_core/core/base_result.py:    def execution_time(self) -> float:
+emidaf_core/core/base_result.py:    def execution_time(
+emidaf_core/core/base_result.py:    def warnings(self) -> list[str]:
+emidaf_core/core/base_result.py:    def add_warning(
+emidaf_core/core/base_result.py:    def errors(self) -> list[str]:
+emidaf_core/core/base_result.py:    def add_error(
+emidaf_core/core/base_result.py:    def error_count(self) -> int:
+emidaf_core/core/base_result.py:    def recommendations(self) -> list[str]:
+emidaf_core/core/base_result.py:    def add_recommendation(
+emidaf_core/core/base_result.py:    def data(self) -> dict[str, Any]:
+emidaf_core/core/base_result.py:    def put(
+emidaf_core/core/base_result.py:    def get(
+emidaf_core/core/base_result.py:    def clear(self) -> None:
+emidaf_core/core/base_result.py:    def warning_count(self) -> int:
+emidaf_core/core/base_result.py:    def recommendation_count(self) -> int:
+emidaf_core/core/base_result.py:    def has_errors(self) -> bool:
+emidaf_core/core/base_result.py:    def has_warnings(self) -> bool:
+emidaf_core/core/base_result.py:    def to_dict(self) -> dict[str, Any]:
+emidaf_core/core/base_engine.py:    def execute(
+emidaf_core/core/base_engine.py:    def initialize(self) -> None:
+emidaf_core/core/base_engine.py:    def validate(
+emidaf_core/core/base_engine.py:    def create_context(
+emidaf_core/core/base_engine.py:    def run(
+emidaf_core/core/base_engine.py:    def finalize(
+emidaf_core/core/base_engine.py:    def _store_execution_time(
+emidaf_core/core/base_engine.py:    def __repr__(self) -> str:
+emidaf_core/kernel.py:    def __init__(self) -> None:
+emidaf_core/kernel.py:    def start(self) -> Registry:
+emidaf_core/kernel.py:    def registry(self) -> Registry | None:
+emidaf_core/bootstrap/bootstrap.py:    def __init__(self):
+emidaf_core/bootstrap/bootstrap.py:    def container(self) -> Container:
+emidaf_core/bootstrap/bootstrap.py:    def initialize(self) -> Container:
+emidaf_core/bootstrap/bootstrap.py:    def _load_configuration(self):
+emidaf_core/bootstrap/bootstrap.py:    def _create_database(self):
+emidaf_core/bootstrap/bootstrap.py:    def _create_managers(self):
+emidaf_core/bootstrap/bootstrap.py:    def _create_mappers(self):
+emidaf_core/bootstrap/bootstrap.py:    def _create_repositories(self):
+emidaf_core/bootstrap/bootstrap.py:    def _create_services(self):
+emidaf_core/bootstrap/bootstrap.py:    def _create_controllers(self):
+emidaf_core/bootstrap/bootstrap.py:    def _register_components(self):
+emidaf_core/builders/project_builder.py:    def __init__(self, workspace_manager):
+emidaf_core/builders/project_builder.py:    def build(self, project: Project):
+emidaf_core/builders/project_builder.py:    def _create_structure(self, project_path):
+emidaf_core/builders/project_builder.py:    def _create_readme(self, path, project):
+emidaf_core/builders/project_builder.py:    def _create_config(self, path, project):
+emidaf_core/registry.py:    def __init__(self) -> None:
+emidaf_core/registry.py:    def register(self, name: str, component: Any) -> None:
+emidaf_core/registry.py:    def get(self, name: str) -> Any:
+emidaf_core/registry.py:    def exists(self, name: str) -> bool:
+emidaf_core/registry.py:    def remove(self, name: str) -> bool:
+emidaf_core/registry.py:    def clear(self) -> None:
+emidaf_core/registry.py:    def keys(self):
+emidaf_core/registry.py:    def values(self):
+emidaf_core/registry.py:    def items(self):
+emidaf_core/registry.py:    def __contains__(self, name: str) -> bool:
+emidaf_core/registry.py:    def __len__(self) -> int:
+emidaf_core/registry.py:    def __iter__(self) -> Iterator[str]:
+emidaf_core/registry.py:    def __getitem__(self, name: str) -> Any:
+emidaf_core/registry.py:    def __repr__(self) -> str:
+emidaf_core/dataset/dataset_reader.py:    def read(
+emidaf_core/dataset/dataset_reader.py:    def _read_csv(self, file, **kwargs):
+emidaf_core/dataset/dataset_reader.py:    def _read_excel(self, file, **kwargs):
+emidaf_core/dataset/dataset_reader.py:    def _read_json(self, file):
+emidaf_core/dataset/dataset_reader.py:    def _read_parquet(self, file):
+emidaf_core/dataset/dataset_reader.py:    def _read_feather(self, file):
+emidaf_core/dataset/dataset_reader.py:    def _read_pickle(self, file):
+emidaf_core/dataset/dataset_reader.py:    def _read_xml(self, file):
+emidaf_core/dataset/dataset_reader.py:    def _read_txt(self, file, **kwargs):
+emidaf_core/dataset/profiler/analyzers/outlier_analyzer.py:    def analyze(
+emidaf_core/dataset/profiler/analyzers/duplicate_analyser.py:    def analyze(
+emidaf_core/dataset/profiler/analyzers/duplicate_analyser.py:    def _compute_quality(
+emidaf_core/dataset/profiler/analyzers/duplicate_analyser.py:    def _build_recommendations(
+emidaf_core/dataset/profiler/analyzers/correlation_analyzer.py:    def analyze(
+emidaf_core/dataset/profiler/analyzers/cardinality_analyzer.py:    def analyze(
+emidaf_core/dataset/profiler/analyzers/cardinality_analyzer.py:    def _compute_quality(
+emidaf_core/dataset/profiler/analyzers/cardinality_analyzer.py:    def _build_recommendations(
+emidaf_core/dataset/profiler/analyzers/missing_analyzer.py:    def analyze(
+emidaf_core/dataset/profiler/analyzers/missing_analyzer.py:    def _analyze_columns(
+emidaf_core/dataset/profiler/analyzers/missing_analyzer.py:    def _analyze_rows(
+emidaf_core/dataset/profiler/analyzers/missing_analyzer.py:    def _compute_patterns(
+emidaf_core/dataset/profiler/analyzers/missing_analyzer.py:    def _compute_density(
+emidaf_core/dataset/profiler/analyzers/missing_analyzer.py:    def _compute_quality(
+emidaf_core/dataset/profiler/analyzers/missing_analyzer.py:    def _compute_co_occurrence(
+emidaf_core/dataset/profiler/analyzers/missing_analyzer.py:    def _compute_imputation(
+emidaf_core/dataset/profiler/analyzers/missing_analyzer.py:    def _prepare_missing_mechanism(
+emidaf_core/dataset/profiler/analyzers/missing_analyzer.py:    def _build_recommendations(
+emidaf_core/dataset/profiler/analyzers/normality_analyzer.py:    def analyze(
+emidaf_core/dataset/profiler/analyzers/structure_analyzer.py:    def analyze(
+emidaf_core/dataset/profiler/analyzers/datatype_analyzer.py:    def analyze(
+emidaf_core/dataset/profiler/analyzers/text_analyzer.py:    def analyze(
+emidaf_core/dataset/profiler/analyzers/categorical_analyzer.py:    def analyze(
+emidaf_core/dataset/profiler/analyzers/multicollinearity_analyzer.py:    def analyze(
+emidaf_core/dataset/profiler/analyzers/quality_analyzer.py:    def analyze(
+emidaf_core/dataset/profiler/analyzers/base_analyzer.py:    def __init__(self):
+emidaf_core/dataset/profiler/analyzers/base_analyzer.py:    def name(self) -> str:
+emidaf_core/dataset/profiler/analyzers/base_analyzer.py:    def version(self) -> str:
+emidaf_core/dataset/profiler/analyzers/base_analyzer.py:    def validate(
+emidaf_core/dataset/profiler/analyzers/base_analyzer.py:    def shape(
+emidaf_core/dataset/profiler/analyzers/base_analyzer.py:    def rows(
+emidaf_core/dataset/profiler/analyzers/base_analyzer.py:    def columns(
+emidaf_core/dataset/profiler/analyzers/base_analyzer.py:    def memory_usage(
+emidaf_core/dataset/profiler/analyzers/base_analyzer.py:    def numeric_columns(
+emidaf_core/dataset/profiler/analyzers/base_analyzer.py:    def categorical_columns(
+emidaf_core/dataset/profiler/analyzers/base_analyzer.py:    def boolean_columns(
+emidaf_core/dataset/profiler/analyzers/base_analyzer.py:    def datetime_columns(
+emidaf_core/dataset/profiler/analyzers/base_analyzer.py:    def text_columns(
+emidaf_core/dataset/profiler/analyzers/base_analyzer.py:    def missing_values(
+emidaf_core/dataset/profiler/analyzers/base_analyzer.py:    def duplicate_rows(
+emidaf_core/dataset/profiler/analyzers/base_analyzer.py:    def unique_values(
+emidaf_core/dataset/profiler/analyzers/base_analyzer.py:    def percentage(
+emidaf_core/dataset/profiler/analyzers/base_analyzer.py:    def safe_division(
+emidaf_core/dataset/profiler/analyzers/base_analyzer.py:    def analyze(
+emidaf_core/dataset/profiler/analyzers/base_analyzer.py:    def execute(
+emidaf_core/dataset/profiler/analyzers/base_analyzer.py:    def __call__(
+emidaf_core/dataset/profiler/analyzers/base_analyzer.py:    def __str__(self):
+emidaf_core/dataset/profiler/analyzers/base_analyzer.py:    def __repr__(self):
+emidaf_core/dataset/profiler/analyzers/analyzer_result.py:    def finish(self) -> None:
+emidaf_core/dataset/profiler/analyzers/analyzer_result.py:    def add_warning(
+emidaf_core/dataset/profiler/analyzers/analyzer_result.py:    def add_error(
+emidaf_core/dataset/profiler/analyzers/analyzer_result.py:    def add_log(
+emidaf_core/dataset/profiler/analyzers/analyzer_result.py:    def add_recommendation(
+emidaf_core/dataset/profiler/analyzers/analyzer_result.py:    def set_result(
+emidaf_core/dataset/profiler/analyzers/analyzer_result.py:    def update_metadata(
+emidaf_core/dataset/profiler/analyzers/analyzer_result.py:    def has_warning(self) -> bool:
+emidaf_core/dataset/profiler/analyzers/analyzer_result.py:    def has_error(self) -> bool:
+emidaf_core/dataset/profiler/analyzers/analyzer_result.py:    def recommendation_count(self) -> int:
+emidaf_core/dataset/profiler/analyzers/analyzer_result.py:    def to_dict(self) -> dict:
+emidaf_core/dataset/profiler/analyzers/memory_analyzer.py:    def analyze(
+emidaf_core/dataset/profiler/analyzers/numerical_analyzer.py:    def analyze(
+emidaf_core/dataset/profiler/analyzers/numerical_analyzer.py:    def _analyze_variable(
+emidaf_core/dataset/profiler/analyzers/numerical_analyzer.py:    def _descriptive_statistics(
+emidaf_core/dataset/profiler/analyzers/numerical_analyzer.py:    def _dispersion_statistics(
+emidaf_core/dataset/profiler/analyzers/numerical_analyzer.py:    def _descriptive_statistics(
+emidaf_core/dataset/profiler/analyzers/numerical_analyzer.py:    def _dispersion_statistics(
+emidaf_core/dataset/profiler/analyzers/numerical_analyzer.py:    def _quantile_statistics(
+emidaf_core/dataset/profiler/analyzers/numerical_analyzer.py:    def _distribution_statistics(
+emidaf_core/dataset/profiler/analyzers/numerical_analyzer.py:    def _shape_statistics(
+emidaf_core/dataset/profiler/analyzers/numerical_analyzer.py:    def _value_statistics(
+emidaf_core/dataset/profiler/analyzers/numerical_analyzer.py:    def _build_summary(
+emidaf_core/dataset/profiler/analyzers/numerical_analyzer.py:    def _quality_analysis(
+emidaf_core/dataset/profiler/analyzers/numerical_analyzer.py:    def _build_recommendations(
+emidaf_core/dataset/profiler/analyzers/numerical_analyzer.py:    def __repr__(self) -> str:
+emidaf_core/dataset/profiler/analyzers/analyzer_registry.py:    def __init__(self) -> None:
+emidaf_core/dataset/profiler/analyzers/analyzer_registry.py:    def register(
+emidaf_core/dataset/profiler/analyzers/analyzer_registry.py:    def unregister(
+emidaf_core/dataset/profiler/analyzers/analyzer_registry.py:    def enable(
+emidaf_core/dataset/profiler/analyzers/analyzer_registry.py:    def disable(
+emidaf_core/dataset/profiler/analyzers/analyzer_registry.py:    def is_enabled(
+emidaf_core/dataset/profiler/analyzers/analyzer_registry.py:    def enabled(self) -> list[BaseAnalyzer]:
+emidaf_core/dataset/profiler/analyzers/analyzer_registry.py:    def __iter__(self) -> Iterator[BaseAnalyzer]:
+emidaf_core/dataset/profiler/analyzers/datetime_analyzer.py:    def analyze(
+emidaf_core/dataset/profiler/analyzers/distribution_analyzer.py:    def analyze(
+emidaf_core/dataset/profiler/profile_builder.py:    def __init__(self):
+emidaf_core/dataset/profiler/profile_builder.py:    def build(
+emidaf_core/dataset/profiler/profile_builder.py:    def reset(self):
+emidaf_core/dataset/profiler/profile_builder.py:    def _populate(
+emidaf_core/dataset/profiler/profile_builder.py:    def _add_result(
+emidaf_core/dataset/profiler/profile_builder.py:    def _add_warnings(
+emidaf_core/dataset/profiler/profile_builder.py:    def _add_errors(
+emidaf_core/dataset/profiler/profile_builder.py:    def _add_recommendations(
+emidaf_core/dataset/profiler/profile_builder.py:    def _add_scores(
+emidaf_core/dataset/profiler/profile_builder.py:    def _attribute_name(
+emidaf_core/dataset/profiler/profile_builder.py:    def _update_summary(
+emidaf_core/dataset/profiler/profile_builder.py:    def _update_metadata(self) -> None:
+emidaf_core/dataset/profiler/profile_builder.py:    def _compute_scores(self) -> None:
+emidaf_core/dataset/profiler/profile_builder.py:    def _finalize(self) -> None:
+emidaf_core/dataset/profiler/profile_builder.py:    def to_profile(self) -> ProfileResult:
+emidaf_core/dataset/profiler/profile_builder.py:    def clear(self) -> None:
+emidaf_core/dataset/profiler/profile_builder.py:    def __str__(self) -> str:
+emidaf_core/dataset/profiler/profile_builder.py:    def __repr__(self) -> str:
+emidaf_core/dataset/profiler/profile_result.py:    def add_warning(
+emidaf_core/dataset/profiler/profile_result.py:    def add_error(
+emidaf_core/dataset/profiler/profile_result.py:    def add_recommendation(
+emidaf_core/dataset/profiler/profile_result.py:    def set_score(
+emidaf_core/dataset/profiler/profile_result.py:    def get_score(
+emidaf_core/dataset/profiler/profile_result.py:    def register_analysis(
+emidaf_core/dataset/profiler/profile_result.py:    def get_analysis(
+emidaf_core/dataset/profiler/profile_result.py:    def is_valid(self) -> bool:
+emidaf_core/dataset/profiler/profile_result.py:    def recommendation_count(self) -> int:
+emidaf_core/dataset/profiler/profile_result.py:    def warning_count(self) -> int:
+emidaf_core/dataset/profiler/profile_result.py:    def error_count(self) -> int:
+emidaf_core/dataset/profiler/profile_result.py:    def to_dict(self) -> dict:
+emidaf_core/dataset/profiler/profile_context.py:    def rows(self) -> int:
+emidaf_core/dataset/profiler/profile_context.py:    def columns(self) -> int:
+emidaf_core/dataset/profiler/profile_context.py:    def shape(self) -> tuple[int, int]:
+emidaf_core/dataset/profiler/profile_context.py:    def memory_usage(self) -> int:
+emidaf_core/dataset/profiler/profile_context.py:    def set_option(
+emidaf_core/dataset/profiler/profile_context.py:    def get_option(
+emidaf_core/dataset/profiler/profile_context.py:    def put_cache(
+emidaf_core/dataset/profiler/profile_context.py:    def get_cache(
+emidaf_core/dataset/profiler/profile_context.py:    def clear_cache(self) -> None:
+emidaf_core/dataset/profiler/profile_context.py:    def add_result(
+emidaf_core/dataset/profiler/profile_context.py:    def get_result(
+emidaf_core/dataset/profiler/profile_context.py:    def share(
+emidaf_core/dataset/profiler/profile_context.py:    def shared_value(
+emidaf_core/dataset/profiler/profile_context.py:    def add_metadata(
+emidaf_core/dataset/profiler/profile_context.py:    def log(
+emidaf_core/dataset/profiler/profile_context.py:    def working_dataframe(
+emidaf_core/dataset/profiler/profile_context.py:    def __repr__(self):
+emidaf_core/dataset/profiler/profile_engine.py:    def __init__(
+emidaf_core/dataset/profiler/profile_engine.py:    def validate(
+emidaf_core/dataset/profiler/profile_engine.py:    def create_context(
+emidaf_core/dataset/profiler/profile_engine.py:    def run(
+emidaf_core/dataset/profiler/profile_engine.py:    def finalize(
+emidaf_core/dataset/profiler/profile_engine.py:    def __repr__(self) -> str:
+emidaf_core/dataset/profiler/profile_summary.py:    def shape(self) -> tuple[int, int]:
+emidaf_core/dataset/profiler/profile_summary.py:    def total_types(self) -> int:
+emidaf_core/dataset/profiler/profile_summary.py:    def add_message(
+emidaf_core/dataset/profiler/profile_summary.py:    def add_warning(
+emidaf_core/dataset/profiler/profile_summary.py:    def add_critical(
+emidaf_core/dataset/profiler/profile_summary.py:    def compute_quality_level(self) -> None:
+emidaf_core/dataset/profiler/profile_summary.py:    def update_readiness(self) -> None:
+emidaf_core/dataset/profiler/profile_summary.py:    def finalize(self) -> None:
+emidaf_core/dataset/profiler/profile_summary.py:    def to_dict(self) -> dict:
+emidaf_core/dataset/profiler/profile_summary.py:    def from_dict(
+emidaf_core/dataset/profiler/dataset_profiler.py:    def __init__(self):
+emidaf_core/dataset/profiler/dataset_profiler.py:    def _register_default_analyzers(self):
+emidaf_core/dataset/profiler/dataset_profiler.py:    def profile(
+emidaf_core/dataset/profiler/dataset_profiler.py:    def run(
+emidaf_core/dataset/profiler/dataset_profiler.py:    def register(self, analyzer):
+emidaf_core/dataset/profiler/dataset_profiler.py:    def unregister(self, analyzer_name: str):
+emidaf_core/dataset/profiler/dataset_profiler.py:    def enable(self, analyzer_name: str):
+emidaf_core/dataset/profiler/dataset_profiler.py:    def disable(self, analyzer_name: str):
+emidaf_core/dataset/profiler/dataset_profiler.py:    def analyzers(self):
+emidaf_core/dataset/profiler/dataset_profiler.py:    def clear(self):
+emidaf_core/dataset/profiler/dataset_profiler.py:def _execute(
+emidaf_core/dataset/profiler/dataset_profiler.py:def _run_analyzers(
+emidaf_core/dataset/profiler/dataset_profiler.py:    def _store_result(
+emidaf_core/dataset/profiler/dataset_profiler.py:    def _compute_summary(
+emidaf_core/dataset/profiler/dataset_profiler.py:    def _attribute_name(
+emidaf_core/dataset/profiler/dataset_profiler.py:    def export_dict(
+emidaf_core/dataset/profiler/dataset_profiler.py:    def export_json(
+emidaf_core/dataset/profiler/dataset_profiler.py:    def analyzer_count(self) -> int:
+emidaf_core/dataset/profiler/dataset_profiler.py:    def analyzer_names(
+emidaf_core/dataset/profiler/dataset_profiler.py:    def reset(self) -> None:
+emidaf_core/dataset/profiler/dataset_profiler.py:    def enable_all(self) -> None:
+emidaf_core/dataset/profiler/dataset_profiler.py:    def disable_all(self) -> None:
+emidaf_core/dataset/profiler/dataset_profiler.py:    def __iter__(self):
+emidaf_core/dataset/profiler/dataset_profiler.py:    def __len__(self):
+emidaf_core/dataset/profiler/dataset_profiler.py:    def __str__(self):
+emidaf_core/dataset/profiler/dataset_profiler.py:    def __repr__(self):
+emidaf_core/dataset/profiler/profile_utils.py:def execution_time(start: float) -> float:
+emidaf_core/dataset/profiler/profile_utils.py:def percentage(
+emidaf_core/dataset/profiler/profile_utils.py:def safe_division(
+emidaf_core/dataset/profiler/profile_utils.py:def bytes_to_kb(size: int) -> float:
+emidaf_core/dataset/profiler/profile_utils.py:def bytes_to_mb(size: int) -> float:
+emidaf_core/dataset/profiler/profile_utils.py:def bytes_to_gb(size: int) -> float:
+emidaf_core/dataset/profiler/profile_utils.py:def format_bytes(size: int) -> str:
+emidaf_core/dataset/profiler/profile_utils.py:def dataframe_memory(df: pd.DataFrame) -> int:
+emidaf_core/dataset/profiler/profile_utils.py:def sha256(file: Path) -> str:
+emidaf_core/dataset/profiler/profile_utils.py:def dataframe_shape(
+emidaf_core/dataset/profiler/profile_utils.py:def row_count(df: pd.DataFrame) -> int:
+emidaf_core/dataset/profiler/profile_utils.py:def column_count(df: pd.DataFrame) -> int:
+emidaf_core/dataset/profiler/profile_utils.py:def empty(df: pd.DataFrame) -> bool:
+emidaf_core/dataset/profiler/profile_utils.py:def numeric_columns(
+emidaf_core/dataset/profiler/profile_utils.py:def categorical_columns(
+emidaf_core/dataset/profiler/profile_utils.py:def boolean_columns(
+emidaf_core/dataset/profiler/profile_utils.py:def datetime_columns(
+emidaf_core/dataset/profiler/profile_utils.py:def object_columns(
+emidaf_core/dataset/profiler/profile_utils.py:def missing_values(df: pd.DataFrame) -> int:
+emidaf_core/dataset/profiler/profile_utils.py:def duplicate_rows(df: pd.DataFrame) -> int:
+emidaf_core/dataset/profiler/profile_utils.py:def duplicate_ratio(df: pd.DataFrame) -> float:
+emidaf_core/dataset/profiler/profile_utils.py:def missing_ratio(df: pd.DataFrame) -> float:
+emidaf_core/dataset/profiler/profile_utils.py:def unique_values(
+emidaf_core/dataset/profiler/profile_utils.py:def constant_columns(
+emidaf_core/dataset/profiler/profile_utils.py:def empty_columns(
+emidaf_core/dataset/profiler/profile_utils.py:def entropy(values: pd.Series) -> float:
+emidaf_core/dataset/profiler/profile_utils.py:def coefficient_variation(
+emidaf_core/dataset/profiler/profile_utils.py:def normalize(
+emidaf_core/dataset/profiler/profile_utils.py:def clamp(
+emidaf_core/dataset/profiler/profile_utils.py:def truncate(
+emidaf_core/dataset/profiler/profile_utils.py:def ensure_directory(
+emidaf_core/dataset/profiler/profile_exceptions.py:    def __init__(self, message: str = "Profile error"):
+emidaf_core/dataset/profiler/profile_exceptions.py:    def __init__(self):
+emidaf_core/dataset/profiler/profile_exceptions.py:    def __init__(self, reason: str = ""):
+emidaf_core/dataset/profiler/profile_exceptions.py:    def __init__(self):
+emidaf_core/dataset/profiler/profile_exceptions.py:    def __init__(self, column: str):
+emidaf_core/dataset/profiler/profile_exceptions.py:    def __init__(self, column: str):
+emidaf_core/dataset/profiler/profile_exceptions.py:    def __init__(
+emidaf_core/dataset/profiler/profile_exceptions.py:    def __init__(self, analyzer: str):
+emidaf_core/dataset/profiler/profile_exceptions.py:    def __init__(self):
+emidaf_core/dataset/profiler/profile_exceptions.py:    def __init__(self, message: str):
+emidaf_core/dataset/profiler/profile_exceptions.py:    def __init__(self, message: str):
+emidaf_core/dataset/profiler/profile_exceptions.py:    def __init__(self, format_name: str):
+emidaf_core/dataset/profiler/profile_exceptions.py:    def __init__(self, message: str):
+emidaf_core/dataset/profiler/profile_exceptions.py:    def __init__(self, profile_id=None):
+emidaf_core/dataset/profiler/profile_exceptions.py:    def __init__(
+emidaf_core/dataset/profiler/profile_factory.py:    def create_context(
+emidaf_core/dataset/profiler/profile_factory.py:    def create_metadata(
+emidaf_core/dataset/profiler/profile_factory.py:    def create_summary(
+emidaf_core/dataset/profiler/profile_factory.py:    def create_profile(
+emidaf_core/dataset/profiler/profile_metadata.py:    def duration(self) -> float:
+emidaf_core/dataset/profiler/profile_metadata.py:    def shape(self) -> tuple[int, int]:
+emidaf_core/dataset/profiler/profile_metadata.py:    def total_cells(self) -> int:
+emidaf_core/dataset/profiler/profile_metadata.py:    def start(self) -> None:
+emidaf_core/dataset/profiler/profile_metadata.py:    def finish(self) -> None:
+emidaf_core/dataset/profiler/profile_metadata.py:    def to_dict(self) -> dict:
+emidaf_core/dataset/profiler/profile_metadata.py:    def from_dict(cls, values: dict):
+emidaf_core/dataset/profiler/profile_repository.py:    def __init__(
+emidaf_core/dataset/profiler/profile_repository.py:    def save(
+emidaf_core/dataset/profiler/profile_repository.py:    def update(
+emidaf_core/dataset/profiler/profile_repository.py:    def find_by_id(
+emidaf_core/dataset/profiler/profile_repository.py:    def find_by_name(
+emidaf_core/dataset/profiler/profile_repository.py:    def find_by_dataset(
+emidaf_core/dataset/profiler/profile_repository.py:    def find_all(self) -> list[dict]:
+emidaf_core/dataset/profiler/profile_repository.py:    def exists(
+emidaf_core/dataset/profiler/profile_repository.py:    def count(self) -> int:
+emidaf_core/dataset/profiler/profile_repository.py:    def last(self) -> Optional[dict]:
+emidaf_core/dataset/profiler/profile_repository.py:    def search(
+emidaf_core/dataset/profiler/profile_repository.py:    def datasets(self) -> list[str]:
+emidaf_core/dataset/profiler/profile_repository.py:    def delete(
+emidaf_core/dataset/profiler/profile_repository.py:    def delete_by_name(
+emidaf_core/dataset/profiler/profile_repository.py:    def delete_all(self) -> int:
+emidaf_core/dataset/profiler/profile_repository.py:    def export_json(
+emidaf_core/dataset/profiler/profile_repository.py:    def import_json(
+emidaf_core/dataset/profiler/profile_repository.py:    def backup(
+emidaf_core/dataset/profiler/profile_repository.py:    def restore(
+emidaf_core/dataset/profiler/profile_repository.py:    def is_empty(self) -> bool:
+emidaf_core/dataset/profiler/profile_repository.py:    def __len__(self):
+emidaf_core/dataset/profiler/profile_repository.py:    def __contains__(
+emidaf_core/dataset/profiler/profile_repository.py:    def __str__(self):
+emidaf_core/dataset/profiler/profile_repository.py:    def __repr__(self):
+emidaf_core/dataset/profiler/profile_repository.py:    def duplicate(
+emidaf_core/dataset/profiler/profile_service.py:    def __init__(
+emidaf_core/dataset/profiler/profile_service.py:    def profile(
+emidaf_core/dataset/profiler/profile_service.py:    def save(
+emidaf_core/dataset/profiler/profile_service.py:    def update(
+emidaf_core/dataset/profiler/profile_service.py:    def find(
+emidaf_core/dataset/profiler/profile_service.py:    def find_all(self):
+emidaf_core/dataset/profiler/profile_service.py:    def exists(
+emidaf_core/dataset/profiler/profile_service.py:    def delete(
+emidaf_core/dataset/profiler/profile_service.py:    def delete_all(self) -> int:
+emidaf_core/dataset/profiler/profile_service.py:    def refresh(
+emidaf_core/dataset/profiler/profile_service.py:    def duplicate( self,profile_id: int) -> int:
+emidaf_core/dataset/profiler/profile_service.py:        def duplicate(self,profile_id: int) -> int:
+emidaf_core/dataset/profiler/profile_service.py:    def export_json(
+emidaf_core/dataset/profiler/profile_service.py:    def import_json(
+emidaf_core/dataset/profiler/profile_service.py:    def backup(
+emidaf_core/dataset/profiler/profile_service.py:    def restore(
+emidaf_core/dataset/profiler/profile_service.py:    def compare(
+emidaf_core/dataset/profiler/profile_service.py:    def validate(
+emidaf_core/dataset/profiler/profile_service.py:    def count(self) -> int:
+emidaf_core/dataset/profiler/profile_service.py:    def search(
+emidaf_core/dataset/profiler/profile_service.py:    def datasets(
+emidaf_core/dataset/profiler/profile_service.py:    def last(
+emidaf_core/dataset/profiler/profile_service.py:    def duplicate(
+emidaf_core/dataset/profiler/profile_service.py:    def is_empty(
+emidaf_core/dataset/profiler/profile_service.py:    def statistics(
+emidaf_core/dataset/profiler/profile_service.py:    def __len__(self):
+emidaf_core/dataset/profiler/profile_service.py:    def __contains__(
+emidaf_core/dataset/profiler/profile_service.py:    def __str__(self):
+emidaf_core/dataset/profiler/profile_service.py:    def __repr__(self):
+emidaf_core/dataset/profiler/profile_validator.py:    def validate_dataframe(
+emidaf_core/dataset/profiler/profile_validator.py:    def validate_columns(
+emidaf_core/dataset/profiler/profile_validator.py:    def validate_rows(
+emidaf_core/dataset/profiler/profile_validator.py:    def validate_duplicate_columns(
+emidaf_core/dataset/profiler/profile_validator.py:    def validate_dtypes(
+emidaf_core/dataset/profiler/profile_validator.py:    def validate_memory(
+emidaf_core/dataset/profiler/profile_validator.py:    def validate_profile(
+emidaf_core/dataset/profiler/profile_validator.py:    def validate_metadata(
+emidaf_core/dataset/profiler/profile_validator.py:    def validate_summary(
+emidaf_core/dataset/profiler/profile_validator.py:    def validate_analyzer_result(
+emidaf_core/dataset/profiler/profile_validator.py:    def validate(
+emidaf_core/dataset/profiler/profile_validator.py:    def validate_score(
+emidaf_core/dataset/profiler/profile_validator.py:    def is_valid_dataframe(
+emidaf_core/dataset/profiler/profile_validator.py:    def is_valid_profile(
+emidaf_core/managers/session_manager.py:    def __init__(self) -> None:
+emidaf_core/managers/session_manager.py:    def initialize(self) -> None:
+emidaf_core/managers/session_manager.py:    def set_workspace(self, workspace: Any) -> None:
+emidaf_core/managers/session_manager.py:    def get_workspace(self) -> Optional[Any]:
+emidaf_core/managers/session_manager.py:    def set_project(self, project: Any) -> None:
+emidaf_core/managers/session_manager.py:    def get_project(self) -> Optional[Any]:
+emidaf_core/managers/session_manager.py:    def has_project(self) -> bool:
+emidaf_core/managers/session_manager.py:    def set_dataset(self, dataset: Any) -> None:
+emidaf_core/managers/session_manager.py:    def get_dataset(self) -> Optional[Any]:
+emidaf_core/managers/session_manager.py:    def has_dataset(self) -> bool:
+emidaf_core/managers/session_manager.py:    def set_theme(self, theme: Any) -> None:
+emidaf_core/managers/session_manager.py:    def get_theme(self) -> Optional[Any]:
+emidaf_core/managers/session_manager.py:    def set_language(self, language: str) -> None:
+emidaf_core/managers/session_manager.py:    def get_language(self) -> str:
+emidaf_core/managers/session_manager.py:    def set_preference(self, key: str, value: Any) -> None:
+emidaf_core/managers/session_manager.py:    def get_preference(self, key: str, default: Any = None) -> Any:
+emidaf_core/managers/session_manager.py:    def remove_preference(self, key: str) -> None:
+emidaf_core/managers/session_manager.py:    def clear_preferences(self) -> None:
+emidaf_core/managers/session_manager.py:    def clear(self) -> None:
+emidaf_core/managers/resource_manager.py:    def __init__(self, assets_directory: Optional[Path] = None):
+emidaf_core/managers/resource_manager.py:    def initialize(self) -> None:
+emidaf_core/managers/resource_manager.py:    def assets(self) -> Path:
+emidaf_core/managers/resource_manager.py:    def images(self) -> Path:
+emidaf_core/managers/resource_manager.py:    def icons(self) -> Path:
+emidaf_core/managers/resource_manager.py:    def css(self) -> Path:
+emidaf_core/managers/resource_manager.py:    def reports(self) -> Path:
+emidaf_core/managers/resource_manager.py:    def image(self, filename: str) -> Path:
+emidaf_core/managers/resource_manager.py:    def icon(self, filename: str) -> Path:
+emidaf_core/managers/resource_manager.py:    def stylesheet(self, filename: str) -> Path:
+emidaf_core/managers/resource_manager.py:    def report_template(self) -> Path:
+emidaf_core/managers/resource_manager.py:    def exists(self, resource: Path) -> bool:
+emidaf_core/managers/logger_manager.py:    def __init__(self):
+emidaf_core/managers/logger_manager.py:    def _initialize_loggers(self):
+emidaf_core/managers/logger_manager.py:    def _create_logger(self, name):
+emidaf_core/managers/logger_manager.py:    def get_logger(self, name):
+emidaf_core/managers/logger_manager.py:    def exists(self, name):
+emidaf_core/managers/logger_manager.py:    def list(self):
+emidaf_core/managers/logger_manager.py:    def info(self, message):
+emidaf_core/managers/logger_manager.py:    def warning(self, message):
+emidaf_core/managers/logger_manager.py:    def error_message(self, message):
+emidaf_core/managers/logger_manager.py:    def critical(self, message):
+emidaf_core/managers/logger_manager.py:    def application(self):
+emidaf_core/managers/logger_manager.py:    def project(self):
+emidaf_core/managers/logger_manager.py:    def importer(self):
+emidaf_core/managers/logger_manager.py:    def inspection(self):
+emidaf_core/managers/logger_manager.py:    def error(self):
+emidaf_core/managers/configuration_manager.py:    def __init__(self):
+emidaf_core/managers/configuration_manager.py:    def initialize(self):
+emidaf_core/managers/configuration_manager.py:    def load(self):
+emidaf_core/managers/configuration_manager.py:    def reload(self):
+emidaf_core/managers/configuration_manager.py:    def get(self, key, default=None):
+emidaf_core/managers/configuration_manager.py:    def has(self, key):
+emidaf_core/managers/configuration_manager.py:    def keys(self):
+emidaf_core/managers/configuration_manager.py:    def values(self):
+emidaf_core/managers/configuration_manager.py:    def items(self):
+emidaf_core/managers/configuration_manager.py:    def count(self):
+emidaf_core/managers/configuration_manager.py:    def set(self, key, value):
+emidaf_core/managers/configuration_manager.py:    def remove(self, key):
+emidaf_core/managers/configuration_manager.py:    def clear(self):
+emidaf_core/managers/configuration_manager.py:    def save(self):
+emidaf_core/managers/configuration_manager.py:    def application(self):
+emidaf_core/managers/configuration_manager.py:    def version(self):
+emidaf_core/managers/configuration_manager.py:    def theme(self):
+emidaf_core/managers/configuration_manager.py:    def language(self):
+emidaf_core/managers/configuration_manager.py:    def workspace(self):
+emidaf_core/managers/configuration_manager.py:    def database(self):
+emidaf_core/managers/configuration_manager.py:    def debug(self):
+emidaf_core/managers/configuration_manager.py:    def autosave(self):
+emidaf_core/managers/configuration_manager.py:    def log_level(self):
+emidaf_core/managers/navigation_manager.py:    def __init__(self):
+emidaf_core/managers/navigation_manager.py:    def initialize(self) -> None:
+emidaf_core/managers/navigation_manager.py:    def navigate(self, page: str) -> None:
+emidaf_core/managers/navigation_manager.py:    def current(self) -> Optional[str]:
+emidaf_core/managers/navigation_manager.py:    def previous(self) -> Optional[str]:
+emidaf_core/managers/navigation_manager.py:    def back(self) -> Optional[str]:
+emidaf_core/managers/navigation_manager.py:    def history(self) -> List[str]:
+emidaf_core/managers/navigation_manager.py:    def can_go_back(self) -> bool:
+emidaf_core/managers/navigation_manager.py:    def clear(self) -> None:
+emidaf_core/managers/theme_manager.py:    def __init__(self) -> None:
+emidaf_core/managers/theme_manager.py:    def initialize(self) -> None:
+emidaf_core/managers/theme_manager.py:    def register(self, name: str, theme: dict) -> None:
+emidaf_core/managers/theme_manager.py:    def unregister(self, name: str) -> bool:
+emidaf_core/managers/theme_manager.py:    def exists(self, name: str) -> bool:
+emidaf_core/managers/theme_manager.py:    def get(self, name: str) -> Optional[dict]:
+emidaf_core/managers/theme_manager.py:    def list(self) -> List[str]:
+emidaf_core/managers/theme_manager.py:    def count(self) -> int:
+emidaf_core/managers/theme_manager.py:    def set_current(self, name: str) -> None:
+emidaf_core/managers/theme_manager.py:    def get_current(self) -> Optional[dict]:
+emidaf_core/managers/theme_manager.py:    def get_current_name(self) -> Optional[str]:
+emidaf_core/managers/theme_manager.py:    def clear(self) -> None:
+emidaf_core/managers/workspace_manager.py:    def __init__(self, workspace: Optional[Path] = None):
+emidaf_core/managers/workspace_manager.py:    def initialize(self) -> None:
+emidaf_core/managers/workspace_manager.py:    def get_workspace(self) -> Path:
+emidaf_core/managers/workspace_manager.py:    def get_projects(self) -> Path:
+emidaf_core/managers/workspace_manager.py:    def get_templates(self) -> Path:
+emidaf_core/managers/workspace_manager.py:    def get_archives(self) -> Path:
+emidaf_core/managers/workspace_manager.py:    def get_trash(self) -> Path:
+emidaf_core/managers/workspace_manager.py:    def project_exists(self, project_name: str) -> bool:
+emidaf_core/managers/workspace_manager.py:    def get_project_path(self, project_name: str) -> Path:
+emidaf_core/managers/workspace_manager.py:    def list_projects(self) -> List[str]:
+emidaf_core/managers/workspace_manager.py:    def count_projects(self) -> int:
+emidaf_core/managers/workspace_manager.py:    def create_project(self, project_name: str) -> bool:
+emidaf_core/managers/workspace_manager.py:    def rename_project(
+emidaf_core/managers/workspace_manager.py:    def duplicate_project(
+emidaf_core/managers/workspace_manager.py:    def archive_project(
+emidaf_core/managers/workspace_manager.py:    def restore_project(
+emidaf_core/managers/workspace_manager.py:    def move_to_trash(
+emidaf_core/managers/workspace_manager.py:    def delete_project(
+emidaf_core/managers/event_manager.py:    def __init__(self):
+emidaf_core/managers/event_manager.py:    def subscribe(self, event_name, callback):
+emidaf_core/managers/event_manager.py:    def unsubscribe(self, event_name, callback):
+emidaf_core/managers/event_manager.py:    def publish(self, event_name, *args, **kwargs):
+emidaf_core/managers/event_manager.py:    def clear(self):
+emidaf_core/managers/event_manager.py:    def exists(self, event_name):
+emidaf_core/managers/event_manager.py:    def list(self):
+emidaf_core/managers/event_manager.py:    def subscribers(self, event_name):
+emidaf_core/repositories/workspace_repository.py:    def __init__(self, database_manager: DatabaseManager) -> None:
+emidaf_core/repositories/workspace_repository.py:    def add(self, workspace: WorkspaceModel) -> WorkspaceModel:
+emidaf_core/repositories/workspace_repository.py:    def get_by_id(self, workspace_id: int) -> Optional[WorkspaceModel]:
+emidaf_core/repositories/workspace_repository.py:    def get_all(self) -> List[WorkspaceModel]:
+emidaf_core/repositories/workspace_repository.py:    def exists(self, workspace_id: int) -> bool:
+emidaf_core/repositories/workspace_repository.py:    def count(self) -> int:
+emidaf_core/repositories/workspace_repository.py:    def update(self, workspace: WorkspaceModel) -> WorkspaceModel:
+emidaf_core/repositories/workspace_repository.py:    def delete(self, workspace_id: int) -> bool:
+emidaf_core/repositories/workspace_repository.py:    def delete_all(self) -> None:
+emidaf_core/repositories/dataset_repository.py:    def __init__(self, database_manager: DatabaseManager) -> None:
+emidaf_core/repositories/dataset_repository.py:    def add(self, dataset: DatasetModel) -> DatasetModel:
+emidaf_core/repositories/dataset_repository.py:    def get_by_id(self, dataset_id: int) -> Optional[DatasetModel]:
+emidaf_core/repositories/dataset_repository.py:    def get_all(self) -> List[DatasetModel]:
+emidaf_core/repositories/dataset_repository.py:    def exists(self, dataset_id: int) -> bool:
+emidaf_core/repositories/dataset_repository.py:    def count(self) -> int:
+emidaf_core/repositories/dataset_repository.py:    def update(self, dataset: DatasetModel) -> DatasetModel:
+emidaf_core/repositories/dataset_repository.py:    def delete(self, dataset_id: int) -> bool:
+emidaf_core/repositories/dataset_repository.py:    def delete_all(self) -> None:
+emidaf_core/repositories/project_repository.py:    def __init__(self, database_manager: DatabaseManager) -> None:
+emidaf_core/repositories/project_repository.py:    def add(self, project: ProjectModel) -> ProjectModel:
+emidaf_core/repositories/project_repository.py:    def get_by_id(self, project_id: int) -> Optional[ProjectModel]:
+emidaf_core/repositories/project_repository.py:    def get_all(self) -> List[ProjectModel]:
+emidaf_core/repositories/project_repository.py:    def exists(self, project_id: int) -> bool:
+emidaf_core/repositories/project_repository.py:    def count(self) -> int:
+emidaf_core/repositories/project_repository.py:    def update(self, project: ProjectModel) -> ProjectModel:
+emidaf_core/repositories/project_repository.py:    def delete(self, project_id: int) -> bool:
+emidaf_core/repositories/project_repository.py:    def delete_all(self) -> None:
+emidaf_core/container/container.py:    def __init__(self) -> None:
+emidaf_core/container/container.py:    def register(
+emidaf_core/container/container.py:    def get(
+emidaf_core/container/container.py:    def exists(
+emidaf_core/container/container.py:    def remove(
+emidaf_core/container/container.py:    def clear(self) -> None:
+emidaf_core/container/container.py:    def items(self):
+emidaf_core/container/container.py:    def values(self):
+emidaf_core/container/container.py:    def keys(self):
+emidaf_core/container/container.py:    def __contains__(
+emidaf_core/container/container.py:    def __getitem__(
+emidaf_core/container/container.py:    def __len__(self) -> int:
+emidaf_core/common/interpretation/engine.py:    def mean(
+emidaf_core/common/results/hypothesis_result.py:    def accepted(self) -> bool:
+emidaf_core/common/results/hypothesis_result.py:    def rejected(self) -> bool:
+emidaf_core/common/results/hypothesis_result.py:    def is_significant(self) -> bool:
+emidaf_core/common/results/hypothesis_result.py:    def significance_code(self) -> str:
+emidaf_core/common/results/hypothesis_result.py:    def summary(self):
+emidaf_core/common/results/hypothesis_result.py:    def compact(self):
+emidaf_core/common/results/hypothesis_result.py:    def __repr__(self):
+emidaf_core/common/results/visualization_result.py:    def has_figure(self):
+emidaf_core/common/results/visualization_result.py:    def is_interactive(self):
+emidaf_core/common/results/visualization_result.py:    def is_saved(self):
+emidaf_core/common/results/visualization_result.py:    def add_variable(self, variable: str):
+emidaf_core/common/results/visualization_result.py:    def add_parameter(self, key, value):
+emidaf_core/common/results/visualization_result.py:    def summary(self):
+emidaf_core/common/results/visualization_result.py:    def compact(self):
+emidaf_core/common/results/visualization_result.py:    def __repr__(self):
+emidaf_core/common/results/statistic_result.py:    def is_valid(self):
+emidaf_core/common/results/statistic_result.py:    def has_missing(self):
+emidaf_core/common/results/statistic_result.py:    def has_warning(self):
+emidaf_core/common/results/statistic_result.py:    def has_notes(self):
+emidaf_core/common/results/statistic_result.py:    def add_warning(
+emidaf_core/common/results/statistic_result.py:    def add_note(
+emidaf_core/common/results/statistic_result.py:    def add_reference(
+emidaf_core/common/results/statistic_result.py:    def scientific_summary(self):
+emidaf_core/common/results/statistic_result.py:    def to_markdown(self):
+emidaf_core/common/results/statistic_result.py:    def to_html(self):
+emidaf_core/common/results/statistic_result.py:    def to_csv(self):
+emidaf_core/common/results/statistic_result.py:    def to_numpy(self):
+emidaf_core/common/results/statistic_result.py:    def describe(self):
+emidaf_core/common/results/statistic_result.py:    def merge(
+emidaf_core/common/results/statistic_result.py:    def reset(self):
+emidaf_core/common/results/statistic_result.py:    def __repr__(self):
+emidaf_core/common/results/base_result.py:    def to_dict(self) -> dict:
+emidaf_core/common/results/base_result.py:    def to_json(
+emidaf_core/common/results/base_result.py:    def to_dataframe(self) -> pd.DataFrame:
+emidaf_core/common/results/base_result.py:    def to_series(self) -> pd.Series:
+emidaf_core/common/results/base_result.py:    def keys(self):
+emidaf_core/common/results/base_result.py:    def values(self):
+emidaf_core/common/results/base_result.py:    def items(self):
+emidaf_core/common/results/base_result.py:    def update(
+emidaf_core/common/results/base_result.py:    def get(
+emidaf_core/common/results/base_result.py:    def copy(self):
+emidaf_core/common/results/base_result.py:    def clear_metadata(self):
+emidaf_core/common/results/base_result.py:    def add_metadata(
+emidaf_core/common/results/base_result.py:    def has_metadata(
+emidaf_core/common/results/base_result.py:    def merge_metadata(
+emidaf_core/common/results/base_result.py:    def summary(self):
+emidaf_core/common/results/base_result.py:    def __getitem__(self, key):
+emidaf_core/common/results/base_result.py:    def __contains__(self, key):
+emidaf_core/common/results/base_result.py:    def __len__(self):
+emidaf_core/common/results/base_result.py:    def __iter__(self):
+emidaf_core/common/results/base_result.py:    def __repr__(self):
+emidaf_core/common/results/base_result.py:    def __str__(self):
+emidaf_core/common/results/model_result.py:    def is_fitted(self):
+emidaf_core/common/results/model_result.py:    def is_classifier(self):
+emidaf_core/common/results/model_result.py:    def is_regressor(self):
+emidaf_core/common/results/model_result.py:    def is_clusterer(self):
+emidaf_core/common/results/model_result.py:    def add_feature(self, feature: str):
+emidaf_core/common/results/model_result.py:    def add_parameter(self, key, value):
+emidaf_core/common/results/model_result.py:    def add_importance(self, feature, value):
+emidaf_core/common/results/model_result.py:    def summary(self):
+emidaf_core/common/results/model_result.py:    def compact(self):
+emidaf_core/common/results/model_result.py:    def __repr__(self):
+emidaf_core/common/results/cleaning_result.py:    def rows_removed(self) -> bool:
+emidaf_core/common/results/cleaning_result.py:    def columns_removed(self) -> bool:
+emidaf_core/common/results/cleaning_result.py:    def missing_corrected(self) -> bool:
+emidaf_core/common/results/cleaning_result.py:    def duplicates_corrected(self) -> bool:
+emidaf_core/common/results/cleaning_result.py:    def outliers_corrected(self) -> bool:
+emidaf_core/common/results/cleaning_result.py:    def row_reduction_rate(self) -> float:
+emidaf_core/common/results/cleaning_result.py:    def column_reduction_rate(self) -> float:
+emidaf_core/common/results/cleaning_result.py:    def summary(self):
+emidaf_core/common/results/cleaning_result.py:    def compact(self):
+emidaf_core/common/results/cleaning_result.py:    def __repr__(self):
+emidaf_core/common/results/outlier_result.py:    def has_outliers(self) -> bool:
+emidaf_core/common/results/outlier_result.py:    def has_scores(self) -> bool:
+emidaf_core/common/results/outlier_result.py:    def has_labels(self) -> bool:
+emidaf_core/common/results/outlier_result.py:    def compute_percentages(self):
+emidaf_core/common/results/outlier_result.py:    def summary(self):
+emidaf_core/common/results/outlier_result.py:    def compact(self):
+emidaf_core/common/results/outlier_result.py:    def __repr__(self):
+emidaf_core/common/results/correlation_result.py:    def is_significant(self) -> bool:
+emidaf_core/common/results/correlation_result.py:    def is_positive(self) -> bool:
+emidaf_core/common/results/correlation_result.py:    def is_negative(self) -> bool:
+emidaf_core/common/results/correlation_result.py:    def is_perfect(self) -> bool:
+emidaf_core/common/results/correlation_result.py:    def summary(self):
+emidaf_core/common/results/correlation_result.py:    def compact(self):
+emidaf_core/common/results/correlation_result.py:    def __repr__(self):
+emidaf_core/common/results/descriptive_result.py:    def summary(self):
+emidaf_core/common/results/descriptive_result.py:    def is_normal(self):
+emidaf_core/common/results/descriptive_result.py:    def has_outliers(self):
+emidaf_core/common/results/descriptive_result.py:    def compact(self):
+emidaf_core/common/results/descriptive_result.py:    def __repr__(self):
+emidaf_core/common/results/report_result.py:    def has_html(self):
+emidaf_core/common/results/report_result.py:    def has_pdf(self):
+emidaf_core/common/results/report_result.py:    def has_docx(self):
+emidaf_core/common/results/report_result.py:    def has_latex(self):
+emidaf_core/common/results/report_result.py:    def has_excel(self):
+emidaf_core/common/results/report_result.py:    def has_powerpoint(self):
+emidaf_core/common/results/report_result.py:    def add_section(self, title: str):
+emidaf_core/common/results/report_result.py:    def add_table(self, table: str):
+emidaf_core/common/results/report_result.py:    def add_figure(self, figure: str):
+emidaf_core/common/results/report_result.py:    def add_appendix(self, appendix: str):
+emidaf_core/common/results/report_result.py:    def summary(self):
+emidaf_core/common/results/report_result.py:    def compact(self):
+emidaf_core/common/results/report_result.py:    def __repr__(self):
+emidaf_core/examples/core/base_builder_example.py:    def build(self):
+emidaf_core/examples/core/base_analyzer_example.py:    def analyze(self, context):
+emidaf_core/examples/core/base_service_example.py:    def execute(self):
+emidaf_core/examples/core/base_registry.py:    def __init__(self) -> None:
+emidaf_core/examples/core/base_registry.py:    def register(
+emidaf_core/examples/core/base_registry.py:    def unregister(
+emidaf_core/examples/core/base_registry.py:    def get(
+emidaf_core/examples/core/base_registry.py:    def find(
+emidaf_core/examples/core/base_registry.py:    def exists(
+emidaf_core/examples/core/base_registry.py:    def clear(self) -> None:
+emidaf_core/examples/core/base_registry.py:    def names(self) -> list[str]:
+emidaf_core/examples/core/base_registry.py:    def values(self) -> list[T]:
+emidaf_core/examples/core/base_registry.py:    def size(self) -> int:
+emidaf_core/examples/core/base_registry.py:    def is_empty(self) -> bool:
+emidaf_core/examples/core/base_registry.py:    def sort(self) -> None:
+emidaf_core/examples/core/base_registry.py:    def __iter__(self) -> Iterator[T]:
+emidaf_core/examples/core/base_registry.py:    def __len__(self) -> int:
+emidaf_core/examples/core/base_registry.py:    def __contains__(
+emidaf_core/examples/core/base_registry.py:    def to_dict(self):
+emidaf_core/examples/core/base_engine_example.py:    def create_context(self, dataframe):
+emidaf_core/examples/core/base_engine_example.py:    def run(self, context):
+emidaf_core/examples/core/base_manager_example.py:    def run(self):
+emidaf_core/registry/registry.py:    def __init__(self) -> None:
+emidaf_core/registry/registry.py:    def register(self, name: str, component: Any) -> None:
+emidaf_core/registry/registry.py:    def get(self, name: str) -> Any | None:
+emidaf_core/registry/registry.py:    def exists(self, name: str) -> bool:
+emidaf_core/registry/registry.py:    def unregister(self, name: str) -> None:
+emidaf_core/registry/registry.py:    def clear(self) -> None:
+emidaf_core/registry/registry.py:    def list(self) -> list[str]:
+emidaf_core/registry/registry.py:    def count(self) -> int:
+emidaf_core/commands/close_workspace_command.py:    def __init__(self, manager: WorkspaceManager):
+emidaf_core/commands/close_workspace_command.py:    def execute(self):
+emidaf_core/commands/create_workspace_command.py:    def __init__(self, manager: WorkspaceManager):
+emidaf_core/commands/create_workspace_command.py:    def execute(
+emidaf_core/commands/open_workspace_command.py:    def __init__(self, manager: WorkspaceManager):
+emidaf_core/commands/open_workspace_command.py:    def execute(self, workspace_path: Path):
+emidaf_core/commands/delete_workspace_command.py:    def __init__(self, manager: WorkspaceManager):
+emidaf_core/commands/delete_workspace_command.py:    def execute(self, workspace_path: Path):
+emidaf_core/commands/base_command.py:    def execute(self):
+emidaf_core/preprocessing/scaling.py:    def __init__(
+emidaf_core/preprocessing/scaling.py:    def numeric_columns(
+emidaf_core/preprocessing/scaling.py:    def create_scaler(
+emidaf_core/preprocessing/scaling.py:    def standard(
+emidaf_core/preprocessing/scaling.py:    def minmax(
+emidaf_core/preprocessing/scaling.py:    def robust(
+emidaf_core/preprocessing/scaling.py:    def maxabs(
+emidaf_core/preprocessing/scaling.py:    def normalize(
+emidaf_core/preprocessing/scaling.py:    def apply(
+emidaf_core/preprocessing/scaling.py:    def fit(
+emidaf_core/preprocessing/scaling.py:    def transform(
+emidaf_core/preprocessing/scaling.py:    def fit_transform(
+emidaf_core/preprocessing/scaling.py:    def statistics(
+emidaf_core/preprocessing/scaling.py:    def compare(
+emidaf_core/preprocessing/scaling.py:    def inspect(
+emidaf_core/preprocessing/transformation.py:    def __init__(
+emidaf_core/preprocessing/transformation.py:    def numeric_columns(
+emidaf_core/preprocessing/transformation.py:    def log(
+emidaf_core/preprocessing/transformation.py:    def log1p(
+emidaf_core/preprocessing/transformation.py:    def sqrt(
+emidaf_core/preprocessing/transformation.py:    def cube_root(
+emidaf_core/preprocessing/transformation.py:    def boxcox(
+emidaf_core/preprocessing/transformation.py:    def yeo_johnson(
+emidaf_core/preprocessing/transformation.py:    def quantile(
+emidaf_core/preprocessing/transformation.py:    def power(
+emidaf_core/preprocessing/transformation.py:    def inverse(
+emidaf_core/preprocessing/transformation.py:    def skewness(
+emidaf_core/preprocessing/transformation.py:    def compare(
+emidaf_core/preprocessing/transformation.py:    def auto(
+emidaf_core/preprocessing/transformation.py:    def fit(
+emidaf_core/preprocessing/transformation.py:    def transform(
+emidaf_core/preprocessing/transformation.py:    def inspect(
+emidaf_core/preprocessing/categorical.py:    def fit(
+emidaf_core/preprocessing/categorical.py:    def transform(
+emidaf_core/preprocessing/categorical.py:    def fit(
+emidaf_core/preprocessing/categorical.py:    def transform(
+emidaf_core/preprocessing/categorical.py:    def __init__(
+emidaf_core/preprocessing/categorical.py:    def fit(
+emidaf_core/preprocessing/categorical.py:    def transform(
+emidaf_core/preprocessing/categorical.py:    def __init__(
+emidaf_core/preprocessing/categorical.py:    def fit(
+emidaf_core/preprocessing/categorical.py:    def transform(
+emidaf_core/preprocessing/categorical.py:    def fit(
+emidaf_core/preprocessing/categorical.py:    def transform(
+emidaf_core/preprocessing/categorical.py:    def fit(
+emidaf_core/preprocessing/categorical.py:    def transform(
+emidaf_core/preprocessing/categorical.py:    def fit(
+emidaf_core/preprocessing/categorical.py:    def transform(
+emidaf_core/preprocessing/categorical.py:    def get(
+emidaf_core/preprocessing/feature_engineering.py:    def __init__(
+emidaf_core/preprocessing/feature_engineering.py:    def numeric_columns(
+emidaf_core/preprocessing/feature_engineering.py:    def ratio(
+emidaf_core/preprocessing/feature_engineering.py:    def difference(
+emidaf_core/preprocessing/feature_engineering.py:    def sum_features(
+emidaf_core/preprocessing/feature_engineering.py:    def mean_features(
+emidaf_core/preprocessing/feature_engineering.py:    def min_feature(
+emidaf_core/preprocessing/feature_engineering.py:    def max_feature(
+emidaf_core/preprocessing/feature_engineering.py:    def range_feature(
+emidaf_core/preprocessing/feature_engineering.py:    def product(
+emidaf_core/preprocessing/feature_engineering.py:    def interactions(
+emidaf_core/preprocessing/feature_engineering.py:    def polynomial(
+emidaf_core/preprocessing/feature_engineering.py:    def powers(
+emidaf_core/preprocessing/feature_engineering.py:    def log_features(
+emidaf_core/preprocessing/feature_engineering.py:    def sqrt_features(
+emidaf_core/preprocessing/feature_engineering.py:    def threshold(
+emidaf_core/preprocessing/feature_engineering.py:    def binary_features(
+emidaf_core/preprocessing/feature_engineering.py:    def count_positive(
+emidaf_core/preprocessing/feature_engineering.py:    def count_missing(
+emidaf_core/preprocessing/feature_engineering.py:    def missing_rate(
+emidaf_core/preprocessing/feature_engineering.py:    def automatic_interactions(
+emidaf_core/preprocessing/feature_engineering.py:    def date_features(
+emidaf_core/preprocessing/feature_engineering.py:    def fit(
+emidaf_core/preprocessing/feature_engineering.py:    def transform(
+emidaf_core/preprocessing/feature_engineering.py:    def inspect(
+emidaf_core/preprocessing/duplicates.py:    def __init__(
+emidaf_core/preprocessing/duplicates.py:    def fit(
+emidaf_core/preprocessing/duplicates.py:    def transform(
+emidaf_core/preprocessing/duplicates.py:    def count(
+emidaf_core/preprocessing/duplicates.py:    def percentage(
+emidaf_core/preprocessing/duplicates.py:    def mask(
+emidaf_core/preprocessing/duplicates.py:    def get(
+emidaf_core/preprocessing/duplicates.py:    def remove(
+emidaf_core/preprocessing/duplicates.py:    def by_columns(
+emidaf_core/preprocessing/duplicates.py:    def remove_by_columns(
+emidaf_core/preprocessing/duplicates.py:    def groups(
+emidaf_core/preprocessing/duplicates.py:    def clean(
+emidaf_core/preprocessing/duplicates.py:    def inspect(
+emidaf_core/preprocessing/feature_selection.py:    def __init__(
+emidaf_core/preprocessing/feature_selection.py:    def numeric_columns(
+emidaf_core/preprocessing/feature_selection.py:    def variance_threshold(
+emidaf_core/preprocessing/feature_selection.py:    def correlation_pearson(
+emidaf_core/preprocessing/feature_selection.py:    def correlation_spearman(
+emidaf_core/preprocessing/feature_selection.py:    def anova(
+emidaf_core/preprocessing/feature_selection.py:    def chi2(
+emidaf_core/preprocessing/feature_selection.py:    def mutual_information_classification(
+emidaf_core/preprocessing/feature_selection.py:    def mutual_information_regression(
+emidaf_core/preprocessing/feature_selection.py:    def percentile(
+emidaf_core/preprocessing/feature_selection.py:    def rfe(
+emidaf_core/preprocessing/feature_selection.py:    def importance(
+emidaf_core/preprocessing/feature_selection.py:    def select(
+emidaf_core/preprocessing/feature_selection.py:    def compare_correlations(
+emidaf_core/preprocessing/feature_selection.py:    def fit(
+emidaf_core/preprocessing/feature_selection.py:    def transform(
+emidaf_core/preprocessing/feature_selection.py:    def inspect(
+emidaf_core/preprocessing/missing.py:    def __init__(
+emidaf_core/preprocessing/missing.py:    def fit(
+emidaf_core/preprocessing/missing.py:    def transform(
+emidaf_core/preprocessing/missing.py:    def count(
+emidaf_core/preprocessing/missing.py:    def percentage(
+emidaf_core/preprocessing/missing.py:    def summary(
+emidaf_core/preprocessing/missing.py:    def rows_with_missing(
+emidaf_core/preprocessing/missing.py:    def columns_with_missing(
+emidaf_core/preprocessing/missing.py:    def indicator(
+emidaf_core/preprocessing/missing.py:    def patterns(
+emidaf_core/preprocessing/missing.py:    def drop_rows(
+emidaf_core/preprocessing/missing.py:    def drop_columns(
+emidaf_core/preprocessing/missing.py:    def mean_imputation(
+emidaf_core/preprocessing/missing.py:    def median_imputation(
+emidaf_core/preprocessing/missing.py:    def mode_imputation(
+emidaf_core/preprocessing/missing.py:    def knn_imputation(
+emidaf_core/preprocessing/missing.py:    def mice_imputation(
+emidaf_core/preprocessing/missing.py:    def group_median(
+emidaf_core/preprocessing/missing.py:    def mcar_chi_square(
+emidaf_core/preprocessing/missing.py:    def mar_ttest(
+emidaf_core/preprocessing/missing.py:    def classify_mechanism(
+emidaf_core/preprocessing/missing.py:    def inspect(
+emidaf_core/preprocessing/encoding.py:    def __init__(
+emidaf_core/preprocessing/encoding.py:    def categorical_columns(
+emidaf_core/preprocessing/encoding.py:    def label_encode(
+emidaf_core/preprocessing/encoding.py:    def ordinal_encode(
+emidaf_core/preprocessing/encoding.py:    def frequency_encode(
+emidaf_core/preprocessing/encoding.py:    def target_encode(
+emidaf_core/preprocessing/encoding.py:    def binary_encode(
+emidaf_core/preprocessing/encoding.py:    def auto_encode(
+emidaf_core/preprocessing/encoding.py:    def fit(
+emidaf_core/preprocessing/encoding.py:    def transform(
+emidaf_core/preprocessing/encoding.py:    def inspect(
+emidaf_core/preprocessing/splitting.py:    def __init__(
+emidaf_core/preprocessing/splitting.py:    def train_test(
+emidaf_core/preprocessing/splitting.py:    def train_validation_test(
+emidaf_core/preprocessing/splitting.py:    def split_indices(
+emidaf_core/preprocessing/splitting.py:    def kfold(
+emidaf_core/preprocessing/splitting.py:    def stratified_kfold(
+emidaf_core/preprocessing/splitting.py:    def repeated_kfold(
+emidaf_core/preprocessing/splitting.py:    def repeated_stratified_kfold(
+emidaf_core/preprocessing/splitting.py:    def time_series(
+emidaf_core/preprocessing/splitting.py:    def time_series_split(
+emidaf_core/preprocessing/splitting.py:    def class_distribution(
+emidaf_core/preprocessing/splitting.py:    def compare_distributions(
+emidaf_core/preprocessing/splitting.py:    def check_overlap(
+emidaf_core/preprocessing/splitting.py:    def dataframe_split(
+emidaf_core/preprocessing/splitting.py:    def fit(
+emidaf_core/preprocessing/splitting.py:    def transform(
+emidaf_core/preprocessing/splitting.py:    def inspect(
+emidaf_core/preprocessing/balancing.py:    def __init__(
+emidaf_core/preprocessing/balancing.py:    def class_distribution(
+emidaf_core/preprocessing/balancing.py:    def imbalance_ratio(
+emidaf_core/preprocessing/balancing.py:    def is_imbalanced(
+emidaf_core/preprocessing/balancing.py:    def class_weights(
+emidaf_core/preprocessing/balancing.py:    def class_weight_dict(
+emidaf_core/preprocessing/balancing.py:    def random_oversampling(
+emidaf_core/preprocessing/balancing.py:    def random_undersampling(
+emidaf_core/preprocessing/balancing.py:    def oversample_classes(
+emidaf_core/preprocessing/balancing.py:    def undersample_classes(
+emidaf_core/preprocessing/balancing.py:    def balance(
+emidaf_core/preprocessing/balancing.py:    def compare(
+emidaf_core/preprocessing/balancing.py:    def fit(
+emidaf_core/preprocessing/balancing.py:    def transform(
+emidaf_core/preprocessing/balancing.py:    def inspect(
+emidaf_core/preprocessing/discretization.py:    def __init__(
+emidaf_core/preprocessing/discretization.py:    def numeric_columns(
+emidaf_core/preprocessing/discretization.py:    def equal_width(
+emidaf_core/preprocessing/discretization.py:    def equal_frequency(
+emidaf_core/preprocessing/discretization.py:    def custom_bins(
+emidaf_core/preprocessing/discretization.py:    def kbins(
+emidaf_core/preprocessing/discretization.py:    def age_groups(
+emidaf_core/preprocessing/discretization.py:    def grade_groups(
+emidaf_core/preprocessing/discretization.py:    def category_codes(
+emidaf_core/preprocessing/discretization.py:    def fit(
+emidaf_core/preprocessing/discretization.py:    def transform(
+emidaf_core/preprocessing/discretization.py:    def bin_statistics(
+emidaf_core/preprocessing/discretization.py:    def inspect(
+emidaf_core/preprocessing/numerical.py:    def fit(
+emidaf_core/preprocessing/numerical.py:    def transform(
+emidaf_core/preprocessing/numerical.py:    def __init__(
+emidaf_core/preprocessing/numerical.py:    def fit(
+emidaf_core/preprocessing/numerical.py:    def transform(
+emidaf_core/preprocessing/numerical.py:    def __init__(
+emidaf_core/preprocessing/numerical.py:    def fit(
+emidaf_core/preprocessing/numerical.py:    def transform(
+emidaf_core/preprocessing/numerical.py:    def __init__(
+emidaf_core/preprocessing/numerical.py:    def fit(
+emidaf_core/preprocessing/numerical.py:    def transform(
+emidaf_core/preprocessing/numerical.py:    def fit(
+emidaf_core/preprocessing/numerical.py:    def transform(
+emidaf_core/preprocessing/numerical.py:    def fit(
+emidaf_core/preprocessing/numerical.py:    def transform(
+emidaf_core/preprocessing/numerical.py:    def fit(
+emidaf_core/preprocessing/numerical.py:    def transform(
+emidaf_core/preprocessing/numerical.py:    def get(
+emidaf_core/preprocessing/feature_extraction.py:    def __init__(self):
+emidaf_core/preprocessing/feature_extraction.py:    def fit(
+emidaf_core/preprocessing/feature_extraction.py:    def transform(
+emidaf_core/preprocessing/feature_extraction.py:    def fit_transform(
+emidaf_core/preprocessing/feature_extraction.py:    def __init__(
+emidaf_core/preprocessing/feature_extraction.py:    def fit(
+emidaf_core/preprocessing/feature_extraction.py:    def transform(
+emidaf_core/preprocessing/feature_extraction.py:    def __init__(
+emidaf_core/preprocessing/feature_extraction.py:    def __init__(
+emidaf_core/preprocessing/feature_extraction.py:    def __init__(
+emidaf_core/preprocessing/feature_extraction.py:    def __init__(
+emidaf_core/preprocessing/feature_extraction.py:    def __init__(
+emidaf_core/preprocessing/feature_extraction.py:    def get(
+emidaf_core/preprocessing/feature_extraction.py:    def fit_transform(
+emidaf_core/preprocessing/inspection.py:    def __init__(self):
+emidaf_core/preprocessing/inspection.py:    def fit(
+emidaf_core/preprocessing/inspection.py:    def transform(
+emidaf_core/preprocessing/inspection.py:    def shape(df):
+emidaf_core/preprocessing/inspection.py:    def memory(df):
+emidaf_core/preprocessing/inspection.py:    def dtypes(df):
+emidaf_core/preprocessing/inspection.py:    def numeric(df):
+emidaf_core/preprocessing/inspection.py:    def categorical(df):
+emidaf_core/preprocessing/inspection.py:    def boolean(df):
+emidaf_core/preprocessing/inspection.py:    def datetime(df):
+emidaf_core/preprocessing/inspection.py:    def missing(df):
+emidaf_core/preprocessing/inspection.py:    def missing_percent(df):
+emidaf_core/preprocessing/inspection.py:    def unique(df):
+emidaf_core/preprocessing/inspection.py:    def cardinality(df):
+emidaf_core/preprocessing/inspection.py:    def constant(df):
+emidaf_core/preprocessing/inspection.py:    def quasi_constant(
+emidaf_core/preprocessing/inspection.py:    def duplicated_columns(df):
+emidaf_core/preprocessing/inspection.py:    def identifiers(df):
+emidaf_core/preprocessing/inspection.py:    def inspect(df):
+emidaf_core/preprocessing/imputation.py:    def __init__(self):
+emidaf_core/preprocessing/imputation.py:    def fit(self, X, y=None):
+emidaf_core/preprocessing/imputation.py:    def transform(self, X):
+emidaf_core/preprocessing/imputation.py:    def fit_transform(self, X, y=None):
+emidaf_core/preprocessing/imputation.py:    def report(
+emidaf_core/preprocessing/imputation.py:    def __init__(self):
+emidaf_core/preprocessing/imputation.py:    def __init__(self):
+emidaf_core/preprocessing/imputation.py:    def __init__(self):
+emidaf_core/preprocessing/imputation.py:    def __init__(
+emidaf_core/preprocessing/imputation.py:    def __init__(
+emidaf_core/preprocessing/imputation.py:    def __init__(
+emidaf_core/preprocessing/imputation.py:    def fit(
+emidaf_core/preprocessing/imputation.py:    def transform(
+emidaf_core/preprocessing/imputation.py:    def fit(
+emidaf_core/preprocessing/imputation.py:    def get(
+emidaf_core/preprocessing/imputation.py:    def fit_transform(
+emidaf_core/preprocessing/interpretation.py:    def missing_values(
+emidaf_core/preprocessing/interpretation.py:    def duplicates(
+emidaf_core/preprocessing/interpretation.py:    def outlier_summary(
+emidaf_core/preprocessing/interpretation.py:    def skewness(
+emidaf_core/preprocessing/interpretation.py:        def interpret(value):
+emidaf_core/preprocessing/interpretation.py:    def kurtosis(
+emidaf_core/preprocessing/interpretation.py:        def interpret(value):
+emidaf_core/preprocessing/interpretation.py:    def coefficient_variation(
+emidaf_core/preprocessing/interpretation.py:    def normality_interpretation(
+emidaf_core/preprocessing/interpretation.py:    def correlation_strength(
+emidaf_core/preprocessing/interpretation.py:    def interpret_correlation(
+emidaf_core/preprocessing/interpretation.py:    def correlation_pairs(
+emidaf_core/preprocessing/interpretation.py:    def vif(
+emidaf_core/preprocessing/interpretation.py:    def encoding_summary(
+emidaf_core/preprocessing/interpretation.py:    def scaling_summary(
+emidaf_core/preprocessing/interpretation.py:    def feature_selection(
+emidaf_core/preprocessing/interpretation.py:    def complete_diagnostic(
+emidaf_core/preprocessing/summary.py:    def overview(df):
+emidaf_core/preprocessing/summary.py:    def variable_summary(df):
+emidaf_core/preprocessing/summary.py:    def numeric_summary(df):
+emidaf_core/preprocessing/summary.py:    def categorical_summary(df):
+emidaf_core/preprocessing/summary.py:    def missing_summary(df):
+emidaf_core/preprocessing/summary.py:    def duplicate_summary(df):
+emidaf_core/preprocessing/summary.py:    def outlier_summary(
+emidaf_core/preprocessing/summary.py:    def distribution_summary(df):
+emidaf_core/preprocessing/summary.py:    def correlation_summary(
+emidaf_core/preprocessing/summary.py:    def target_summary(
+emidaf_core/preprocessing/summary.py:    def imbalance_summary(
+emidaf_core/preprocessing/summary.py:    def feature_summary(
+emidaf_core/preprocessing/summary.py:    def complete_summary(
+emidaf_core/preprocessing/outliers.py:    def __init__(
+emidaf_core/preprocessing/outliers.py:    def fit(
+emidaf_core/preprocessing/outliers.py:    def transform(
+emidaf_core/preprocessing/outliers.py:    def iqr(
+emidaf_core/preprocessing/outliers.py:    def zscore(
+emidaf_core/preprocessing/outliers.py:    def mad(
+emidaf_core/preprocessing/outliers.py:    def mahalanobis_distance(
+emidaf_core/preprocessing/outliers.py:    def isolation_forest(
+emidaf_core/preprocessing/outliers.py:    def lof(
+emidaf_core/preprocessing/outliers.py:    def dbscan(
+emidaf_core/preprocessing/outliers.py:    def compare(
+emidaf_core/preprocessing/outliers.py:    def iqr_mask(
+emidaf_core/preprocessing/outliers.py:    def remove_iqr(
+emidaf_core/preprocessing/outliers.py:    def winsorize(
+emidaf_core/preprocessing/outliers.py:    def detect(
+emidaf_core/preprocessing/utils.py:def get_numeric_columns(
+emidaf_core/preprocessing/utils.py:def get_categorical_columns(
+emidaf_core/preprocessing/utils.py:def get_datetime_columns(
+emidaf_core/preprocessing/utils.py:def validate_columns(
+emidaf_core/preprocessing/utils.py:def safe_copy(
+emidaf_core/preprocessing/utils.py:def missing_count(
+emidaf_core/preprocessing/utils.py:def missing_percentage(
+emidaf_core/preprocessing/utils.py:def duplicate_count(
+emidaf_core/preprocessing/utils.py:def duplicate_percentage(
+emidaf_core/preprocessing/utils.py:def get_constant_columns(
+emidaf_core/preprocessing/utils.py:def low_variance_columns(
+emidaf_core/preprocessing/utils.py:def cardinality(
+emidaf_core/preprocessing/utils.py:def high_cardinality_columns(
+emidaf_core/preprocessing/utils.py:def iqr_bounds(
+emidaf_core/preprocessing/utils.py:def iqr_outlier_mask(
+emidaf_core/preprocessing/utils.py:def zscore_outlier_mask(
+emidaf_core/preprocessing/utils.py:def standardize_series(
+emidaf_core/preprocessing/utils.py:def minmax_series(
+emidaf_core/preprocessing/utils.py:def coefficient_variation(
+emidaf_core/preprocessing/utils.py:def safe_divide(
+emidaf_core/preprocessing/utils.py:def memory_usage(
+emidaf_core/preprocessing/utils.py:def memory_usage_mb(
+emidaf_core/preprocessing/utils.py:def validate_dataframe(
+emidaf_core/preprocessing/utils.py:def validate_target(
+emidaf_core/preprocessing/utils.py:def check_column_consistency(
+emidaf_core/preprocessing/utils.py:def align_columns(
+emidaf_core/preprocessing/utils.py:def to_dataframe(
+emidaf_core/preprocessing/utils.py:def to_series(
+emidaf_core/preprocessing/utils.py:def save_dataframe(
+emidaf_core/preprocessing/utils.py:def replace_infinite(
+emidaf_core/preprocessing/utils.py:def remove_empty_columns(
+emidaf_core/preprocessing/utils.py:def remove_empty_rows(
+emidaf_core/preprocessing/utils.py:def clean_column_names(
+emidaf_core/preprocessing/utils.py:def dataframe_info(
+emidaf_core/preprocessing/pipeline.py:    def __init__(
+emidaf_core/preprocessing/pipeline.py:    def add_step(
+emidaf_core/preprocessing/pipeline.py:    def remove_step(
+emidaf_core/preprocessing/pipeline.py:    def step_names(self):
+emidaf_core/preprocessing/pipeline.py:    def fit(
+emidaf_core/preprocessing/pipeline.py:    def transform(
+emidaf_core/preprocessing/pipeline.py:    def fit_transform(
+emidaf_core/preprocessing/pipeline.py:    def _extract_output(
+emidaf_core/preprocessing/pipeline.py:    def _create_result(
+emidaf_core/preprocessing/pipeline.py:    def get_results(self):
+emidaf_core/preprocessing/pipeline.py:    def summary(self):
+emidaf_core/preprocessing/pipeline.py:    def clone(self):
+emidaf_core/preprocessing/pipeline.py:    def reset(self):
+emidaf_core/preprocessing/pipeline.py:    def inspect(
+emidaf_core/preprocessing/text.py:    def fit(self, X, y=None):
+emidaf_core/preprocessing/text.py:    def transform(self, X):
+emidaf_core/preprocessing/text.py:    def fit(self, X, y=None):
+emidaf_core/preprocessing/text.py:    def transform(self,X):
+emidaf_core/preprocessing/text.py:    def fit(self,X,y=None):
+emidaf_core/preprocessing/text.py:    def transform(self,X):
+emidaf_core/preprocessing/text.py:    def fit(self,X,y=None):
+emidaf_core/preprocessing/text.py:    def transform(self,X):
+emidaf_core/preprocessing/text.py:    def fit(self,X,y=None):
+emidaf_core/preprocessing/text.py:    def transform(self,X):
+emidaf_core/preprocessing/text.py:    def fit(self,X,y=None):
+emidaf_core/preprocessing/text.py:    def transform(self,X):
+emidaf_core/preprocessing/text.py:    def fit(self,X,y=None):
+emidaf_core/preprocessing/text.py:    def transform(self,X):
+emidaf_core/preprocessing/text.py:    def fit(self,X,y=None):
+emidaf_core/preprocessing/text.py:    def transform(self,X):
+emidaf_core/preprocessing/text.py:    def fit(self,X,y=None):
+emidaf_core/preprocessing/text.py:    def fit(self,X,y=None):
+emidaf_core/preprocessing/text.py:    def fit(self,X,y=None):
+emidaf_core/preprocessing/text.py:    def __init__(
+emidaf_core/preprocessing/text.py:    def fit(self,X,y=None):
+emidaf_core/preprocessing/text.py:    def transform(self,X):
+emidaf_core/preprocessing/text.py:    def get(
+emidaf_core/preprocessing/sampling.py:    def sample(
+emidaf_core/preprocessing/sampling.py:    def __init__(
+emidaf_core/preprocessing/sampling.py:    def sample(
+emidaf_core/preprocessing/sampling.py:    def __init__(
+emidaf_core/preprocessing/sampling.py:    def sample(
+emidaf_core/preprocessing/sampling.py:    def __init__(
+emidaf_core/preprocessing/sampling.py:    def sample(
+emidaf_core/preprocessing/sampling.py:    def __init__(
+emidaf_core/preprocessing/sampling.py:    def sample(
+emidaf_core/preprocessing/sampling.py:    def __init__(
+emidaf_core/preprocessing/sampling.py:    def sample(
+emidaf_core/preprocessing/sampling.py:    def sample(
+emidaf_core/preprocessing/sampling.py:    def sample(
+emidaf_core/preprocessing/sampling.py:    def sample(
+emidaf_core/preprocessing/sampling.py:    def get(
+emidaf_core/preprocessing/sampling.py:    def sample(
+emidaf_core/preprocessing/multicollinearity.py:    def __init__(
+emidaf_core/preprocessing/multicollinearity.py:    def numeric_columns(
+emidaf_core/preprocessing/multicollinearity.py:    def pearson_matrix(
+emidaf_core/preprocessing/multicollinearity.py:    def spearman_matrix(
+emidaf_core/preprocessing/multicollinearity.py:    def correlation_matrix(
+emidaf_core/preprocessing/multicollinearity.py:    def high_correlations(
+emidaf_core/preprocessing/multicollinearity.py:    def vif(
+emidaf_core/preprocessing/multicollinearity.py:    def interpret_vif(
+emidaf_core/preprocessing/multicollinearity.py:    def vif_diagnostic(
+emidaf_core/preprocessing/multicollinearity.py:    def variables_vif(
+emidaf_core/preprocessing/multicollinearity.py:    def variables_to_keep(
+emidaf_core/preprocessing/multicollinearity.py:    def remove_variables(
+emidaf_core/preprocessing/multicollinearity.py:    def vif_selection(
+emidaf_core/preprocessing/multicollinearity.py:    def diagnostic(
+emidaf_core/preprocessing/multicollinearity.py:    def compare_methods(
+emidaf_core/preprocessing/multicollinearity.py:    def fit(
+emidaf_core/preprocessing/multicollinearity.py:    def transform(
+emidaf_core/preprocessing/multicollinearity.py:    def inspect(
+emidaf_core/preprocessing/dimensionality.py:    def __init__(self):
+emidaf_core/preprocessing/dimensionality.py:    def fit(self, X, y=None):
+emidaf_core/preprocessing/dimensionality.py:    def transform(self, X):
+emidaf_core/preprocessing/dimensionality.py:    def fit_transform(self, X, y=None):
+emidaf_core/preprocessing/dimensionality.py:    def __init__(
+emidaf_core/preprocessing/dimensionality.py:    def __init__(
+emidaf_core/preprocessing/dimensionality.py:    def __init__(
+emidaf_core/preprocessing/dimensionality.py:    def __init__(
+emidaf_core/preprocessing/dimensionality.py:    def __init__(
+emidaf_core/preprocessing/dimensionality.py:    def __init__(
+emidaf_core/preprocessing/dimensionality.py:    def __init__(
+emidaf_core/preprocessing/dimensionality.py:    def __init__(
+emidaf_core/preprocessing/dimensionality.py:    def fit(
+emidaf_core/preprocessing/dimensionality.py:    def transform(
+emidaf_core/preprocessing/dimensionality.py:    def get(
+emidaf_core/preprocessing/dimensionality.py:    def fit_transform(
+emidaf_core/preprocessing/datetime.py:    def __init__(
+emidaf_core/preprocessing/datetime.py:    def fit(
+emidaf_core/preprocessing/datetime.py:    def transform(
+emidaf_core/preprocessing/datetime.py:    def fit(
+emidaf_core/preprocessing/datetime.py:    def transform(
+emidaf_core/preprocessing/datetime.py:    def fit(
+emidaf_core/preprocessing/datetime.py:    def transform(
+emidaf_core/preprocessing/datetime.py:    def __init__(
+emidaf_core/preprocessing/datetime.py:    def fit(
+emidaf_core/preprocessing/datetime.py:    def transform(
+emidaf_core/preprocessing/datetime.py:    def __init__(
+emidaf_core/preprocessing/datetime.py:    def fit(
+emidaf_core/preprocessing/datetime.py:    def transform(
+emidaf_core/preprocessing/datetime.py:    def __init__(
+emidaf_core/preprocessing/datetime.py:    def fit(
+emidaf_core/preprocessing/datetime.py:    def transform(
+emidaf_core/preprocessing/datetime.py:    def get(
+emidaf_core/preprocessing/normalization.py:    def fit(cls, dataframe):
+emidaf_core/preprocessing/normalization.py:    def transform(cls, dataframe):
+emidaf_core/preprocessing/normalization.py:    def fit_transform(cls, dataframe):
+emidaf_core/preprocessing/normalization.py:    def report(cls, before, after):
+emidaf_core/preprocessing/normalization.py:    def fit(cls, dataframe):
+emidaf_core/preprocessing/normalization.py:    def transform(cls, dataframe):
+emidaf_core/preprocessing/normalization.py:    def fit_transform(cls, dataframe):
+emidaf_core/preprocessing/normalization.py:    def minmax(dataframe):
+emidaf_core/preprocessing/normalization.py:    def maxabs(dataframe):
+emidaf_core/preprocessing/normalization.py:    def unitnorm(dataframe):
+emidaf_core/preprocessing/normalization.py:    def robust(dataframe):
+emidaf_core/preprocessing/normalization.py:    def quantile(dataframe):
+emidaf_core/preprocessing/normalization.py:    def power(dataframe):
+emidaf_core/preprocessing/normalization.py:    def decimal(dataframe):
+emidaf_core/preprocessing/base.py:    def __init__(self):
+emidaf_core/preprocessing/base.py:    def fit(self, X, y=None):
+emidaf_core/preprocessing/base.py:    def transform(self, X):
+emidaf_core/preprocessing/base.py:    def fit_transform(self, X, y=None):
+emidaf_core/preprocessing/base.py:    def inverse_transform(self, X):
+emidaf_core/preprocessing/base.py:    def get_params(self):
+emidaf_core/preprocessing/base.py:    def set_params(self, **kwargs):
+emidaf_core/preprocessing/base.py:    def summary(self):
+emidaf_core/preprocessing/report.py:    def header(
+emidaf_core/preprocessing/report.py:    def dataset_info(
+emidaf_core/preprocessing/report.py:    def missing_report(
+emidaf_core/preprocessing/report.py:    def duplicate_report(
+emidaf_core/preprocessing/report.py:    def numeric_report(
+emidaf_core/preprocessing/report.py:    def categorical_report(
+emidaf_core/preprocessing/report.py:    def outlier_report(
+emidaf_core/preprocessing/report.py:    def correlation_report(
+emidaf_core/preprocessing/report.py:    def target_report(
+emidaf_core/preprocessing/report.py:    def imbalance_report(
+emidaf_core/preprocessing/report.py:    def steps_report(
+emidaf_core/preprocessing/report.py:    def generate(
+emidaf_core/preprocessing/report.py:    def to_text(
+emidaf_core/preprocessing/report.py:    def save_text(
+emidaf_core/preprocessing/cleaning.py:    def __init__(self):
+emidaf_core/preprocessing/cleaning.py:    def fit(
+emidaf_core/preprocessing/cleaning.py:    def transform(
+emidaf_core/preprocessing/cleaning.py:    def remove_duplicates(
+emidaf_core/preprocessing/cleaning.py:    def remove_duplicated_columns(
+emidaf_core/preprocessing/cleaning.py:    def strip(
+emidaf_core/preprocessing/cleaning.py:    def normalize_unicode(
+emidaf_core/preprocessing/cleaning.py:    def lowercase(
+emidaf_core/preprocessing/cleaning.py:    def uppercase(
+emidaf_core/preprocessing/cleaning.py:    def title(
+emidaf_core/preprocessing/cleaning.py:    def remove_multiple_spaces(
+emidaf_core/preprocessing/cleaning.py:    def remove_special_characters(
+emidaf_core/preprocessing/cleaning.py:    def replace_impossible_values(
+emidaf_core/preprocessing/cleaning.py:    def remove_constant_columns(
+emidaf_core/preprocessing/cleaning.py:    def remove_quasi_constant(
+emidaf_core/preprocessing/cleaning.py:    def auto_convert_types(
+emidaf_core/preprocessing/cleaning.py:    def remove_empty_columns(
+emidaf_core/preprocessing/cleaning.py:    def remove_empty_rows(
+emidaf_core/preprocessing/cleaning.py:    def remove_invisible_characters(
+emidaf_core/preprocessing/cleaning.py:    def standardize_categories(
+emidaf_core/preprocessing/cleaning.py:    def clean_column_names(
+emidaf_core/preprocessing/cleaning.py:    def check_consistency(
+emidaf_core/preprocessing/cleaning.py:    def report(
+emidaf_core/preprocessing/cleaning.py:    def auto_clean(
+emidaf_core/preprocessing/cleaning.py:    def clean(df):
+emidaf_core/preprocessing/cleaning.py:    def report(df):
+emidaf_core/preprocessing/validation.py:    def add_warning(self, message):
+emidaf_core/preprocessing/validation.py:    def add_error(self, message):
+emidaf_core/preprocessing/validation.py:    def summary(self):
+emidaf_core/preprocessing/validation.py:    def validate(
+emidaf_core/preprocessing/validation.py:    def required_columns(
+emidaf_core/preprocessing/validation.py:    def numeric(
+emidaf_core/preprocessing/validation.py:    def categorical(
+emidaf_core/preprocessing/validation.py:    def no_missing(
+emidaf_core/preprocessing/validation.py:    def minimum_rows(
+emidaf_core/preprocessing/validation.py:    def minimum_columns(
+emidaf_core/preprocessing/validation.py:    def inspect(
+emidaf_core/preprocessing/validation.py:    def check(
+emidaf_core/mappers/project_mapper.py:    def to_dto(model: ProjectModel) -> ProjectDTO:
+emidaf_core/mappers/project_mapper.py:    def to_model(dto: ProjectDTO) -> ProjectModel:
+emidaf_core/mappers/workspace_mapper.py:    def to_dto(model: WorkspaceModel) -> WorkspaceDTO:
+emidaf_core/mappers/workspace_mapper.py:    def to_model(dto: WorkspaceDTO) -> WorkspaceModel:
+emidaf_core/mappers/base_mapper.py:    def to_dto(
+emidaf_core/mappers/base_mapper.py:    def to_model(
+emidaf_core/mappers/dataset_mapper.py:    def to_dto(
+emidaf_core/mappers/dataset_mapper.py:    def to_model(
+emidaf_core/validators/project_validator.py:    def validate_name(name: str):
+emidaf_core/validators/project_validator.py:    def validate_workspace(path: str):
+emidaf_core/application/application.py:    def __init__(self) -> None:
+emidaf_core/application/application.py:    def initialize(self) -> None:
+emidaf_core/application/application.py:    def container(self) -> Container:
+emidaf_core/application/application.py:    def initialized(self) -> bool:
+emidaf_core/application/application.py:    def shutdown(self) -> None:
+emidaf_core/application/application.py:    def restart(self) -> None:
+emidaf_core/application/application.py:    def run(self) -> None:
+emidaf_core/main.py:def main():
+emidaf_core/modules/workspace/workspace_utils.py:def generate_workspace_id() -> str:
+emidaf_core/modules/workspace/workspace_utils.py:def workspace_exists(path: Path) -> bool:
+emidaf_core/modules/workspace/workspace_utils.py:def normalize_path(path: str) -> Path:
+emidaf_core/modules/workspace/workspace_utils.py:def get_workspace_size(path: Path) -> int:
+emidaf_core/modules/workspace/workspace_builder.py:    def __init__(
+emidaf_core/modules/workspace/workspace_builder.py:    def build(
+emidaf_core/modules/workspace/workspace_builder.py:    def _create_directories(
+emidaf_core/modules/workspace/workspace_builder.py:    def _create_configuration(
+emidaf_core/modules/workspace/workspace_builder.py:    def _create_metadata(
+emidaf_core/modules/workspace/workspace_builder.py:    def _create_database(
+emidaf_core/modules/workspace/workspace_validator.py:    def validate_name(self, name: str) -> None:
+emidaf_core/modules/workspace/workspace_validator.py:    def validate_path(self, path: Path) -> None:
+emidaf_core/modules/workspace/workspace_validator.py:    def validate_permissions(self, path: Path) -> None:
+emidaf_core/modules/workspace/workspace_validator.py:    def validate_not_exists(self, path: Path) -> None:
+emidaf_core/modules/workspace/workspace_validator.py:    def validate_exists(self, path: Path) -> None:
+emidaf_core/modules/workspace/workspace_validator.py:    def validate_structure(self, path: Path) -> None:
+emidaf_core/modules/workspace/workspace_validator.py:    def validate_configuration(self, path: Path) -> None:
+emidaf_core/modules/workspace/workspace_validator.py:    def validate_database(self, path: Path) -> None:
+emidaf_core/modules/workspace/workspace_validator.py:    def validate_metadata(self, path: Path) -> None:
+emidaf_core/modules/workspace/workspace_validator.py:    def validate_workspace(self, path: Path) -> None:
+emidaf_core/modules/workspace/workspace_manager.py:    def __init__(
+emidaf_core/modules/workspace/workspace_manager.py:    def create_workspace(
+emidaf_core/modules/workspace/workspace_manager.py:    def open_workspace(
+emidaf_core/modules/workspace/workspace_manager.py:    def close_workspace(self):
+emidaf_core/modules/workspace/workspace_manager.py:    def save_workspace(self):
+emidaf_core/modules/workspace/workspace_manager.py:    def delete_workspace(
+emidaf_core/modules/workspace/workspace_manager.py:    def get_current_workspace(
+emidaf_core/modules/workspace/workspace_manager.py:    def set_current_workspace(
+emidaf_core/modules/workspace/workspace_manager.py:    def has_workspace(self):
+emidaf_core/modules/workspace/workspace_manager.py:    def current_workspace_name(self):
+emidaf_core/modules/workspace/workspace_manager.py:    def list_workspaces(
+emidaf_core/controllers/project_controller.py:    def __init__(self, service: ProjectService):
+emidaf_core/controllers/project_controller.py:    def create(self, project: ProjectModel) -> ProjectModel:
+emidaf_core/controllers/project_controller.py:    def get(self, project_id: int) -> Optional[ProjectModel]:
+emidaf_core/controllers/project_controller.py:    def get_all(self) -> List[ProjectModel]:
+emidaf_core/controllers/project_controller.py:    def exists(self, project_id: int) -> bool:
+emidaf_core/controllers/project_controller.py:    def count(self) -> int:
+emidaf_core/controllers/project_controller.py:    def update(self, project: ProjectModel) -> ProjectModel:
+emidaf_core/controllers/project_controller.py:    def delete(self, project_id: int) -> bool:
+emidaf_core/controllers/project_controller.py:    def delete_all(self) -> None:
+emidaf_core/controllers/dataset_controller.py:    def __init__(self, service: DatasetService):
+emidaf_core/controllers/dataset_controller.py:    def create(self, dataset: DatasetModel) -> DatasetModel:
+emidaf_core/controllers/dataset_controller.py:    def get(self, dataset_id: int) -> Optional[DatasetModel]:
+emidaf_core/controllers/dataset_controller.py:    def get_all(self) -> List[DatasetModel]:
+emidaf_core/controllers/dataset_controller.py:    def exists(self, dataset_id: int) -> bool:
+emidaf_core/controllers/dataset_controller.py:    def count(self) -> int:
+emidaf_core/controllers/dataset_controller.py:    def update(self, dataset: DatasetModel) -> DatasetModel:
+emidaf_core/controllers/dataset_controller.py:    def delete(self, dataset_id: int) -> bool:
+emidaf_core/controllers/dataset_controller.py:    def delete_all(self) -> None:
+emidaf_core/controllers/workspace_controller.py:    def __init__(self, service: WorkspaceService):
+emidaf_core/controllers/workspace_controller.py:    def create(self, workspace: WorkspaceModel) -> WorkspaceModel:
+emidaf_core/controllers/workspace_controller.py:    def get(self, workspace_id: int) -> Optional[WorkspaceModel]:
+emidaf_core/controllers/workspace_controller.py:    def get_all(self) -> List[WorkspaceModel]:
+emidaf_core/controllers/workspace_controller.py:    def exists(self, workspace_id: int) -> bool:
+emidaf_core/controllers/workspace_controller.py:    def count(self) -> int:
+emidaf_core/controllers/workspace_controller.py:    def update(self, workspace: WorkspaceModel) -> WorkspaceModel:
+emidaf_core/controllers/workspace_controller.py:    def delete(self, workspace_id: int) -> bool:
+emidaf_core/controllers/workspace_controller.py:    def delete_all(self) -> None:
+emidaf_core/services/workspace_service.py:    def __init__(self, repository: WorkspaceRepository):
+emidaf_core/services/workspace_service.py:    def create_workspace(
+emidaf_core/services/workspace_service.py:    def get_workspace(
+emidaf_core/services/workspace_service.py:    def get_all_workspaces(self) -> List[WorkspaceModel]:
+emidaf_core/services/workspace_service.py:    def workspace_exists(
+emidaf_core/services/workspace_service.py:    def count_workspaces(self) -> int:
+emidaf_core/services/workspace_service.py:    def update_workspace(
+emidaf_core/services/workspace_service.py:    def delete_workspace(
+emidaf_core/services/workspace_service.py:    def delete_all(self) -> None:
+emidaf_core/services/workspace_service.py:    def _validate(
+emidaf_core/services/project_service.py:    def __init__(self, repository: ProjectRepository):
+emidaf_core/services/project_service.py:    def create_project(
+emidaf_core/services/project_service.py:    def get_project(
+emidaf_core/services/project_service.py:    def get_all_projects(self) -> List[ProjectModel]:
+emidaf_core/services/project_service.py:    def project_exists(
+emidaf_core/services/project_service.py:    def count_projects(self) -> int:
+emidaf_core/services/project_service.py:    def update_project(
+emidaf_core/services/project_service.py:    def delete_project(
+emidaf_core/services/project_service.py:    def delete_all(self) -> None:
+emidaf_core/services/project_service.py:    def _validate(
+emidaf_core/services/dataset_service.py:    def __init__(self, repository: DatasetRepository):
+emidaf_core/services/dataset_service.py:    def create_dataset(self, dataset: DatasetModel) -> DatasetModel:
+emidaf_core/services/dataset_service.py:    def get_dataset(self, dataset_id: int) -> Optional[DatasetModel]:
+emidaf_core/services/dataset_service.py:    def get_all_datasets(self) -> List[DatasetModel]:
+emidaf_core/services/dataset_service.py:    def dataset_exists(self, dataset_id: int) -> bool:
+emidaf_core/services/dataset_service.py:    def count_datasets(self) -> int:
+emidaf_core/services/dataset_service.py:    def update_dataset(self, dataset: DatasetModel) -> DatasetModel:
+emidaf_core/services/dataset_service.py:    def delete_dataset(self, dataset_id: int) -> bool:
+emidaf_core/services/dataset_service.py:    def delete_all(self) -> None:
+emidaf_core/services/dataset_service.py:    def _validate(self, dataset: DatasetModel) -> None:
+emidaf_core/interfaces/i_repository.py:    def create(self):
+emidaf_core/interfaces/i_repository.py:    def get(self):
+emidaf_core/interfaces/i_repository.py:    def get_all(self):
+emidaf_core/interfaces/i_repository.py:    def update(self):
+emidaf_core/interfaces/i_repository.py:    def delete(self):

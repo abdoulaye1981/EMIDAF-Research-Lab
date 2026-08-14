@@ -11,3 +11,14 @@ app = Dash(
 app.title = "EMIDAF Research Lab"
 
 app.layout = layout
+
+
+# ======================================================
+# Point d'entrée de l'application
+# ======================================================
+
+if __name__ == "__main__":
+
+    app.run(
+        debug=True
+    )

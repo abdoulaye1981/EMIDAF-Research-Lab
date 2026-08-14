@@ -1,191 +1,114 @@
-from pathlib import Path
-import json
+"""
+=========================================================
+EMIDAF Framework v1.0
+Project Service
+---------------------------------------------------------
+Logique métier des projets.
+=========================================================
+"""
 
-from emidaf_core.entities.project import Project
+from __future__ import annotations
+
+from typing import List
+from typing import Optional
+
+from database.models.project_model import ProjectModel
 from emidaf_core.repositories.project_repository import ProjectRepository
 
 
 class ProjectService:
+    """
+    Service métier des projets.
+    """
 
-    def __init__(self):
+    def __init__(self, repository: ProjectRepository):
 
-        self.repository = ProjectRepository()
+        self._repository = repository
 
-    # =======================================
-    # Création d'un projet
-    # =======================================
+    # =====================================================
+    # CREATE
+    # =====================================================
 
     def create_project(
         self,
-        name,
-        description,
-        author,
-        workspace
-    ):
+        project: ProjectModel
+    ) -> ProjectModel:
 
-        project = Project(
-            name=name,
-            description=description,
-            author=author,
-            workspace=workspace
-        )
+        self._validate(project)
 
-        project_path = self._create_project_directory(
-            workspace,
-            name
-        )
+        return self._repository.add(project)
 
-        self._create_subdirectories(project_path)
+    # =====================================================
+    # READ
+    # =====================================================
 
-        self._create_config_file(
-            project,
-            project_path
-        )
-
-        self._create_readme(
-            project,
-            project_path
-        )
-
-        return self.repository.create(project)
-
-    # =======================================
-    # Création du dossier principal
-    # =======================================
-
-    def _create_project_directory(
+    def get_project(
         self,
-        workspace,
-        project_name
-    ):
+        project_id: int
+    ) -> Optional[ProjectModel]:
 
-        project_path = Path(workspace) / project_name
+        return self._repository.get_by_id(project_id)
 
-        if project_path.exists():
-            raise FileExistsError(
-                f"Le projet '{project_name}' existe déjà."
+    def get_all_projects(self) -> List[ProjectModel]:
+
+        return self._repository.get_all()
+
+    def project_exists(
+        self,
+        project_id: int
+    ) -> bool:
+
+        return self._repository.exists(project_id)
+
+    def count_projects(self) -> int:
+
+        return self._repository.count()
+
+    # =====================================================
+    # UPDATE
+    # =====================================================
+
+    def update_project(
+        self,
+        project: ProjectModel
+    ) -> ProjectModel:
+
+        self._validate(project)
+
+        return self._repository.update(project)
+
+    # =====================================================
+    # DELETE
+    # =====================================================
+
+    def delete_project(
+        self,
+        project_id: int
+    ) -> bool:
+
+        return self._repository.delete(project_id)
+
+    def delete_all(self) -> None:
+
+        self._repository.delete_all()
+
+    # =====================================================
+    # VALIDATION
+    # =====================================================
+
+    def _validate(
+        self,
+        project: ProjectModel
+    ) -> None:
+
+        if not project.name.strip():
+
+            raise ValueError(
+                "Project name cannot be empty."
             )
 
-        project_path.mkdir(
-            parents=True,
-            exist_ok=True
-        )
+        if project.workspace_id <= 0:
 
-        return project_path
-
-    # =======================================
-    # Création des sous-dossiers
-    # =======================================
-
-    def _create_subdirectories(self, project_path):
-
-        folders = [
-
-            "config",
-
-            "data/raw",
-
-            "data/processed",
-
-            "data/external",
-
-            "data/exports",
-
-            "models",
-
-            "reports",
-
-            "figures",
-
-            "logs",
-
-            "notebooks",
-
-            "scripts"
-
-        ]
-
-        for folder in folders:
-
-            (project_path / folder).mkdir(
-                parents=True,
-                exist_ok=True
+            raise ValueError(
+                "Invalid workspace identifier."
             )
-
-    # =======================================
-    # Création du fichier config.json
-    # =======================================
-
-    def _create_config_file(
-        self,
-        project,
-        project_path
-    ):
-
-        config = {
-
-            "project_name": project.name,
-
-            "author": project.author,
-
-            "description": project.description,
-
-            "version": "1.0",
-
-            "created_at": str(project.created_at),
-
-            "status": "NEW"
-
-        }
-
-        with open(
-            project_path / "config.json",
-            "w",
-            encoding="utf-8"
-        ) as file:
-
-            json.dump(
-                config,
-                file,
-                indent=4,
-                ensure_ascii=False
-            )
-
-    # =======================================
-    # Création du README
-    # =======================================
-
-    def _create_readme(
-        self,
-        project,
-        project_path
-    ):
-
-        content = f"""# {project.name}
-
-Created with EMIDAF Research Lab
-
-Author
-
-{project.author}
-
-Description
-
-{project.description}
-"""
-
-        with open(
-            project_path / "README.md",
-            "w",
-            encoding="utf-8"
-        ) as file:
-
-            file.write(content)
-
-    # =======================================
-    # Récupération de tous les projets
-    # =======================================
-
-    def get_projects(self):
-
-        return self.repository.get_all()

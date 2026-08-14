@@ -1,0 +1,317 @@
+emidaf_core/statistics/power_analysis/nonparametric.py:27:class NonParametricPowerAnalysis(
+emidaf_core/statistics/power_analysis/regression.py:27:class RegressionPowerAnalysis(
+emidaf_core/statistics/power_analysis/anova.py:31:class AnovaPowerAnalysis(
+emidaf_core/statistics/power_analysis/ttest.py:33:class TTestAnalysis(
+emidaf_core/statistics/power_analysis/chi_square.py:27:class ChiSquarePowerAnalysis(
+emidaf_core/statistics/power_analysis/sensitivity.py:39:class SensitivityAnalysis(
+emidaf_core/statistics/power_analysis/precision.py:30:class PrecisionAnalysis(
+emidaf_core/statistics/power_analysis/equivalence.py:27:class EquivalencePowerAnalysis(
+emidaf_core/statistics/power_analysis/correlation.py:27:class CorrelationPowerAnalysis(
+emidaf_core/statistics/power_analysis/base.py:54:class BasePowerAnalysis(
+ZScore -> BaseOutlierDetector 
+ModifiedZScore -> BaseOutlierDetector 
+IQR -> BaseOutlierDetector 
+TukeyFence -> BaseOutlierDetector 
+Percentile -> BaseOutlierDetector 
+ThreeSigma -> BaseOutlierDetector 
+HampelFilter -> BaseOutlierDetector 
+KMeansOutlier -> BaseOutlierDetector 
+MiniBatchKMeansOutlier -> BaseOutlierDetector 
+BirchOutlier -> BaseOutlierDetector 
+GaussianMixtureOutlier -> BaseOutlierDetector 
+RemoveOutliers -> BaseTreatment 
+Winsorization -> BaseTreatment 
+Capping -> BaseTreatment 
+Flooring -> BaseTreatment 
+MeanReplacement -> BaseTreatment 
+MedianReplacement -> BaseTreatment 
+QuantileCapping -> BaseTreatment 
+AdaptiveTreatment -> BaseTreatment 
+Mahalanobis -> BaseOutlierDetector 
+RobustMahalanobis -> BaseOutlierDetector 
+CookDistance -> BaseOutlierDetector 
+Leverage -> BaseOutlierDetector 
+LOF -> BaseOutlierDetector 
+DBSCANOutlier -> BaseOutlierDetector 
+OPTICSOutlier -> BaseOutlierDetector 
+IsolationForestDetector -> BaseOutlierDetector 
+OneClassSVMDetector -> BaseOutlierDetector 
+EllipticEnvelopeDetector -> BaseOutlierDetector 
+HBOSDetector -> BaseOutlierDetector 
+ABODDetector -> BaseOutlierDetector 
+ECODDetector -> BaseOutlierDetector 
+COPODDetector -> BaseOutlierDetector 
+PCAOutlier -> BaseOutlierDetector 
+RobustPCAOutlier -> BaseOutlierDetector 
+FeatureBaggingOutlier -> BaseOutlierDetector 
+AutoEncoderOutlier -> BaseOutlierDetector 
+MinimumCovarianceDeterminant -> BaseOutlierDetector 
+BaseOutlierDetector -> ABC 
+emidaf_core/statistics/descriptive.py:77:class Mean(
+emidaf_core/statistics/descriptive.py:109:class Median(
+emidaf_core/statistics/descriptive.py:141:class Mode(
+emidaf_core/statistics/descriptive.py:181:class Sum(
+emidaf_core/statistics/descriptive.py:213:class Sum(
+emidaf_core/statistics/descriptive.py:245:class Maximum(
+emidaf_core/statistics/descriptive.py:277:class Range(
+emidaf_core/statistics/descriptive.py:309:class Variance(
+emidaf_core/statistics/descriptive.py:347:class StandardDeviation(
+emidaf_core/statistics/descriptive.py:385:class StandardDeviation(
+CategoricalTest -> HypothesisTest, ABC 
+ChiSquare -> CategoricalTest 
+FishersExact -> CategoricalTest 
+McNemar -> CategoricalTest 
+CochranQ -> CategoricalTest 
+ChiSquareIndependenceTest -> BaseHypothesisTest 
+emidaf_core/statistics/hypothesis/independence.py:119:class ChiSquareGoodnessOfFitTest(
+MannWhitneyTest -> BaseHypothesisTest 
+WilcoxonTest -> BaseHypothesisTest 
+KruskalWallisTest -> BaseHypothesisTest 
+FriedmanTest -> BaseHypothesisTest 
+SpearmanTest -> BaseHypothesisTest 
+ParametricTest -> HypothesisTest, ABC 
+OneSampleTTest -> ParametricTest 
+StudentTTest -> ParametricTest 
+WelchTTest -> ParametricTest 
+PairedTTest -> ParametricTest 
+OneWayANOVA -> ParametricTest 
+FTest -> ParametricTest 
+LeveneTest -> BaseHypothesisTest 
+BartlettTest -> BaseHypothesisTest 
+OneSampleProportionTest -> BaseHypothesisTest 
+TwoSampleProportionTest -> BaseHypothesisTest 
+OneSampleTTest -> BaseHypothesisTest 
+IndependentTTest -> BaseHypothesisTest 
+PairedTTest -> BaseHypothesisTest 
+ShapiroTest -> BaseHypothesisTest 
+NormalityTest -> BaseHypothesisTest 
+AndersonTest -> BaseHypothesisTest 
+MissingDataTest -> HypothesisTest, ABC 
+LittleMCAR -> MissingDataTest 
+MCARChiSquare -> MissingDataTest 
+MARDetection -> MissingDataTest 
+MissingPatternAnalysis -> MissingDataTest 
+NonParametricTest -> HypothesisTest, ABC 
+MannWhitney -> NonParametricTest 
+Wilcoxon -> NonParametricTest 
+KruskalWallis -> NonParametricTest 
+Friedman -> NonParametricTest 
+MoodMedianTest -> NonParametricTest 
+SignTest -> NonParametricTest 
+BaseHypothesisTest -> ABC 
+FrequencyStatistic -> DescriptiveStatistic, ABC 
+Count -> FrequencyStatistic 
+MissingCount -> FrequencyStatistic 
+MissingPercentage -> FrequencyStatistic 
+UniqueCount -> FrequencyStatistic 
+DistinctCount -> FrequencyStatistic 
+DuplicateCount -> FrequencyStatistic 
+DuplicatePercentage -> FrequencyStatistic 
+FrequencyTable -> FrequencyStatistic 
+RelativeFrequency -> FrequencyStatistic 
+emidaf_core/statistics/descriptive/weighted.py:25:class WeightedMean(
+emidaf_core/statistics/descriptive/weighted.py:63:class WeightedVariance(
+emidaf_core/statistics/descriptive/weighted.py:109:class WeightedVariance(
+emidaf_core/statistics/descriptive/weighted.py:155:class WeightedCoefficientVariation(
+emidaf_core/statistics/descriptive/weighted.py:209:class WeightedSum(
+emidaf_core/statistics/descriptive/weighted.py:245:class WeightedQuantile(
+emidaf_core/statistics/descriptive/weighted.py:305:class WeightedMedian(
+emidaf_core/statistics/descriptive/weighted.py:329:class WeightedPercentiles(
+DistributionStatistic -> DescriptiveStatistic, ABC 
+Skewness -> DistributionStatistic 
+Kurtosis -> DistributionStatistic 
+Entropy -> DistributionStatistic 
+Quantiles -> DistributionStatistic 
+Percentiles -> DistributionStatistic 
+Moments -> DistributionStatistic 
+emidaf_core/statistics/descriptive/circular.py:29:class CircularMean(
+emidaf_core/statistics/descriptive/circular.py:81:class CircularVariance(
+emidaf_core/statistics/descriptive/circular.py:133:class CircularStandardDeviation(
+emidaf_core/statistics/descriptive/circular.py:185:class MeanResultantLength(
+emidaf_core/statistics/descriptive/circular.py:233:class MeanDirection(
+emidaf_core/statistics/descriptive/circular.py:285:class MeanDirection(
+LocationStatistic -> DescriptiveStatistic, ABC 
+Mean -> LocationStatistic 
+Median -> LocationStatistic 
+Mode -> LocationStatistic 
+Minimum -> LocationStatistic 
+Maximum -> LocationStatistic 
+GeometricMean -> LocationStatistic 
+HarmonicMean -> LocationStatistic 
+TrimmedMean -> LocationStatistic 
+emidaf_core/statistics/descriptive/position.py:21:class Minimum(
+emidaf_core/statistics/descriptive/position.py:53:class Maximum(
+emidaf_core/statistics/descriptive/position.py:85:class FirstQuartile(
+emidaf_core/statistics/descriptive/position.py:123:class Median(
+emidaf_core/statistics/descriptive/position.py:161:class ThirdQuartile(
+emidaf_core/statistics/descriptive/position.py:199:class Deciles(
+emidaf_core/statistics/descriptive/position.py:253:class Percentiles(
+emidaf_core/statistics/descriptive/position.py:331:class Quantiles(
+emidaf_core/statistics/descriptive/multivariate.py:35:class Covariance(
+emidaf_core/statistics/descriptive/multivariate.py:75:class Covariance(
+emidaf_core/statistics/descriptive/multivariate.py:115:class Correlation(
+emidaf_core/statistics/descriptive/multivariate.py:153:class CorrelationMatrix(
+emidaf_core/statistics/descriptive/multivariate.py:201:class Centroid(
+emidaf_core/statistics/descriptive/multivariate.py:237:class VarianceCovarianceMatrix(
+emidaf_core/statistics/descriptive/multivariate.py:250:class CovarianceDeterminant(
+emidaf_core/statistics/descriptive/multivariate.py:292:class GeneralizedVariance(
+emidaf_core/statistics/descriptive/multivariate.py:334:class MahalanobisDistance(
+emidaf_core/statistics/descriptive/multivariate.py:396:class EuclideanDistance(
+emidaf_core/statistics/descriptive/multivariate.py:436:class EuclideanDistance(
+emidaf_core/statistics/descriptive/multivariate.py:476:class MinkowskiDistance(
+emidaf_core/statistics/descriptive/multivariate.py:529:class CanberraDistance(
+emidaf_core/statistics/descriptive/multivariate.py:569:class CosineDistance(
+emidaf_core/statistics/descriptive/shape.py:27:class Skewness(
+emidaf_core/statistics/descriptive/shape.py:73:class Kurtosis(
+emidaf_core/statistics/descriptive/shape.py:125:class PearsonSkewness(
+emidaf_core/statistics/descriptive/shape.py:177:class BowleySkewness(
+emidaf_core/statistics/descriptive/shape.py:225:class YuleCoefficient(
+emidaf_core/statistics/descriptive/shape.py:273:class Peakedness(
+emidaf_core/statistics/descriptive/robust.py:27:class RobustMedian(
+emidaf_core/statistics/descriptive/robust.py:59:class TrimmedMean(
+emidaf_core/statistics/descriptive/robust.py:105:class WinsorizedMean(
+emidaf_core/statistics/descriptive/robust.py:155:class WinsorizedVariance(
+emidaf_core/statistics/descriptive/robust.py:211:class MedianAbsoluteDeviation(
+emidaf_core/statistics/descriptive/robust.py:251:class RobustStandardDeviation(
+emidaf_core/statistics/descriptive/robust.py:293:class Midhinge(
+emidaf_core/statistics/descriptive/robust.py:327:class TukeyTrimean(
+emidaf_core/statistics/descriptive/robust.py:371:class RobustMidrange(
+emidaf_core/statistics/descriptive/dispersion.py:17:class Variance(
+emidaf_core/statistics/descriptive/dispersion.py:61:class StandardDeviation(
+emidaf_core/statistics/descriptive/dispersion.py:105:class Range(
+emidaf_core/statistics/descriptive/dispersion.py:133:class InterquartileRange(
+emidaf_core/statistics/descriptive/dispersion.py:161:class MeanAbsoluteDeviation(
+emidaf_core/statistics/descriptive/dispersion.py:197:class MedianAbsoluteDeviation(
+emidaf_core/statistics/descriptive/dispersion.py:233:class CoefficientVariation(
+emidaf_core/statistics/descriptive/dispersion.py:269:class CoefficientVariation(
+emidaf_core/statistics/preprocessing/transformation.py:178:class LogTransformer(
+emidaf_core/statistics/preprocessing/transformation.py:193:class SqrtTransformer(
+emidaf_core/statistics/preprocessing/transformation.py:208:class SquareTransformer(
+emidaf_core/statistics/preprocessing/transformation.py:223:class CubeTransformer(
+emidaf_core/statistics/preprocessing/transformation.py:238:class ReciprocalTransformer(
+emidaf_core/statistics/preprocessing/transformation.py:253:class RankTransformer(
+emidaf_core/statistics/preprocessing/duplicates.py:125:class DuplicateRemover(
+emidaf_core/statistics/preprocessing/missing.py:220:class SimpleImputerPreprocessor(
+emidaf_core/statistics/preprocessing/missing.py:307:class MissingHandler(
+emidaf_core/statistics/preprocessing/inspection.py:422:class Inspection(
+emidaf_core/statistics/preprocessing/outliers.py:261:class IQRDetector(
+emidaf_core/statistics/preprocessing/outliers.py:278:class ZScoreDetector(
+emidaf_core/statistics/preprocessing/outliers.py:295:class MADDetector(
+PreprocessingPipeline -> BasePreprocessing 
+emidaf_core/statistics/preprocessing/pipeline.py:350:class ConditionalPipeline(
+emidaf_core/statistics/preprocessing/base.py:44:class BasePreprocessing(
+emidaf_core/statistics/effect_size/mean_difference.py:29:class MeanDifferenceEffectSize(
+emidaf_core/statistics/effect_size/nonparametric.py:29:class NonParametricEffectSize(
+emidaf_core/statistics/effect_size/regression.py:27:class RegressionEffectSize(
+emidaf_core/statistics/effect_size/anova.py:27:class AnovaEffectSize(
+emidaf_core/statistics/effect_size/proportions.py:27:class ProportionEffectSize(
+emidaf_core/statistics/effect_size/contingency.py:29:class ContingencyEffectSize(
+emidaf_core/statistics/effect_size/correlation.py:29:class CorrelationEffectSize(
+emidaf_core/statistics/effect_size/base.py:51:class BaseEffectSize(
+emidaf_core/statistics/distributions/mixture.py:31:class MixtureDistribution(
+emidaf_core/statistics/distributions/mixture.py:307:class GaussianMixtureDistribution(
+emidaf_core/statistics/distributions/mixture.py:322:class BayesianGaussianMixtureDistribution(
+emidaf_core/statistics/distributions/discrete.py:29:class DiscreteDistribution(
+emidaf_core/statistics/distributions/discrete.py:234:class BernoulliDistribution(
+emidaf_core/statistics/distributions/discrete.py:262:class BinomialDistribution(
+emidaf_core/statistics/distributions/discrete.py:300:class PoissonDistribution(
+emidaf_core/statistics/distributions/discrete.py:328:class GeometricDistribution(
+emidaf_core/statistics/distributions/discrete.py:356:class NegativeBinomialDistribution(
+emidaf_core/statistics/distributions/discrete.py:400:class HyperGeometricDistribution(
+emidaf_core/statistics/distributions/discrete.py:428:class MultinomialDistribution(
+emidaf_core/statistics/distributions/discrete.py:484:class ZipfDistribution(
+emidaf_core/statistics/distributions/discrete.py:512:class PlanckDistribution(
+emidaf_core/statistics/distributions/multivariate.py:29:class MultivariateDistribution(
+emidaf_core/statistics/distributions/multivariate.py:197:class MultivariateNormalDistribution(
+emidaf_core/statistics/distributions/multivariate.py:211:class DirichletDistribution(
+emidaf_core/statistics/distributions/multivariate.py:255:class WishartDistribution(
+emidaf_core/statistics/distributions/multivariate.py:303:class InverseWishartDistribution(
+emidaf_core/statistics/distributions/multivariate.py:351:class FrozenMultivariateNormal(
+emidaf_core/statistics/distributions/continuous.py:29:class ContinuousDistribution(
+emidaf_core/statistics/distributions/continuous.py:238:class NormalDistribution(
+emidaf_core/statistics/distributions/continuous.py:253:class LogNormalDistribution(
+emidaf_core/statistics/distributions/continuous.py:268:class ExponentialDistribution(
+emidaf_core/statistics/distributions/continuous.py:283:class GammaDistribution(
+emidaf_core/statistics/distributions/continuous.py:297:class WeibullDistribution(
+emidaf_core/statistics/distributions/continuous.py:312:class BetaDistribution(
+emidaf_core/statistics/distributions/continuous.py:326:class UniformDistribution(
+emidaf_core/statistics/distributions/continuous.py:340:class StudentDistribution(
+emidaf_core/statistics/distributions/continuous.py:354:class ChiSquareDistribution(
+emidaf_core/statistics/distributions/continuous.py:368:class FisherDistribution(
+emidaf_core/statistics/distributions/continuous.py:382:class CauchyDistribution(
+emidaf_core/statistics/distributions/continuous.py:396:class LaplaceDistribution(
+emidaf_core/statistics/distributions/continuous.py:410:class LogisticDistribution(
+emidaf_core/statistics/distributions/continuous.py:424:class GeneralizedExtremeValueDistribution(
+emidaf_core/statistics/distributions/continuous.py:438:class ParetoDistribution(
+emidaf_core/statistics/distributions/continuous.py:452:class RayleighDistribution(
+emidaf_core/statistics/distributions/truncated.py:29:class TruncatedDistribution(
+emidaf_core/statistics/distributions/truncated.py:239:class TruncatedNormal(
+emidaf_core/statistics/distributions/truncated.py:253:class TruncatedExponential(
+emidaf_core/statistics/distributions/truncated.py:297:class TruncatedPareto(
+emidaf_core/statistics/distributions/base.py:58:class BaseDistribution(
+BaseStatistic -> ABC 
+DescriptiveStatistic -> BaseStatistic 
+InferentialStatistic -> BaseStatistic 
+HypothesisTest -> InferentialStatistic 
+CorrelationStatistic -> BaseStatistic 
+Estimator -> BaseStatistic 
+emidaf_core/statistics/inferential/superiority.py:36:class SuperiorityTTest(
+emidaf_core/statistics/inferential/superiority.py:138:class WelchSuperiority(
+emidaf_core/statistics/inferential/superiority.py:234:class SuperiorityProportion(
+emidaf_core/statistics/inferential/variance.py:30:class FisherVarianceTest(
+emidaf_core/statistics/inferential/variance.py:114:class LeveneTest(
+emidaf_core/statistics/inferential/variance.py:160:class BartlettTest(
+emidaf_core/statistics/inferential/variance.py:202:class FlignerKilleenTest(
+emidaf_core/statistics/inferential/variance.py:244:class BrownForsytheTest(
+emidaf_core/statistics/inferential/variance.py:288:class HartleyFMaxTest(
+emidaf_core/statistics/inferential/variance.py:348:class CochranCTest(
+emidaf_core/statistics/inferential/variance.py:400:class OBrienTest(
+emidaf_core/statistics/inferential/variance.py:426:class BoxMTest(
+emidaf_core/statistics/inferential/one_sample.py:21:class OneSampleTTest(
+emidaf_core/statistics/inferential/one_sample.py:65:class OneSampleWilcoxon(
+emidaf_core/statistics/inferential/one_sample.py:107:class OneSampleSignTest(
+emidaf_core/statistics/inferential/non_inferiority.py:30:class NonInferiorityTTest(
+emidaf_core/statistics/inferential/non_inferiority.py:132:class WelchNonInferiority(
+emidaf_core/statistics/inferential/non_inferiority.py:246:class NonInferiorityProportion(
+emidaf_core/statistics/inferential/non_inferiority.py:296:class BootstrapNonInferiority(
+emidaf_core/statistics/inferential/proportions.py:40:class OneProportionZTest(
+emidaf_core/statistics/inferential/proportions.py:104:class TwoProportionZTest(
+emidaf_core/statistics/inferential/proportions.py:150:class ExactBinomialTest(
+emidaf_core/statistics/inferential/proportions.py:202:class FisherExactTest(
+emidaf_core/statistics/inferential/proportions.py:250:class McNemarTest(
+emidaf_core/statistics/inferential/proportions.py:302:class CochranQTest(
+emidaf_core/statistics/inferential/proportions.py:344:class ProportionChiSquare(
+emidaf_core/statistics/inferential/two_samples.py:31:class WelchTTest(
+emidaf_core/statistics/inferential/two_samples.py:81:class WelchTTest(
+emidaf_core/statistics/inferential/two_samples.py:131:class WelchTTest(
+emidaf_core/statistics/inferential/two_samples.py:181:class KolmogorovSmirnovTest(
+emidaf_core/statistics/inferential/two_samples.py:227:class BrunnerMunzelTest(
+emidaf_core/statistics/inferential/two_samples.py:273:class BrunnerMunzelTest(
+emidaf_core/statistics/inferential/two_samples.py:319:class MoodMedianTest(
+emidaf_core/statistics/inferential/two_samples.py:365:class FlignerPolicelloTest(
+emidaf_core/statistics/inferential/equivalence.py:30:class TOSTTest(
+emidaf_core/statistics/inferential/equivalence.py:116:class VarianceEquivalence(
+emidaf_core/statistics/inferential/equivalence.py:186:class CorrelationEquivalence(
+emidaf_core/statistics/inferential/paired.py:30:class PairedStudentTTest(
+emidaf_core/statistics/inferential/paired.py:78:class WilcoxonSignedRankTest(
+emidaf_core/statistics/inferential/paired.py:128:class PairedSignTest(
+emidaf_core/statistics/inferential/paired.py:184:class PairedPermutationTest(
+emidaf_core/statistics/inferential/paired.py:216:class PairedPermutationTest(
+emidaf_core/statistics/inferential/base.py:62:class BaseInferentialTest(
+MixedCorrelation -> CorrelationStatistic, ABC 
+PointBiserial -> MixedCorrelation 
+Biserial -> MixedCorrelation 
+CorrelationRatio -> MixedCorrelation 
+CategoricalCorrelation -> CorrelationStatistic, ABC 
+ChiSquare -> CategoricalCorrelation 
+PhiCoefficient -> CategoricalCorrelation 
+CramerV -> CategoricalCorrelation 
+ContingencyCoefficient -> CategoricalCorrelation 
+LinearCorrelation -> CorrelationStatistic, ABC 
+Pearson -> LinearCorrelation 
+Spearman -> LinearCorrelation 
+Kendall -> LinearCorrelation 
+AssociationStatistic -> CorrelationStatistic, ABC 
+MutualInformation -> AssociationStatistic 
+DistanceCorrelation -> AssociationStatistic 
+ConcordanceCorrelation -> AssociationStatistic 

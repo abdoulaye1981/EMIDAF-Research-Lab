@@ -1,0 +1,20 @@
+{
+    "workspace_id": "3b4f0e5c-5db7-49fa-88fb-b9e5b4f0d6d2",
+    "name": "Mon Workspace",
+    "description": "Projet de recherche",
+    "author": "Abdoulaye Wakhab DIOP",
+    "organization": "EMIDAF Research Lab",
+    "framework": "EMIDAF",
+    "framework_version": "1.0.0",
+    "workspace_version": "1.0.0",
+    "python_version": "3.12",
+    "database": "SQLite",
+    "created_at": "2026-08-01T08:00:00",
+    "last_opened": "2026-08-01T08:00:00",
+    "last_saved": "2026-08-01T08:00:00",
+    "project_count": 0,
+    "dataset_count": 0,
+    "inspection_count": 0,
+    "report_count": 0,
+    "is_active": true
+}

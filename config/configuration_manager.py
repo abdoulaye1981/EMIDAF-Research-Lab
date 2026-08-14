@@ -6,41 +6,109 @@ class ConfigurationManager:
 
     def __init__(self):
 
-        self.settings = {}
+        self._config = {}
 
-        self.settings_file = Path("config/settings.json")
+        self._config_file = Path(__file__).parent / "settings.json"
+
+        self.initialize()
+
+    # ==========================================================
+    # Initialisation
+    # ==========================================================
+
+    def initialize(self):
+
+        self.load()
+
+    # ==========================================================
+    # Chargement
+    # ==========================================================
 
     def load(self):
 
-        if self.settings_file.exists():
+        if not self._config_file.exists():
 
-            with open(
+            raise FileNotFoundError(
 
-                self.settings_file,
+                f"Fichier de configuration introuvable : {self._config_file}"
 
-                encoding="utf-8"
+            )
 
-            ) as file:
+        with open(
 
-                self.settings = json.load(file)
+            self._config_file,
 
-        else:
+            "r",
 
-            self.settings = {}
+            encoding="utf-8"
+
+        ) as file:
+
+            self._config = json.load(file)
+
+    # ==========================================================
+    # Rechargement
+    # ==========================================================
+
+    def reload(self):
+
+        self.load()
+
+    # ==========================================================
+    # Accès générique
+    # ==========================================================
 
     def get(self, key, default=None):
 
-        return self.settings.get(key, default)
+        return self._config.get(key, default)
+
+    def has(self, key):
+
+        return key in self._config
+
+    def keys(self):
+
+        return list(self._config.keys())
+
+    def values(self):
+
+        return list(self._config.values())
+
+    def items(self):
+
+        return list(self._config.items())
+
+    def count(self):
+
+        return len(self._config)
+
+    # ==========================================================
+    # Modification
+    # ==========================================================
 
     def set(self, key, value):
 
-        self.settings[key] = value
+        self._config[key] = value
+
+    def remove(self, key):
+
+        if key in self._config:
+
+            del self._config[key]
+
+    def clear(self):
+
+        self._config.clear()
+
+    # ==========================================================
+    # Sauvegarde
+    # ==========================================================
 
     def save(self):
 
         with open(
 
-            self.settings_file,
+            self._config_file,
 
             "w",
 
@@ -50,7 +118,7 @@ class ConfigurationManager:
 
             json.dump(
 
-                self.settings,
+                self._config,
 
                 file,
 
@@ -59,3 +127,52 @@ class ConfigurationManager:
                 ensure_ascii=False
 
             )
+
+    # ==========================================================
+    # Propriétés
+    # ==========================================================
+
+    @property
+    def application(self):
+
+        return self._config.get("application")
+
+    @property
+    def version(self):
+
+        return self._config.get("version")
+
+    @property
+    def theme(self):
+
+        return self._config.get("theme")
+
+    @property
+    def language(self):
+
+        return self._config.get("language")
+
+    @property
+    def workspace(self):
+
+        return self._config.get("workspace")
+
+    @property
+    def database(self):
+
+        return self._config.get("database")
+
+    @property
+    def debug(self):
+
+        return self._config.get("debug")
+
+    @property
+    def autosave(self):
+
+        return self._config.get("autosave")
+
+    @property
+    def log_level(self):
+
+        return self._config.get("log_level")
