@@ -1,185 +1,119 @@
 from dash import html
-from dash import dcc
-
 import dash_bootstrap_components as dbc
 
 
 def project_modal():
 
     return dbc.Modal(
-
         [
-
             dbc.ModalHeader(
-
                 dbc.ModalTitle(
-
                     "Nouveau Projet"
-
                 )
-
             ),
 
             dbc.ModalBody(
-
                 [
-
                     dbc.Label(
-
                         "Nom du projet"
-
                     ),
 
                     dbc.Input(
-
                         id="project-name",
-
                         placeholder="Nom du projet",
-
                         type="text"
-
                     ),
 
                     html.Br(),
 
                     dbc.Label(
-
-                        "Auteur"
-
+                        "Workspace"
                     ),
 
-                    dbc.Input(
-
-                        id="project-author",
-
-                        placeholder="Auteur",
-
-                        type="text"
-
+                    dbc.Select(
+                        id="project-workspace",
+                        options=[],
+                        placeholder="Sélectionner un workspace"
                     ),
 
                     html.Br(),
 
                     dbc.Label(
-
                         "Description"
-
                     ),
 
                     dbc.Textarea(
-
                         id="project-description",
-
                         placeholder="Description du projet"
-
-                    ),
-
-                    html.Br(),
-
-                    dbc.Label(
-
-                        "Type de projet"
-
-                    ),
-
-                    dcc.Dropdown(
-
-                        id="project-type",
-
-                        options=[
-
-                            {
-
-                                "label": "Recherche",
-
-                                "value": "research"
-
-                            },
-
-                            {
-
-                                "label": "Enseignement",
-
-                                "value": "teaching"
-
-                            },
-
-                            {
-
-                                "label": "Démonstration",
-
-                                "value": "demo"
-
-                            }
-
-                        ],
-
-                        value="research",
-
-                        clearable=False
-
-                    ),
-
-                    html.Br(),
-
-                    dbc.Label(
-
-                        "Workspace"
-
-                    ),
-
-                    dbc.Input(
-
-                        id="project-workspace",
-
-                        value="workspace/projects",
-
-                        type="text"
-
                     )
-
                 ]
-
             ),
 
             dbc.ModalFooter(
-
                 [
-
                     dbc.Button(
-
                         "Créer",
-
                         id="btn-create-project",
-
                         color="primary"
-
                     ),
 
                     dbc.Button(
-
                         "Annuler",
-
                         id="btn-close-project",
-
                         color="secondary"
-
                     )
-
                 ]
-
             )
-
         ],
 
         id="project-modal",
-
         size="lg",
-
         centered=True,
-
         backdrop="static",
-
         is_open=False
+    )
 
+# ==========================================================
+# Modale de confirmation de suppression
+# ==========================================================
+
+def delete_project_modal():
+
+    return dbc.Modal(
+        [
+            dbc.ModalHeader(
+                dbc.ModalTitle(
+                    "Confirmer la suppression"
+                )
+            ),
+
+            dbc.ModalBody(
+                [
+                    html.P(
+                        id="delete-project-message"
+                    )
+                ]
+            ),
+
+            dbc.ModalFooter(
+                [
+                    dbc.Button(
+                        "Annuler",
+                        id="btn-cancel-delete-project",
+                        color="secondary"
+                    ),
+
+                    dbc.Button(
+                        "Supprimer",
+                        id="btn-confirm-delete-project",
+                        color="danger"
+                    )
+                ]
+            )
+        ],
+
+        id="delete-project-modal",
+        centered=True,
+        backdrop="static",
+        is_open=False
     )

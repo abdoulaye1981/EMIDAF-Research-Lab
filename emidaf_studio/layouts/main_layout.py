@@ -3,7 +3,8 @@ import dash_bootstrap_components as dbc
 
 from emidaf_studio.components.navbar import navbar
 from emidaf_studio.components.sidebar import sidebar
-from emidaf_studio.layouts.home import layout as home
+from emidaf_studio.router import layout as router_layout
+
 
 layout = html.Div(
     [
@@ -13,8 +14,15 @@ layout = html.Div(
             [
                 dbc.Row(
                     [
-                        dbc.Col(sidebar, width=2),
-                        dbc.Col(home, width=10),
+                        dbc.Col(
+                            sidebar,
+                            width=2
+                        ),
+
+                        dbc.Col(
+                            router_layout,
+                            width=10
+                        ),
                     ]
                 )
             ],
