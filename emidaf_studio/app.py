@@ -4,8 +4,12 @@ import dash_bootstrap_components as dbc
 from emidaf_studio.layouts.main_layout import layout
 
 import emidaf_studio.pages.projects.callbacks
+import importlib
 
-
+importlib.import_module(
+    "emidaf_studio.pages.import.callbacks"
+)
+import emidaf_studio.pages.inspection.layout
 app = Dash(
     __name__,
     external_stylesheets=[dbc.themes.FLATLY],
