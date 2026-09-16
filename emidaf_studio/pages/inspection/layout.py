@@ -70,6 +70,27 @@ def load_dataset(project_id, dataset_id):
 def build_profile_summary(profile):
     summary = profile.summary
 
+    # Résultats détaillés du DatatypeAnalyzer
+    datatypes = profile.datatypes or {}
+    structure = profile.structure or {}
+
+    numeric_columns = datatypes.get("numeric", [])
+    categorical_columns = datatypes.get("categorical", [])
+    datetime_columns = datatypes.get("datetime", [])
+    boolean_columns = datatypes.get("boolean", [])
+    text_columns = datatypes.get("text", [])
+    unknown_columns = datatypes.get("unknown", [])
+
+    # Mémoire
+    memory_usage = structure.get("memory_usage", summary.memory_usage)
+
+    if memory_usage < 1024:
+        memory_display = f"{memory_usage} octets"
+    elif memory_usage < 1024 ** 2:
+        memory_display = f"{memory_usage / 1024:.2f} Ko"
+    else:
+        memory_display = f"{memory_usage / (1024 ** 2):.2f} Mo"
+
     return dbc.Container(
         [
             html.H4(
@@ -77,6 +98,9 @@ def build_profile_summary(profile):
                 className="mt-4"
             ),
 
+            # -------------------------------------------------
+            # Indicateurs généraux
+            # -------------------------------------------------
             dbc.Row(
                 [
                     dbc.Col(
@@ -90,7 +114,6 @@ def build_profile_summary(profile):
                         ),
                         width=3
                     ),
-
                     dbc.Col(
                         dbc.Card(
                             dbc.CardBody(
@@ -102,7 +125,6 @@ def build_profile_summary(profile):
                         ),
                         width=3
                     ),
-
                     dbc.Col(
                         dbc.Card(
                             dbc.CardBody(
@@ -114,7 +136,6 @@ def build_profile_summary(profile):
                         ),
                         width=3
                     ),
-
                     dbc.Col(
                         dbc.Card(
                             dbc.CardBody(
@@ -140,9 +161,68 @@ def build_profile_summary(profile):
                 color="success"
             ),
 
+            # -------------------------------------------------
+            # NOUVEAU : Structure et types
+            # -------------------------------------------------
             html.H5(
-                "🔢 Types de variables",
+                "🧬 Structure et types",
                 className="mt-4"
+            ),
+
+            dbc.Card(
+                [
+                    dbc.CardHeader(
+                        "📐 Structure du dataset"
+                    ),
+                    dbc.CardBody(
+                        [
+                            dbc.Row(
+                                [
+                                    dbc.Col(
+                                        [
+                                            html.H6("Lignes"),
+                                            html.H4(
+                                                f"{structure.get('rows', summary.rows):,}"
+                                            )
+                                        ],
+                                        width=3
+                                    ),
+                                    dbc.Col(
+                                        [
+                                            html.H6("Colonnes"),
+                                            html.H4(
+                                                f"{structure.get('columns', summary.columns):,}"
+                                            )
+                                        ],
+                                        width=3
+                                    ),
+                                    dbc.Col(
+                                        [
+                                            html.H6("Cellules"),
+                                            html.H4(
+                                                f"{summary.cells:,}"
+                                            )
+                                        ],
+                                        width=3
+                                    ),
+                                    dbc.Col(
+                                        [
+                                            html.H6("Mémoire"),
+                                            html.H4(memory_display)
+                                        ],
+                                        width=3
+                                    )
+                                ]
+                            )
+                        ]
+                    )
+                ],
+                className="mb-3"
+            ),
+
+            html.H6(
+                "🔢 Répartition des types de variables",
+                className="mt-3"
             ),
 
             dbc.Row(
@@ -152,67 +232,74 @@ def build_profile_summary(profile):
                             dbc.CardBody(
                                 [
                                     html.H6("Numériques"),
-                                    html.H4(summary.numeric_columns)
+                                    html.H4(
+                                        len(numeric_columns)
+                                    )
                                 ]
                             )
                         ),
                         width=2
                     ),
-
                     dbc.Col(
                         dbc.Card(
                             dbc.CardBody(
                                 [
                                     html.H6("Catégorielles"),
-                                    html.H4(summary.categorical_columns)
+                                    html.H4(
+                                        len(categorical_columns)
+                                    )
                                 ]
                             )
                         ),
                         width=2
                     ),
-
                     dbc.Col(
                         dbc.Card(
                             dbc.CardBody(
                                 [
                                     html.H6("Datetimes"),
-                                    html.H4(summary.datetime_columns)
+                                    html.H4(
+                                        len(datetime_columns)
+                                    )
                                 ]
                             )
                         ),
                         width=2
                     ),
-
                     dbc.Col(
                         dbc.Card(
                             dbc.CardBody(
                                 [
                                     html.H6("Booléennes"),
-                                    html.H4(summary.boolean_columns)
+                                    html.H4(
+                                        len(boolean_columns)
+                                    )
                                 ]
                             )
                         ),
                         width=2
                     ),
-
                     dbc.Col(
                         dbc.Card(
                             dbc.CardBody(
                                 [
                                     html.H6("Texte"),
-                                    html.H4(summary.text_columns)
+                                    html.H4(
+                                        len(text_columns)
+                                    )
                                 ]
                             )
                         ),
                         width=2
                     ),
-
                     dbc.Col(
                         dbc.Card(
                             dbc.CardBody(
                                 [
                                     html.H6("Inconnues"),
-                                    html.H4(summary.unknown_columns)
+                                    html.H4(
+                                        len(unknown_columns)
+                                    )
                                 ]
                             )
                         ),
@@ -222,6 +309,89 @@ def build_profile_summary(profile):
                 className="mb-3"
             ),
 
+            # -------------------------------------------------
+            # Variables par type
+            # -------------------------------------------------
+            html.H6(
+                "📋 Variables par type",
+                className="mt-4"
+            ),
+
+            dbc.Accordion(
+                [
+                    dbc.AccordionItem(
+                        [
+                            html.P(
+                                ", ".join(numeric_columns)
+                                if numeric_columns
+                                else "Aucune"
+                            )
+                        ],
+                        title="🔢 Variables numériques"
+                    ),
+
+                    dbc.AccordionItem(
+                        [
+                            html.P(
+                                ", ".join(categorical_columns)
+                                if categorical_columns
+                                else "Aucune"
+                            )
+                        ],
+                        title="🏷️ Variables catégorielles"
+                    ),
+
+                    dbc.AccordionItem(
+                        [
+                            html.P(
+                                ", ".join(datetime_columns)
+                                if datetime_columns
+                                else "Aucune"
+                            )
+                        ],
+                        title="📅 Variables datetime"
+                    ),
+
+                    dbc.AccordionItem(
+                        [
+                            html.P(
+                                ", ".join(boolean_columns)
+                                if boolean_columns
+                                else "Aucune"
+                            )
+                        ],
+                        title="☑️ Variables booléennes"
+                    ),
+
+                    dbc.AccordionItem(
+                        [
+                            html.P(
+                                ", ".join(text_columns)
+                                if text_columns
+                                else "Aucune"
+                            )
+                        ],
+                        title="🔤 Variables texte"
+                    ),
+
+                    dbc.AccordionItem(
+                        [
+                            html.P(
+                                ", ".join(unknown_columns)
+                                if unknown_columns
+                                else "Aucune"
+                            )
+                        ],
+                        title="❓ Variables inconnues"
+                    )
+                ],
+                start_collapsed=True,
+                className="mb-3"
+            ),
+
+            # -------------------------------------------------
+            # Qualité des données
+            # -------------------------------------------------
             html.H5(
                 "🧹 Qualité des données",
                 className="mt-4"
@@ -245,7 +415,6 @@ def build_profile_summary(profile):
                         ),
                         width=3
                     ),
-
                     dbc.Col(
                         dbc.Card(
                             dbc.CardBody(
@@ -262,7 +431,6 @@ def build_profile_summary(profile):
                         ),
                         width=3
                     ),
-
                     dbc.Col(
                         dbc.Card(
                             dbc.CardBody(
@@ -276,7 +444,6 @@ def build_profile_summary(profile):
                         ),
                         width=3
                     ),
-
                     dbc.Col(
                         dbc.Card(
                             dbc.CardBody(
@@ -309,7 +476,6 @@ def build_profile_summary(profile):
                         ),
                         width=4
                     ),
-
                     dbc.Col(
                         dbc.Card(
                             dbc.CardBody(
@@ -323,7 +489,6 @@ def build_profile_summary(profile):
                         ),
                         width=4
                     ),
-
                     dbc.Col(
                         dbc.Card(
                             dbc.CardBody(
@@ -343,7 +508,6 @@ def build_profile_summary(profile):
         ],
         fluid=True
     )
-
 
 def inspection_layout(project_id, dataset_id):
 
