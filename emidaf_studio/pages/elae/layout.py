@@ -404,12 +404,16 @@ def elae_layout(project_id, dataset_id):
                     ),
 
                     dbc.Col(
-                        dbc.Button(
-                            "💾 Exporter le résumé",
-                            id="elae-download",
-                            color="success",
-                            outline=True,
-                            className="w-100",
+                        dcc.Link(
+                            dbc.Button(
+                                "🧠 Ouvrir EKDE",
+                                color="success",
+                                className="w-100",
+                            ),
+                            href=(
+                                f"/projects/{project_id}"
+                                f"/datasets/{dataset_id}/ekde"
+                            ),
                         ),
                         md=4,
                     ),

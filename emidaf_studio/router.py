@@ -63,6 +63,29 @@ def get_page_layout(pathname):
         return import_page.import_layout(project_id)
 
     # ======================================================
+    # EKDE - Knowledge Discovery
+    # ======================================================
+
+    match = re.fullmatch(
+        r"/projects/(\d+)/datasets/(\d+)/ekde",
+        pathname or ""
+    )
+
+    if match:
+
+        project_id = int(match.group(1))
+        dataset_id = int(match.group(2))
+
+        from emidaf_studio.pages.ekde.layout import (
+            ekde_layout
+        )
+
+        return ekde_layout(
+            project_id,
+            dataset_id
+        )
+
+    # ======================================================
     # ELAE - Analyse exploratoire
     # ======================================================
 
