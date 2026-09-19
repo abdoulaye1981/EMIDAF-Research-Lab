@@ -512,13 +512,13 @@ class DatasetProfiler:
 
             summary.outlier_columns = sum(
                 1
-                for result in profile.outliers.values()
+                for result in profile.outliers.get("columns", {}).values()
                 if result.get("outliers", 0) > 0
             )
 
             summary.outlier_values = sum(
                 result.get("outliers", 0)
-                for result in profile.outliers.values()
+                for result in profile.outliers.get("columns", {}).values()
             )
 
         # ----------------------------------------------

@@ -152,3 +152,5 @@ class DistributionAnalyzer(BaseAnalyzer):
             self.name,
             result
         )
+
+        return result
