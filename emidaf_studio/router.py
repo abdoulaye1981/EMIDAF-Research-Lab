@@ -63,6 +63,29 @@ def get_page_layout(pathname):
         return import_page.import_layout(project_id)
 
     # ======================================================
+    # EIDPP - Prétraitement d'un dataset
+    # ======================================================
+
+    match = re.fullmatch(
+        r"/projects/(\d+)/datasets/(\d+)/eidpp",
+        pathname or ""
+    )
+
+    if match:
+
+        project_id = int(match.group(1))
+        dataset_id = int(match.group(2))
+
+        from emidaf_studio.pages.eidpp.layout import (
+            eidpp_layout
+        )
+
+        return eidpp_layout(
+            project_id,
+            dataset_id
+        )
+
+    # ======================================================
     # Inspection d'un dataset
     # ======================================================
 
