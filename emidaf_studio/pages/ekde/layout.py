@@ -634,12 +634,16 @@ def ekde_layout(project_id, dataset_id):
                     ),
 
                     dbc.Col(
-                        dbc.Button(
-                            "💾 Exporter les connaissances",
-                            id="ekde-download",
-                            color="success",
-                            outline=True,
-                            className="w-100",
+                        dcc.Link(
+                            dbc.Button(
+                                "🤖 Ouvrir EAIE",
+                                color="success",
+                                className="w-100",
+                            ),
+                            href=(
+                                f"/projects/{project_id}"
+                                f"/datasets/{dataset_id}/eaie"
+                            ),
                         ),
                         md=4,
                     ),

@@ -47,6 +47,7 @@ import emidaf_studio.pages.inspection.layout  # noqa: E402,F401
 import emidaf_studio.pages.eidpp.callbacks  # noqa: E402,F401
 import emidaf_studio.pages.elae.callbacks  # noqa: E402,F401
 import emidaf_studio.pages.ekde.callbacks  # noqa: E402,F401
+import emidaf_studio.pages.eaie.callbacks  # noqa: E402,F401
 
 
 # ==========================================================

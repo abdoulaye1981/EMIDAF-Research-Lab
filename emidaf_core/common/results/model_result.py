@@ -75,7 +75,10 @@ class ModelResult(BaseResult):
     # Modèle
     # =====================================================
 
-    estimator = None
+    estimator: object | None = field(
+        default=None,
+        repr=False,
+    )
 
     parameters: dict = field(default_factory=dict)
 

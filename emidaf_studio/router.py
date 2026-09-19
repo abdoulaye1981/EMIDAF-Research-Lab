@@ -42,6 +42,50 @@ def get_page_layout(pathname):
         return layout
 
     # ======================================================
+    # EAIE - Page d'entrée
+    # ======================================================
+
+    if pathname == "/eaie":
+
+        return html.Div(
+            [
+                html.H2(
+                    "🤖 EAIE — Exploratory Artificial "
+                    "Intelligence Engine"
+                ),
+
+                html.P(
+                    (
+                        "EAIE réalise la modélisation supervisée, "
+                        "la validation croisée et la comparaison "
+                        "des modèles de Machine Learning."
+                    )
+                ),
+
+                html.Div(
+                    [
+                        html.Strong(
+                            "Pour démarrer : "
+                        ),
+                        (
+                            "ouvrez un projet, sélectionnez un "
+                            "dataset, puis accédez à EAIE depuis "
+                            "EKDE."
+                        ),
+                    ],
+                    className="alert alert-info",
+                ),
+
+                dcc.Link(
+                    "📁 Ouvrir les projets",
+                    href="/projects",
+                    className="btn btn-primary",
+                ),
+            ],
+            className="p-4",
+        )
+
+    # ======================================================
     # Importation d'un dataset
     # ======================================================
 
@@ -61,6 +105,29 @@ def get_page_layout(pathname):
         )
 
         return import_page.import_layout(project_id)
+
+    # ======================================================
+    # EAIE - Artificial Intelligence Engine
+    # ======================================================
+
+    match = re.fullmatch(
+        r"/projects/(\d+)/datasets/(\d+)/eaie",
+        pathname or ""
+    )
+
+    if match:
+
+        project_id = int(match.group(1))
+        dataset_id = int(match.group(2))
+
+        from emidaf_studio.pages.eaie.layout import (
+            eaie_layout
+        )
+
+        return eaie_layout(
+            project_id,
+            dataset_id
+        )
 
     # ======================================================
     # EKDE - Knowledge Discovery
