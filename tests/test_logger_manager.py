@@ -3,69 +3,98 @@ from pathlib import Path
 from emidaf_core.managers.logger_manager import LoggerManager
 
 
-def main():
+def test_manager_creation():
 
     logger = LoggerManager()
 
-    logger.info("Framework EMIDAF démarré.")
-
-    logger.project.info("Projet créé.")
-
-    logger.importer.info("Import CSV.")
-
-    logger.inspection.info("Inspection terminée.")
-
-    logger.error.error("Erreur simulée.")
-
-    print()
-
-    print("=" * 60)
-    print("TEST LOGGER MANAGER")
-    print("=" * 60)
-
-    print()
-
-    print("Loggers enregistrés")
-
-    print("-------------------")
-
-    for name in logger.list():
-
-        print(name)
-
-    print()
-
-    print("Fichiers")
-
-    print("---------")
-
-    for file in [
-
-        "application.log",
-
-        "project.log",
-
-        "import.log",
-
-        "inspection.log",
-
-        "error.log"
-
-    ]:
-
-        path = Path("logs") / file
-
-        print(
-
-            f"{file:<20} : {'OK' if path.exists() else 'ERREUR'}"
-
-        )
-
-    print()
-
-    print("LoggerManager OK")
+    assert logger is not None
 
 
-if __name__ == "__main__":
+def test_loggers_exist():
 
-    main()
+    logger = LoggerManager()
+
+    assert logger.exists("application")
+    assert logger.exists("project")
+    assert logger.exists("import")
+    assert logger.exists("inspection")
+    assert logger.exists("error")
+
+
+def test_list():
+
+    logger = LoggerManager()
+
+    loggers = logger.list()
+
+    assert isinstance(loggers, list)
+
+    assert "application" in loggers
+    assert "project" in loggers
+    assert "import" in loggers
+    assert "inspection" in loggers
+    assert "error" in loggers
+
+
+def test_get_logger():
+
+    logger = LoggerManager()
+
+    assert logger.get_logger("application") is not None
+    assert logger.get_logger("project") is not None
+    assert logger.get_logger("xxxx") is None
+
+
+def test_properties():
+
+    logger = LoggerManager()
+
+    assert logger.application is not None
+    assert logger.project is not None
+    assert logger.importer is not None
+    assert logger.inspection is not None
+    assert logger.error is not None
+
+
+def test_logging():
+
+    logger = LoggerManager()
+
+    logger.info("Test application")
+    logger.project.info("Test project")
+    logger.importer.info("Test import")
+    logger.inspection.info("Test inspection")
+    logger.error.error("Test error")
+
+    assert Path("logs/application.log").exists()
+    assert Path("logs/project.log").exists()
+    assert Path("logs/import.log").exists()
+    assert Path("logs/inspection.log").exists()
+    assert Path("logs/error.log").exists()
+
+
+def test_warning():
+
+    logger = LoggerManager()
+
+    logger.warning("Test warning")
+
+    assert logger.application is not None
+
+
+def test_error_message():
+
+    logger = LoggerManager()
+
+    logger.error_message("Test error")
+
+    assert logger.application is not None
+
+
+def test_critical():
+
+    logger = LoggerManager()
+
+    logger.critical("Test critical")
+
+    assert logger.application is not None

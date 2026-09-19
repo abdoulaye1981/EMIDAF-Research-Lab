@@ -38,3 +38,33 @@ data/temp/
 # Bases de données locales
 # ============================
 *.db
+
+# ============================
+# Fichiers de sauvegarde temporaires
+# ============================
+
+*.bak
+*.bak2
+*.bak3
+*.save
+
+# ============================
+# Fichiers temporaires accidentels
+# ============================
+
+nano
+
+# ============================
+# Artifacts générés EMIDAF
+# ============================
+outputs/
+
+# ============================
+# Workspaces locaux de test
+# ============================
+workspace/projects/
+
+# ============================
+# Sauvegardes avec suffixe
+# ============================
+*.bak_*

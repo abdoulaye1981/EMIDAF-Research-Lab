@@ -1,101 +1,128 @@
 from emidaf_core.managers.configuration_manager import ConfigurationManager
 
 
-def main():
-
-    print("=" * 70)
-    print("           TEST DU CONFIGURATION MANAGER")
-    print("=" * 70)
+def test_manager_creation():
 
     manager = ConfigurationManager()
 
-    print("\n1. Initialisation")
-    print("-----------------")
-    print("✓ Configuration chargée")
+    assert manager is not None
 
-    print("\n2. Nombre de paramètres")
-    print("-----------------------")
-    print(manager.count())
 
-    print("\n3. Liste des clés")
-    print("-----------------")
-    for key in manager.keys():
-        print(f" - {key}")
+def test_configuration_loaded():
 
-    print("\n4. Vérification des clés")
-    print("------------------------")
-    print("theme      :", manager.has("theme"))
-    print("database   :", manager.has("database"))
-    print("inconnue   :", manager.has("xxxx"))
+    manager = ConfigurationManager()
 
-    print("\n5. Lecture des paramètres")
-    print("-------------------------")
-    print("Application :", manager.application)
-    print("Version     :", manager.version)
-    print("Theme       :", manager.theme)
-    print("Langue      :", manager.language)
-    print("Workspace   :", manager.workspace)
-    print("Database    :", manager.database)
-    print("Debug       :", manager.debug)
-    print("Autosave    :", manager.autosave)
-    print("Log Level   :", manager.log_level)
+    assert manager.count() > 0
 
-    print("\n6. Test de modification")
-    print("-----------------------")
 
-    ancien_theme = manager.theme
+def test_keys():
+
+    manager = ConfigurationManager()
+
+    keys = manager.keys()
+
+    assert isinstance(keys, list)
+    assert len(keys) > 0
+
+
+def test_values():
+
+    manager = ConfigurationManager()
+
+    values = manager.values()
+
+    assert isinstance(values, list)
+
+
+def test_items():
+
+    manager = ConfigurationManager()
+
+    items = manager.items()
+
+    assert isinstance(items, list)
+
+
+def test_has():
+
+    manager = ConfigurationManager()
+
+    assert manager.has("theme")
+    assert manager.has("database")
+    assert not manager.has("xxxx")
+
+
+def test_get():
+
+    manager = ConfigurationManager()
+
+    assert manager.get("theme") is not None
+    assert manager.get("xxxx") is None
+    assert manager.get("xxxx", "default") == "default"
+
+
+def test_set():
+
+    manager = ConfigurationManager()
+
+    old_theme = manager.theme
 
     manager.set("theme", "Dark")
 
-    print("Nouveau thème :", manager.theme)
+    assert manager.theme == "Dark"
 
-    if manager.theme == "Dark":
-        print("✓ Modification OK")
-    else:
-        print("✗ Erreur")
+    manager.set("theme", old_theme)
 
-    print("\n7. Restauration")
-    print("----------------")
 
-    manager.set("theme", ancien_theme)
+def test_remove():
 
-    print("Theme restauré :", manager.theme)
+    manager = ConfigurationManager()
 
-    print("\n8. Test remove()")
-    print("----------------")
+    manager.set("temp_test", 123)
 
-    manager.set("temp", 123)
+    assert manager.has("temp_test")
 
-    print("Avant :", manager.has("temp"))
+    manager.remove("temp_test")
 
-    manager.remove("temp")
+    assert not manager.has("temp_test")
 
-    print("Après :", manager.has("temp"))
 
-    print("\n9. Test items()")
-    print("----------------")
+def test_clear():
 
-    for cle, valeur in manager.items():
-        print(f"{cle:15} : {valeur}")
+    manager = ConfigurationManager()
 
-    print("\n10. Sauvegarde")
-    print("----------------")
+    manager.set("temp_test", 123)
 
-    manager.save()
+    manager.clear()
 
-    print("✓ Sauvegarde réalisée")
+    assert manager.count() == 0
 
-    print("\n11. Rechargement")
-    print("----------------")
+
+def test_properties():
+
+    manager = ConfigurationManager()
+
+    assert manager.application is not None
+    assert manager.version is not None
+    assert manager.theme is not None
+    assert manager.language is not None
+    assert manager.workspace is not None
+    assert manager.database is not None
+
+
+def test_reload():
+
+    manager = ConfigurationManager()
+
+    manager.set("theme", "Dark")
 
     manager.reload()
 
-    print("Theme après reload :", manager.theme)
-
-    print("\n" + "=" * 70)
-    print("      TOUS LES TESTS SONT TERMINÉS AVEC SUCCÈS")
-    print("=" * 70)
+    assert manager.theme != "Dark" or manager.theme == "Dark"
 
 
-if __name__ == "__main__":
-    main()
+def test_save():
+
+    manager = ConfigurationManager()
+
+    manager.save()

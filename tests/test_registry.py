@@ -8,7 +8,7 @@ Unit tests for registry.py
 
 import unittest
 
-from emidaf.core.registry import Registry
+from emidaf_core.registry import Registry
 
 
 class TestRegistry(unittest.TestCase):
