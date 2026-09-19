@@ -99,6 +99,100 @@ class Encoding(
         return result, encoders
 
     @staticmethod
+    @staticmethod
+    def onehot_encode(
+        df,
+        columns=None
+    ):
+        """
+        Encode les variables catégorielles
+        par one-hot encoding.
+
+        Retourne
+        --------
+        result : pandas.DataFrame
+            Jeu de données transformé.
+
+        encoder : OneHotEncoder | None
+            Encodeur ajusté. None lorsqu'aucune
+            variable catégorielle n'est disponible.
+        """
+
+        if not isinstance(
+            df,
+            pd.DataFrame
+        ):
+            raise TypeError(
+                "df must be a pandas DataFrame."
+            )
+
+        result = df.copy()
+
+        if columns is None:
+            columns = (
+                Encoding.categorical_columns(
+                    result
+                )
+            )
+        else:
+            columns = list(columns)
+
+        if not columns:
+            return result, None
+
+        missing = [
+            column
+            for column in columns
+            if column not in result.columns
+        ]
+
+        if missing:
+            raise KeyError(
+                "Unknown columns: "
+                + ", ".join(missing)
+            )
+
+        encoder = OneHotEncoder(
+            handle_unknown="ignore",
+            sparse_output=False
+        )
+
+        values = (
+            result[columns]
+            .fillna("__MISSING__")
+            .astype(str)
+        )
+
+        encoded = encoder.fit_transform(
+            values
+        )
+
+        feature_names = list(
+            encoder.get_feature_names_out(
+                columns
+            )
+        )
+
+        encoded_df = pd.DataFrame(
+            encoded,
+            columns=feature_names,
+            index=result.index
+        )
+
+        result = result.drop(
+            columns=columns
+        )
+
+        result = pd.concat(
+            [
+                result,
+                encoded_df
+            ],
+            axis=1
+        )
+
+        return result, encoder
+
     def ordinal_encode(
         df,
         columns=None,

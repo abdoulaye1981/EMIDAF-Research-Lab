@@ -126,6 +126,22 @@ class PreprocessingPipeline(
     # FIT
     # ======================================================
 
+    def _should_run_step(
+        self,
+        name,
+        X,
+        y=None
+    ):
+        """
+        Indique si une étape doit être exécutée.
+
+        Le pipeline standard exécute toujours
+        toutes les étapes. Les sous-classes
+        peuvent surcharger ce comportement.
+        """
+        return True
+
+
     def fit(
         self,
         X,
@@ -148,6 +164,18 @@ class PreprocessingPipeline(
         self.results = []
 
         for name, transformer in self.steps:
+
+            if not self._should_run_step(
+                name,
+                data,
+                y
+            ):
+                if self.verbose:
+                    print(
+                        f"\n[EMIDAF] "
+                        f"Étape ignorée : {name}"
+                    )
+                continue
 
             if self.verbose:
 
@@ -587,3 +615,130 @@ class PreprocessingPipeline(
         }
 
         return result
+
+
+# ==========================================================
+# CONDITIONAL PREPROCESSING PIPELINE
+# ==========================================================
+
+class ConditionalPipeline(
+    PreprocessingPipeline
+):
+    """
+    Pipeline permettant l'exécution conditionnelle
+    des étapes de prétraitement.
+
+    Une condition reçoit les données dans leur état
+    courant ainsi que la cible éventuelle :
+
+        condition(X, y) -> bool
+    """
+
+    name = "Conditional Preprocessing Pipeline"
+
+    def __init__(
+        self,
+        steps=None,
+        conditions=None,
+        verbose=True
+    ):
+        super().__init__(
+            steps=steps,
+            verbose=verbose
+        )
+
+        self.conditions = (
+            {}
+            if conditions is None
+            else dict(conditions)
+        )
+
+        self.skipped_steps_ = []
+
+    def add_conditional_step(
+        self,
+        name,
+        transformer,
+        condition
+    ):
+        if not callable(condition):
+            raise TypeError(
+                "condition must be callable."
+            )
+
+        self.add_step(
+            name,
+            transformer
+        )
+
+        self.conditions[name] = condition
+
+        return self
+
+    def remove_step(
+        self,
+        name
+    ):
+        super().remove_step(name)
+
+        self.conditions.pop(
+            name,
+            None
+        )
+
+        return self
+
+    def _should_run_step(
+        self,
+        name,
+        X,
+        y=None
+    ):
+        condition = self.conditions.get(
+            name
+        )
+
+        if condition is None:
+            return True
+
+        result = condition(
+            X,
+            y
+        )
+
+        if not isinstance(
+            result,
+            (bool, np.bool_)
+        ):
+            raise TypeError(
+                "A pipeline condition must "
+                "return a boolean value."
+            )
+
+        should_run = bool(result)
+
+        if not should_run:
+            self.skipped_steps_.append(
+                name
+            )
+
+        return should_run
+
+    def fit(
+        self,
+        X,
+        y=None
+    ):
+        self.skipped_steps_ = []
+
+        return super().fit(
+            X,
+            y
+        )
+
+    def reset(self):
+        super().reset()
+
+        self.skipped_steps_ = []
+
+        return self

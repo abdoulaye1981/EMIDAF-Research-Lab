@@ -701,6 +701,53 @@ class OutlierDetection(
             **kwargs
         )
 
+
+    # ==========================================================
+    # INSPECT
+    # ==========================================================
+
+    @staticmethod
+    def inspect(
+        df,
+        method="iqr",
+        **kwargs
+    ):
+        """
+        Analyse les valeurs aberrantes sans modifier
+        le jeu de données.
+
+        Retourne un PreprocessingResult compatible
+        avec le moteur canonical de preprocessing.
+        """
+
+        if not isinstance(
+            df,
+            pd.DataFrame
+        ):
+            raise TypeError(
+                "df must be a pandas DataFrame."
+            )
+
+        detection = OutlierDetection.detect(
+            df,
+            method=method,
+            **kwargs
+        )
+
+        result = PreprocessingResult(
+            step="Outlier Detection",
+            input_shape=df.shape,
+            output_shape=df.shape,
+            variables=list(df.columns)
+        )
+
+        result.statistics = {
+            "method": method,
+            "detection": detection,
+        }
+
+        return result
+
 # ==========================================================
 # SERVICE
 # ==========================================================
