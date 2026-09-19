@@ -49,7 +49,7 @@ __all__=[
 
     "GOF",
 
-    "Sampling",
+    "RandomSampling",
 
     "DistributionAnalysis",
 

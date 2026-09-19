@@ -10,6 +10,11 @@ Auteur : Abdoulaye Wakhab DIOP
 
 from __future__ import annotations
 
+import numpy as np
+
+from scipy.stats import t, nct
+from scipy.optimize import brentq
+
 from statsmodels.stats.power import FTestPower
 
 from .base import (
@@ -275,28 +280,64 @@ class CorrelationPowerAnalysis(
 
     @staticmethod
 
+    @staticmethod
     def compute_power(
-
         effect_size,
-
         sample_size,
-
         alpha=0.05,
-
     ):
+        """
+        Power for testing a Pearson correlation
+        using the noncentral t distribution.
+        """
 
-        analysis=FTestPower()
+        r = float(effect_size)
+        n = int(sample_size)
 
-        power=analysis.solve_power(
+        if not -1 < r < 1:
+            raise ValueError(
+                "effect_size must be between "
+                "-1 and 1."
+            )
 
-            effect_size=effect_size,
+        if n < 4:
+            raise ValueError(
+                "sample_size must be at least 4."
+            )
 
-            df_num=1,
+        if not 0 < alpha < 1:
+            raise ValueError(
+                "alpha must be between 0 and 1."
+            )
 
-            df_denom=sample_size,
+        df = n - 2
 
-            alpha=alpha
+        ncp = (
+            r
+            * np.sqrt(
+                df
+                /
+                (1 - r**2)
+            )
+        )
 
+        critical = t.ppf(
+            1 - alpha / 2,
+            df,
+        )
+
+        power = (
+            nct.cdf(
+                -critical,
+                df,
+                ncp,
+            )
+            +
+            nct.sf(
+                critical,
+                df,
+                ncp,
+            )
         )
 
         return float(power)
@@ -307,31 +348,69 @@ class CorrelationPowerAnalysis(
 
     @staticmethod
 
+    @staticmethod
     def compute_sample_size(
-
         effect_size,
-
         alpha=0.05,
-
         power=0.80,
-
     ):
+        """
+        Minimum integer sample size required
+        for the requested correlation power.
+        """
 
-        analysis=FTestPower()
+        r = float(effect_size)
 
-        n=analysis.solve_power(
+        if not 0 < abs(r) < 1:
+            raise ValueError(
+                "abs(effect_size) must be "
+                "between 0 and 1."
+            )
 
-            effect_size=effect_size,
+        if not 0 < power < 1:
+            raise ValueError(
+                "power must be between 0 and 1."
+            )
 
-            df_num=1,
+        low = 4
+        high = 8
 
-            alpha=alpha,
+        while (
+            CorrelationPowerAnalysis.compute_power(
+                r,
+                high,
+                alpha,
+            )
+            < power
+        ):
+            high *= 2
 
-            power=power
+            if high > 10_000_000:
+                raise RuntimeError(
+                    "Unable to determine "
+                    "sample size."
+                )
 
-        )
+        while low < high:
+            mid = (
+                low + high
+            ) // 2
 
-        return int(round(n))
+            current = (
+                CorrelationPowerAnalysis
+                .compute_power(
+                    r,
+                    mid,
+                    alpha,
+                )
+            )
+
+            if current >= power:
+                high = mid
+            else:
+                low = mid + 1
+
+        return int(low)
 
     # ==========================================================
 # EFFECT SIZE
@@ -339,30 +418,44 @@ class CorrelationPowerAnalysis(
 
     @staticmethod
 
+    @staticmethod
     def compute_effect_size(
-
         sample_size,
-
         alpha=0.05,
-
         power=0.80,
-
     ):
+        """
+        Smallest absolute correlation detectable
+        at the requested power.
+        """
 
-        analysis=FTestPower()
+        n = int(sample_size)
 
-        effect=analysis.solve_power(
+        if n < 4:
+            raise ValueError(
+                "sample_size must be at least 4."
+            )
 
-            effect_size=None,
+        if not 0 < power < 1:
+            raise ValueError(
+                "power must be between 0 and 1."
+            )
 
-            df_num=1,
+        def objective(r):
+            return (
+                CorrelationPowerAnalysis
+                .compute_power(
+                    r,
+                    n,
+                    alpha,
+                )
+                - power
+            )
 
-            df_denom=sample_size,
-
-            alpha=alpha,
-
-            power=power
-
+        effect = brentq(
+            objective,
+            1e-10,
+            0.999999,
         )
 
         return float(effect)

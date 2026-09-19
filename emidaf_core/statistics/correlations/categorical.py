@@ -104,7 +104,18 @@ class ChiSquare(CategoricalCorrelation):
 class PhiCoefficient(CategoricalCorrelation):
 
     """
-    Coefficient Phi.
+    Coefficient Phi pour deux variables dichotomiques.
+
+    Le coefficient est calculé directement à partir
+    d'une table de contingence 2 x 2 :
+
+        phi = (ad - bc) /
+              sqrt((a+b)(c+d)(a+c)(b+d))
+
+    Cette formulation préserve le signe et évite que
+    la valeur du coefficient dépende d'une éventuelle
+    correction de continuité appliquée au test du
+    Khi-deux.
     """
 
     name = "Phi"
@@ -119,35 +130,56 @@ class PhiCoefficient(CategoricalCorrelation):
     ):
 
         result = ChiSquare.compute(
-
             x,
-
             y
-
         )
 
         table = result["table"]
 
-        n = table.values.sum()
+        if table.shape != (2, 2):
+            raise ValueError(
+                "Phi coefficient requires "
+                "a 2 x 2 contingency table."
+            )
 
-        phi = np.sqrt(
-
-            result["chi2"] / n
-
+        values = table.to_numpy(
+            dtype=float
         )
 
+        a = values[0, 0]
+        b = values[0, 1]
+        c = values[1, 0]
+        d = values[1, 1]
+
+        denominator = np.sqrt(
+            (a + b)
+            * (c + d)
+            * (a + c)
+            * (b + d)
+        )
+
+        if (
+            not np.isfinite(denominator)
+            or denominator == 0
+        ):
+            raise ValueError(
+                "Phi coefficient is undefined "
+                "because at least one marginal "
+                "frequency is zero."
+            )
+
+        phi = (
+            (a * d) - (b * c)
+        ) / denominator
+
+        phi = float(phi)
+
         return cls.build_result(
-
-            coefficient=float(phi),
-
+            coefficient=phi,
             p_value=result["p_value"],
-
             method="Phi",
-
             strength=cls.strength(phi),
-
-            direction="None"
-
+            direction=cls.direction(phi)
         )
 
 

@@ -44,6 +44,14 @@ class IsolationForestDetector(BaseOutlierDetector):
 
     name = "Isolation Forest"
 
+    method_family = "ensemble"
+
+    score_type = "negative_decision_function"
+
+    score_direction = "higher_is_more_anomalous"
+
+    scaling_sensitive = False
+
     @classmethod
     def detect(
 
@@ -77,7 +85,13 @@ class IsolationForestDetector(BaseOutlierDetector):
 
         )
 
-        scores = model.decision_function(
+        # Convention EMIDAF :
+        # score élevé = observation plus atypique.
+        #
+        # decision_function() de scikit-learn utilise
+        # l'orientation inverse : les valeurs faibles
+        # correspondent aux observations anormales.
+        scores = -model.decision_function(
 
             dataframe
 
@@ -120,6 +134,14 @@ class OneClassSVMDetector(BaseOutlierDetector):
 
     name = "One-Class SVM"
 
+    method_family = "boundary"
+
+    score_type = "negative_decision_function"
+
+    score_direction = "higher_is_more_anomalous"
+
+    scaling_sensitive = True
+
     @classmethod
     def detect(
 
@@ -153,7 +175,12 @@ class OneClassSVMDetector(BaseOutlierDetector):
 
         )
 
-        scores = model.decision_function(
+        # Convention EMIDAF :
+        # score élevé = observation plus atypique.
+        #
+        # OneClassSVM.decision_function() produit
+        # l'orientation inverse.
+        scores = -model.decision_function(
 
             dataframe
 
@@ -198,6 +225,14 @@ class EllipticEnvelopeDetector(BaseOutlierDetector):
 
     name = "Elliptic Envelope"
 
+    method_family = "covariance"
+
+    score_type = "negative_decision_function"
+
+    score_direction = "higher_is_more_anomalous"
+
+    scaling_sensitive = False
+
     @classmethod
     def detect(
 
@@ -227,7 +262,13 @@ class EllipticEnvelopeDetector(BaseOutlierDetector):
 
         )
 
-        scores = model.decision_function(
+        # Convention EMIDAF :
+        # score élevé = observation plus atypique.
+        #
+        # decision_function() de scikit-learn utilise
+        # l'orientation inverse : les valeurs faibles
+        # correspondent aux observations anormales.
+        scores = -model.decision_function(
 
             dataframe
 
@@ -280,6 +321,14 @@ class HBOSDetector(BaseOutlierDetector):
 
     name = "HBOS"
 
+    method_family = "histogram"
+
+    score_type = "hbos_score"
+
+    score_direction = "higher_is_more_anomalous"
+
+    scaling_sensitive = True
+
     @classmethod
     def detect(
 
@@ -291,7 +340,13 @@ class HBOSDetector(BaseOutlierDetector):
 
     ):
 
-        from pyod.models.hbos import HBOS
+        try:
+            from pyod.models.hbos import HBOS
+        except ModuleNotFoundError as exc:
+            raise ImportError(
+                "PyOD is required for HBOSDetector. "
+                "Install it with: pip install pyod"
+            ) from exc
 
         dataframe = dataframe.select_dtypes(
 
@@ -348,6 +403,14 @@ class ABODDetector(BaseOutlierDetector):
 
     name = "ABOD"
 
+    method_family = "angle"
+
+    score_type = "abod_score"
+
+    score_direction = "higher_is_more_anomalous"
+
+    scaling_sensitive = True
+
     @classmethod
     def detect(
 
@@ -359,7 +422,13 @@ class ABODDetector(BaseOutlierDetector):
 
     ):
 
-        from pyod.models.abod import ABOD
+        try:
+            from pyod.models.abod import ABOD
+        except ModuleNotFoundError as exc:
+            raise ImportError(
+                "PyOD is required for ABODDetector. "
+                "Install it with: pip install pyod"
+            ) from exc
 
         dataframe = dataframe.select_dtypes(
 
@@ -416,6 +485,14 @@ class ECODDetector(BaseOutlierDetector):
 
     name = "ECOD"
 
+    method_family = "distribution"
+
+    score_type = "ecod_score"
+
+    score_direction = "higher_is_more_anomalous"
+
+    scaling_sensitive = False
+
     @classmethod
     def detect(
 
@@ -427,7 +504,13 @@ class ECODDetector(BaseOutlierDetector):
 
     ):
 
-        from pyod.models.ecod import ECOD
+        try:
+            from pyod.models.ecod import ECOD
+        except ModuleNotFoundError as exc:
+            raise ImportError(
+                "PyOD is required for ECODDetector. "
+                "Install it with: pip install pyod"
+            ) from exc
 
         dataframe = dataframe.select_dtypes(
 
@@ -484,6 +567,14 @@ class COPODDetector(BaseOutlierDetector):
 
     name = "COPOD"
 
+    method_family = "copula"
+
+    score_type = "copod_score"
+
+    score_direction = "higher_is_more_anomalous"
+
+    scaling_sensitive = False
+
     @classmethod
     def detect(
 
@@ -495,7 +586,13 @@ class COPODDetector(BaseOutlierDetector):
 
     ):
 
-        from pyod.models.copod import COPOD
+        try:
+            from pyod.models.copod import COPOD
+        except ModuleNotFoundError as exc:
+            raise ImportError(
+                "PyOD is required for COPODDetector. "
+                "Install it with: pip install pyod"
+            ) from exc
 
         dataframe = dataframe.select_dtypes(
 
@@ -549,67 +646,41 @@ class EnsembleOutlierDetector:
 
     @staticmethod
     def compute(
-
         dataframe,
-
     ):
 
-        return {
-
+        results = {
             "isolation_forest":
-
                 IsolationForestDetector.detect(
-
                     dataframe
-
                 ),
 
             "one_class_svm":
-
                 OneClassSVMDetector.detect(
-
                     dataframe
-
                 ),
 
             "elliptic_envelope":
-
                 EllipticEnvelopeDetector.detect(
-
                     dataframe
-
                 ),
+        }
 
-            "hbos":
+        optional_detectors = {
+            "hbos": HBOSDetector,
+            "abod": ABODDetector,
+            "ecod": ECODDetector,
+            "copod": COPODDetector,
+        }
 
-                HBOSDetector.detect(
+        for name, detector in optional_detectors.items():
 
+            try:
+                results[name] = detector.detect(
                     dataframe
-
-                ),
-
-            "abod":
-
-                ABODDetector.detect(
-
-                    dataframe
-
-                ),
-
-            "ecod":
-
-                ECODDetector.detect(
-
-                    dataframe
-
-                ),
-
-            "copod":
-
-                COPODDetector.detect(
-
-                    dataframe
-
                 )
 
-        }
+            except ImportError:
+                continue
+
+        return results

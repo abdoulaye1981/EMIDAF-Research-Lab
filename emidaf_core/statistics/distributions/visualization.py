@@ -22,7 +22,7 @@ from scipy.stats import probplot
 
 from statsmodels.distributions.empirical_distribution import ECDF
 
-from .continuous import ContinuousDistributions
+from .continuous import Continuous
 
 
 class DistributionVisualization:
@@ -50,7 +50,7 @@ class DistributionVisualization:
 
     ):
 
-        model = ContinuousDistributions.get(
+        model = Continuous.get(
 
             distribution
 
@@ -135,7 +135,7 @@ class DistributionVisualization:
 
     ):
 
-        model = ContinuousDistributions.get(
+        model = Continuous.get(
 
             distribution
 
@@ -198,7 +198,7 @@ class DistributionVisualization:
 
     ):
 
-        model = ContinuousDistributions.get(
+        model = Continuous.get(
 
             distribution
 
@@ -335,7 +335,7 @@ class DistributionVisualization:
 
     ):
 
-        model = ContinuousDistributions.get(
+        model = Continuous.get(
 
             distribution
 
@@ -394,7 +394,7 @@ class DistributionVisualization:
 
     ):
 
-        model = ContinuousDistributions.get(
+        model = Continuous.get(
 
             distribution
 
@@ -485,7 +485,7 @@ class DistributionVisualization:
 
             model = (
 
-                ContinuousDistributions.get(
+                Continuous.get(
 
                     distribution
 

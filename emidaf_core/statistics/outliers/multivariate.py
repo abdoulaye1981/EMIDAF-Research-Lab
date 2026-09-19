@@ -38,6 +38,14 @@ class PCAOutlier(BaseOutlierDetector):
 
     name = "PCA"
 
+    method_family = "dimensionality_reduction"
+
+    score_type = "reconstruction_error"
+
+    score_direction = "higher_is_more_anomalous"
+
+    scaling_sensitive = True
+
     @classmethod
     def detect(
 
@@ -50,6 +58,19 @@ class PCAOutlier(BaseOutlierDetector):
         percentile=95,
 
     ):
+
+        if not isinstance(
+            n_components,
+            int,
+        ) or n_components < 1:
+            raise ValueError(
+                "n_components must be an integer >= 1."
+            )
+
+        if not 0 <= percentile <= 100:
+            raise ValueError(
+                "percentile must satisfy 0 <= percentile <= 100."
+            )
 
         dataframe = dataframe.select_dtypes(
 
@@ -135,6 +156,14 @@ class RobustPCAOutlier(BaseOutlierDetector):
 
     name = "Robust PCA"
 
+    method_family = "covariance"
+
+    score_type = "squared_robust_mahalanobis_distance"
+
+    score_direction = "higher_is_more_anomalous"
+
+    scaling_sensitive = False
+
     @classmethod
     def detect(
 
@@ -146,11 +175,25 @@ class RobustPCAOutlier(BaseOutlierDetector):
 
     ):
 
+        if not 0 <= percentile <= 100:
+            raise ValueError(
+                "percentile must satisfy 0 <= percentile <= 100."
+            )
+
         dataframe = dataframe.select_dtypes(
 
             include="number"
 
         ).dropna()
+
+        n_observations = dataframe.shape[0]
+        n_variables = dataframe.shape[1]
+
+        if n_observations <= n_variables:
+            raise ValueError(
+                "Robust covariance estimation requires "
+                "more complete observations than numeric variables."
+            )
 
         estimator = MinCovDet()
 
@@ -209,6 +252,14 @@ class FeatureBaggingOutlier(BaseOutlierDetector):
 
     name = "Feature Bagging"
 
+    method_family = "ensemble"
+
+    score_type = "pyod_decision_score"
+
+    score_direction = "higher_is_more_anomalous"
+
+    scaling_sensitive = True
+
     @classmethod
     def detect(
 
@@ -220,11 +271,15 @@ class FeatureBaggingOutlier(BaseOutlierDetector):
 
     ):
 
-        from pyod.models.feature_bagging import (
-
-            FeatureBagging
-
-        )
+        try:
+            from pyod.models.feature_bagging import (
+                FeatureBagging
+            )
+        except ModuleNotFoundError as exc:
+            raise ImportError(
+                "PyOD is required for FeatureBaggingOutlier. "
+                "Install it with: pip install pyod"
+            ) from exc
 
         dataframe = dataframe.select_dtypes(
 
@@ -286,6 +341,14 @@ class AutoEncoderOutlier(BaseOutlierDetector):
 
     name = "AutoEncoder"
 
+    method_family = "neural_network"
+
+    score_type = "reconstruction_error"
+
+    score_direction = "higher_is_more_anomalous"
+
+    scaling_sensitive = True
+
     @classmethod
     def detect(
 
@@ -316,6 +379,14 @@ class MinimumCovarianceDeterminant(BaseOutlierDetector):
 
     name = "Minimum Covariance Determinant"
 
+    method_family = "covariance"
+
+    score_type = "squared_robust_mahalanobis_distance"
+
+    score_direction = "higher_is_more_anomalous"
+
+    scaling_sensitive = False
+
     @classmethod
     def detect(
 
@@ -327,11 +398,25 @@ class MinimumCovarianceDeterminant(BaseOutlierDetector):
 
     ):
 
+        if not 0 <= percentile <= 100:
+            raise ValueError(
+                "percentile must satisfy 0 <= percentile <= 100."
+            )
+
         dataframe = dataframe.select_dtypes(
 
             include="number"
 
         ).dropna()
+
+        n_observations = dataframe.shape[0]
+        n_variables = dataframe.shape[1]
+
+        if n_observations <= n_variables:
+            raise ValueError(
+                "Minimum Covariance Determinant requires "
+                "more complete observations than numeric variables."
+            )
 
         estimator = MinCovDet()
 
@@ -391,43 +476,34 @@ class MultivariateOutlierDetector:
 
     @staticmethod
     def compute(
-
         dataframe,
-
     ):
 
-        return {
-
+        results = {
             "pca":
-
                 PCAOutlier.detect(
-
                     dataframe
-
                 ),
 
             "robust_pca":
-
                 RobustPCAOutlier.detect(
-
                     dataframe
-
                 ),
 
             "minimum_covariance":
-
                 MinimumCovarianceDeterminant.detect(
-
                     dataframe
-
                 ),
-
-            "feature_bagging":
-
-                FeatureBaggingOutlier.detect(
-
-                    dataframe
-
-                )
-
         }
+
+        try:
+            results["feature_bagging"] = (
+                FeatureBaggingOutlier.detect(
+                    dataframe
+                )
+            )
+
+        except ImportError:
+            pass
+
+        return results

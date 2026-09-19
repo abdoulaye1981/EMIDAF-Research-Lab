@@ -31,6 +31,76 @@ import pandas as pd
 from ...common.results import CleaningResult
 
 
+def _validate_bounds(
+    lower,
+    upper,
+):
+    """
+    Vérifie la cohérence des bornes.
+    """
+
+    if lower > upper:
+        raise ValueError(
+            "lower must be less than or equal to upper."
+        )
+
+
+def _validate_mask(
+    dataframe,
+    mask,
+):
+    """
+    Valide et aligne un masque d'observations.
+
+    Un masque pandas doit avoir exactement le même index
+    que le DataFrame. Les autres objets array-like sont
+    acceptés s'ils ont exactement la bonne longueur.
+    """
+
+    if isinstance(
+        mask,
+        pd.Series,
+    ):
+
+        if len(mask) != len(dataframe):
+            raise ValueError(
+                "mask must have the same length "
+                "as the dataframe."
+            )
+
+        if not mask.index.equals(
+            dataframe.index
+        ):
+            raise ValueError(
+                "mask index must match "
+                "the dataframe index."
+            )
+
+        if mask.isna().any():
+            raise ValueError(
+                "mask cannot contain missing values."
+            )
+
+        return mask.astype(bool)
+
+    values = np.asarray(mask)
+
+    if (
+        values.ndim != 1
+        or len(values) != len(dataframe)
+    ):
+        raise ValueError(
+            "mask must have the same length "
+            "as the dataframe."
+        )
+
+    return pd.Series(
+        values.astype(bool),
+        index=dataframe.index,
+    )
+
+
+
 # ==========================================================
 # BASE
 # ==========================================================
@@ -90,41 +160,31 @@ class RemoveOutliers(BaseTreatment):
 
     @classmethod
     def apply(
-
         cls,
-
         dataframe,
-
         column,
-
         lower,
-
         upper,
-
     ):
+
+        _validate_bounds(
+            lower,
+            upper,
+        )
 
         before = dataframe.copy()
 
         after = dataframe.loc[
-
             (dataframe[column] >= lower)
-
             &
-
             (dataframe[column] <= upper)
-
         ]
 
         result = cls.build_result(
-
             before,
-
             after,
-
             column,
-
             "Remove"
-
         )
 
         return after, result
@@ -140,41 +200,31 @@ class Winsorization(BaseTreatment):
 
     @classmethod
     def apply(
-
         cls,
-
         dataframe,
-
         column,
-
         lower,
-
         upper,
-
     ):
 
-        before = dataframe.copy()
+        _validate_bounds(
+            lower,
+            upper,
+        )
 
+        before = dataframe.copy()
         after = dataframe.copy()
 
         after[column] = after[column].clip(
-
             lower,
-
             upper
-
         )
 
         result = cls.build_result(
-
             before,
-
             after,
-
             column,
-
             "Winsorization"
-
         )
 
         return after, result
@@ -190,30 +240,34 @@ class Capping(BaseTreatment):
 
     @classmethod
     def apply(
-
         cls,
-
         dataframe,
-
         column,
-
         lower,
-
         upper,
-
     ):
 
-        return Winsorization.apply(
-
-            dataframe,
-
-            column,
-
+        _validate_bounds(
             lower,
-
-            upper
-
+            upper,
         )
+
+        before = dataframe.copy()
+        after = dataframe.copy()
+
+        after[column] = after[column].clip(
+            lower,
+            upper
+        )
+
+        result = cls.build_result(
+            before,
+            after,
+            column,
+            "Capping"
+        )
+
+        return after, result
 
 
 # ==========================================================
@@ -274,47 +328,41 @@ class MeanReplacement(BaseTreatment):
 
     @classmethod
     def apply(
-
         cls,
-
         dataframe,
-
         column,
-
         mask,
-
     ):
 
-        before = dataframe.copy()
+        mask = _validate_mask(
+            dataframe,
+            mask,
+        )
 
+        if mask.all():
+            raise ValueError(
+                "Mean replacement requires "
+                "at least one non-outlier observation."
+            )
+
+        before = dataframe.copy()
         after = dataframe.copy()
 
         mean = after.loc[
-
             ~mask,
-
             column
-
         ].mean()
 
         after.loc[
-
             mask,
-
             column
-
         ] = mean
 
         result = cls.build_result(
-
             before,
-
             after,
-
             column,
-
             "Mean Replacement"
-
         )
 
         return after, result
@@ -330,47 +378,41 @@ class MedianReplacement(BaseTreatment):
 
     @classmethod
     def apply(
-
         cls,
-
         dataframe,
-
         column,
-
         mask,
-
     ):
 
-        before = dataframe.copy()
+        mask = _validate_mask(
+            dataframe,
+            mask,
+        )
 
+        if mask.all():
+            raise ValueError(
+                "Median replacement requires "
+                "at least one non-outlier observation."
+            )
+
+        before = dataframe.copy()
         after = dataframe.copy()
 
         median = after.loc[
-
             ~mask,
-
             column
-
         ].median()
 
         after.loc[
-
             mask,
-
             column
-
         ] = median
 
         result = cls.build_result(
-
             before,
-
             after,
-
             column,
-
             "Median Replacement"
-
         )
 
         return after, result
@@ -386,41 +428,34 @@ class QuantileCapping(BaseTreatment):
 
     @classmethod
     def apply(
-
         cls,
-
         dataframe,
-
         column,
-
         q_low=.01,
-
         q_high=.99,
-
     ):
 
+        if not (
+            0 <= q_low < q_high <= 1
+        ):
+            raise ValueError(
+                "Quantiles must satisfy "
+                "0 <= q_low < q_high <= 1."
+            )
+
         lower = dataframe[column].quantile(
-
             q_low
-
         )
 
         upper = dataframe[column].quantile(
-
             q_high
-
         )
 
         return Winsorization.apply(
-
             dataframe,
-
             column,
-
             lower,
-
             upper
-
         )
 
 
@@ -450,55 +485,49 @@ class AdaptiveTreatment(BaseTreatment):
 
     @classmethod
     def apply(
-
         cls,
-
         dataframe,
-
         column,
-
         mask,
-
     ):
+
+        mask = _validate_mask(
+            dataframe,
+            mask,
+        )
 
         ratio = mask.mean()
 
         if ratio < 0.01:
 
-            return RemoveOutliers.apply(
+            before = dataframe.copy()
 
-                dataframe,
+            after = dataframe.loc[
+                ~mask
+            ].copy()
 
+            result = cls.build_result(
+                before,
+                after,
                 column,
-
-                dataframe[column].min(),
-
-                dataframe[column].max()
-
+                "Remove"
             )
+
+            return after, result
 
         if ratio < 0.05:
 
             return Winsorization.apply(
-
                 dataframe,
-
                 column,
-
                 dataframe[column].quantile(.01),
-
                 dataframe[column].quantile(.99)
-
             )
 
         return MedianReplacement.apply(
-
             dataframe,
-
             column,
-
             mask
-
         )
 
 

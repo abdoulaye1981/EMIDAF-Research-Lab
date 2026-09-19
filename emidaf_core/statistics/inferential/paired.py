@@ -190,56 +190,122 @@ class PairedPermutationTest(
     name="Paired Permutation"
 
     def compute(
-
         self,
-
         before,
-
         after,
-
         alpha=0.05,
-
         n_resamples=10000,
-
+        random_state=None,
     ):
+        """
+        Paired permutation test based on random
+        sign flips of within-pair differences.
+        """
 
-        raise NotImplementedError(
+        before = np.asarray(
+            before,
+            dtype=float,
+        )
 
-            "À implémenter dans bootstrap.py"
+        after = np.asarray(
+            after,
+            dtype=float,
+        )
 
+        if before.shape != after.shape:
+            raise ValueError(
+                "before and after must have "
+                "the same shape."
+            )
+
+        mask = (
+            np.isfinite(before)
+            & np.isfinite(after)
+        )
+
+        before = before[mask]
+        after = after[mask]
+
+        if before.size < 2:
+            raise ValueError(
+                "At least two valid paired "
+                "observations are required."
+            )
+
+        if (
+            not isinstance(n_resamples, int)
+            or n_resamples <= 0
+        ):
+            raise ValueError(
+                "n_resamples must be a positive integer."
+            )
+
+        differences = (
+            after - before
+        )
+
+        observed = float(
+            np.mean(differences)
+        )
+
+        rng = np.random.default_rng(
+            random_state
+        )
+
+        extreme = 0
+
+        for _ in range(
+            n_resamples
+        ):
+            signs = rng.choice(
+                (-1.0, 1.0),
+                size=differences.size,
+            )
+
+            permuted = float(
+                np.mean(
+                    differences * signs
+                )
+            )
+
+            if (
+                abs(permuted)
+                >= abs(observed)
+            ):
+                extreme += 1
+
+        p_value = (
+            extreme + 1
+        ) / (
+            n_resamples + 1
+        )
+
+        return InferentialResult(
+            test=self.name,
+            statistic=observed,
+            p_value=float(p_value),
+            alpha=alpha,
+            reject_null=(
+                p_value < alpha
+            ),
+            metadata={
+                "n_resamples":
+                    n_resamples,
+                "n_pairs":
+                    int(differences.size),
+                "random_state":
+                    random_state,
+                "statistic":
+                    "mean paired difference",
+                "permutation_scheme":
+                    "sign flip",
+            },
         )
 
 # ==========================================================
 # PAIRED PERMUTATION
 # ==========================================================
 
-class PairedPermutationTest(
-
-    BaseInferentialTest
-
-):
-
-    name="Paired Permutation"
-
-    def compute(
-
-        self,
-
-        before,
-
-        after,
-
-        alpha=0.05,
-
-        n_resamples=10000,
-
-    ):
-
-        raise NotImplementedError(
-
-            "À implémenter dans bootstrap.py"
-
-        )
 # ==========================================================
 # SERVICE
 # ==========================================================

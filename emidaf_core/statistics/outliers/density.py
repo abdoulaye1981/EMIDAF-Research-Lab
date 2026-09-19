@@ -39,6 +39,14 @@ class LOF(BaseOutlierDetector):
 
     name = "Local Outlier Factor"
 
+    method_family = "density"
+
+    score_type = "local_outlier_factor"
+
+    score_direction = "higher_is_more_anomalous"
+
+    scaling_sensitive = True
+
     @classmethod
     def detect(
 
@@ -113,6 +121,14 @@ class DBSCANOutlier(BaseOutlierDetector):
 
     name = "DBSCAN"
 
+    method_family = "density"
+
+    score_type = ""
+
+    score_direction = "none"
+
+    scaling_sensitive = True
+
     @classmethod
     def detect(
 
@@ -183,6 +199,14 @@ class OPTICSOutlier(BaseOutlierDetector):
 
     name = "OPTICS"
 
+    method_family = "density"
+
+    score_type = ""
+
+    score_direction = "none"
+
+    scaling_sensitive = True
+
     @classmethod
     def detect(
 
@@ -195,6 +219,11 @@ class OPTICSOutlier(BaseOutlierDetector):
         xi=0.05,
 
     ):
+
+        if not 0 < xi < 1:
+            raise ValueError(
+                "xi must satisfy 0 < xi < 1."
+            )
 
         dataframe = dataframe.select_dtypes(
 

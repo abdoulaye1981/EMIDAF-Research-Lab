@@ -10,6 +10,9 @@ Auteur : Abdoulaye Wakhab DIOP
 
 from __future__ import annotations
 
+from scipy.stats import f, ncf
+from scipy.optimize import brentq
+
 from statsmodels.stats.power import FTestPower
 
 from .base import (
@@ -215,30 +218,61 @@ class RegressionPowerAnalysis(
 
     @staticmethod
 
+    @staticmethod
     def compute_power(
-
         effect_size,
-
         predictors,
-
         sample_size,
-
         alpha=0.05,
-
     ):
+        """
+        Power of the overall multiple-regression
+        F test using Cohen's f-squared.
+        """
 
-        analysis=FTestPower()
+        f2 = float(effect_size)
+        p = int(predictors)
+        n = int(sample_size)
 
-        power=analysis.solve_power(
+        if f2 < 0:
+            raise ValueError(
+                "effect_size must be non-negative."
+            )
 
-            effect_size=effect_size,
+        if p < 1:
+            raise ValueError(
+                "predictors must be at least 1."
+            )
 
-            df_num=predictors,
+        if n <= p + 1:
+            raise ValueError(
+                "sample_size must be greater "
+                "than predictors + 1."
+            )
 
-            alpha=alpha,
+        if not 0 < alpha < 1:
+            raise ValueError(
+                "alpha must be between 0 and 1."
+            )
 
-            df_denom=sample_size
+        df_num = p
+        df_denom = n - p - 1
 
+        critical = f.ppf(
+            1 - alpha,
+            df_num,
+            df_denom,
+        )
+
+        ncp = (
+            f2 * n
+        )
+
+        power = ncf.sf(
+            critical,
+            df_num,
+            df_denom,
+            ncp,
         )
 
         return float(power)
@@ -249,33 +283,80 @@ class RegressionPowerAnalysis(
 
     @staticmethod
 
+    @staticmethod
     def compute_sample_size(
-
         effect_size,
-
         predictors,
-
         alpha=0.05,
-
         power=0.80,
-
     ):
+        """
+        Minimum total sample size required for
+        the requested regression power.
+        """
 
-        analysis=FTestPower()
+        f2 = float(effect_size)
+        p = int(predictors)
 
-        n=analysis.solve_power(
+        if f2 <= 0:
+            raise ValueError(
+                "effect_size must be positive."
+            )
 
-            effect_size=effect_size,
+        if p < 1:
+            raise ValueError(
+                "predictors must be at least 1."
+            )
 
-            df_num=predictors,
+        if not 0 < power < 1:
+            raise ValueError(
+                "power must be between 0 and 1."
+            )
 
-            alpha=alpha,
-
-            power=power
-
+        low = p + 2
+        high = max(
+            2 * low,
+            16,
         )
 
-        return int(round(n))
+        while (
+            RegressionPowerAnalysis.compute_power(
+                f2,
+                p,
+                high,
+                alpha,
+            )
+            < power
+        ):
+            high *= 2
+
+            if high > 10_000_000:
+                raise RuntimeError(
+                    "Unable to determine "
+                    "sample size."
+                )
+
+        while low < high:
+            mid = (
+                low + high
+            ) // 2
+
+            current = (
+                RegressionPowerAnalysis
+                .compute_power(
+                    f2,
+                    p,
+                    mid,
+                    alpha,
+                )
+            )
+
+            if current >= power:
+                high = mid
+            else:
+                low = mid + 1
+
+        return int(low)
 
     # ==========================================================
 # EFFECT SIZE
@@ -283,32 +364,53 @@ class RegressionPowerAnalysis(
 
     @staticmethod
 
+    @staticmethod
     def compute_effect_size(
-
         predictors,
-
         sample_size,
-
         alpha=0.05,
-
         power=0.80,
-
     ):
+        """
+        Minimum Cohen f-squared detectable at
+        the requested power.
+        """
 
-        analysis=FTestPower()
+        p = int(predictors)
+        n = int(sample_size)
 
-        effect=analysis.solve_power(
+        if p < 1:
+            raise ValueError(
+                "predictors must be at least 1."
+            )
 
-            effect_size=None,
+        if n <= p + 1:
+            raise ValueError(
+                "sample_size must be greater "
+                "than predictors + 1."
+            )
 
-            df_num=predictors,
+        if not 0 < power < 1:
+            raise ValueError(
+                "power must be between 0 and 1."
+            )
 
-            df_denom=sample_size,
+        def objective(f2):
+            return (
+                RegressionPowerAnalysis
+                .compute_power(
+                    f2,
+                    p,
+                    n,
+                    alpha,
+                )
+                - power
+            )
 
-            alpha=alpha,
-
-            power=power
-
+        effect = brentq(
+            objective,
+            1e-12,
+            100.0,
         )
 
         return float(effect)
@@ -319,32 +421,48 @@ class RegressionPowerAnalysis(
 
     @staticmethod
 
+    @staticmethod
     def compute_alpha(
-
         effect_size,
-
         predictors,
-
         sample_size,
-
         power=0.80,
-
     ):
+        """
+        Significance level required to obtain
+        the requested regression power.
+        """
 
-        analysis=FTestPower()
+        f2 = float(effect_size)
+        p = int(predictors)
+        n = int(sample_size)
 
-        alpha=analysis.solve_power(
+        if f2 <= 0:
+            raise ValueError(
+                "effect_size must be positive."
+            )
 
-            effect_size=effect_size,
+        if not 0 < power < 1:
+            raise ValueError(
+                "power must be between 0 and 1."
+            )
 
-            df_num=predictors,
+        def objective(alpha):
+            return (
+                RegressionPowerAnalysis
+                .compute_power(
+                    f2,
+                    p,
+                    n,
+                    alpha,
+                )
+                - power
+            )
 
-            df_denom=sample_size,
-
-            alpha=None,
-
-            power=power
-
+        alpha = brentq(
+            objective,
+            1e-10,
+            0.999999,
         )
 
         return float(alpha)

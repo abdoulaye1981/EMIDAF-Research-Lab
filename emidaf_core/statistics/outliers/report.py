@@ -14,6 +14,7 @@ Rapport complet des valeurs aberrantes.
 
 from __future__ import annotations
 
+import numpy as np
 import pandas as pd
 
 from ...common.results import ReportResult
@@ -44,7 +45,37 @@ class OutlierReport:
         ensemble = {}
         multivariate = {}
 
-        numeric = dataframe.select_dtypes(include="number")
+        errors = {}
+
+        numeric = dataframe.select_dtypes(
+            include="number"
+        )
+
+        # ============================================
+        # Validation globale
+        # ============================================
+
+        if target is not None:
+
+            if target not in dataframe.columns:
+                raise ValueError(
+                    f"Unknown target column: {target}"
+                )
+
+        if not numeric.empty:
+
+            numeric_values = numeric.to_numpy(
+                dtype=float
+            )
+
+            if np.isinf(
+                numeric_values
+            ).any():
+
+                raise ValueError(
+                    "Infinite values are not supported "
+                    "in outlier reports."
+                )
 
         # ============================================
         # Univarié
@@ -52,15 +83,21 @@ class OutlierReport:
 
         for column in numeric.columns:
 
-            statistical[column] = (
+            try:
 
-                StatisticalOutlierDetector.compute(
-
-                    numeric[column]
-
+                statistical[column] = (
+                    StatisticalOutlierDetector.compute(
+                        numeric[column]
+                    )
                 )
 
-            )
+            except ValueError as exc:
+
+                statistical[column] = {}
+
+                errors[
+                    f"statistical.{column}"
+                ] = str(exc)
 
         # ============================================
         # Multivarié
@@ -68,142 +105,121 @@ class OutlierReport:
 
         if len(numeric.columns) > 1:
 
-            distance = (
+            try:
 
-                DistanceOutlierDetector.compute(
-
-                    numeric,
-
-                    target
-
+                distance = (
+                    DistanceOutlierDetector.compute(
+                        numeric,
+                        target
+                    )
                 )
 
-            )
+            except ValueError as exc:
 
-            density = (
+                errors["distance"] = str(exc)
 
-                DensityOutlierDetector.compute(
+            try:
 
-                    numeric
-
+                density = (
+                    DensityOutlierDetector.compute(
+                        numeric
+                    )
                 )
 
-            )
+            except ValueError as exc:
 
-            clustering = (
+                errors["density"] = str(exc)
 
-                ClusteringOutlierDetector.compute(
+            try:
 
-                    numeric
-
+                clustering = (
+                    ClusteringOutlierDetector.compute(
+                        numeric
+                    )
                 )
 
-            )
+            except ValueError as exc:
 
-            ensemble = (
+                errors["clustering"] = str(exc)
 
-                EnsembleOutlierDetector.compute(
+            try:
 
-                    numeric
-
+                ensemble = (
+                    EnsembleOutlierDetector.compute(
+                        numeric
+                    )
                 )
 
-            )
+            except ValueError as exc:
 
-            multivariate = (
+                errors["ensemble"] = str(exc)
 
-                MultivariateOutlierDetector.compute(
+            try:
 
-                    numeric
-
+                multivariate = (
+                    MultivariateOutlierDetector.compute(
+                        numeric
+                    )
                 )
 
-            )
+            except ValueError as exc:
+
+                errors["multivariate"] = str(exc)
 
         # ============================================
         # Résultat
         # ============================================
 
         report = ReportResult(
-
             report_name="Outlier Detection Report",
-
             report_type="Outlier Analysis",
-
             title="Outlier Analysis Report",
-
             summary=(
-
                 "Automatic report generated "
-
                 "by EMIDAF."
-
             ),
-
             statistics={
-
                 "statistical":
-
                     statistical,
-
                 "distance":
-
                     distance,
-
                 "density":
-
                     density,
-
                 "clustering":
-
                     clustering,
-
                 "ensemble":
-
                     ensemble,
-
                 "multivariate":
-
                     multivariate
-
             }
-
         )
 
-        report.add_section(
+        report.metadata[
+            "errors"
+        ] = errors
 
+        report.add_section(
             "Statistical Detection"
-
         )
 
         report.add_section(
-
             "Distance Detection"
-
         )
 
         report.add_section(
-
             "Density Detection"
-
         )
 
         report.add_section(
-
             "Clustering Detection"
-
         )
 
         report.add_section(
-
             "Ensemble Detection"
-
         )
 
         report.add_section(
-
             "Multivariate Detection"
-
         )
 
         return report
@@ -220,7 +236,7 @@ class OutlierReport:
 
             target
 
-        ).summary()
+        ).summary_info()
 
     @staticmethod
     def statistics(

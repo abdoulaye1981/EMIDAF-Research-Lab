@@ -1,26 +1,19 @@
 """
-=========================================================
-EMIDAF Framework
-Hypothesis Testing - Base
-=========================================================
+Auteur : Abdoulaye Wakhab DIOP
 """
 
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
-from typing import Any
 
-from .result import HypothesisResult
+from ...common.results import HypothesisResult
 
 
 class BaseHypothesisTest(ABC):
 
     name = "Base Hypothesis Test"
 
-    def __init__(
-        self,
-        alpha=0.05
-    ):
+    def __init__(self, alpha=0.05):
 
         if not 0 < alpha < 1:
 
@@ -29,6 +22,7 @@ class BaseHypothesisTest(ABC):
             )
 
         self.alpha = alpha
+
         self.result = None
 
     @abstractmethod
@@ -46,18 +40,30 @@ class BaseHypothesisTest(ABC):
         p_value=None,
         null_hypothesis="",
         alternative_hypothesis="",
-        details=None
+        details=None,
+        **kwargs
     ):
 
         result = HypothesisResult(
+
             test_name=self.name,
+
             statistic=statistic,
+
             p_value=p_value,
+
             alpha=self.alpha,
-            null_hypothesis=null_hypothesis,
+
+            null_hypothesis=
+                null_hypothesis,
+
             alternative_hypothesis=
                 alternative_hypothesis,
-            details=details or {}
+
+            extra=details or {},
+
+            **kwargs
+
         )
 
         self.result = result

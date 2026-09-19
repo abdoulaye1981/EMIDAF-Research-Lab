@@ -1,7 +1,10 @@
 """
 =========================================================
+
 EMIDAF Framework
+
 Correlation Package
+
 =========================================================
 """
 
@@ -12,21 +15,23 @@ from .association import *
 from .matrix import *
 from .multicollinearity import *
 
+
 __all__ = [
     "Pearson",
     "Spearman",
     "Kendall",
-
     "PointBiserial",
-
-    "CramerV",
-    "PhiCoefficient",
-
-    "EtaSquared",
+    "Biserial",
     "CorrelationRatio",
-
-    "CorrelationMatrix",
-
+    "ChiSquare",
+    "PhiCoefficient",
+    "CramerV",
+    "ContingencyCoefficient",
+    "MutualInformation",
+    "DistanceCorrelation",
+    "ConcordanceCorrelation",
+    "LinearCorrelationMatrix",
+    "CorrelationInterpretation",
     "VarianceInflationFactor",
     "MulticollinearityAnalyzer",
 ]

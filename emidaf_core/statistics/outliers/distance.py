@@ -42,99 +42,177 @@ class Mahalanobis(BaseOutlierDetector):
 
     name = "Mahalanobis"
 
+    method_family = "distance"
+
+    score_type = "mahalanobis_distance"
+
+    score_direction = "higher_is_more_anomalous"
+
+    scaling_sensitive = False
+
+    @staticmethod
+    def _prepare_dataframe(
+        dataframe,
+        alpha,
+    ):
+        """
+        Prépare et valide les données utilisées
+        pour les distances de Mahalanobis.
+        """
+
+        if not 0 < alpha < 1:
+            raise ValueError(
+                "alpha must satisfy 0 < alpha < 1."
+            )
+
+        if not isinstance(
+            dataframe,
+            pd.DataFrame,
+        ):
+            raise TypeError(
+                "dataframe must be a pandas DataFrame."
+            )
+
+        numeric = dataframe.select_dtypes(
+            include="number"
+        ).copy()
+
+        if numeric.shape[1] == 0:
+            raise ValueError(
+                "At least one numeric column is required."
+            )
+
+        # Les valeurs infinies ne sont pas assimilées
+        # à des valeurs manquantes.
+        if not np.isfinite(
+            numeric.to_numpy(
+                dtype=float
+            )
+        ).all():
+            finite_or_nan = (
+                np.isfinite(
+                    numeric.to_numpy(
+                        dtype=float
+                    )
+                )
+                |
+                np.isnan(
+                    numeric.to_numpy(
+                        dtype=float
+                    )
+                )
+            )
+
+            if not finite_or_nan.all():
+                raise ValueError(
+                    "Infinite values are not supported."
+                )
+
+        numeric = numeric.dropna()
+
+        if numeric.empty:
+            raise ValueError(
+                "No complete numeric observations remain "
+                "after removing missing values."
+            )
+
+        n_observations = numeric.shape[0]
+        n_variables = numeric.shape[1]
+
+        if n_observations <= n_variables:
+            raise ValueError(
+                "Mahalanobis distance requires more "
+                "complete observations than numeric variables."
+            )
+
+        return numeric
+
     @classmethod
     def detect(
-
         cls,
-
         dataframe,
-
         alpha=0.001,
-
     ):
 
-        dataframe = dataframe.select_dtypes(
+        dataframe = cls._prepare_dataframe(
+            dataframe,
+            alpha,
+        )
 
-            include="number"
-
-        ).dropna()
-
-        x = dataframe.values
+        x = dataframe.to_numpy(
+            dtype=float
+        )
 
         mean = np.mean(
-
             x,
-
-            axis=0
-
+            axis=0,
         )
 
+        # Cas univarié :
+        # np.cov retourne un scalaire.
         covariance = np.cov(
-
             x,
-
-            rowvar=False
-
+            rowvar=False,
         )
 
-        inverse = np.linalg.inv(
-
+        covariance = np.atleast_2d(
             covariance
-
         )
 
-        distance = []
+        # La pseudo-inverse permet de gérer proprement :
+        # - colinéarité parfaite
+        # - colonnes constantes
+        # - covariance de rang déficient
+        inverse = np.linalg.pinv(
+            covariance
+        )
 
-        for row in x:
+        centered = x - mean
 
-            d = row - mean
+        squared_distance = np.einsum(
+            "ij,jk,ik->i",
+            centered,
+            inverse,
+            centered,
+        )
 
-            value = np.sqrt(
+        # Protection contre de très petites valeurs
+        # négatives dues aux erreurs numériques.
+        squared_distance = np.maximum(
+            squared_distance,
+            0.0,
+        )
 
-                d.T
-
-                @ inverse
-
-                @ d
-
-            )
-
-            distance.append(value)
-
-        distance = np.asarray(distance)
+        distance = np.sqrt(
+            squared_distance
+        )
 
         threshold = np.sqrt(
-
             chi2.ppf(
-
-                1-alpha,
-
-                dataframe.shape[1]
-
+                1 - alpha,
+                dataframe.shape[1],
             )
-
         )
 
         indices = dataframe.index[
-
             distance > threshold
-
         ]
 
         return cls.build_result(
-
             dataframe.index,
-
             indices,
-
             scores=distance,
-
-            threshold=threshold
-
+            threshold=threshold,
+            parameters={
+                "alpha": alpha,
+                "degrees_of_freedom":
+                    dataframe.shape[1],
+                "covariance_inverse":
+                    "moore_penrose_pseudoinverse",
+            },
         )
 
     fit = detect
-
     fit_predict = detect
 
 
@@ -146,65 +224,80 @@ class RobustMahalanobis(BaseOutlierDetector):
 
     name = "Robust Mahalanobis"
 
+    method_family = "distance"
+
+    score_type = "robust_mahalanobis_distance"
+
+    score_direction = "higher_is_more_anomalous"
+
+    scaling_sensitive = False
+
     @classmethod
     def detect(
-
         cls,
-
         dataframe,
-
         alpha=0.001,
-
     ):
 
-        dataframe = dataframe.select_dtypes(
+        dataframe = Mahalanobis._prepare_dataframe(
+            dataframe,
+            alpha,
+        )
 
-            include="number"
-
-        ).dropna()
-
-        estimator = MinCovDet()
+        estimator = MinCovDet(
+            random_state=42
+        )
 
         estimator.fit(
-
             dataframe
-
         )
 
-        distance = estimator.mahalanobis(
-
-            dataframe
-
+        # sklearn renvoie les distances
+        # de Mahalanobis AU CARRE.
+        squared_distance = (
+            estimator.mahalanobis(
+                dataframe
+            )
         )
 
-        threshold = chi2.ppf(
+        squared_distance = np.maximum(
+            squared_distance,
+            0.0,
+        )
 
-            1-alpha,
+        # Harmonisation avec Mahalanobis :
+        # le score public représente une distance.
+        distance = np.sqrt(
+            squared_distance
+        )
 
-            dataframe.shape[1]
-
+        threshold = np.sqrt(
+            chi2.ppf(
+                1 - alpha,
+                dataframe.shape[1],
+            )
         )
 
         indices = dataframe.index[
-
             distance > threshold
-
         ]
 
         return cls.build_result(
-
             dataframe.index,
-
             indices,
-
             scores=distance,
-
-            threshold=threshold
-
+            threshold=threshold,
+            parameters={
+                "alpha": alpha,
+                "degrees_of_freedom":
+                    dataframe.shape[1],
+                "covariance_estimator":
+                    "minimum_covariance_determinant",
+                "random_state": 42,
+            },
         )
 
     fit = detect
-
     fit_predict = detect
 
 
@@ -215,6 +308,14 @@ class RobustMahalanobis(BaseOutlierDetector):
 class CookDistance(BaseOutlierDetector):
 
     name = "Cook Distance"
+
+    method_family = "influence"
+
+    score_type = "cooks_distance"
+
+    score_direction = "higher_is_more_anomalous"
+
+    scaling_sensitive = False
 
     @classmethod
     def detect(
@@ -291,6 +392,14 @@ class CookDistance(BaseOutlierDetector):
 class Leverage(BaseOutlierDetector):
 
     name = "Leverage"
+
+    method_family = "influence"
+
+    score_type = "leverage"
+
+    score_direction = "higher_is_more_anomalous"
+
+    scaling_sensitive = False
 
     @classmethod
     def detect(

@@ -41,6 +41,14 @@ class ZScore(BaseOutlierDetector):
 
     name = "Z-Score"
 
+    method_family = "statistical"
+
+    score_type = "absolute_z_score"
+
+    score_direction = "higher_is_more_anomalous"
+
+    scaling_sensitive = False
+
     @classmethod
     def detect(
 
@@ -103,15 +111,19 @@ class ModifiedZScore(BaseOutlierDetector):
 
     name = "Modified Z-Score"
 
+    method_family = "statistical"
+
+    score_type = "absolute_modified_z_score"
+
+    score_direction = "higher_is_more_anomalous"
+
+    scaling_sensitive = False
+
     @classmethod
     def detect(
-
         cls,
-
         values,
-
         threshold: float = 3.5,
-
     ):
 
         values = cls.validate(values)
@@ -119,53 +131,37 @@ class ModifiedZScore(BaseOutlierDetector):
         median = np.median(values)
 
         mad = median_abs_deviation(
-
             values,
-
-            scale="normal"
-
+            scale=1.0
         )
 
         if mad == 0:
-
-            scores = np.zeros(len(values))
-
+            scores = np.zeros(
+                len(values)
+            )
         else:
-
             scores = (
-
                 0.6745
-
                 *
-
-                (values - median)
-
+                np.abs(
+                    values - median
+                )
                 /
-
                 mad
-
             )
 
         indices = values.index[
-
-            np.abs(scores) > threshold
-
+            scores > threshold
         ]
 
         return cls.build_result(
-
             values,
-
             indices,
-
             scores=scores,
-
             threshold=threshold
-
         )
 
     fit = detect
-
     fit_predict = detect
 
 
@@ -176,6 +172,14 @@ class ModifiedZScore(BaseOutlierDetector):
 class IQR(BaseOutlierDetector):
 
     name = "IQR"
+
+    method_family = "statistical"
+
+    score_type = ""
+
+    score_direction = "none"
+
+    scaling_sensitive = False
 
     @classmethod
     def detect(
@@ -243,27 +247,49 @@ class TukeyFence(BaseOutlierDetector):
 
     name = "Tukey Fence"
 
+    method_family = "statistical"
+
+    score_type = ""
+
+    score_direction = "none"
+
+    scaling_sensitive = False
+
     @classmethod
     def detect(
-
         cls,
-
         values,
-
         factor: float = 1.5,
-
     ):
 
-        return IQR.detect(
+        values = cls.validate(values)
 
+        q1 = values.quantile(.25)
+        q3 = values.quantile(.75)
+
+        iqr = q3 - q1
+
+        lower = q1 - factor * iqr
+        upper = q3 + factor * iqr
+
+        indices = values.index[
+            (values < lower)
+            |
+            (values > upper)
+        ]
+
+        return cls.build_result(
             values,
-
-            factor
-
+            indices,
+            threshold=factor,
+            parameters={
+                "lower_bound": lower,
+                "upper_bound": upper,
+                "iqr": iqr
+            }
         )
 
     fit = detect
-
     fit_predict = detect
 
 
@@ -274,6 +300,14 @@ class TukeyFence(BaseOutlierDetector):
 class Percentile(BaseOutlierDetector):
 
     name = "Percentile"
+
+    method_family = "statistical"
+
+    score_type = ""
+
+    score_direction = "none"
+
+    scaling_sensitive = False
 
     @classmethod
     def detect(
@@ -333,25 +367,43 @@ class ThreeSigma(BaseOutlierDetector):
 
     name = "Three Sigma"
 
+    method_family = "statistical"
+
+    score_type = "absolute_z_score"
+
+    score_direction = "higher_is_more_anomalous"
+
+    scaling_sensitive = False
+
     @classmethod
     def detect(
-
         cls,
-
         values,
-
     ):
 
-        return ZScore.detect(
+        values = cls.validate(values)
 
+        threshold = 3.0
+
+        scores = np.abs(
+            zscore(
+                values,
+                nan_policy="omit"
+            )
+        )
+
+        indices = values.index[
+            scores > threshold
+        ]
+
+        return cls.build_result(
             values,
-
-            threshold=3
-
+            indices,
+            scores=scores,
+            threshold=threshold
         )
 
     fit = detect
-
     fit_predict = detect
 
 
@@ -362,6 +414,14 @@ class ThreeSigma(BaseOutlierDetector):
 class HampelFilter(BaseOutlierDetector):
 
     name = "Hampel Filter"
+
+    method_family = "statistical"
+
+    score_type = "robust_deviation_score"
+
+    score_direction = "higher_is_more_anomalous"
+
+    scaling_sensitive = False
 
     @classmethod
     def detect(
@@ -388,26 +448,54 @@ class HampelFilter(BaseOutlierDetector):
 
         if mad == 0:
 
-            indices = []
+            # -------------------------------------------------
+            # Degenerate robust-scale case.
+            #
+            # A zero MAD does not imply absence of outliers.
+            # It commonly occurs when a majority of values are
+            # identical. In that case, use the IQR as a robust
+            # fallback instead of silently returning no outlier.
+            # -------------------------------------------------
 
-            scores = np.zeros(len(values))
+            q1 = values.quantile(0.25)
+            q3 = values.quantile(0.75)
+            iqr = q3 - q1
+
+            if iqr == 0:
+
+                # No usable robust scale remains.
+                # Values different from the median are given
+                # an infinite anomaly score.
+                scores = np.where(
+                    values == median,
+                    0.0,
+                    np.inf,
+                )
+
+                indices = values.index[
+                    np.isinf(scores)
+                ]
+
+            else:
+
+                scores = (
+                    np.abs(values - median)
+                    / iqr
+                )
+
+                indices = values.index[
+                    scores > threshold
+                ]
 
         else:
 
             scores = (
-
                 np.abs(values - median)
-
-                /
-
-                mad
-
+                / mad
             )
 
             indices = values.index[
-
                 scores > threshold
-
             ]
 
         return cls.build_result(

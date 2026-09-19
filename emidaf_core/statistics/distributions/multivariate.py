@@ -148,6 +148,25 @@ class MultivariateDistribution(
 # RANDOM SAMPLE
 # ==========================================================
 
+
+    # ==========================================================
+    # PPF
+    # ==========================================================
+
+    def ppf(
+        self,
+        q,
+    ):
+        """
+        Quantile function.
+
+        A scalar PPF is generally not defined
+        for multivariate distributions.
+        """
+        raise NotImplementedError(
+            f"PPF is not defined for {self.name}."
+        )
+
     def rvs(
 
         self,
@@ -356,7 +375,7 @@ class FrozenMultivariateNormal(
 
     name="Frozen Multivariate Normal"
 
-    scipy_distribution=stats.multivariate_normal_frozen
+    scipy_distribution=stats.multivariate_normal
 
     def fit(
 

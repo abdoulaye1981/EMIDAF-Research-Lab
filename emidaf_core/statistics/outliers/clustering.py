@@ -41,6 +41,14 @@ class KMeansOutlier(BaseOutlierDetector):
 
     name = "KMeans"
 
+    method_family = "clustering"
+
+    score_type = "distance_to_centroid"
+
+    score_direction = "higher_is_more_anomalous"
+
+    scaling_sensitive = True
+
     @classmethod
     def detect(
 
@@ -135,6 +143,14 @@ class MiniBatchKMeansOutlier(BaseOutlierDetector):
 
     name = "MiniBatchKMeans"
 
+    method_family = "clustering"
+
+    score_type = "distance_to_centroid"
+
+    score_direction = "higher_is_more_anomalous"
+
+    scaling_sensitive = True
+
     @classmethod
     def detect(
 
@@ -219,6 +235,14 @@ class BirchOutlier(BaseOutlierDetector):
 
     name = "Birch"
 
+    method_family = "clustering"
+
+    score_type = ""
+
+    score_direction = "none"
+
+    scaling_sensitive = True
+
     @classmethod
     def detect(
 
@@ -299,6 +323,14 @@ class GaussianMixtureOutlier(BaseOutlierDetector):
 
     name = "Gaussian Mixture"
 
+    method_family = "clustering"
+
+    score_type = "negative_log_likelihood"
+
+    score_direction = "higher_is_more_anomalous"
+
+    scaling_sensitive = True
+
     @classmethod
     def detect(
 
@@ -330,7 +362,7 @@ class GaussianMixtureOutlier(BaseOutlierDetector):
 
         model.fit(dataframe)
 
-        probability = model.score_samples(
+        log_likelihood = model.score_samples(
 
             dataframe
 
@@ -338,7 +370,7 @@ class GaussianMixtureOutlier(BaseOutlierDetector):
 
         threshold = np.percentile(
 
-            probability,
+            log_likelihood,
 
             percentile
 
@@ -346,9 +378,13 @@ class GaussianMixtureOutlier(BaseOutlierDetector):
 
         indices = dataframe.index[
 
-            probability < threshold
+            log_likelihood < threshold
 
         ]
+
+        # Convention EMIDAF :
+        # score élevé = observation plus atypique.
+        anomaly_scores = -log_likelihood
 
         return cls.build_result(
 
@@ -356,13 +392,14 @@ class GaussianMixtureOutlier(BaseOutlierDetector):
 
             indices,
 
-            scores=probability,
+            scores=anomaly_scores,
 
             threshold=threshold,
 
             parameters={
 
-                "components": n_components
+                "components": n_components,
+
 
             }
 

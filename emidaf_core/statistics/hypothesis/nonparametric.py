@@ -339,6 +339,156 @@ class SpearmanTest(BaseHypothesisTest):
         )
 
 
+class MoodMedianTest(BaseHypothesisTest):
+
+    name = "Mood Median Test"
+
+    def test(self, *groups):
+
+        from scipy.stats import median_test
+
+        if len(groups) < 2:
+            raise ValueError(
+                "Le test de Mood Median nécessite "
+                "au moins deux groupes."
+            )
+
+        clean_groups = [
+            pd.Series(group)
+            .dropna()
+            .to_numpy()
+            for group in groups
+        ]
+
+        for group in clean_groups:
+            if len(group) < 2:
+                raise ValueError(
+                    "Chaque groupe doit contenir "
+                    "au moins deux observations."
+                )
+
+        statistic, p_value, grand_median, table = median_test(
+            *clean_groups
+        )
+
+        return self._create_result(
+            statistic=float(statistic),
+            p_value=float(p_value),
+            null_hypothesis=(
+                "H0 : les médianes des groupes "
+                "sont identiques."
+            ),
+            alternative_hypothesis=(
+                "H1 : au moins une médiane "
+                "diffère des autres."
+            ),
+            details={
+                "number_of_groups": len(clean_groups),
+                "group_sizes": [
+                    len(group)
+                    for group in clean_groups
+                ],
+                "grand_median": float(grand_median),
+                "table": table.tolist()
+            }
+        )
+
+
+class SignTest(BaseHypothesisTest):
+
+    name = "Sign Test"
+
+    def test(
+        self,
+        before,
+        after
+    ):
+
+        values1 = pd.Series(
+            before
+        ).reset_index(drop=True)
+
+        values2 = pd.Series(
+            after
+        ).reset_index(drop=True)
+
+        if len(values1) != len(values2):
+            raise ValueError(
+                "Les deux échantillons doivent "
+                "avoir la même taille."
+            )
+
+        mask = (
+            values1.notna()
+            & values2.notna()
+        )
+
+        values1 = values1[mask].to_numpy()
+        values2 = values2[mask].to_numpy()
+
+        if len(values1) < 2:
+            raise ValueError(
+                "Au moins deux paires sont nécessaires."
+            )
+
+        differences = values2 - values1
+
+        positive = int(
+            np.sum(differences > 0)
+        )
+
+        negative = int(
+            np.sum(differences < 0)
+        )
+
+        zero = int(
+            np.sum(differences == 0)
+        )
+
+        n = positive + negative
+
+        if n == 0:
+            raise ValueError(
+                "Aucune différence non nulle "
+                "n'a été observée."
+            )
+
+        from scipy.stats import binomtest
+
+        statistic = min(
+            positive,
+            negative
+        )
+
+        p_value = binomtest(
+            positive,
+            n=n,
+            p=0.5,
+            alternative="two-sided"
+        ).pvalue
+
+        return self._create_result(
+            statistic=float(statistic),
+            p_value=float(p_value),
+            null_hypothesis=(
+                "H0 : la médiane des différences "
+                "est nulle."
+            ),
+            alternative_hypothesis=(
+                "H1 : la médiane des différences "
+                "n'est pas nulle."
+            ),
+            details={
+                "n_pairs": len(values1),
+                "n_non_zero": n,
+                "positive": positive,
+                "negative": negative,
+                "zero": zero
+            }
+        )
+
+
+
 def mann_whitney_test(
     group1,
     group2,
@@ -402,4 +552,28 @@ def spearman_test(
     ).test(
         x,
         y
+    )
+
+
+def mood_median_test(
+    *groups,
+    alpha=0.05
+):
+
+    return MoodMedianTest(
+        alpha=alpha
+    ).test(*groups)
+
+
+def sign_test(
+    before,
+    after,
+    alpha=0.05
+):
+
+    return SignTest(
+        alpha=alpha
+    ).test(
+        before,
+        after
     )

@@ -6,7 +6,7 @@ Hypothesis Testing
 """
 
 from .base import BaseHypothesisTest
-from .result import HypothesisResult
+from ...common.results import HypothesisResult
 
 from .normality import (
     ShapiroTest,
@@ -50,6 +50,10 @@ from .independence import (
 )
 
 from .nonparametric import (
+    MoodMedianTest,
+    SignTest,
+    mood_median_test,
+    sign_test,
     MannWhitneyTest,
     WilcoxonTest,
     KruskalWallisTest,
@@ -75,6 +79,10 @@ from .multiple import (
 
 __all__ = [
 
+    "MoodMedianTest",
+    "SignTest",
+    "mood_median_test",
+    "sign_test",
     "BaseHypothesisTest",
     "HypothesisResult",
 

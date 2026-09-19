@@ -24,8 +24,7 @@ from abc import ABC
 import numpy as np
 import pandas as pd
 
-from scipy.stats import biserialr
-from scipy.stats import pointbiserialr
+from scipy.stats import pointbiserialr, norm
 
 from ..base.correlation_statistic import CorrelationStatistic
 
@@ -100,29 +99,156 @@ class Biserial(MixedCorrelation):
         x,
         y,
     ):
+        """
+        Compute the biserial correlation.
 
-        x, y = cls.validate_pair(x, y)
+        The binary variable ``x`` is assumed to represent
+        an artificial dichotomization of an underlying
+        continuous latent variable.
 
-        coefficient, pvalue = biserialr(
+        Parameters
+        ----------
+        x :
+            Dichotomous variable with exactly two levels.
 
+        y :
+            Continuous numeric variable.
+
+        Notes
+        -----
+        The coefficient is computed as:
+
+            r_b = ((M1 - M0) / s_y) * (p*q / phi(z))
+
+        where ``p`` and ``q`` are the proportions of the two
+        groups and ``phi(z)`` is the standard-normal density
+        at the dichotomization threshold.
+
+        No exact p-value is supplied because SciPy does not
+        provide a dedicated biserial-correlation significance
+        test.
+        """
+
+        x, y = cls.validate_pair(
             x,
-
             y
+        )
 
+        x = np.asarray(x)
+        y = np.asarray(
+            y,
+            dtype=float
+        )
+
+        levels = np.unique(x)
+
+        if len(levels) != 2:
+            raise ValueError(
+                "Biserial correlation requires "
+                "a dichotomous variable with "
+                "exactly two levels."
+            )
+
+        # Deterministic coding:
+        # first ordered level -> group 0
+        # second ordered level -> group 1
+
+        group0 = y[
+            x == levels[0]
+        ]
+
+        group1 = y[
+            x == levels[1]
+        ]
+
+        n = len(y)
+
+        if n < 3:
+            raise ValueError(
+                "At least three observations are "
+                "required for biserial correlation."
+            )
+
+        p = len(group1) / n
+        q = 1.0 - p
+
+        if (
+            p <= 0.0
+            or q <= 0.0
+        ):
+            raise ValueError(
+                "Both groups must contain observations."
+            )
+
+        standard_deviation = np.std(
+            y,
+            ddof=1
+        )
+
+        if (
+            not np.isfinite(
+                standard_deviation
+            )
+            or standard_deviation == 0
+        ):
+            raise ValueError(
+                "The continuous variable must have "
+                "non-zero variance."
+            )
+
+        mean0 = np.mean(
+            group0
+        )
+
+        mean1 = np.mean(
+            group1
+        )
+
+        threshold = norm.ppf(
+            q
+        )
+
+        ordinate = norm.pdf(
+            threshold
+        )
+
+        if (
+            not np.isfinite(
+                ordinate
+            )
+            or ordinate == 0
+        ):
+            raise ValueError(
+                "Unable to compute the normal-density "
+                "correction for the group proportions."
+            )
+
+        coefficient = (
+            (
+                mean1
+                - mean0
+            )
+            / standard_deviation
+        ) * (
+            p
+            * q
+            / ordinate
+        )
+
+        coefficient = float(
+            coefficient
         )
 
         return cls.build_result(
-
             coefficient=coefficient,
-
-            p_value=pvalue,
-
+            p_value=np.nan,
             method="Biserial",
-
-            strength=cls.strength(coefficient),
-
-            direction=cls.direction(coefficient)
-
+            strength=cls.strength(
+                coefficient
+            ),
+            direction=cls.direction(
+                coefficient
+            )
         )
 
 

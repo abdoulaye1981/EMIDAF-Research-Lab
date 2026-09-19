@@ -6,6 +6,7 @@ Base Outlier Detector
 
 Auteur : Abdoulaye Wakhab DIOP
 Version : 1.0.0
+
 =========================================================
 """
 
@@ -26,76 +27,163 @@ class BaseOutlierDetector(ABC):
     """
 
     name = ""
-
     category = "Outlier Detection"
+
+    method_family = ""
+
+    score_type = ""
+
+    score_direction = "none"
+
+    scaling_sensitive = False
 
     @classmethod
     def validate(
         cls,
         values,
     ):
-
         return StatisticsValidator.require_numeric(
-
             values
-
         )
 
     @classmethod
     def build_result(
-
         cls,
-
         values,
-
         indices,
-
         scores=None,
-
         labels=None,
-
         threshold=None,
-
         parameters=None,
-
     ) -> OutlierResult:
+        """
+        Construit un résultat standardisé de détection
+        des valeurs aberrantes.
 
-        values = pd.Series(values)
+        Deux contextes sont supportés :
 
-        mask = values.index.isin(indices)
+        1. Détection univariée
+           `values` contient les observations numériques
+           sous forme de Series ou structure assimilable.
 
-        outlier_values = values.loc[mask]
+        2. Détection multivariée
+           `values` peut être un pandas.Index représentant
+           directement les identifiants des observations.
+
+        Cette distinction est importante afin de préserver
+        les index pandas personnalisés.
+        """
+
+        # =================================================
+        # CAS MULTIVARIÉ : values EST UN INDEX
+        # =================================================
+
+        if isinstance(
+            values,
+            pd.Index,
+        ):
+            observation_index = values.copy()
+
+            mask = observation_index.isin(
+                indices
+            )
+
+            variable = ""
+
+            # Ici les "values" sont en réalité les
+            # identifiants des observations.
+            outlier_values = list(
+                observation_index[mask]
+            )
+
+        # =================================================
+        # CAS UNIVARIÉ : values CONTIENT LES MESURES
+        # =================================================
+
+        else:
+            if isinstance(
+                values,
+                pd.Series,
+            ):
+                series = values.copy()
+
+            else:
+                series = pd.Series(
+                    values
+                )
+
+            observation_index = (
+                series.index
+            )
+
+            mask = observation_index.isin(
+                indices
+            )
+
+            variable = (
+                series.name or ""
+            )
+
+            outlier_values = (
+                series.loc[mask]
+                .tolist()
+            )
+
+        # =================================================
+        # NORMALISATION DES INDICES
+        # =================================================
+
+        outlier_indices = list(
+            indices
+        )
+
+        inlier_indices = list(
+            observation_index[~mask]
+        )
+
+        # =================================================
+        # RESULTAT
+        # =================================================
 
         result = OutlierResult(
-
             method=cls.name,
-
-            variable=values.name or "",
-
+            variable=variable,
             threshold=threshold,
-
-            total_observations=len(values),
-
-            outlier_count=len(indices),
-
-            inlier_count=len(values)-len(indices),
-
-            outlier_indices=list(indices),
-
-            inlier_indices=list(
-
-                values.index[~mask]
-
+            total_observations=len(
+                observation_index
             ),
+            outlier_count=len(
+                outlier_indices
+            ),
+            inlier_count=len(
+                inlier_indices
+            ),
+            outlier_indices=outlier_indices,
+            inlier_indices=inlier_indices,
+            outlier_values=outlier_values,
+            scores=(
+                []
+                if scores is None
+                else list(scores)
+            ),
+            labels=(
+                []
+                if labels is None
+                else list(labels)
+            ),
+            score_type=cls.score_type,
 
-            outlier_values=outlier_values.tolist(),
+            score_direction=cls.score_direction,
 
-            scores=[] if scores is None else list(scores),
+            method_family=cls.method_family,
 
-            labels=[] if labels is None else list(labels),
+            scaling_sensitive=cls.scaling_sensitive,
 
-            parameters={} if parameters is None else parameters
-
+            parameters=(
+                {}
+                if parameters is None
+                else parameters
+            ),
         )
 
         result.compute_percentages()
@@ -105,13 +193,8 @@ class BaseOutlierDetector(ABC):
     @classmethod
     @abstractmethod
     def detect(
-
         cls,
-
         values,
-
         **kwargs,
-
     ) -> OutlierResult:
-
         raise NotImplementedError

@@ -39,7 +39,6 @@ __all__=[
 
     "BasePowerAnalysis",
 
-    "PowerAnalysis",
 
     "TTest",
 
@@ -49,7 +48,6 @@ __all__=[
 
     "CorrelationPower",
 
-    "ProportionPower",
 
     "ChiSquarePower",
 
