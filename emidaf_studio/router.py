@@ -63,6 +63,29 @@ def get_page_layout(pathname):
         return import_page.import_layout(project_id)
 
     # ======================================================
+    # ELAE - Analyse exploratoire
+    # ======================================================
+
+    match = re.fullmatch(
+        r"/projects/(\d+)/datasets/(\d+)/elae",
+        pathname or ""
+    )
+
+    if match:
+
+        project_id = int(match.group(1))
+        dataset_id = int(match.group(2))
+
+        from emidaf_studio.pages.elae.layout import (
+            elae_layout
+        )
+
+        return elae_layout(
+            project_id,
+            dataset_id
+        )
+
+    # ======================================================
     # EIDPP - Prétraitement d'un dataset
     # ======================================================
 

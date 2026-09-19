@@ -434,15 +434,39 @@ def eidpp_layout(project_id, dataset_id):
 
             html.Hr(),
 
-            dcc.Link(
-                dbc.Button(
-                    "← Retour à l'inspection",
-                    color="secondary",
-                ),
-                href=(
-                    f"/projects/{project_id}"
-                    f"/datasets/{dataset_id}"
-                ),
+            dbc.Row(
+                [
+                    dbc.Col(
+                        dcc.Link(
+                            dbc.Button(
+                                "← Retour à l'inspection",
+                                color="secondary",
+                                className="w-100",
+                            ),
+                            href=(
+                                f"/projects/{project_id}"
+                                f"/datasets/{dataset_id}"
+                            ),
+                        ),
+                        md=6,
+                    ),
+
+                    dbc.Col(
+                        dcc.Link(
+                            dbc.Button(
+                                "📊 Ouvrir ELAE",
+                                color="primary",
+                                className="w-100",
+                            ),
+                            href=(
+                                f"/projects/{project_id}"
+                                f"/datasets/{dataset_id}/elae"
+                            ),
+                        ),
+                        md=6,
+                    ),
+                ],
+                className="g-3",
             ),
 
             # ==================================================
