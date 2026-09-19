@@ -10,6 +10,10 @@ from .base import (
     VisualizationResult
 )
 
+from .univariate import (
+    UnivariateVisualizer
+)
+
 from .bivariate import (
     BivariateVisualizer
 )
@@ -51,6 +55,7 @@ from .matplotlib_style import (
 __all__ = [
     "BaseVisualizer",
     "VisualizationResult",
+    "UnivariateVisualizer",
     "BivariateVisualizer",
     "MultivariateVisualizer",
     "DistributionVisualizer",

@@ -175,7 +175,7 @@ def grouped_boxplot(
 
     ax.boxplot(
         groups,
-        labels=labels
+        tick_labels=labels
     )
 
     ax.set_xlabel(
