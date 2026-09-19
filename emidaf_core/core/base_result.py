@@ -155,11 +155,30 @@ class BaseResult(BaseObject):
 
     def get(
         self,
-        key: str,
-        default: Any = None
-    ) -> Any:
+        key,
+        default=None,
+    ):
+        """
+        Récupère une valeur du résultat.
 
-        return self._data.get(key, default)
+        Recherche d'abord dans les données internes,
+        puis dans la représentation sérialisée,
+        puis dans les attributs.
+        """
+
+        if key in self._data:
+            return self._data[key]
+
+        data = self.to_dict()
+
+        if key in data:
+            return data[key]
+
+        return getattr(
+            self,
+            key,
+            default
+        )
 
     def clear(self) -> None:
 

@@ -54,32 +54,45 @@ class BaseRegistry(BaseObject, Generic[T]):
 
     def register(
         self,
-        item: T,
+        item_or_name,
+        component=None,
         *,
         overwrite: bool = False,
     ) -> None:
         """
-        Enregistre automatiquement un composant.
+        Enregistre un composant.
 
-        Le composant doit posséder un attribut 'name'.
+        Deux formes sont supportées :
+
+        register(component)
+            Le composant doit posséder un attribut ``name``.
+
+        register(name, component)
+            Enregistre explicitement le composant sous ``name``.
         """
 
-        if not hasattr(item, "name"):
+        if component is None:
+            item = item_or_name
 
-            raise AttributeError(
+            if not hasattr(item, "name"):
+                raise AttributeError(
+                    f"{item.__class__.__name__} must define a 'name' attribute."
+                )
 
-                f"{item.__class__.__name__} must define a 'name' attribute."
+            name = item.name
 
-            )
+        else:
+            name = item_or_name
+            item = component
 
-        name = item.name
+            if not isinstance(name, str) or not name:
+                raise ValueError(
+                    "Registry name must be a non-empty string."
+                )
 
         if not overwrite and name in self._items:
-
             raise ValueError(
-
                 f"'{name}' is already registered."
-
             )
 
         self._items[name] = item

@@ -204,28 +204,6 @@ class ProfileService:
     # DUPLICATE
     # =====================================================
 
-    def duplicate( self,profile_id: int) -> int:
-
-        profile = self.find(profile_id)
-
-        if profile is None:
-
-            raise ValueError(
-                f"Profile {profile_id} not found."
-            )
-
-        profile["profile_name"] = (
-
-            profile["profile_name"]
-
-            + "_copy"
-
-        )
-
-        def duplicate(self,profile_id: int) -> int:
-
-            return self.repository.duplicate(profile_id)
-
     # =====================================================
     # EXPORT JSON
     # =====================================================

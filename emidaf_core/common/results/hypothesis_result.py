@@ -1,41 +1,7 @@
-"""
-=========================================================
-EMIDAF Framework
-Hypothesis Result
-=========================================================
-
-Auteur : Abdoulaye Wakhab DIOP
-Version : 1.0.0
-
-Résultat standard de tous les tests d'hypothèses.
-
-Utilisé par :
-
-- ShapiroWilk
-- AndersonDarling
-- KolmogorovSmirnov
-- JarqueBera
-- DAgostinoPearson
-- StudentTTest
-- WelchTTest
-- ANOVA
-- MannWhitney
-- Wilcoxon
-- KruskalWallis
-- Friedman
-- ChiSquare
-- FisherExact
-- McNemar
-- Levene
-- Bartlett
-- LittleMCAR
-=========================================================
-"""
-
 from __future__ import annotations
 
-from dataclasses import dataclass
-from dataclasses import field
+from dataclasses import dataclass, field
+from typing import Any
 
 from .statistic_result import StatisticResult
 
@@ -43,14 +9,10 @@ from .statistic_result import StatisticResult
 @dataclass(slots=True)
 class HypothesisResult(StatisticResult):
     """
-    Résultat d'un test statistique.
+    Résultat standard d'un test d'hypothèse.
     """
 
     category: str = "Hypothesis"
-
-    # =====================================================
-    # Test
-    # =====================================================
 
     test_name: str = ""
 
@@ -59,10 +21,6 @@ class HypothesisResult(StatisticResult):
     null_hypothesis: str = ""
 
     alternative_hypothesis: str = ""
-
-    # =====================================================
-    # Résultat
-    # =====================================================
 
     statistic: float | None = None
 
@@ -78,10 +36,6 @@ class HypothesisResult(StatisticResult):
 
     interpretation: str = ""
 
-    # =====================================================
-    # Informations statistiques
-    # =====================================================
-
     sample_size: int = 0
 
     degrees_of_freedom: int | None = None
@@ -92,19 +46,44 @@ class HypothesisResult(StatisticResult):
 
     power: float | None = None
 
-    # =====================================================
-    # Informations complémentaires
-    # =====================================================
+    assumptions: dict[str, Any] = field(
+        default_factory=dict
+    )
 
-    assumptions: dict = field(default_factory=dict)
+    diagnostics: dict[str, Any] = field(
+        default_factory=dict
+    )
 
-    diagnostics: dict = field(default_factory=dict)
+    extra: dict[str, Any] = field(
+        default_factory=dict
+    )
 
-    extra: dict = field(default_factory=dict)
+    def __post_init__(self):
+        """
+        Initialise automatiquement la décision statistique.
+        """
 
-    # =====================================================
-    # Validation
-    # =====================================================
+        if self.p_value is not None:
+            self.reject_null = (
+                self.p_value < self.alpha
+            )
+
+            self.significant = self.reject_null
+
+        if not self.decision:
+
+            if self.reject_null:
+                self.decision = (
+                    "Rejet de l'hypothèse nulle."
+                )
+
+            else:
+                self.decision = (
+                    "Non-rejet de l'hypothèse nulle."
+                )
+
+        if not self.interpretation:
+            self.interpretation = self.decision
 
     def accepted(self) -> bool:
         """
@@ -122,16 +101,15 @@ class HypothesisResult(StatisticResult):
 
     def is_significant(self) -> bool:
         """
-        Test significatif.
+        Indique si le test est statistiquement significatif.
         """
 
         return self.significant
 
-    # =====================================================
-    # Significativité
-    # =====================================================
-
     def significance_code(self) -> str:
+        """
+        Retourne le code de significativité.
+        """
 
         if self.p_value is None:
             return ""
@@ -147,66 +125,40 @@ class HypothesisResult(StatisticResult):
 
         return "ns"
 
-    # =====================================================
-    # Résumé
-    # =====================================================
-
-    def summary(self):
+    def summary(self) -> dict[str, Any]:
+        """
+        Résumé du résultat.
+        """
 
         return {
-
             "Test": self.test_name,
-
             "Statistic": self.statistic,
-
             "P-value": self.p_value,
-
             "Alpha": self.alpha,
-
             "Reject H0": self.reject_null,
-
             "Decision": self.decision,
-
-            "Interpretation": self.interpretation
-
+            "Interpretation": self.interpretation,
         }
 
-    # =====================================================
-    # Export
-    # =====================================================
-
-    def compact(self):
+    def compact(self) -> dict[str, Any]:
+        """
+        Version compacte du résultat.
+        """
 
         return {
-
             "test": self.test_name,
-
             "statistic": self.statistic,
-
             "p_value": self.p_value,
-
-            "decision": self.decision
-
+            "decision": self.decision,
         }
 
-    # =====================================================
-    # Affichage
-    # =====================================================
-
-    def __repr__(self):
+    def __repr__(self) -> str:
 
         return (
-
             f"HypothesisResult("
-
             f"test='{self.test_name}', "
-
             f"statistic={self.statistic}, "
-
             f"p_value={self.p_value}, "
-
             f"reject_null={self.reject_null}"
-
             f")"
-
         )

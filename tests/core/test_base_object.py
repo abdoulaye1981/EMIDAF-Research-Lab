@@ -2,6 +2,8 @@ from emidaf_core.core.base_object import BaseObject
 
 
 class TestObject(BaseObject):
+
+    __test__ = False
     pass
 
 

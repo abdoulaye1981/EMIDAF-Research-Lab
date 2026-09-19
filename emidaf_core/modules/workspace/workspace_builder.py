@@ -12,6 +12,7 @@ from __future__ import annotations
 import json
 
 from datetime import datetime
+from dataclasses import asdict
 from pathlib import Path
 
 import yaml
@@ -158,64 +159,58 @@ class WorkspaceBuilder:
     # =====================================================
 
     def _create_metadata(
-        self,
-        workspace_path: Path,
-        name: str,
-        author: str,
-        description: str
+           self,
+           workspace_path: Path,
+           name: str,
+           author: str,
+           description: str
     ) -> None:
 
-        metadata = WorkspaceMetadata(
+       metadata = WorkspaceMetadata(
+                workspace_id=generate_workspace_id(),
+                name=name,
+                version="1.0.0",
+                author=author,
+                description=description,
+                created_at=datetime.now(),
+                last_opened=datetime.now()
+       )
 
-            workspace_id=generate_workspace_id(),
 
-            name=name,
+       file = workspace_path / METADATA_FILE
 
-            version="1.0.0",
+       with open(
+          file,
+          "w",
+           encoding="utf-8"
+       ) as stream:
 
-            author=author,
-
-            description=description,
-
-            created_at=datetime.now(),
-
-            last_opened=datetime.now()
-
-        )
-
-        file = workspace_path / METADATA_FILE
-
-        with open(
-            file,
-            "w",
-            encoding="utf-8"
-        ) as stream:
-
-            json.dump(
-
-                metadata.__dict__,
-
-                stream,
-
-                default=str,
-
-                indent=4,
-
-                ensure_ascii=False
-
-            )
+           json.dump(
+               {
+                "workspace_id": metadata.workspace_id,
+                "name": metadata.name,
+                "version": metadata.version,
+                "author": metadata.author,
+                "description": metadata.description,
+                "created_at": metadata.created_at.isoformat(),
+                "last_opened": metadata.last_opened.isoformat()
+               },
+               stream,
+               indent=4,
+               ensure_ascii=False
+           )
 
     # =====================================================
     # DATABASE
     # =====================================================
 
     def _create_database(
-        self,
-        workspace_path: Path
+         self,
+         workspace_path: Path
     ) -> None:
 
-        database = workspace_path / DATABASE_FILE
+         database = workspace_path / DATABASE_FILE
 
-        self._database_manager.initialize_database(
-            database
-        )
+         self._database_manager.create_database(
+               database
+         )

@@ -241,28 +241,73 @@ class ProfileBuilder(BaseBuilder):
     def _attribute_name(
         analyzer_name: str
     ) -> str:
-        """
-        Convertit
 
-        MissingAnalyzer
+        mapping = {
+            "StructureAnalyzer": "structure",
+            "structure": "structure",
 
-        en
+            "DatatypeAnalyzer": "datatypes",
+            "datatype": "datatypes",
 
-        missing
-        """
+            "MemoryAnalyzer": "memory",
+            "memory": "memory",
 
-        return (
+            "QualityAnalyzer": "quality",
+            "quality": "quality",
 
+            "MissingAnalyzer": "missing",
+            "missing": "missing",
+
+            "DuplicateAnalyzer": "duplicates",
+            "duplicates": "duplicates",
+
+            "CardinalityAnalyzer": "cardinality",
+            "cardinality": "cardinality",
+
+            "UniquenessAnalyzer": "uniqueness",
+            "uniqueness": "uniqueness",
+
+            "ConsistencyAnalyzer": "consistency",
+            "consistency": "consistency",
+
+            "NumericalAnalyzer": "numerical",
+            "numerical": "numerical",
+
+            "CategoricalAnalyzer": "categorical",
+            "categorical": "categorical",
+
+            "DatetimeAnalyzer": "datetime",
+            "datetime": "datetime",
+
+            "TextAnalyzer": "text",
+            "text": "text",
+
+            "DistributionAnalyzer": "distributions",
+            "distribution": "distributions",
+            "distributions": "distributions",
+
+            "NormalityAnalyzer": "normality",
+            "normality": "normality",
+
+            "OutlierAnalyzer": "outliers",
+            "outlier": "outliers",
+            "Outlier Analysis": "outliers",
+
+            "CorrelationAnalyzer": "correlations",
+            "correlation": "correlations",
+            "correlations": "correlations",
+
+            "MulticollinearityAnalyzer": "multicollinearity",
+            "multicollinearity": "multicollinearity"
+        }
+
+        return mapping.get(
+            analyzer_name,
             analyzer_name
-
             .replace("Analyzer", "")
-
             .replace("analyzer", "")
-
             .strip()
-
             .lower()
-
         )
 
     # =====================================================

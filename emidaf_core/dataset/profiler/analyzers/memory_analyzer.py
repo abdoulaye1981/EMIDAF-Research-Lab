@@ -1,68 +1,65 @@
 """
 =========================================================
 EMIDAF Framework v1.0
+
 Memory Analyzer
 =========================================================
 """
 
 from __future__ import annotations
 
-import pandas as pd
-
-from .base_analyzer import BaseAnalyzer
+from emidaf_core.core.base_analyzer import BaseAnalyzer
+from ..profile_context import ProfileContext
 
 
 class MemoryAnalyzer(BaseAnalyzer):
+    """
+    Analyse la consommation mémoire du DataFrame.
+    """
 
-    """
-    Analyse mémoire.
-    """
+    name = "MemoryAnalyzer"
+    version = "1.0.0"
 
     def analyze(
         self,
-        dataframe: pd.DataFrame
+        context: ProfileContext
     ) -> dict:
 
+        dataframe = context.dataframe
+
         column_memory = (
-
             dataframe.memory_usage(
-
                 deep=True
-
             )
-
             .to_dict()
-
         )
 
         total = int(
-
             dataframe.memory_usage(
-
                 deep=True
-
             ).sum()
-
         )
 
         average = (
-
-            total /
-
-            dataframe.shape[1]
-
+            total / dataframe.shape[1]
             if dataframe.shape[1]
-
             else 0
-
         )
 
-        return {
-
+        result = {
             "total_bytes": total,
-
             "average_column_bytes": average,
-
             "column_memory": column_memory
-
         }
+
+        context.add_result(
+            self.name,
+            result
+        )
+
+        context.put_cache(
+            self.name,
+            result
+        )
+
+        return result

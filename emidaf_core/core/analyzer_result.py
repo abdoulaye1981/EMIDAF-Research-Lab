@@ -34,6 +34,7 @@ class AnalyzerResult(BaseResult):
         self._status = "SUCCESS"
 
         self._statistics: dict[str, Any] = {}
+        self._result: Any = None
 
     # =====================================================
     # PROPERTIES
@@ -95,6 +96,14 @@ class AnalyzerResult(BaseResult):
 
         return self._statistics.get(key, default)
 
+    @property
+    def result(self) -> Any:
+        return self._result
+
+    @result.setter
+    def result(self, value: Any) -> None:
+        self._result = value
+
     # =====================================================
     # FINALIZE
     # =====================================================
@@ -136,6 +145,7 @@ class AnalyzerResult(BaseResult):
                 "status": self.status,
 
                 "statistics": self.statistics,
+                "result": self.result,
 
             }
 

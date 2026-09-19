@@ -1,40 +1,28 @@
 """
-=========================================================
 EMIDAF Framework v1.0
 Database Manager
----------------------------------------------------------
-Gestionnaire central de la base de données.
-Compatible SQLite / PostgreSQL / MySQL.
-=========================================================
 """
 
 from __future__ import annotations
 
 from contextlib import contextmanager
-from pathlib import Path
 from typing import Generator
 from typing import Optional
+from pathlib import Path
 
-from sqlalchemy import create_engine
 from sqlalchemy.orm import Session
 from sqlalchemy.orm import sessionmaker
 
 from database.base import Base
+from database.models.dataset_model import DatasetModel
+from database.models.project_model import ProjectModel
+from database.models.workspace_model import WorkspaceModel
 from database.providers.provider import DatabaseProvider
 
 
 class DatabaseManager:
     """
     Gestionnaire central de la base de données.
-
-    Responsabilités
-    ----------------
-    - Créer une base SQLite
-    - Initialiser SQLAlchemy
-    - Gérer les sessions
-    - Créer les tables
-    - Supprimer les tables
-    - Tester la connexion
     """
 
     def __init__(
@@ -59,28 +47,13 @@ class DatabaseManager:
         Initialise SQLAlchemy.
         """
 
-        self._engine = create_engine(
-
-            self._provider.connection_string,
-
-            future=True,
-
-            echo=False
-
-        )
+        self._engine = self._provider.create_engine()
 
         self._session_factory = sessionmaker(
-
             bind=self._engine,
-
             autoflush=False,
-
             autocommit=False,
-
-            expire_on_commit=False,
-
-            future=True
-
+            expire_on_commit=False
         )
 
     # =====================================================
@@ -91,9 +64,6 @@ class DatabaseManager:
         self,
         database_path: Optional[Path] = None
     ) -> None:
-        """
-        Crée une nouvelle base SQLite.
-        """
 
         if database_path is not None:
 
@@ -102,8 +72,8 @@ class DatabaseManager:
                 exist_ok=True
             )
 
-            self._provider.set_database(
-                database_path
+            self._provider.set_url(
+                f"sqlite:///{database_path}"
             )
 
             self.initialize()
@@ -117,27 +87,18 @@ class DatabaseManager:
     # =====================================================
 
     def create_tables(self) -> None:
-        """
-        Crée toutes les tables.
-        """
 
         Base.metadata.create_all(
             self._engine
         )
 
     def drop_tables(self) -> None:
-        """
-        Supprime toutes les tables.
-        """
 
         Base.metadata.drop_all(
             self._engine
         )
 
     def recreate_database(self) -> None:
-        """
-        Reconstruit complètement la base.
-        """
 
         self.drop_tables()
 
@@ -179,9 +140,6 @@ class DatabaseManager:
     # =====================================================
 
     def test_connection(self) -> bool:
-        """
-        Teste la connexion.
-        """
 
         try:
 
@@ -201,9 +159,6 @@ class DatabaseManager:
         self,
         provider: DatabaseProvider
     ) -> None:
-        """
-        Change complètement de base.
-        """
 
         self.close()
 
@@ -216,9 +171,6 @@ class DatabaseManager:
     # =====================================================
 
     def close(self) -> None:
-        """
-        Ferme toutes les connexions.
-        """
 
         if self._engine is not None:
 

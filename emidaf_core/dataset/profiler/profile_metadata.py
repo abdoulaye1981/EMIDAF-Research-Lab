@@ -1,9 +1,14 @@
 """
 =========================================================
+
 EMIDAF Framework v1.0
+
 Profile Metadata
+
 ---------------------------------------------------------
+
 Métadonnées du profil de dataset.
+
 =========================================================
 """
 
@@ -28,13 +33,9 @@ class ProfileMetadata:
     # ======================================================
 
     profile_id: Optional[int] = None
-
     dataset_id: Optional[int] = None
-
     project_id: Optional[int] = None
-
     workspace_id: Optional[int] = None
-
     uuid: str = ""
 
     # ======================================================
@@ -42,23 +43,14 @@ class ProfileMetadata:
     # ======================================================
 
     profile_name: str = ""
-
     dataset_name: str = ""
-
     description: str = ""
-
     author: str = ""
-
     framework: str = "EMIDAF"
-
     framework_version: str = "1.0.0"
-
     profiler_version: str = "1.0.0"
-
     python_version: str = ""
-
     pandas_version: str = ""
-
     numpy_version: str = ""
 
     # ======================================================
@@ -68,13 +60,10 @@ class ProfileMetadata:
     created_at: datetime = field(
         default_factory=datetime.now
     )
-
     updated_at: datetime = field(
         default_factory=datetime.now
     )
-
     execution_started_at: Optional[datetime] = None
-
     execution_finished_at: Optional[datetime] = None
 
     # ======================================================
@@ -82,13 +71,9 @@ class ProfileMetadata:
     # ======================================================
 
     execution_time: float = 0.0
-
     analyzed_rows: int = 0
-
     analyzed_columns: int = 0
-
     analyzed_cells: int = 0
-
     memory_usage: int = 0
 
     # ======================================================
@@ -96,13 +81,9 @@ class ProfileMetadata:
     # ======================================================
 
     sample_used: bool = False
-
     sample_size: int = 0
-
     random_state: int = 42
-
     correlation_threshold: float = 0.80
-
     outlier_threshold: float = 1.50
 
     # ======================================================
@@ -110,11 +91,8 @@ class ProfileMetadata:
     # ======================================================
 
     status: str = "READY"
-
     success: bool = True
-
     warning_count: int = 0
-
     error_count: int = 0
 
     # ======================================================
@@ -122,11 +100,8 @@ class ProfileMetadata:
     # ======================================================
 
     exported: bool = False
-
     exported_at: Optional[datetime] = None
-
     export_format: str = ""
-
     report_path: str = ""
 
     # ======================================================
@@ -170,7 +145,6 @@ class ProfileMetadata:
         self.execution_finished_at = datetime.now()
 
         if self.execution_started_at is not None:
-
             delta = (
                 self.execution_finished_at
                 - self.execution_started_at
@@ -184,17 +158,22 @@ class ProfileMetadata:
     def to_dict(self) -> dict:
         """
         Conversion vers dictionnaire.
+
+        Les objets datetime sont convertis en chaînes
+        ISO 8601 afin de permettre la sérialisation JSON.
         """
+        result = {}
 
-        return {
+        for key in self.__dataclass_fields__:
+            value = getattr(self, key)
 
-            key: getattr(self, key)
+            if isinstance(value, datetime):
+                value = value.isoformat()
 
-            for key in self.__dataclass_fields__
+            result[key] = value
 
-        }
+        return result
 
     @classmethod
     def from_dict(cls, values: dict):
-
         return cls(**values)

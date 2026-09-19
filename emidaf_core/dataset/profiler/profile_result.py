@@ -85,14 +85,28 @@ class ProfileResult:
         default_factory=dict
     )
 
-    # =====================================================
-    # Cardinalité
-    # =====================================================
+   # =====================================================
+   # Cardinalité
+   # =====================================================
 
     cardinality: dict[str, Any] = field(
         default_factory=dict
     )
 
+   # =====================================================
+   # Unicité
+   # =====================================================
+
+    uniqueness: dict[str, Any] = field(
+        default_factory=dict
+    )
+
+   # =====================================================
+   # Cohérence
+   # =====================================================
+
+    consistency: dict[str, Any] = field(
+        default_factory=dict)
     # =====================================================
     # Variables numériques
     # =====================================================
@@ -424,6 +438,8 @@ class ProfileResult:
             "duplicates": self.duplicates,
 
             "cardinality": self.cardinality,
+            "uniqueness": self.uniqueness,
+            "consistency": self.consistency,
 
             "numerical": self.numerical,
 

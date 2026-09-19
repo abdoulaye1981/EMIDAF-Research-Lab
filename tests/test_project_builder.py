@@ -6,30 +6,19 @@ from emidaf_core.entities.project import Project
 from emidaf_core.managers.workspace_manager import WorkspaceManager
 
 
-def main():
-
-    print()
-    print("=" * 60)
-    print("TEST PROJECT BUILDER")
-    print("=" * 60)
-    print()
+def create_builder():
 
     workspace_manager = WorkspaceManager()
 
     builder = ProjectBuilder(workspace_manager)
 
     project = Project(
-
         name="TEST_PROJECT",
-
         description="Projet de test",
-
         author="EMIDAF",
-
         workspace=str(
             workspace_manager.get_projects()
         )
-
     )
 
     project_path = workspace_manager.get_project_path(
@@ -37,80 +26,102 @@ def main():
     )
 
     if project_path.exists():
-
         shutil.rmtree(project_path)
 
-    builder.build(project)
+    return builder, project, project_path
 
-    print("Projet créé :", project_path.exists())
 
-    print()
+def test_builder_creation():
 
-    print("Structure créée")
+    builder, _, _ = create_builder()
 
-    print("----------------")
+    assert builder is not None
 
-    folders = [
 
-        "config",
+def test_build_project():
 
-        "data",
+    builder, project, project_path = create_builder()
 
-        "datasets",
+    result = builder.build(project)
 
-        "inspection",
-
-        "eidpp",
-
-        "elae",
-
-        "ekde",
-
-        "eaie",
-
-        "exaie",
-
-        "edse",
-
-        "models",
-
-        "reports",
-
-        "figures",
-
-        "logs",
-
-        "metadata",
-
-        "notebooks",
-
-        "scripts"
-
-    ]
-
-    for folder in folders:
-
-        exists = (project_path / folder).exists()
-
-        print(f"{folder:<20} : {'OK' if exists else 'ERREUR'}")
-
-    print()
-
-    print("README.md :", (project_path / "README.md").exists())
-
-    print("config.json :", (project_path / "config.json").exists())
+    assert result == project_path
+    assert project_path.exists()
+    assert project_path.is_dir()
 
     shutil.rmtree(project_path)
 
-    print()
 
-    print("Projet supprimé.")
+def test_project_structure():
 
-    print()
+    builder, project, project_path = create_builder()
 
-    print("ProjectBuilder OK")
+    builder.build(project)
+
+    folders = [
+        "config",
+        "data",
+        "data/raw",
+        "data/processed",
+        "data/external",
+        "data/exports",
+        "datasets",
+        "inspection",
+        "eidpp",
+        "elae",
+        "ekde",
+        "eaie",
+        "exaie",
+        "edse",
+        "models",
+        "reports",
+        "reports/pdf",
+        "reports/html",
+        "reports/docx",
+        "figures",
+        "logs",
+        "metadata",
+        "notebooks",
+        "scripts",
+        "exports",
+        "templates",
+    ]
+
+    for folder in folders:
+        assert (project_path / folder).exists()
+        assert (project_path / folder).is_dir()
+
+    shutil.rmtree(project_path)
 
 
-if __name__ == "__main__":
+def test_readme_created():
 
-    main()
+    builder, project, project_path = create_builder()
+
+    builder.build(project)
+
+    readme = project_path / "README.md"
+
+    assert readme.exists()
+    assert readme.is_file()
+
+    content = readme.read_text(encoding="utf-8")
+
+    assert project.name in content
+    assert project.author in content
+    assert project.description in content
+
+    shutil.rmtree(project_path)
+
+
+def test_config_created():
+
+    builder, project, project_path = create_builder()
+
+    builder.build(project)
+
+    config = project_path / "config.json"
+
+    assert config.exists()
+    assert config.is_file()
+
+    shutil.rmtree(project_path)

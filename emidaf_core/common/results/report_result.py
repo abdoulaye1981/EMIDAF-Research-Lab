@@ -183,7 +183,14 @@ class ReportResult(BaseResult):
     # Résumé
     # =====================================================
 
-    def summary(self):
+    def summary_info(self):
+
+        """
+        Retourne une synthèse structurée du rapport.
+
+        Le nom summary_info évite toute collision avec
+        l'attribut textuel summary du ReportResult.
+        """
 
         return {
 

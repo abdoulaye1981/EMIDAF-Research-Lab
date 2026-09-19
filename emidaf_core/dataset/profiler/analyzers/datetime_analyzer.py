@@ -1,93 +1,107 @@
 """
 =========================================================
 EMIDAF Framework v1.0
+
 Datetime Analyzer
+
 =========================================================
 """
 
 from __future__ import annotations
 
-import pandas as pd
+from typing import Any
 
-from .base_analyzer import BaseAnalyzer
+from emidaf_core.core.base_analyzer import BaseAnalyzer
+
+from ..profile_context import ProfileContext
 
 
 class DatetimeAnalyzer(BaseAnalyzer):
 
     """
-    Analyse des variables temporelles.
+    Analyse des variables de type date/heure.
     """
+
+    name = "DatetimeAnalyzer"
+
+    version = "1.0.0"
+
+    description = "Analyse des variables temporelles"
 
     def analyze(
         self,
-        dataframe: pd.DataFrame
-    ) -> dict:
+        context: ProfileContext
+    ) -> dict[str, Any]:
 
-        dates = dataframe.select_dtypes(
+        dataframe = context.dataframe
 
-            include="datetime"
+        datatype_result = context.results.get(
+             "DatatypeAnalyzer"
+        )
 
+        if datatype_result is None:
+            return {
+                "count": 0,
+                "columns": {}
+            }
+
+        datatype = datatype_result.result
+
+        datetime_columns = datatype.get(
+            "datetime",
+            []
         )
 
         results = {}
 
-        for column in dates.columns:
+        for column in datetime_columns:
 
-            s = dates[column].dropna()
-
-            if s.empty:
-                continue
+            series = dataframe[column]
 
             results[column] = {
 
-                "minimum":
+                "dtype": str(
+                    series.dtype
+                ),
 
-                    s.min(),
+                "count": int(
+                    series.count()
+                ),
 
-                "maximum":
+                "missing": int(
+                    series.isna().sum()
+                ),
 
-                    s.max(),
+                "unique": int(
+                    series.nunique()
+                ),
 
-                "duration_days":
+                "min": (
+                    str(series.min())
+                    if series.notna().any()
+                    else None
+                ),
 
-                    int(
-
-                        (
-
-                            s.max()
-
-                            -
-
-                            s.min()
-
-                        ).days
-
-                    ),
-
-                "years":
-
-                    sorted(
-
-                        s.dt.year.unique()
-
-                    ).tolist(),
-
-                "months":
-
-                    sorted(
-
-                        s.dt.month.unique()
-
-                    ).tolist(),
-
-                "weekdays":
-
-                    sorted(
-
-                        s.dt.dayofweek.unique()
-
-                    ).tolist()
-
+                "max": (
+                    str(series.max())
+                    if series.notna().any()
+                    else None
+                )
             }
 
-        return results
+        result = {
+            "count": len(results),
+            "columns": results
+        }
+
+        context.add_result(
+            self.name,
+            result
+        )
+
+        context.put_cache(
+            self.name,
+            result
+        )
+
+        return result

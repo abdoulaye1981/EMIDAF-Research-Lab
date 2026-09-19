@@ -13,8 +13,7 @@ import json
 from pathlib import Path
 from typing import Optional
 
-from emidaf_core.database.database_manager import DatabaseManager
-
+from database.database_manager import DatabaseManager
 from .profile_result import ProfileResult
 
 

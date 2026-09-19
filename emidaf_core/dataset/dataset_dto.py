@@ -13,14 +13,12 @@ from emidaf_core.dataset.dataset_detection_result import (
     DatasetDetectionResult
 )
 
-from emidaf_core.dataset.dataset_metadata import (
+from emidaf_core.dataset.profiler.dataset_metadata import (
     DatasetMetadata
 )
-
-from emidaf_core.dataset.dataset_profile import (
+from emidaf_core.entities.dataset_profile import (
     DatasetProfile
 )
-
 
 @dataclass(slots=True)
 class DatasetDTO:

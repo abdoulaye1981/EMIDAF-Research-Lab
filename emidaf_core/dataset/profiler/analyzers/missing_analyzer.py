@@ -13,11 +13,13 @@ from collections import Counter
 from typing import Any
 
 from emidaf_core.core.base_analyzer import BaseAnalyzer
+from emidaf_core.missing.mechanism.mechanism_analyzer import (
+    MechanismAnalyzer,
+)
 
 from ..profile_context import ProfileContext
-from ...common.enums.data_quality import DataQuality
-from ...common.enums.imputation_strategy import ImputationStrategy
-
+from ....common.enums.data_quality import DataQuality
+from ....common.enums.imputation_strategy import ImputationStrategy
 
 class MissingAnalyzer(BaseAnalyzer):
     """
@@ -214,11 +216,9 @@ class MissingAnalyzer(BaseAnalyzer):
         # ---------------------------------------------
 
         self._prepare_missing_mechanism(
-
-            report=report
-
+            report=report,
+            dataframe=df,
         )
-
         # ---------------------------------------------
 
         self._build_recommendations(
@@ -464,11 +464,6 @@ class MissingAnalyzer(BaseAnalyzer):
 
         report["row_statistics"] = row_statistics
 
-        report["summary"]["completeness_score"] = round(
-            row_statistics["complete_percentage"],
-            2
-        )
-
     # =====================================================
     # MISSING PATTERNS
     # =====================================================
@@ -578,7 +573,14 @@ class MissingAnalyzer(BaseAnalyzer):
             )
         )
 
-        report["quality_score"] = round(score, 2)
+        score = round(
+            score,
+            2
+        )
+
+        report["quality_score"] = score
+
+        report["summary"]["completeness_score"] = score
 
         if global_rate == 0:
 
@@ -734,53 +736,14 @@ class MissingAnalyzer(BaseAnalyzer):
     def _prepare_missing_mechanism(
         self,
         report: dict[str, Any],
+        dataframe,
     ) -> None:
-        """
-        Prépare les informations nécessaires
-        aux analyses MCAR / MAR / MNAR.
-        """
 
-        report["missing_mechanism"] = {
+       analyzer = MechanismAnalyzer()
 
-            "status": "Not evaluated",
-
-            "candidate": "Unknown",
-
-            "tests": {
-
-                "mcar": {
-
-                    "name": "Little MCAR Test",
-
-                    "available": True,
-
-                    "executed": False,
-
-                },
-
-                "mar": {
-
-                    "name": "MAR Statistical Analysis",
-
-                    "available": True,
-
-                    "executed": False,
-
-                },
-
-                "mnar": {
-
-                    "name": "MNAR Expert Assessment",
-
-                    "available": True,
-
-                    "executed": False,
-
-                },
-
-            },
-
-        }
+       report["missing_mechanism"] = analyzer.analyze(
+          dataframe=dataframe
+       )
 
     # =====================================================
     # RECOMMENDATIONS

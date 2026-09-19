@@ -72,7 +72,6 @@ class BaseAnalyzer(ABC):
 
         result = AnalyzerResult(
 
-            name=self.name,
 
             analyzer=self.name,
 
@@ -103,18 +102,16 @@ class BaseAnalyzer(ABC):
         finally:
 
             result.execution_time = round(
-
                 perf_counter() - start,
-
                 4
-
             )
 
-            result.success = (
-
-                result.error_count == 0
-
+            self.finalize(
+                context,
+                result
             )
+
+            result.finalize()
 
             self.finalize(
 

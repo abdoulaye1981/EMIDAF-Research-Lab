@@ -13,7 +13,7 @@ Version : 1.0.0
 from __future__ import annotations
 
 from abc import ABC
-from datetime import datetime
+from datetime import datetime, timezone
 from uuid import uuid4
 from typing import Any
 
@@ -38,7 +38,7 @@ class BaseObject(ABC):
 
         self._id = str(uuid4())
 
-        self._created_at = datetime.utcnow()
+        self._created_at = datetime.now(timezone.utc)
 
         self._metadata: dict[str, Any] = {}
 

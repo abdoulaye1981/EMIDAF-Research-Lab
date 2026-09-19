@@ -1,94 +1,154 @@
 """
 =========================================================
 EMIDAF Framework v1.0
+
 Normality Analyzer
 =========================================================
 """
 
 from __future__ import annotations
 
+from typing import Any
+
 import numpy as np
 import pandas as pd
-
 from scipy.stats import shapiro
-from scipy.stats import normaltest
-from scipy.stats import anderson
 
-from .base_analyzer import BaseAnalyzer
+from emidaf_core.core.base_analyzer import BaseAnalyzer
+from ..profile_context import ProfileContext
 
 
 class NormalityAnalyzer(BaseAnalyzer):
     """
-    Tests de normalité.
+    Analyse de la normalité des variables numériques.
     """
 
-    MAX_SHAPIRO = 5000
+    name = "NormalityAnalyzer"
+    version = "1.0.0"
+    description = "Analyse de la normalité des variables numériques"
 
     def analyze(
         self,
-        dataframe: pd.DataFrame
-    ) -> dict:
+        context: ProfileContext
+    ) -> dict[str, Any]:
 
-        numeric = dataframe.select_dtypes(
-            include=np.number
+        dataframe = context.dataframe
+
+        datatype_result = context.results.get(
+           "DatatypeAnalyzer"
         )
 
-        report = {}
-
-        for column in numeric.columns:
-
-            values = numeric[column].dropna()
-
-            if len(values) < 8:
-                continue
-
-            sample = values
-
-            if len(values) > self.MAX_SHAPIRO:
-
-                sample = values.sample(
-                    self.MAX_SHAPIRO,
-                    random_state=42
-                )
-
-            shapiro_stat, shapiro_p = shapiro(sample)
-
-            dagostino_stat, dagostino_p = normaltest(values)
-
-            anderson_result = anderson(values)
-
-            report[column] = {
-
-                "shapiro": {
-
-                    "statistic": float(shapiro_stat),
-
-                    "pvalue": float(shapiro_p),
-
-                    "normal": bool(shapiro_p > 0.05)
-
-                },
-
-                "dagostino": {
-
-                    "statistic": float(dagostino_stat),
-
-                    "pvalue": float(dagostino_p),
-
-                    "normal": bool(dagostino_p > 0.05)
-
-                },
-
-                "anderson": {
-
-                    "statistic": float(anderson_result.statistic),
-
-                    "critical_values": anderson_result.critical_values.tolist(),
-
-                    "significance": anderson_result.significance_level.tolist()
-
-                }
-
+        if datatype_result is None:
+            result = {
+                "count": 0,
+                "columns": {},
+                "test": "Shapiro-Wilk",
+                "alpha": 0.05
             }
 
-        return report
+            context.add_result(self.name, result)
+            context.put_cache(self.name, result)
+
+            return result
+        datatype = datatype_result.result
+
+        numeric_columns = datatype.get(
+              "numeric",
+              []
+        )
+
+        results = {}
+
+        for column in numeric_columns:
+            series = dataframe[column].dropna()
+
+            series = series[
+               np.isfinite(series)
+            ]
+
+            n = len(series)
+
+            if n < 3:
+
+                results[column] = {
+                    "n": int(n),
+                    "statistic": None,
+                    "p_value": None,
+                    "normal": None,
+                    "interpretation": (
+                        "Test impossible : "
+                        "au moins 3 observations sont nécessaires."
+                    )
+                }
+
+                continue
+
+
+            if series.nunique() <= 1:
+
+                results[column] = {
+                     "n": int(n),
+                     "statistic": None,
+                     "p_value": None,
+                     "normal": None,
+                     "interpretation": (
+                          "Test impossible : "
+                          "la variable est constante."
+                     )
+                }
+                continue
+
+            try:
+
+                statistic, p_value = shapiro(
+                    series
+                )
+
+                statistic = float(statistic)
+                p_value = float(p_value)
+
+                normal = p_value > 0.05
+
+                if normal:
+                    interpretation = (
+                        "La normalité n'est pas rejetée "
+                        "(p > 0.05)."
+                    )
+                else:
+                    interpretation = (
+                        "La normalité est rejetée "
+                        "(p ≤ 0.05)."
+                    )
+
+                results[column] = {
+                    "n": int(n),
+                    "statistic": statistic,
+                    "p_value": p_value,
+                    "normal": normal,
+                    "interpretation": interpretation
+                }
+
+            except Exception as error:
+
+                results[column] = {
+                    "n": int(n),
+                    "statistic": None,
+                    "p_value": None,
+                    "normal": None,
+                    "interpretation": (
+                        "Erreur lors du test de normalité."
+                    ),
+                    "error": str(error)
+                }
+
+        result = {
+            "count": len(results),
+            "columns": results,
+            "test": "Shapiro-Wilk",
+            "alpha": 0.05
+        }
+
+        context.add_result(self.name, result)
+        context.put_cache(self.name, result)
+
+        return result

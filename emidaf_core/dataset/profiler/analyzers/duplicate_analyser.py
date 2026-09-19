@@ -14,8 +14,7 @@ from typing import Any
 from emidaf_core.core.base_analyzer import BaseAnalyzer
 
 from ..profile_context import ProfileContext
-from ...common.enums.data_quality import DataQuality
-
+from ....common.enums.data_quality import DataQuality
 
 class DuplicateAnalyzer(BaseAnalyzer):
     """

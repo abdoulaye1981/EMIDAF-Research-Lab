@@ -9,10 +9,9 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 
-from emidaf_core.dataset.dataset_profile import (
+from emidaf_core.entities.dataset_profile import (
     DatasetProfile
 )
-
 
 @dataclass(slots=True)
 class DatasetProfileDTO:

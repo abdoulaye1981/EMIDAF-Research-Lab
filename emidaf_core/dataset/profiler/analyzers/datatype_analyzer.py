@@ -2,20 +2,21 @@
 =========================================================
 EMIDAF Framework v1.0
 Datatype Analyzer
+---------------------------------------------------------
+Analyse et classification des types de variables.
 =========================================================
 """
 
 from __future__ import annotations
 
+from typing import Any
+
+import pandas as pd
+
 from emidaf_core.core.base_analyzer import BaseAnalyzer
 
 from ..profile_context import ProfileContext
-
-
 class DatatypeAnalyzer(BaseAnalyzer):
-    """
-    Analyse les types de données du DataFrame.
-    """
 
     name = "DatatypeAnalyzer"
 
@@ -23,86 +24,126 @@ class DatatypeAnalyzer(BaseAnalyzer):
 
     def analyze(
         self,
-        context: ProfileContext,
-    ) -> dict:
-        """
-        Analyse les types de données.
-        """
+        context: ProfileContext
+    ) -> dict[str, Any]:
 
         dataframe = context.dataframe
 
-        numeric = dataframe.select_dtypes(
-            include="number"
-        ).columns.tolist()
+        numeric = []
+        categorical = []
+        boolean = []
+        datetime_columns = []
+        text = []
+        unknown = []
 
-        categorical = dataframe.select_dtypes(
-            include="category"
-        ).columns.tolist()
+        dtypes = {}
 
-        boolean = dataframe.select_dtypes(
-            include="bool"
-        ).columns.tolist()
+        for column in dataframe.columns:
 
-        datetime = dataframe.select_dtypes(
-            include=["datetime", "datetimetz"]
-        ).columns.tolist()
+            series = dataframe[column]
 
-        text = dataframe.select_dtypes(
-            include=["object", "string"]
-        ).columns.tolist()
+            dtype_name = str(series.dtype)
 
-        unknown = [
+            dtypes[column] = dtype_name
 
-            column
+            # ==========================================
+            # BOOLEAN
+            # ==========================================
 
-            for column in dataframe.columns
+            if pd.api.types.is_bool_dtype(series):
+                boolean.append(column)
+                continue
 
-            if column not in (
+            # ==========================================
+            # NUMERIQUE
+            # ==========================================
 
-                numeric +
+            if pd.api.types.is_numeric_dtype(series):
+                numeric.append(column)
+                continue
 
-                categorical +
+            # ==========================================
+            # DATETIME
+            # ==========================================
 
-                boolean +
+            if pd.api.types.is_datetime64_any_dtype(series):
+                datetime_columns.append(column)
+                continue
 
-                datetime +
+            # ==========================================
+            # CATEGORIE EXPLICITE
+            # ==========================================
 
-                text
+            if isinstance(
+                series.dtype,
+                pd.CategoricalDtype
+            ):
+                categorical.append(column)
+                continue
 
-            )
+            # ==========================================
+            # OBJECT / STRING
+            # ==========================================
 
-        ]
+            if (
+                pd.api.types.is_object_dtype(series)
+                or
+                pd.api.types.is_string_dtype(series)
+            ):
+                non_missing = series.dropna()
 
-        return {
+                if len(non_missing) == 0:
+                    unknown.append(column)
+                    continue
 
-            "numeric": numeric,
+                # Les variables object/string sont considérées
+                # comme textuelles à ce niveau.
+                text.append(column)
 
-            "categorical": categorical,
+                continue
 
-            "boolean": boolean,
+            # ==========================================
+            # TYPE INCONNU
+            # ==========================================
 
-            "datetime": datetime,
+            unknown.append(column)
 
-            "text": text,
+        # ==========================================
+        # COMPTAGES
+        # ==========================================
 
-            "unknown": unknown,
-
-            "dtypes": dataframe.dtypes.astype(str).to_dict(),
-
-            "count": {
-
-                "numeric": len(numeric),
-
-                "categorical": len(categorical),
-
-                "boolean": len(boolean),
-
-                "datetime": len(datetime),
-
-                "text": len(text),
-
-                "unknown": len(unknown)
-
-            }
-
+        count = {
+            "numeric": len(numeric),
+            "categorical": len(categorical),
+            "boolean": len(boolean),
+            "datetime": len(datetime_columns),
+            "text": len(text),
+            "unknown": len(unknown)
         }
+
+        # ==========================================
+        # RESULTAT
+        # ==========================================
+
+        result = {
+            "numeric": numeric,
+            "categorical": categorical,
+            "boolean": boolean,
+            "datetime": datetime_columns,
+            "text": text,
+            "unknown": unknown,
+            "dtypes": dtypes,
+            "count": count
+        }
+
+        context.add_result(
+            self.name,
+            result
+        )
+
+        context.put_cache(
+            self.name,
+            result
+        )
+
+        return result

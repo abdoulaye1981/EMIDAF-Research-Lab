@@ -92,9 +92,24 @@ class OutlierResult(StatisticResult):
     labels: list[int] = field(
         default_factory=list
     )
+    # =====================================================
+
+    # Métadonnées scientifiques de détection
 
     # =====================================================
+
+    score_type: str = ""
+
+    score_direction: str = "none"
+
+    method_family: str = ""
+
+    scaling_sensitive: bool = False
+
+    # =====================================================
+
     # Paramètres
+
     # =====================================================
 
     parameters: dict = field(

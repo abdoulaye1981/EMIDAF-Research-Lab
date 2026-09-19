@@ -17,8 +17,7 @@ import pandas as pd
 from emidaf_core.core.base_analyzer import BaseAnalyzer
 
 from ..profile_context import ProfileContext
-from ...common.enums.data_quality import DataQuality
-
+from ....common.enums.data_quality import DataQuality
 
 class NumericalAnalyzer(BaseAnalyzer):
     """
@@ -51,9 +50,28 @@ class NumericalAnalyzer(BaseAnalyzer):
 
         dataframe = context.dataframe
 
-        numeric_columns = dataframe.select_dtypes(
-            include="number"
-        ).columns.tolist()
+        datatype_result = context.results.get("DatatypeAnalyzer")
+
+        if datatype_result is None:
+            result = {
+                "variables": {},
+                "summary": {},
+                "quality_score": 100.0,
+                "warnings": [],
+                "recommendations": []
+            }
+
+            context.add_result(self.name, result)
+            context.put_cache(self.name, result)
+
+            return result
+        datatype = datatype_result.result
+
+        numeric_columns = datatype.get(
+             "numeric",
+             []
+        )
+
 
         report = {
 
@@ -125,276 +143,70 @@ class NumericalAnalyzer(BaseAnalyzer):
         Analyse complète d'une variable numérique.
         """
 
+
         values = series.dropna()
 
+        finite_values = values[
+             np.isfinite(values)
+        ]
+
+        infinite_count = int(
+              np.isinf(values).sum()
+        )
+
         report = {
-
-            "name": series.name,
-
-            "dtype": str(series.dtype),
-
-            "count": int(values.count()),
-
-            "missing": int(series.isna().sum()),
-
-            "unique": int(values.nunique()),
-
-            "zeros": int((values == 0).sum()),
-
-            "negative": int((values < 0).sum()),
-
-            "positive": int((values > 0).sum()),
-
-            "infinite": int(
-                np.isinf(values).sum()
-            ),
+              "name": series.name,
+              "dtype": str(series.dtype),
+              "count": int(values.count()),
+              "finite_count": int(finite_values.count()),
+              "missing": int(series.isna().sum()),
+              "unique": int(finite_values.nunique()),
+              "zeros": int((finite_values == 0).sum()),
+              "negative": int((finite_values < 0).sum()),
+              "positive": int((finite_values > 0).sum()),
+              "infinite": int(np.isinf(values).sum()),
 
         }
 
         report.update(
-
-            self._descriptive_statistics(
-
-                values
-
-            )
-
+               self._descriptive_statistics(
+                    finite_values
+               )
         )
 
         report.update(
-
-            self._dispersion_statistics(
-
-                values
-
-            )
-
+               self._dispersion_statistics(
+                    finite_values
+               )
         )
 
         report.update(
-
-            self._quantile_statistics(
-
-                values
-
-            )
-
+               self._quantile_statistics(
+                    finite_values
+               )
         )
 
         report.update(
-
-            self._distribution_statistics(
-
-                values
-
-            )
-
+               self._distribution_statistics(
+                    finite_values
+               )
         )
 
         report.update(
-
-            self._shape_statistics(
-
-                values
-
-            )
-
+               self._shape_statistics(
+                    finite_values
+               )
         )
 
         report.update(
-
-            self._value_statistics(
-
-                values
-
-            )
-
+               self._value_statistics(
+                    values,
+                    finite_values
+               )
         )
 
         return report
 
-        # =====================================================
-    # DESCRIPTIVE STATISTICS
-    # =====================================================
-
-    def _descriptive_statistics(
-        self,
-        values: pd.Series,
-    ) -> dict[str, Any]:
-        """
-        Statistiques descriptives classiques.
-        """
-
-        if values.empty:
-
-            return {
-
-                "sum": 0.0,
-
-                "mean": np.nan,
-
-                "median": np.nan,
-
-                "mode": np.nan,
-
-                "min": np.nan,
-
-                "max": np.nan,
-
-                "range": np.nan,
-
-            }
-
-        mode = values.mode(dropna=True)
-
-        return {
-
-            "sum": float(values.sum()),
-
-            "mean": float(values.mean()),
-
-            "median": float(values.median()),
-
-            "mode": (
-
-                float(mode.iloc[0])
-
-                if not mode.empty
-
-                else np.nan
-
-            ),
-
-            "min": float(values.min()),
-
-            "max": float(values.max()),
-
-            "range": float(
-
-                values.max() -
-
-                values.min()
-
-            ),
-
-        }
-
-    # =====================================================
-    # DISPERSION
-    # =====================================================
-
-    def _dispersion_statistics(
-        self,
-        values: pd.Series,
-    ) -> dict[str, Any]:
-        """
-        Mesures de dispersion.
-        """
-
-        if values.empty:
-
-            return {
-
-                "variance": np.nan,
-
-                "std": np.nan,
-
-                "iqr": np.nan,
-
-                "mad": np.nan,
-
-                "cv": np.nan,
-
-            }
-
-        variance = float(
-
-            values.var()
-
-        )
-
-        std = float(
-
-            values.std()
-
-        )
-
-        q1 = float(
-
-            values.quantile(
-
-                0.25
-
-            )
-
-        )
-
-        q3 = float(
-
-            values.quantile(
-
-                0.75
-
-            )
-
-        )
-
-        iqr = q3 - q1
-
-        median = float(
-
-            values.median()
-
-        )
-
-        mad = float(
-
-            np.median(
-
-                np.abs(
-
-                    values - median
-
-                )
-
-            )
-
-        )
-
-        mean = float(
-
-            values.mean()
-
-        )
-
-        if mean == 0:
-
-            cv = np.nan
-
-        else:
-
-            cv = (
-
-                std /
-
-                abs(mean)
-
-            ) * 100
-
-        return {
-
-            "variance": variance,
-
-            "std": std,
-
-            "iqr": iqr,
-
-            "mad": mad,
-
-            "cv": cv,
-
-        }
-    
         # =====================================================
     # DESCRIPTIVE STATISTICS
     # =====================================================
@@ -834,109 +646,92 @@ class NumericalAnalyzer(BaseAnalyzer):
     # =====================================================
 
     def _value_statistics(
-        self,
-        values: pd.Series,
-    ) -> dict[str, Any]:
-        """
-        Analyse les caractéristiques des valeurs.
-        """
+            self,
+            values: pd.Series,
+            finite_values: pd.Series,
+         ) -> dict[str, Any]:
+            """
+            Analyse les caractéristiques des valeurs.
+            """
 
-        if values.empty:
+            if values.empty:
+                return {
+                    "positive": 0,
+                    "negative": 0,
+                    "zeros": 0,
+                    "positive_rate": 0.0,
+                    "negative_rate": 0.0,
+                    "zero_rate": 0.0,
+                    "finite": 0,
+                    "infinite": 0,
+                    "finite_rate": 0.0,
+                    "infinite_rate": 0.0,
+                }
 
-            return {
+            total = len(values)
 
-                "positive": 0,
-
-                "negative": 0,
-
-                "zeros": 0,
-
-                "positive_rate": 0.0,
-
-                "negative_rate": 0.0,
-
-                "zero_rate": 0.0,
-
-                "finite": 0,
-
-                "infinite": 0,
-
-                "finite_rate": 0.0,
-
-                "infinite_rate": 0.0,
-
-            }
-
-        total = len(values)
-
-        positive = int((values > 0).sum())
-
-        negative = int((values < 0).sum())
-
-        zeros = int((values == 0).sum())
-
-        infinite = int(
-
-            np.isinf(values).sum()
-
-        )
-
-        finite = total - infinite
-
-        return {
-
-            "positive": positive,
-
-            "negative": negative,
-
-            "zeros": zeros,
-
-            "positive_rate": round(
-
-                100 * positive / total,
-
-                2
-
-            ),
-
-            "negative_rate": round(
-
-                100 * negative / total,
-
-                2
-
-            ),
-
-            "zero_rate": round(
-
-                100 * zeros / total,
-
-                2
-
-            ),
-
-            "finite": finite,
-
-            "infinite": infinite,
-
-            "finite_rate": round(
-
-                100 * finite / total,
-
-                2
-
-            ),
-
-            "infinite_rate": round(
-
-                100 * infinite / total,
-
-                2
-
+            positive = int(
+                (finite_values > 0).sum()
             )
 
-        }
+            negative = int(
+                (finite_values < 0).sum()
+            )
 
+            zeros = int(
+                (finite_values == 0).sum()
+            )
+
+            infinite = int(
+                np.isinf(values).sum()
+            )
+
+            finite = len(finite_values)
+
+            finite_total = len(finite_values)
+
+            if finite_total == 0:
+                positive_rate = 0.0
+                negative_rate = 0.0
+                zero_rate = 0.0
+            else:
+                positive_rate = (
+                    100 * positive / finite_total
+                )
+                negative_rate = (
+                    100 * negative / finite_total
+                )
+                zero_rate = (
+                    100 * zeros / finite_total
+                )
+
+            return {
+                "positive": positive,
+                "negative": negative,
+                "zeros": zeros,
+                "positive_rate": round(
+                    positive_rate,
+                    2
+                ),
+                "negative_rate": round(
+                   negative_rate,
+                   2
+                ),
+                "zero_rate": round(
+                   zero_rate,
+                   2
+                ),
+                "finite": finite,
+                "infinite": infinite,
+                "finite_rate": round(
+                    100 * finite / total,
+                    2
+                ),
+                "infinite_rate": round(
+                    100 * infinite / total,
+                    2
+                ),
+        }
         # =====================================================
     # SUMMARY
     # =====================================================
