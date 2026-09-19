@@ -1,12 +1,16 @@
 from dash import html
 from dash import dcc
+
 import dash_bootstrap_components as dbc
 
 from emidaf_core.bootstrap import Bootstrap
 
 from emidaf_studio.components.toolbar import Toolbar
 from emidaf_studio.components.cards import ProjectCard
-from emidaf_studio.pages.projects.modal import (project_modal,delete_project_modal)
+from emidaf_studio.pages.projects.modal import (
+    project_modal,
+    delete_project_modal
+)
 
 
 # ==========================================================
@@ -17,6 +21,7 @@ bootstrap = Bootstrap()
 bootstrap.initialize()
 
 project_controller = bootstrap.project_controller
+dataset_controller = bootstrap.dataset_controller
 
 
 # ==========================================================
@@ -27,17 +32,11 @@ projects = project_controller.get_all()
 
 
 # ==========================================================
-# Layout de la page
-# ==========================================================
-
-# ==========================================================
-# Layout de la page
+# Page de gestion des projets
 # ==========================================================
 
 layout = dbc.Container(
-
     [
-
         html.H2(
             "Gestion des projets"
         ),
@@ -80,12 +79,10 @@ layout = dbc.Container(
         # ==================================================
 
         project_modal(),
+
         delete_project_modal()
-
     ],
-
     fluid=True
-
 )
 
 
@@ -95,23 +92,115 @@ layout = dbc.Container(
 
 def project_detail_layout(project_id):
 
+    # ------------------------------------------------------
+    # Récupération du projet
+    # ------------------------------------------------------
+
     project = project_controller.get(project_id)
 
     if project is None:
 
         return dbc.Container(
             [
-                html.H2("Projet introuvable"),
+                html.H2(
+                    "Projet introuvable"
+                ),
 
                 html.P(
-                    f"Aucun projet ne correspond à l'identifiant {project_id}."
+                    f"Aucun projet ne correspond "
+                    f"à l'identifiant {project_id}."
                 )
             ],
             fluid=True
         )
 
+    # ------------------------------------------------------
+    # Récupération des datasets du projet
+    # ------------------------------------------------------
+
+    datasets = [
+        dataset
+        for dataset in dataset_controller.get_all()
+        if dataset.project_id == project_id
+    ]
+
+    # ------------------------------------------------------
+    # Construction des cartes datasets
+    # ------------------------------------------------------
+
+    if datasets:
+
+        dataset_cards = [
+            dbc.Card(
+                [
+                    dbc.CardBody(
+                        [
+                            html.H5(
+                                f"📄 {dataset.name}"
+                            ),
+
+                            html.P(
+                                f"Fichier : "
+                                f"{dataset.original_filename}"
+                            ),
+
+                            html.P(
+                                f"Dimensions : "
+                                f"{dataset.rows} lignes × "
+                                f"{dataset.columns} colonnes"
+                            ),
+
+                            html.P(
+                                f"Extension : "
+                                f"{dataset.extension}"
+                            ),
+
+                            html.P(
+                                f"Taille : "
+                                f"{dataset.size / 1024:.2f} Ko"
+                            ),
+
+                            # ==================================
+                            # Action Inspection
+                            # ==================================
+
+                            dcc.Link(
+                                dbc.Button(
+                                    "🔎 Inspecter",
+                                    color="primary",
+                                    size="sm"
+                                ),
+                                href=(
+                                    f"/projects/"
+                                    f"{project_id}/datasets/"
+                                    f"{dataset.id}"
+                                )
+                            )
+                        ]
+                    )
+                ],
+                className="mb-3"
+            )
+            for dataset in datasets
+        ]
+
+    else:
+
+        dataset_cards = dbc.Alert(
+            "Aucun dataset n'est encore associé à ce projet.",
+            color="secondary"
+        )
+
+    # ======================================================
+    # Layout détaillé
+    # ======================================================
+
     return dbc.Container(
         [
+            # ------------------------------------------------
+            # Informations du projet
+            # ------------------------------------------------
+
             html.H2(
                 f"📁 {project.name}"
             ),
@@ -128,19 +217,44 @@ def project_detail_layout(project_id):
 
             html.Hr(),
 
-            html.H4("Espace de travail"),
+            # ------------------------------------------------
+            # Espace de travail
+            # ------------------------------------------------
+
+            html.H4(
+                "Espace de travail"
+            ),
 
             dbc.Row(
                 [
+                    # ========================================
+                    # Importation
+                    # ========================================
+
                     dbc.Col(
                         dbc.Card(
                             [
                                 dbc.CardBody(
                                     [
-                                        html.H5("📥 Importation"),
+                                        html.H5(
+                                            "📥 Importation"
+                                        ),
 
                                         html.P(
-                                            "Importer et gérer les datasets."
+                                            "Importer et gérer "
+                                            "les datasets."
+                                        ),
+
+                                        dcc.Link(
+                                            dbc.Button(
+                                                "Ouvrir",
+                                                color="primary",
+                                                size="sm"
+                                            ),
+                                            href=(
+                                                f"/projects/"
+                                                f"{project_id}/import"
+                                            )
                                         )
                                     ]
                                 )
@@ -149,15 +263,22 @@ def project_detail_layout(project_id):
                         width=4
                     ),
 
+                    # ========================================
+                    # Inspection
+                    # ========================================
+
                     dbc.Col(
                         dbc.Card(
                             [
                                 dbc.CardBody(
                                     [
-                                        html.H5("🔎 Inspection"),
+                                        html.H5(
+                                            "🔎 Inspection"
+                                        ),
 
                                         html.P(
-                                            "Explorer et inspecter les données."
+                                            "Explorer et inspecter "
+                                            "les données."
                                         )
                                     ]
                                 )
@@ -166,15 +287,22 @@ def project_detail_layout(project_id):
                         width=4
                     ),
 
+                    # ========================================
+                    # Analyses
+                    # ========================================
+
                     dbc.Col(
                         dbc.Card(
                             [
                                 dbc.CardBody(
                                     [
-                                        html.H5("📊 Analyses"),
+                                        html.H5(
+                                            "📊 Analyses"
+                                        ),
 
                                         html.P(
-                                            "Accéder aux modules d'analyse."
+                                            "Accéder aux modules "
+                                            "d'analyse."
                                         )
                                     ]
                                 )
@@ -185,6 +313,27 @@ def project_detail_layout(project_id):
                 ],
                 className="mb-4"
             ),
+
+            # ------------------------------------------------
+            # Datasets du projet
+            # ------------------------------------------------
+
+            html.Hr(),
+
+            html.H4(
+                "📊 Datasets du projet"
+            ),
+
+            html.Div(
+                dataset_cards,
+                className="mt-3"
+            ),
+
+            # ------------------------------------------------
+            # Information générale
+            # ------------------------------------------------
+
+            html.Hr(),
 
             dbc.Alert(
                 "Les modules seront activés progressivement.",
