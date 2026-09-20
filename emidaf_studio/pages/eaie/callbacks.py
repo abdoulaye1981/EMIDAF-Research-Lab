@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from io import StringIO
+import re
 
 import pandas as pd
 
@@ -16,6 +17,9 @@ from dash import (
 import dash_bootstrap_components as dbc
 
 from emidaf_core.eaie import EAIEEngine
+from emidaf_studio.services.model_registry import (
+    register_eaie_run,
+)
 
 
 def _df(data):
@@ -56,6 +60,7 @@ def _table(dataframe):
     State("eaie-test-size", "value"),
     State("eaie-cv", "value"),
     State("eaie-data", "data"),
+    State("url", "pathname"),
     prevent_initial_call=True,
 )
 def run_eaie(
@@ -65,6 +70,7 @@ def run_eaie(
     test_size,
     cv,
     data,
+    pathname,
 ):
 
     if not n_clicks:
@@ -118,6 +124,38 @@ def run_eaie(
         comparison = engine.compare()
 
         best = engine.best()
+
+        # --------------------------------------------------
+        # Transmission EAIE -> EXAIE
+        # --------------------------------------------------
+
+        route_match = re.fullmatch(
+            (
+                r"/projects/(\d+)/datasets/"
+                r"(\d+)/eaie/?"
+            ),
+            pathname or "",
+        )
+
+        if route_match is not None:
+
+            project_id = int(
+                route_match.group(1)
+            )
+
+            dataset_id = int(
+                route_match.group(2)
+            )
+
+
+
+            register_eaie_run(
+                project_id,
+                dataset_id,
+                engine.explainability_context(),
+            )
+
+
 
     except Exception as exc:
 

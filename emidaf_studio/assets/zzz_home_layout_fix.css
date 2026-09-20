@@ -1,0 +1,1067 @@
+/* =========================================================
+   EMIDAF HOME — FINAL LAYOUT OVERRIDE
+   ========================================================= */
+
+
+/* =========================================================
+   1. PARCOURS ANALYTIQUE HORIZONTAL
+   ========================================================= */
+
+.emidaf-home-v3 .v3-workflow-chain {
+    display: flex !important;
+    flex-direction: row !important;
+    align-items: stretch !important;
+    flex-wrap: nowrap !important;
+
+    width: 100% !important;
+
+    gap: 14px !important;
+
+    overflow-x: auto !important;
+    overflow-y: visible !important;
+
+    padding: 18px 4px 26px !important;
+
+    scroll-snap-type: x proximity;
+}
+
+
+.emidaf-home-v3 .v3-step-wrapper {
+    position: relative !important;
+
+    display: flex !important;
+    flex: 0 0 150px !important;
+
+    width: 150px !important;
+
+    margin: 0 !important;
+
+    scroll-snap-align: start;
+}
+
+
+.emidaf-home-v3 .v3-step-wrapper > a {
+    display: block !important;
+
+    width: 100% !important;
+
+    text-decoration: none !important;
+}
+
+
+.emidaf-home-v3 .v3-step-card {
+    position: relative !important;
+
+    display: flex !important;
+    flex-direction: column !important;
+    justify-content: flex-end !important;
+    align-items: flex-start !important;
+
+    width: 100% !important;
+    min-height: 164px !important;
+
+    padding: 18px !important;
+
+    border-radius: 20px !important;
+
+    background:
+        linear-gradient(
+            150deg,
+            rgba(255, 255, 255, 0.98),
+            rgba(235, 244, 247, 0.96)
+        ) !important;
+
+    border:
+        1px solid rgba(92, 130, 148, 0.20) !important;
+
+    box-shadow:
+        0 10px 26px
+        rgba(27, 53, 68, 0.08) !important;
+
+    text-decoration: none !important;
+
+    transition:
+        transform 180ms ease,
+        box-shadow 180ms ease,
+        border-color 180ms ease !important;
+}
+
+
+.emidaf-home-v3 .v3-step-card:hover {
+    transform: translateY(-6px) !important;
+
+    border-color:
+        rgba(32, 184, 154, 0.55) !important;
+
+    box-shadow:
+        0 17px 34px
+        rgba(27, 53, 68, 0.14) !important;
+}
+
+
+.emidaf-home-v3 .v3-step-number {
+    position: absolute !important;
+
+    top: 13px !important;
+    right: 14px !important;
+
+    color:
+        rgba(37, 65, 82, 0.18) !important;
+
+    font-size: 1.75rem !important;
+    font-weight: 800 !important;
+    line-height: 1 !important;
+}
+
+
+.emidaf-home-v3 .v3-step-icon {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+
+    width: 44px !important;
+    height: 44px !important;
+
+    margin-bottom: 24px !important;
+
+    border-radius: 14px !important;
+
+    background:
+        linear-gradient(
+            145deg,
+            rgba(32, 184, 154, 0.15),
+            rgba(42, 126, 172, 0.08)
+        ) !important;
+
+    color: #168f79 !important;
+
+    font-size: 1.1rem !important;
+}
+
+
+.emidaf-home-v3 .v3-step-title {
+    color: #29495d !important;
+
+    font-size: 0.84rem !important;
+    font-weight: 750 !important;
+
+    line-height: 1.25 !important;
+
+    text-decoration: none !important;
+}
+
+
+.emidaf-home-v3 .v3-step-subtitle {
+    margin-top: 5px !important;
+
+    color: #80909a !important;
+
+    font-size: 0.67rem !important;
+
+    text-decoration: none !important;
+}
+
+
+/* CONNECTEURS */
+
+.emidaf-home-v3
+.v3-step-wrapper:not(:last-child)::after {
+    content: "→";
+
+    position: absolute;
+
+    right: -13px;
+    top: 50%;
+
+    transform: translateY(-50%);
+
+    z-index: 5;
+
+    color: #20a98f;
+
+    font-size: 1.15rem;
+    font-weight: 700;
+}
+
+
+/* =========================================================
+   2. CAPACITÉS HORIZONTALES
+   ========================================================= */
+
+.emidaf-home-v3 .v3-capability-chain {
+    display: grid !important;
+
+    grid-template-columns:
+        repeat(4, minmax(0, 1fr)) !important;
+
+    align-items: stretch !important;
+
+    gap: 18px !important;
+
+    width: 100% !important;
+
+    padding: 16px 3px 24px !important;
+}
+
+
+.emidaf-home-v3 .v3-capability-wrapper {
+    position: relative !important;
+
+    display: block !important;
+
+    width: 100% !important;
+}
+
+
+.emidaf-home-v3 .v3-capability-wrapper > a {
+    display: block !important;
+
+    height: 100% !important;
+
+    text-decoration: none !important;
+}
+
+
+.emidaf-home-v3 .v3-capability-card {
+    position: relative !important;
+
+    display: flex !important;
+    flex-direction: column !important;
+
+    width: 100% !important;
+    height: 100% !important;
+    min-height: 245px !important;
+
+    padding: 25px !important;
+
+    border-radius: 22px !important;
+
+    background:
+        linear-gradient(
+            145deg,
+            rgba(255, 255, 255, 0.98),
+            rgba(237, 245, 248, 0.96)
+        ) !important;
+
+    border:
+        1px solid rgba(93, 130, 148, 0.20) !important;
+
+    box-shadow:
+        0 10px 28px
+        rgba(28, 53, 68, 0.07) !important;
+
+    transition:
+        transform 180ms ease,
+        box-shadow 180ms ease,
+        border-color 180ms ease !important;
+}
+
+
+.emidaf-home-v3 .v3-capability-card:hover {
+    transform: translateY(-6px) !important;
+
+    border-color:
+        rgba(32, 184, 154, 0.52) !important;
+
+    box-shadow:
+        0 17px 36px
+        rgba(28, 53, 68, 0.13) !important;
+}
+
+
+.emidaf-home-v3 .v3-capability-top {
+    display: flex !important;
+
+    align-items: center !important;
+    justify-content: space-between !important;
+
+    margin-bottom: 28px !important;
+}
+
+
+.emidaf-home-v3 .v3-capability-number {
+    color:
+        rgba(39, 66, 82, 0.17) !important;
+
+    font-size: 1.85rem !important;
+    font-weight: 800 !important;
+}
+
+
+.emidaf-home-v3 .v3-capability-icon {
+    display: flex !important;
+
+    align-items: center !important;
+    justify-content: center !important;
+
+    width: 48px !important;
+    height: 48px !important;
+
+    border-radius: 14px !important;
+
+    background:
+        linear-gradient(
+            145deg,
+            rgba(32, 184, 154, 0.14),
+            rgba(43, 127, 173, 0.08)
+        ) !important;
+
+    color: #168f79 !important;
+
+    font-size: 1.12rem !important;
+}
+
+
+.emidaf-home-v3 .v3-capability-title {
+    margin: 0 0 11px !important;
+
+    color: #29495c !important;
+
+    font-size: 1.03rem !important;
+    font-weight: 750 !important;
+
+    text-decoration: none !important;
+}
+
+
+.emidaf-home-v3 .v3-capability-text {
+    flex-grow: 1 !important;
+
+    margin: 0 !important;
+
+    color: #72848f !important;
+
+    font-size: 0.78rem !important;
+    line-height: 1.65 !important;
+
+    text-decoration: none !important;
+}
+
+
+.emidaf-home-v3 .v3-capability-action {
+    display: inline-flex !important;
+
+    align-items: center !important;
+
+    margin-top: 22px !important;
+
+    color: #168f79 !important;
+
+    font-size: 0.73rem !important;
+    font-weight: 700 !important;
+}
+
+
+/* =========================================================
+   3. TITRES
+   ========================================================= */
+
+.emidaf-home-v3 .v3-section-description {
+    display: block !important;
+
+    max-width: 730px !important;
+
+    margin-top: 10px !important;
+
+    color: #71838f !important;
+
+    font-size: 0.88rem !important;
+    line-height: 1.65 !important;
+}
+
+
+/* =========================================================
+   4. LIENS : SUPPRESSION DU STYLE NAVIGATEUR
+   ========================================================= */
+
+.emidaf-home-v3 a,
+.emidaf-home-v3 a:hover,
+.emidaf-home-v3 a:focus {
+    text-decoration: none;
+}
+
+
+/* =========================================================
+   5. TABLETTES
+   ========================================================= */
+
+@media (max-width: 1200px) {
+
+    .emidaf-home-v3 .v3-capability-chain {
+        grid-template-columns:
+            repeat(2, minmax(0, 1fr)) !important;
+    }
+}
+
+
+/* =========================================================
+   6. MOBILE
+   ========================================================= */
+
+@media (max-width: 700px) {
+
+    .emidaf-home-v3 .v3-capability-chain {
+        display: flex !important;
+
+        overflow-x: auto !important;
+
+        gap: 14px !important;
+    }
+
+    .emidaf-home-v3 .v3-capability-wrapper {
+        flex:
+            0
+            0
+            230px !important;
+
+        width: 230px !important;
+    }
+
+    .emidaf-home-v3 .v3-step-wrapper {
+        flex:
+            0
+            0
+            140px !important;
+
+        width: 140px !important;
+    }
+}
+
+
+/* =========================================================
+   EMIDAF — CAPACITÉS EN CHAÎNE HORIZONTALE
+   ========================================================= */
+
+.emidaf-home-v3 .v3-capability-chain {
+    display: flex !important;
+    flex-direction: row !important;
+    flex-wrap: nowrap !important;
+    align-items: stretch !important;
+
+    gap: 14px !important;
+
+    width: 100% !important;
+
+    overflow-x: auto !important;
+
+    padding: 14px 3px 25px !important;
+
+    scroll-snap-type: x proximity;
+}
+
+
+.emidaf-home-v3 .v3-capability-wrapper {
+    position: relative !important;
+
+    flex: 1 1 0 !important;
+
+    min-width: 210px !important;
+
+    display: flex !important;
+
+    scroll-snap-align: start;
+}
+
+
+.emidaf-home-v3
+.v3-capability-wrapper:not(:last-child)::after {
+    content: "→" !important;
+
+    position: absolute !important;
+
+    right: -12px !important;
+    top: 50% !important;
+
+    transform: translateY(-50%) !important;
+
+    z-index: 8 !important;
+
+    color: #20a98f !important;
+
+    font-size: 1rem !important;
+    font-weight: 800 !important;
+}
+
+
+.emidaf-home-v3
+.v3-capability-wrapper:not(:last-child)::before {
+    display: none !important;
+}
+
+
+.emidaf-home-v3 .v3-capability-card {
+    width: 100% !important;
+
+    min-height: 205px !important;
+
+    padding: 21px !important;
+}
+
+
+.emidaf-home-v3 .v3-capability-text {
+    min-height: 62px !important;
+}
+
+
+/* =========================================================
+   EMIDAF — WORKFLOW PLUS COMPACT
+   ========================================================= */
+
+.emidaf-home-v3 .v3-workflow-chain {
+    gap: 10px !important;
+}
+
+.emidaf-home-v3 .v3-step-wrapper {
+    flex:
+        0
+        0
+        125px !important;
+
+    width: 125px !important;
+}
+
+.emidaf-home-v3 .v3-step-card {
+    min-height: 142px !important;
+
+    padding: 15px !important;
+
+    border-radius: 17px !important;
+}
+
+.emidaf-home-v3 .v3-step-icon {
+    width: 38px !important;
+    height: 38px !important;
+
+    margin-bottom: 18px !important;
+}
+
+.emidaf-home-v3 .v3-step-number {
+    font-size: 1.45rem !important;
+}
+
+.emidaf-home-v3 .v3-step-title {
+    font-size: 0.76rem !important;
+}
+
+.emidaf-home-v3 .v3-step-subtitle {
+    font-size: 0.61rem !important;
+}
+
+
+/* =========================================================
+   HERO : CONTRÔLE TYPOGRAPHIQUE
+   ========================================================= */
+
+.v3-title-line {
+    display: block;
+}
+
+.v3-hero-title {
+    max-width: 760px !important;
+
+    line-height: 1.06 !important;
+}
+
+
+/* =========================================================
+   PROFIL — FINITION PREMIUM
+   ========================================================= */
+
+.emidaf-home-v3 .v3-profile-card {
+    background:
+        linear-gradient(
+            145deg,
+            rgba(255, 255, 255, 0.98),
+            rgba(235, 245, 247, 0.96)
+        ) !important;
+
+    border:
+        1px solid rgba(32, 184, 154, 0.15) !important;
+}
+
+
+.emidaf-home-v3 .v3-badge-list {
+    gap: 8px !important;
+}
+
+
+.emidaf-home-v3 .v3-badge {
+    padding:
+        6px
+        10px !important;
+}
+
+
+.emidaf-home-v3 .v3-social-list {
+    gap: 12px !important;
+}
+
+
+/* =========================================================
+   PRINT EMIDAF
+   ========================================================= */
+
+@media print {
+
+    .emidaf-home-v3 .v3-workflow-chain {
+        overflow: visible !important;
+
+        display: grid !important;
+
+        grid-template-columns:
+            repeat(9, minmax(0, 1fr)) !important;
+
+        gap: 5px !important;
+    }
+
+    .emidaf-home-v3 .v3-step-wrapper {
+        width: auto !important;
+        min-width: 0 !important;
+
+        flex: none !important;
+    }
+
+    .emidaf-home-v3 .v3-step-wrapper::after,
+    .emidaf-home-v3 .v3-step-wrapper::before {
+        display: none !important;
+    }
+
+    .emidaf-home-v3 .v3-step-card {
+        min-height: 100px !important;
+
+        padding: 9px !important;
+    }
+
+    .emidaf-home-v3 .v3-step-icon {
+        width: 30px !important;
+        height: 30px !important;
+
+        margin-bottom: 12px !important;
+    }
+
+    .emidaf-home-v3 .v3-capability-chain {
+        display: grid !important;
+
+        grid-template-columns:
+            repeat(4, minmax(0, 1fr)) !important;
+
+        overflow: visible !important;
+
+        gap: 8px !important;
+    }
+
+    .emidaf-home-v3 .v3-capability-wrapper {
+        min-width: 0 !important;
+    }
+
+    .emidaf-home-v3
+    .v3-capability-wrapper::after {
+        display: none !important;
+    }
+
+    .emidaf-home-v3 .v3-capability-card {
+        min-height: 150px !important;
+        padding: 14px !important;
+    }
+}
+
+
+/* =========================================================
+   EMIDAF HOME — FINITIONS PREMIUM FINALES
+   ========================================================= */
+
+
+/* HERO */
+
+.emidaf-home-v3 .v3-title-line {
+    display: block !important;
+}
+
+.emidaf-home-v3 .v3-title-accent {
+    color: #168f79 !important;
+}
+
+.emidaf-home-v3 .v3-hero-title {
+    max-width: 760px !important;
+
+    font-size:
+        clamp(
+            2.55rem,
+            4.3vw,
+            4.45rem
+        ) !important;
+
+    line-height: 1.07 !important;
+
+    letter-spacing:
+        -0.04em !important;
+}
+
+.emidaf-home-v3
+.v3-title-line
++ .v3-title-line {
+    margin-top: 4px !important;
+}
+
+
+/* =========================================================
+   WORKFLOW
+   ========================================================= */
+
+.emidaf-home-v3 .v3-workflow-chain {
+    gap: 10px !important;
+}
+
+.emidaf-home-v3 .v3-step-wrapper {
+    flex:
+        0
+        0
+        132px !important;
+
+    width:
+        132px !important;
+}
+
+.emidaf-home-v3 .v3-step-card {
+    min-height:
+        148px !important;
+
+    padding:
+        16px !important;
+
+    border-radius:
+        18px !important;
+}
+
+.emidaf-home-v3 .v3-step-number {
+    color:
+        rgba(
+            37,
+            65,
+            82,
+            0.24
+        ) !important;
+
+    font-size:
+        1.5rem !important;
+}
+
+.emidaf-home-v3 .v3-step-icon {
+    width:
+        40px !important;
+
+    height:
+        40px !important;
+
+    margin-bottom:
+        19px !important;
+}
+
+.emidaf-home-v3 .v3-step-title {
+    font-size:
+        0.78rem !important;
+}
+
+.emidaf-home-v3 .v3-step-subtitle {
+    font-size:
+        0.63rem !important;
+}
+
+
+/* =========================================================
+   CAPACITÉS — IDENTITÉ VISUELLE
+   ========================================================= */
+
+.emidaf-home-v3
+.v3-capability-wrapper:nth-child(1)
+.v3-capability-card {
+    background:
+        linear-gradient(
+            145deg,
+            #f8fcfb,
+            #eef8f5
+        ) !important;
+}
+
+.emidaf-home-v3
+.v3-capability-wrapper:nth-child(2)
+.v3-capability-card {
+    background:
+        linear-gradient(
+            145deg,
+            #f8fbfd,
+            #edf5f9
+        ) !important;
+}
+
+.emidaf-home-v3
+.v3-capability-wrapper:nth-child(3)
+.v3-capability-card {
+    background:
+        linear-gradient(
+            145deg,
+            #fafbfd,
+            #f0f3f8
+        ) !important;
+}
+
+.emidaf-home-v3
+.v3-capability-wrapper:nth-child(4)
+.v3-capability-card {
+    background:
+        linear-gradient(
+            145deg,
+            #f9fbfa,
+            #eef6f2
+        ) !important;
+}
+
+.emidaf-home-v3
+.v3-capability-card {
+    min-height:
+        215px !important;
+
+    padding:
+        22px !important;
+}
+
+.emidaf-home-v3
+.v3-capability-title {
+    font-size:
+        0.98rem !important;
+}
+
+.emidaf-home-v3
+.v3-capability-text {
+    min-height:
+        65px !important;
+}
+
+
+/* =========================================================
+   PROFIL
+   ========================================================= */
+
+.emidaf-home-v3 .v3-profile-photo {
+    width:
+        105px !important;
+
+    height:
+        132px !important;
+}
+
+.emidaf-home-v3 .v3-profile-card {
+    grid-template-columns:
+        105px
+        1fr !important;
+
+    gap:
+        20px !important;
+
+    padding:
+        22px !important;
+
+    background:
+        linear-gradient(
+            145deg,
+            rgba(
+                255,
+                255,
+                255,
+                0.98
+            ),
+            rgba(
+                235,
+                245,
+                247,
+                0.96
+            )
+        ) !important;
+
+    border:
+        1px solid
+        rgba(
+            32,
+            184,
+            154,
+            0.15
+        ) !important;
+}
+
+.emidaf-home-v3 .v3-badge-list {
+    gap:
+        8px !important;
+}
+
+.emidaf-home-v3 .v3-badge {
+    padding:
+        6px
+        10px !important;
+}
+
+.emidaf-home-v3 .v3-profile-text {
+    margin-bottom:
+        10px !important;
+}
+
+.emidaf-home-v3 .v3-social-list {
+    gap:
+        12px !important;
+}
+
+
+/* =========================================================
+   FOOTER
+   ========================================================= */
+
+.emidaf-home-v3 .v3-footer {
+    margin-top:
+        34px !important;
+
+    padding-top:
+        22px !important;
+}
+
+.emidaf-home-v3 .v3-footer-brand {
+    font-weight:
+        750 !important;
+}
+
+
+/* =========================================================
+   PRINT
+   ========================================================= */
+
+@media print {
+
+    .v3-hero {
+        padding:
+            30px !important;
+    }
+
+    .v3-hero-title {
+        font-size:
+            2.6rem !important;
+    }
+
+    .v3-workflow-chain {
+        display:
+            grid !important;
+
+        grid-template-columns:
+            repeat(
+                9,
+                minmax(0, 1fr)
+            ) !important;
+
+        gap:
+            5px !important;
+
+        overflow:
+            visible !important;
+    }
+
+    .v3-step-wrapper {
+        width:
+            auto !important;
+
+        min-width:
+            0 !important;
+
+        flex:
+            none !important;
+    }
+
+    .v3-step-wrapper::before,
+    .v3-step-wrapper::after {
+        display:
+            none !important;
+    }
+
+    .v3-step-card {
+        min-height:
+            100px !important;
+
+        padding:
+            9px !important;
+    }
+
+    .v3-step-icon {
+        width:
+            30px !important;
+
+        height:
+            30px !important;
+
+        margin-bottom:
+            11px !important;
+    }
+
+    .v3-capability-chain {
+        display:
+            grid !important;
+
+        grid-template-columns:
+            repeat(
+                4,
+                minmax(0, 1fr)
+            ) !important;
+
+        gap:
+            8px !important;
+
+        overflow:
+            visible !important;
+    }
+
+    .v3-capability-wrapper {
+        min-width:
+            0 !important;
+    }
+
+    .v3-capability-wrapper::after,
+    .v3-capability-wrapper::before {
+        display:
+            none !important;
+    }
+
+    .v3-capability-card {
+        min-height:
+            150px !important;
+
+        padding:
+            14px !important;
+    }
+
+    .v3-about-section,
+    .v3-profile-card,
+    .v3-footer {
+        page-break-inside:
+            avoid !important;
+
+        break-inside:
+            avoid !important;
+    }
+
+    .v3-social-list {
+        flex-wrap:
+            nowrap !important;
+    }
+
+    .v3-social {
+        padding:
+            5px
+            8px !important;
+
+        font-size:
+            0.62rem !important;
+    }
+
+    .v3-profile-photo {
+        width:
+            82px !important;
+
+        height:
+            103px !important;
+    }
+}

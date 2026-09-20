@@ -4,6 +4,7 @@ import pandas as pd
 from dash import html, dcc, Input, Output, State, callback, no_update
 import re
 import dash_bootstrap_components as dbc
+from flask import has_request_context, session
 
 from emidaf_core.bootstrap import Bootstrap
 from emidaf_core.dataset.profiler import DatasetProfiler
@@ -17,27 +18,112 @@ dataset_controller = bootstrap.dataset_controller
 workspace_manager = bootstrap.workspace_manager
 
 
+def _current_user_id():
+    """
+    Retourne l'identifiant de l'utilisateur connecté.
+
+    Aucun accès aux données n'est autorisé
+    en dehors d'une requête utilisateur valide.
+    """
+    if not has_request_context():
+        return None
+
+    value = session.get("user_id")
+
+    if value is None:
+        return None
+
+    return int(value)
+
+
 def load_dataset(project_id, dataset_id):
-    project = project_controller.get(project_id)
+    """
+    Charge un dataset uniquement si :
+
+    1. une session utilisateur valide existe ;
+    2. le projet appartient à cet utilisateur ;
+    3. le dataset existe ;
+    4. le dataset appartient bien à ce projet.
+    """
+    user_id = _current_user_id()
+
+    if user_id is None:
+        return (
+            None,
+            None,
+            "Session utilisateur invalide "
+            "ou expirée.",
+        )
+
+    try:
+        project_id = int(project_id)
+        dataset_id = int(dataset_id)
+
+    except (TypeError, ValueError):
+        return (
+            None,
+            None,
+            "Identifiant de projet ou de dataset invalide.",
+        )
+
+    project = project_controller.get_for_user(
+        project_id,
+        user_id,
+    )
 
     if project is None:
-        return None, None, "Projet introuvable."
+        return (
+            None,
+            None,
+            (
+                "Projet introuvable ou "
+                "accès non autorisé."
+            ),
+        )
 
-    dataset = dataset_controller.get(dataset_id)
+    dataset = dataset_controller.get(
+        dataset_id
+    )
 
     if dataset is None:
-        return project, None, "Dataset introuvable."
+        return (
+            project,
+            None,
+            "Dataset introuvable.",
+        )
 
-    if dataset.project_id != project_id:
-        return project, None, "Le dataset n'est pas associé à ce projet."
+    if int(dataset.project_id) != project_id:
+        return (
+            project,
+            None,
+            (
+                "Le dataset n'est pas associé "
+                "à ce projet."
+            ),
+        )
 
-    project_path = workspace_manager.get_project_path(project.name)
-    dataset_path = project_path / "datasets" / dataset.stored_filename
+    project_path = (
+        workspace_manager
+        .get_project_path(
+            project.name
+        )
+    )
+
+    dataset_path = (
+        project_path
+        / "datasets"
+        / dataset.stored_filename
+    )
 
     if not dataset_path.exists():
-        return project, dataset, (
-            "Le fichier physique du dataset est introuvable : "
-            f"{dataset_path}"
+        return (
+            project,
+            dataset,
+            (
+                "Le fichier physique du dataset "
+                "est introuvable : "
+                f"{dataset_path}"
+            ),
         )
 
     try:
@@ -47,23 +133,41 @@ def load_dataset(project_id, dataset_id):
             dataframe = pd.read_csv(
                 dataset_path,
                 sep=dataset.separator,
-                encoding=dataset.encoding
+                encoding=dataset.encoding,
             )
 
-        elif extension in {".xlsx", ".xls"}:
-            dataframe = pd.read_excel(dataset_path)
+        elif extension in {
+            ".xlsx",
+            ".xls",
+        }:
+            dataframe = pd.read_excel(
+                dataset_path
+            )
 
         else:
-            return project, dataset, (
-                "Format de fichier non supporté : "
-                f"{dataset.extension}"
+            return (
+                project,
+                dataset,
+                (
+                    "Format de fichier non supporté : "
+                    f"{dataset.extension}"
+                ),
             )
 
-        return project, dataset, dataframe
+        return (
+            project,
+            dataset,
+            dataframe,
+        )
 
     except Exception as exc:
-        return project, dataset, (
-            f"Erreur lors de la lecture du dataset : {exc}"
+        return (
+            project,
+            dataset,
+            (
+                "Erreur lors de la lecture "
+                f"du dataset : {exc}"
+            ),
         )
 
 
@@ -560,7 +664,7 @@ def _build_missing_diagnostics(profile):
         return html.Div(
             [
                 html.H5(
-                    "🧩 Diagnostic des valeurs manquantes",
+                    "Diagnostic des valeurs manquantes",
                     className="mt-4",
                 ),
                 dbc.Alert(
@@ -647,7 +751,7 @@ def _build_missing_diagnostics(profile):
     if isinstance(column_statistics, dict) and column_statistics:
         column_section = [
             html.H6(
-                "📊 Valeurs manquantes par variable",
+                "Valeurs manquantes par variable",
                 className="mt-3",
             ),
             _build_missing_columns_table(
@@ -666,7 +770,7 @@ def _build_missing_diagnostics(profile):
     if patterns:
         pattern_section = [
             html.H6(
-                "🧬 Patterns de valeurs manquantes",
+                "Patterns de valeurs manquantes",
                 className="mt-3",
             ),
             _build_missing_patterns_table(
@@ -828,9 +932,9 @@ def _build_missing_diagnostics(profile):
         test_items = []
 
         labels = {
-            "mcar": "MCAR — Missing Completely At Random",
-            "mar": "MAR — Missing At Random",
-            "mnar": "MNAR — Missing Not At Random",
+            "mcar": "MCAR : Missing Completely At Random",
+            "mar": "MAR : Missing At Random",
+            "mnar": "MNAR : Missing Not At Random",
         }
 
         for key in ("mcar", "mar", "mnar"):
@@ -867,7 +971,7 @@ def _build_missing_diagnostics(profile):
     if recommendations:
         recommendation_section = [
             html.H6(
-                "💡 Recommandations",
+                "Recommandations",
                 className="mt-3",
             ),
             dbc.Alert(
@@ -906,7 +1010,7 @@ def _build_missing_diagnostics(profile):
     return html.Div(
         [
             html.H5(
-                "🧩 Diagnostic des valeurs manquantes",
+                "Diagnostic des valeurs manquantes",
                 className="mt-4",
             ),
             html.P(
@@ -920,7 +1024,7 @@ def _build_missing_diagnostics(profile):
             *column_section,
             *pattern_section,
             html.H6(
-                "🧠 Mécanisme des données manquantes",
+                "Mécanisme des données manquantes",
                 className="mt-4",
             ),
             *mechanism_components,
@@ -1519,7 +1623,7 @@ def build_profile_summary(profile):
     return dbc.Container(
         [
             html.H4(
-                "📊 Résumé du profil",
+                "Résumé du profil",
                 className="mt-4"
             ),
 
@@ -1590,14 +1694,14 @@ def build_profile_summary(profile):
             # NOUVEAU : Structure et types
             # -------------------------------------------------
             html.H5(
-                "🧬 Structure et types",
+                "Structure et types",
                 className="mt-4"
             ),
 
             dbc.Card(
                 [
                     dbc.CardHeader(
-                        "📐 Structure du dataset"
+                        "Structure du dataset"
                     ),
                     dbc.CardBody(
                         [
@@ -1646,7 +1750,7 @@ def build_profile_summary(profile):
             ),
 
             html.H6(
-                "🔢 Répartition des types de variables",
+                "Répartition des types de variables",
                 className="mt-3"
             ),
 
@@ -1738,7 +1842,7 @@ def build_profile_summary(profile):
             # Variables par type
             # -------------------------------------------------
             html.H6(
-                "📋 Variables par type",
+                "Variables par type",
                 className="mt-4"
             ),
 
@@ -1752,7 +1856,7 @@ def build_profile_summary(profile):
                                 else "Aucune"
                             )
                         ],
-                        title="🔢 Variables numériques"
+                        title="Variables numériques"
                     ),
 
                     dbc.AccordionItem(
@@ -1796,7 +1900,7 @@ def build_profile_summary(profile):
                                 else "Aucune"
                             )
                         ],
-                        title="🔤 Variables texte"
+                        title="Variables texte"
                     ),
 
                     dbc.AccordionItem(
@@ -1818,7 +1922,7 @@ def build_profile_summary(profile):
             # Qualité des données
             # -------------------------------------------------
             html.H5(
-                "🧹 Qualité des données",
+                "Qualité des données",
                 className="mt-4"
             ),
 
@@ -1942,7 +2046,7 @@ def build_profile_summary(profile):
             # -------------------------------------------------
 
             html.H5(
-                "📈 Analyse statistique avancée",
+                "Analyse statistique avancée",
                 className="mt-4"
             ),
 
@@ -1965,7 +2069,7 @@ def build_profile_summary(profile):
                                 None
                             )
                         ),
-                        title="📊 Distributions"
+                        title="Distributions"
                     ),
 
                     dbc.AccordionItem(
@@ -1976,7 +2080,7 @@ def build_profile_summary(profile):
                                 None
                             )
                         ),
-                        title="🔔 Normalité"
+                        title="Normalité"
                     ),
 
                     dbc.AccordionItem(
@@ -1987,7 +2091,7 @@ def build_profile_summary(profile):
                                 None
                             )
                         ),
-                        title="⚠️ Valeurs aberrantes"
+                        title="Valeurs aberrantes"
                     ),
 
                     dbc.AccordionItem(
@@ -1998,7 +2102,7 @@ def build_profile_summary(profile):
                                 None
                             )
                         ),
-                        title="🔗 Corrélations"
+                        title="Corrélations"
                     ),
 
                     dbc.AccordionItem(
@@ -2009,7 +2113,7 @@ def build_profile_summary(profile):
                                 None
                             )
                         ),
-                        title="🧮 Multicolinéarité"
+                        title="Multicolinéarité"
                     ),
                 ],
                 start_collapsed=True,
@@ -2025,43 +2129,117 @@ def inspection_layout(project_id, dataset_id):
 
     project, dataset, result = load_dataset(
         project_id,
-        dataset_id
+        dataset_id,
     )
 
+    # ======================================================
+    # ÉTAT D'ERREUR
+    # ======================================================
+
     if isinstance(result, str):
+
         return dbc.Container(
             [
-                html.H2("🔎 Inspection du dataset"),
-                html.Hr(),
+                html.Section(
+                    [
+                        html.Div(
+                            [
+                                html.Div(
+                                    [
+                                        html.Span(
+                                            "INSPECTION",
+                                            className=(
+                                                "inspection-v2-kicker"
+                                            ),
+                                        ),
+                                        html.Span(
+                                            "QUALITÉ DES DONNÉES",
+                                            className=(
+                                                "inspection-v2-eyebrow"
+                                            ),
+                                        ),
+                                    ],
+                                    className=(
+                                        "d-flex align-items-center "
+                                        "gap-2 mb-3"
+                                    ),
+                                ),
+
+                                html.H1(
+                                    "Inspection du jeu de données",
+                                    className=(
+                                        "inspection-v2-title"
+                                    ),
+                                ),
+
+                                html.P(
+                                    (
+                                        "Le jeu de données ne peut "
+                                        "pas être chargé dans son "
+                                        "état actuel."
+                                    ),
+                                    className=(
+                                        "inspection-v2-subtitle"
+                                    ),
+                                ),
+                            ]
+                        ),
+                    ],
+                    className="inspection-v2-hero",
+                ),
 
                 dbc.Alert(
-                    result,
-                    color="danger"
+                    [
+                        html.I(
+                            className=(
+                                "bi bi-exclamation-triangle "
+                                "me-2"
+                            )
+                        ),
+                        result,
+                    ],
+                    color="danger",
+                    className="inspection-v2-error",
                 ),
 
                 dcc.Link(
-                    dbc.Button(
-                        "← Retour au projet",
-                        color="secondary"
+                    [
+                        html.I(
+                            className=(
+                                "bi bi-arrow-left me-2"
+                            )
+                        ),
+                        "Retour au projet",
+                    ],
+                    href=f"/projects/{project_id}",
+                    className=(
+                        "inspection-v2-secondary-link"
                     ),
-                    href=f"/projects/{project_id}"
-                )
+                ),
             ],
-            fluid=True
+            fluid=True,
+            className="inspection-v2-page",
         )
+
+    # ======================================================
+    # DONNÉES
+    # ======================================================
 
     dataframe = result
 
     rows, columns = dataframe.shape
+
     size_kb = dataset.size / 1024
+
+    cells = rows * columns
 
     format_name = {
         ".csv": "CSV",
         ".xlsx": "Excel",
-        ".xls": "Excel"
+        ".xls": "Excel",
     }.get(
         dataset.extension.lower(),
-        dataset.extension.upper()
+        dataset.extension.upper(),
     )
 
     preview = dataframe.head(10)
@@ -2069,227 +2247,586 @@ def inspection_layout(project_id, dataset_id):
     preview_table = dbc.Table.from_dataframe(
         preview,
         striped=True,
-        bordered=True,
+        bordered=False,
         hover=True,
-        responsive=True
+        responsive=True,
+        className="inspection-v2-table",
     )
 
-    # Profilage automatique du dataset
     profile_summary = html.Div(
         [
+            html.Div(
+                html.I(
+                    className="bi bi-bar-chart-line"
+                ),
+                className=(
+                    "inspection-v2-profile-empty-icon"
+                ),
+            ),
+
+            html.H3(
+                "Profilage scientifique",
+                className=(
+                    "inspection-v2-profile-empty-title"
+                ),
+            ),
+
             html.P(
-                "Cliquez sur « Profiler le dataset » pour lancer "
-                "l'analyse complète.",
-                className="text-muted"
-            )
-        ]
+                (
+                    "Lancez le profilage pour analyser "
+                    "la structure, la qualité, les valeurs "
+                    "manquantes, les valeurs aberrantes, "
+                    "les corrélations et les autres "
+                    "indicateurs disponibles."
+                ),
+                className=(
+                    "inspection-v2-profile-empty-text"
+                ),
+            ),
+        ],
+        className="inspection-v2-profile-empty",
     )
+
+    # ======================================================
+    # LAYOUT
+    # ======================================================
+
     return dbc.Container(
         [
-            html.H2("🔎 Inspection du dataset"),
-            html.Hr(),
+            # --------------------------------------------------
+            # HERO
+            # --------------------------------------------------
+
+            html.Section(
+                [
+                    html.Div(
+                        [
+                            html.Div(
+                                [
+                                    html.Span(
+                                        "INSPECTION",
+                                        className=(
+                                            "inspection-v2-kicker"
+                                        ),
+                                    ),
+
+                                    html.Span(
+                                        "QUALITÉ DES DONNÉES",
+                                        className=(
+                                            "inspection-v2-eyebrow"
+                                        ),
+                                    ),
+                                ],
+                                className=(
+                                    "d-flex align-items-center "
+                                    "gap-2 mb-3"
+                                ),
+                            ),
+
+                            html.H1(
+                                "Inspection du jeu de données",
+                                className=(
+                                    "inspection-v2-title"
+                                ),
+                            ),
+
+                            html.P(
+                                (
+                                    "Examinez la structure du jeu "
+                                    "de données, contrôlez sa qualité "
+                                    "et lancez le profilage scientifique "
+                                    "avant toute transformation."
+                                ),
+                                className=(
+                                    "inspection-v2-subtitle"
+                                ),
+                            ),
+                        ]
+                    ),
+
+                    html.Div(
+                        html.I(
+                            className=(
+                                "bi bi-search "
+                                "inspection-v2-hero-icon"
+                            )
+                        ),
+                        className=(
+                            "inspection-v2-hero-icon-box"
+                        ),
+                    ),
+                ],
+                className="inspection-v2-hero",
+            ),
+
+            # --------------------------------------------------
+            # FIL D'ARIANE
+            # --------------------------------------------------
 
             dbc.Breadcrumb(
                 items=[
                     {
                         "label": "Projets",
-                        "href": "/projects"
+                        "href": "/projects",
                     },
                     {
                         "label": project.name,
-                        "href": f"/projects/{project_id}"
+                        "href": (
+                            f"/projects/{project_id}"
+                        ),
                     },
                     {
                         "label": dataset.name,
-                        "active": True
-                    }
-                ]
-            ),
-
-            html.H4(
-                "📋 Informations générales",
-                className="mt-4"
-            ),
-
-            dbc.Row(
-                [
-                    dbc.Col(
-                        dbc.Card(
-                            dbc.CardBody(
-                                [
-                                    html.H6("Nom du dataset"),
-                                    html.H5(dataset.name)
-                                ]
-                            )
-                        ),
-                        width=4
-                    ),
-
-                    dbc.Col(
-                        dbc.Card(
-                            dbc.CardBody(
-                                [
-                                    html.H6("Fichier"),
-                                    html.H5(
-                                        dataset.original_filename
-                                    )
-                                ]
-                            )
-                        ),
-                        width=4
-                    ),
-
-                    dbc.Col(
-                        dbc.Card(
-                            dbc.CardBody(
-                                [
-                                    html.H6("Format"),
-                                    html.H5(format_name)
-                                ]
-                            )
-                        ),
-                        width=4
-                    )
+                        "active": True,
+                    },
                 ],
-                className="mb-3"
+                className="inspection-v2-breadcrumb",
             ),
 
-            dbc.Row(
+            # --------------------------------------------------
+            # CONTEXTE DATASET
+            # --------------------------------------------------
+
+            html.Section(
                 [
-                    dbc.Col(
-                        dbc.Card(
-                            dbc.CardBody(
-                                [
-                                    html.H6("Lignes"),
-                                    html.H4(f"{rows:,}")
-                                ]
-                            )
-                        ),
-                        width=3
-                    ),
-
-                    dbc.Col(
-                        dbc.Card(
-                            dbc.CardBody(
-                                [
-                                    html.H6("Colonnes"),
-                                    html.H4(f"{columns:,}")
-                                ]
-                            )
-                        ),
-                        width=3
-                    ),
-
-                    dbc.Col(
-                        dbc.Card(
-                            dbc.CardBody(
-                                [
-                                    html.H6("Taille"),
-                                    html.H4(
-                                        f"{size_kb:.2f} Ko"
+                    html.Div(
+                        [
+                            html.Div(
+                                html.I(
+                                    className=(
+                                        "bi bi-database "
+                                        "inspection-v2-context-icon"
                                     )
-                                ]
-                            )
-                        ),
-                        width=3
-                    ),
+                                ),
+                                className=(
+                                    "inspection-v2-context-icon-box"
+                                ),
+                            ),
 
-                    dbc.Col(
-                        dbc.Card(
-                            dbc.CardBody(
+                            html.Div(
                                 [
-                                    html.H6("Cellules"),
-                                    html.H4(
-                                        f"{rows * columns:,}"
-                                    )
+                                    html.Div(
+                                        "JEU DE DONNÉES ACTIF",
+                                        className=(
+                                            "inspection-v2-context-label"
+                                        ),
+                                    ),
+
+                                    html.Div(
+                                        dataset.name,
+                                        className=(
+                                            "inspection-v2-context-title"
+                                        ),
+                                    ),
+
+                                    html.Div(
+                                        dataset.original_filename,
+                                        className=(
+                                            "inspection-v2-context-file"
+                                        ),
+                                    ),
                                 ]
-                            )
+                            ),
+
+                            html.Div(
+                                format_name,
+                                className=(
+                                    "inspection-v2-format-badge"
+                                ),
+                            ),
+                        ],
+                        className=(
+                            "inspection-v2-context-card"
                         ),
-                        width=3
-                    )
+                    ),
                 ],
-                className="mb-4"
-            ),
-
-            # ---------------------------------------------------------
-            # Profilage du dataset
-            # ---------------------------------------------------------
-            dbc.Card(
-              [
-                dbc.CardHeader("Profilage du dataset"),
-                dbc.CardBody(
-                  [
-                      dbc.Button(
-                         "Profiler le dataset",
-                         id="btn-profile-dataset",
-                         color="primary",
-                         className="mb-3",
-                      ),
-                      html.Div(
-                         profile_summary,
-                         id="profile-result",
-                      ),
-                  ]
+                className=(
+                    "inspection-v2-context-section"
                 ),
-              ],
-              className="mb-4",
-            ),
-            html.H4(
-                "👁️ Aperçu des données",
-                className="mt-4"
             ),
 
-            dbc.Alert(
-                "Affichage des 10 premières lignes.",
-                color="info"
-            ),
+            # --------------------------------------------------
+            # INDICATEURS
+            # --------------------------------------------------
 
-            preview_table,
-
-            html.Hr(),
-
-            dbc.Row(
+            html.Section(
                 [
-                    dbc.Col(
-                        dcc.Link(
-                            dbc.Button(
-                                "🧹 Ouvrir EIDPP",
-                                color="primary",
-                                className="w-100",
-                            ),
-                            href=(
-                                f"/projects/{project_id}"
-                                f"/datasets/{dataset_id}/eidpp"
-                            ),
+                    html.Div(
+                        "INFORMATIONS GÉNÉRALES",
+                        className=(
+                            "inspection-v2-section-kicker"
                         ),
-                        md=6,
                     ),
 
-                    dbc.Col(
-                        dcc.Link(
-                            dbc.Button(
-                                "← Retour au projet",
-                                color="secondary",
-                                className="w-100",
-                            ),
-                            href=f"/projects/{project_id}",
+                    html.H2(
+                        "Structure du jeu de données",
+                        className=(
+                            "inspection-v2-section-title"
                         ),
-                        md=6,
+                    ),
+
+                    html.Div(
+                        [
+                            html.Div(
+                                [
+                                    html.Div(
+                                        html.I(
+                                            className=(
+                                                "bi bi-list-ol"
+                                            )
+                                        ),
+                                        className=(
+                                            "inspection-v2-stat-icon"
+                                        ),
+                                    ),
+                                    html.Div(
+                                        f"{rows:,}",
+                                        className=(
+                                            "inspection-v2-stat-value"
+                                        ),
+                                    ),
+                                    html.Div(
+                                        "Lignes",
+                                        className=(
+                                            "inspection-v2-stat-label"
+                                        ),
+                                    ),
+                                ],
+                                className=(
+                                    "inspection-v2-stat-card"
+                                ),
+                            ),
+
+                            html.Div(
+                                [
+                                    html.Div(
+                                        html.I(
+                                            className=(
+                                                "bi bi-layout-three-columns"
+                                            )
+                                        ),
+                                        className=(
+                                            "inspection-v2-stat-icon"
+                                        ),
+                                    ),
+                                    html.Div(
+                                        f"{columns:,}",
+                                        className=(
+                                            "inspection-v2-stat-value"
+                                        ),
+                                    ),
+                                    html.Div(
+                                        "Colonnes",
+                                        className=(
+                                            "inspection-v2-stat-label"
+                                        ),
+                                    ),
+                                ],
+                                className=(
+                                    "inspection-v2-stat-card"
+                                ),
+                            ),
+
+                            html.Div(
+                                [
+                                    html.Div(
+                                        html.I(
+                                            className=(
+                                                "bi bi-device-ssd"
+                                            )
+                                        ),
+                                        className=(
+                                            "inspection-v2-stat-icon"
+                                        ),
+                                    ),
+                                    html.Div(
+                                        f"{size_kb:.2f} Ko",
+                                        className=(
+                                            "inspection-v2-stat-value"
+                                        ),
+                                    ),
+                                    html.Div(
+                                        "Taille",
+                                        className=(
+                                            "inspection-v2-stat-label"
+                                        ),
+                                    ),
+                                ],
+                                className=(
+                                    "inspection-v2-stat-card"
+                                ),
+                            ),
+
+                            html.Div(
+                                [
+                                    html.Div(
+                                        html.I(
+                                            className=(
+                                                "bi bi-grid-3x3"
+                                            )
+                                        ),
+                                        className=(
+                                            "inspection-v2-stat-icon"
+                                        ),
+                                    ),
+                                    html.Div(
+                                        f"{cells:,}",
+                                        className=(
+                                            "inspection-v2-stat-value"
+                                        ),
+                                    ),
+                                    html.Div(
+                                        "Cellules",
+                                        className=(
+                                            "inspection-v2-stat-label"
+                                        ),
+                                    ),
+                                ],
+                                className=(
+                                    "inspection-v2-stat-card"
+                                ),
+                            ),
+                        ],
+                        className="inspection-v2-stats",
                     ),
                 ],
-                className="g-3",
+                className="inspection-v2-section",
             ),
+
+            # --------------------------------------------------
+            # PROFILAGE
+            # --------------------------------------------------
+
+            html.Section(
+                [
+                    html.Div(
+                        [
+                            html.Div(
+                                [
+                                    html.Div(
+                                        "PROFILAGE",
+                                        className=(
+                                            "inspection-v2-section-kicker"
+                                        ),
+                                    ),
+
+                                    html.H2(
+                                        "Diagnostic scientifique",
+                                        className=(
+                                            "inspection-v2-section-title"
+                                        ),
+                                    ),
+
+                                    html.P(
+                                        (
+                                            "L'analyse est diagnostique : "
+                                            "elle décrit la structure et "
+                                            "les problèmes potentiels sans "
+                                            "modifier les données."
+                                        ),
+                                        className=(
+                                            "inspection-v2-section-subtitle"
+                                        ),
+                                    ),
+                                ]
+                            ),
+
+                            dbc.Button(
+                                [
+                                    html.I(
+                                        className=(
+                                            "bi bi-activity me-2"
+                                        )
+                                    ),
+                                    "Profiler le dataset",
+                                ],
+                                id="btn-profile-dataset",
+                                className=(
+                                    "inspection-v2-profile-button"
+                                ),
+                            ),
+                        ],
+                        className=(
+                            "inspection-v2-profile-header"
+                        ),
+                    ),
+
+                    html.Div(
+                        profile_summary,
+                        id="profile-result",
+                        className=(
+                            "inspection-v2-profile-result"
+                        ),
+                    ),
+                ],
+                className=(
+                    "inspection-v2-profile-section"
+                ),
+            ),
+
+            # --------------------------------------------------
+            # APERÇU
+            # --------------------------------------------------
+
+            html.Section(
+                [
+                    html.Div(
+                        [
+                            html.Div(
+                                [
+                                    html.Div(
+                                        "APERÇU DES DONNÉES",
+                                        className=(
+                                            "inspection-v2-section-kicker"
+                                        ),
+                                    ),
+
+                                    html.H2(
+                                        "Premières observations",
+                                        className=(
+                                            "inspection-v2-section-title"
+                                        ),
+                                    ),
+                                ]
+                            ),
+
+                            html.Div(
+                                [
+                                    html.I(
+                                        className=(
+                                            "bi bi-eye me-2"
+                                        )
+                                    ),
+                                    "10 premières lignes",
+                                ],
+                                className=(
+                                    "inspection-v2-preview-badge"
+                                ),
+                            ),
+                        ],
+                        className=(
+                            "inspection-v2-preview-header"
+                        ),
+                    ),
+
+                    html.Div(
+                        preview_table,
+                        className=(
+                            "inspection-v2-preview-table"
+                        ),
+                    ),
+                ],
+                className=(
+                    "inspection-v2-preview-section"
+                ),
+            ),
+
+            # --------------------------------------------------
+            # SUITE DU CYCLE
+            # --------------------------------------------------
+
+            html.Section(
+                [
+                    html.Div(
+                        [
+                            html.Div(
+                                [
+                                    html.Div(
+                                        "ÉTAPE SUIVANTE",
+                                        className=(
+                                            "inspection-v2-section-kicker"
+                                        ),
+                                    ),
+
+                                    html.H2(
+                                        "Préparer les données",
+                                        className=(
+                                            "inspection-v2-section-title"
+                                        ),
+                                    ),
+
+                                    html.P(
+                                        (
+                                            "Une fois le diagnostic "
+                                            "effectué, poursuivez vers "
+                                            "EIDPP pour traiter et préparer "
+                                            "le jeu de données."
+                                        ),
+                                        className=(
+                                            "inspection-v2-section-subtitle"
+                                        ),
+                                    ),
+                                ]
+                            ),
+
+                            html.Div(
+                                [
+                                    dcc.Link(
+                                        [
+                                            html.I(
+                                                className=(
+                                                    "bi bi-arrow-left "
+                                                    "me-2"
+                                                )
+                                            ),
+                                            "Retour au projet",
+                                        ],
+                                        href=(
+                                            f"/projects/{project_id}"
+                                        ),
+                                        className=(
+                                            "inspection-v2-secondary-link"
+                                        ),
+                                    ),
+
+                                    dcc.Link(
+                                        [
+                                            "Ouvrir EIDPP",
+                                            html.I(
+                                                className=(
+                                                    "bi bi-arrow-right "
+                                                    "ms-2"
+                                                )
+                                            ),
+                                        ],
+                                        href=(
+                                            f"/projects/{project_id}"
+                                            f"/datasets/{dataset_id}/eidpp"
+                                        ),
+                                        className=(
+                                            "inspection-v2-primary-link"
+                                        ),
+                                    ),
+                                ],
+                                className=(
+                                    "inspection-v2-actions"
+                                ),
+                            ),
+                        ],
+                        className=(
+                            "inspection-v2-next-card"
+                        ),
+                    ),
+                ],
+                className="inspection-v2-next-section",
+            ),
+
+            # --------------------------------------------------
+            # STORES
+            # --------------------------------------------------
 
             dcc.Store(
                 id="inspection-project-id",
                 data=project_id,
             ),
+
             dcc.Store(
                 id="inspection-dataset-id",
                 data=dataset_id,
             ),
         ],
-        fluid=True
+        fluid=True,
+        className="inspection-v2-page",
     )
 
 @callback(

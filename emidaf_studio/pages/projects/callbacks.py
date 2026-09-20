@@ -5,11 +5,23 @@ from dash import State
 from dash import callback
 from dash import no_update
 from dash import ctx
+from flask import session
 
 from database.models.project_model import ProjectModel
 from emidaf_core.bootstrap import Bootstrap
 
 from emidaf_studio.components.cards import ProjectCard
+
+
+def _current_user_id() -> int:
+    user_id = session.get("user_id")
+
+    if user_id is None:
+        raise PermissionError(
+            "Utilisateur non authentifié."
+        )
+
+    return int(user_id)
 
 
 # ==========================================================
@@ -126,7 +138,7 @@ def manage_projects(
                 True,
                 no_update,
                 no_update,
-                "Veuillez sélectionner un workspace.",
+                "Veuillez sélectionner un espace de travail.",
                 True
             )
 
@@ -143,7 +155,7 @@ def manage_projects(
                 True,
                 no_update,
                 no_update,
-                "Le workspace sélectionné est invalide.",
+                "L’espace de travail sélectionné est invalide.",
                 True
             )
 
@@ -157,7 +169,7 @@ def manage_projects(
                 True,
                 no_update,
                 no_update,
-                "Le workspace sélectionné n'existe pas.",
+                "L’espace de travail sélectionné n’existe pas.",
                 True
             )
 
@@ -167,6 +179,7 @@ def manage_projects(
 
         project = ProjectModel(
             workspace_id=workspace_id,
+            user_id=_current_user_id(),
             name=project_name.strip(),
             description=(project_description or "").strip()
         )
@@ -193,7 +206,7 @@ def manage_projects(
         # Actualisation de la liste
         # --------------------------------------------------
 
-        projects = project_controller.get_all()
+        projects = project_controller.get_all_for_user(_current_user_id())
 
         project_cards = [
             ProjectCard.create(project)
@@ -252,7 +265,7 @@ def select_project(n_clicks):
 
     project_controller = bootstrap.project_controller
 
-    project = project_controller.get(project_id)
+    project = project_controller.get_for_user(project_id, _current_user_id())
 
     if project is None:
         return (
@@ -350,7 +363,7 @@ def request_delete_project(
                 True
             )
 
-        project = project_controller.get(project_id)
+        project = project_controller.get_for_user(project_id, _current_user_id())
 
         if project is None:
 
@@ -389,7 +402,7 @@ def request_delete_project(
                 True
             )
 
-        project = project_controller.get(project_id)
+        project = project_controller.get_for_user(project_id, _current_user_id())
 
         if project is None:
 
@@ -406,7 +419,7 @@ def request_delete_project(
 
         try:
 
-            project_controller.delete(project_id)
+            project_controller.delete_for_user(project_id, _current_user_id())
 
         except Exception as exc:
 
@@ -423,7 +436,7 @@ def request_delete_project(
         # Actualisation de la liste
         # --------------------------------------------------
 
-        projects = project_controller.get_all()
+        projects = project_controller.get_all_for_user(_current_user_id())
 
         project_cards = [
             ProjectCard.create(project)

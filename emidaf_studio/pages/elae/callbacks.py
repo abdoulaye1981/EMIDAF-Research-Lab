@@ -17,6 +17,10 @@ from dash import (
 
 import dash_bootstrap_components as dbc
 
+from emidaf_studio.services.model_registry import (
+    merge_analysis_section,
+)
+
 from emidaf_core.dataset.profiler import DatasetProfiler
 
 
@@ -58,6 +62,32 @@ def _numeric_like(series):
     )
 
 
+def _persist_elae(
+    project_id,
+    dataset_id,
+    section,
+    payload,
+):
+    """
+    Persiste atomiquement une sous-section ELAE
+    sans écraser les autres résultats du même stage.
+    """
+
+    if (
+        project_id is None
+        or dataset_id is None
+    ):
+        return
+
+    merge_analysis_section(
+        project_id,
+        dataset_id,
+        "elae",
+        section,
+        payload,
+    )
+
+
 @callback(
     Output(
         "elae-descriptive",
@@ -67,8 +97,20 @@ def _numeric_like(series):
         "elae-data",
         "data",
     ),
+    State(
+        "elae-project-id",
+        "data",
+    ),
+    State(
+        "elae-dataset-id",
+        "data",
+    ),
 )
-def descriptive_analysis(data):
+def descriptive_analysis(
+    data,
+    project_id,
+    dataset_id,
+):
 
     dataframe = _df(data)
 
@@ -134,7 +176,25 @@ def descriptive_analysis(data):
             )
         )
 
-    return _table(summary.round(4))
+    summary = summary.round(4)
+
+    _persist_elae(
+        project_id,
+        dataset_id,
+        "descriptive",
+        {
+            "numeric_variables": (
+                list(numeric.columns)
+            ),
+            "summary": (
+                summary.to_dict(
+                    orient="records"
+                )
+            ),
+        },
+    )
+
+    return _table(summary)
 
 
 @callback(
@@ -154,8 +214,21 @@ def descriptive_analysis(data):
         "elae-data",
         "data",
     ),
+    State(
+        "elae-project-id",
+        "data",
+    ),
+    State(
+        "elae-dataset-id",
+        "data",
+    ),
 )
-def univariate(variable, data):
+def univariate(
+    variable,
+    data,
+    project_id,
+    dataset_id,
+):
 
     dataframe = _df(data)
 
@@ -172,6 +245,70 @@ def univariate(variable, data):
         )
 
     series = dataframe[variable]
+
+    if _numeric_like(series):
+
+        persisted_numeric = pd.to_numeric(
+            series,
+            errors="coerce",
+        )
+
+        _persist_elae(
+            project_id,
+            dataset_id,
+            "univariate",
+            {
+                "variable": variable,
+                "type": "numeric",
+                "statistics": {
+                    "count": int(
+                        persisted_numeric.notna().sum()
+                    ),
+                    "missing": int(
+                        persisted_numeric.isna().sum()
+                    ),
+                    "mean": persisted_numeric.mean(),
+                    "median": persisted_numeric.median(),
+                    "std": persisted_numeric.std(),
+                    "minimum": persisted_numeric.min(),
+                    "q1": persisted_numeric.quantile(0.25),
+                    "q3": persisted_numeric.quantile(0.75),
+                    "maximum": persisted_numeric.max(),
+                    "skewness": persisted_numeric.skew(),
+                },
+            },
+        )
+
+    else:
+
+        counts = (
+            series
+            .fillna("<Manquant>")
+            .astype(str)
+            .value_counts(
+                dropna=False
+            )
+        )
+
+        _persist_elae(
+            project_id,
+            dataset_id,
+            "univariate",
+            {
+                "variable": variable,
+                "type": "categorical",
+                "count": int(series.notna().sum()),
+                "missing": int(series.isna().sum()),
+                "unique": int(
+                    series.nunique(
+                        dropna=True
+                    )
+                ),
+                "frequencies": (
+                    counts.to_dict()
+                ),
+            },
+        )
 
     if _numeric_like(series):
 
@@ -278,8 +415,22 @@ def univariate(variable, data):
         "elae-data",
         "data",
     ),
+    State(
+        "elae-project-id",
+        "data",
+    ),
+    State(
+        "elae-dataset-id",
+        "data",
+    ),
 )
-def bivariate(x, y, data):
+def bivariate(
+    x,
+    y,
+    data,
+    project_id,
+    dataset_id,
+):
 
     dataframe = _df(data)
 
@@ -303,6 +454,171 @@ def bivariate(x, y, data):
     y_num = _numeric_like(
         dataframe[y]
     )
+
+
+    if x_num and y_num:
+
+        persisted = pd.DataFrame(
+            {
+                x: pd.to_numeric(
+                    dataframe[x],
+                    errors="coerce",
+                ),
+                y: pd.to_numeric(
+                    dataframe[y],
+                    errors="coerce",
+                ),
+            }
+        ).dropna()
+
+        _persist_elae(
+            project_id,
+            dataset_id,
+            "bivariate",
+            {
+                "x": x,
+                "y": y,
+                "relationship_type": (
+                    "numeric_numeric"
+                ),
+                "n": int(len(persisted)),
+                "pearson_correlation": (
+                    float(
+                        persisted[x].corr(
+                            persisted[y]
+                        )
+                    )
+                    if len(persisted) >= 2
+                    else None
+                ),
+            },
+        )
+
+    elif not x_num and y_num:
+
+        persisted = (
+            dataframe[[x, y]]
+            .assign(
+                **{
+                    y: pd.to_numeric(
+                        dataframe[y],
+                        errors="coerce",
+                    )
+                }
+            )
+            .groupby(
+                x,
+                dropna=False,
+            )[y]
+            .agg(
+                [
+                    "count",
+                    "mean",
+                    "median",
+                    "std",
+                    "min",
+                    "max",
+                ]
+            )
+            .reset_index()
+        )
+
+        _persist_elae(
+            project_id,
+            dataset_id,
+            "bivariate",
+            {
+                "x": x,
+                "y": y,
+                "relationship_type": (
+                    "categorical_numeric"
+                ),
+                "group_summary": (
+                    persisted
+                    .round(6)
+                    .to_dict(
+                        orient="records"
+                    )
+                ),
+            },
+        )
+
+    elif x_num and not y_num:
+
+        persisted = (
+            dataframe[[x, y]]
+            .assign(
+                **{
+                    x: pd.to_numeric(
+                        dataframe[x],
+                        errors="coerce",
+                    )
+                }
+            )
+            .groupby(
+                y,
+                dropna=False,
+            )[x]
+            .agg(
+                [
+                    "count",
+                    "mean",
+                    "median",
+                    "std",
+                    "min",
+                    "max",
+                ]
+            )
+            .reset_index()
+        )
+
+        _persist_elae(
+            project_id,
+            dataset_id,
+            "bivariate",
+            {
+                "x": x,
+                "y": y,
+                "relationship_type": (
+                    "numeric_categorical"
+                ),
+                "group_summary": (
+                    persisted
+                    .round(6)
+                    .to_dict(
+                        orient="records"
+                    )
+                ),
+            },
+        )
+
+    else:
+
+        contingency = pd.crosstab(
+            dataframe[x],
+            dataframe[y],
+            dropna=False,
+        )
+
+        _persist_elae(
+            project_id,
+            dataset_id,
+            "bivariate",
+            {
+                "x": x,
+                "y": y,
+                "relationship_type": (
+                    "categorical_categorical"
+                ),
+                "contingency_table": (
+                    contingency
+                    .reset_index()
+                    .to_dict(
+                        orient="records"
+                    )
+                ),
+            },
+        )
 
     # ==========================================
     # Numérique / numérique
@@ -475,8 +791,20 @@ def bivariate(x, y, data):
         "elae-data",
         "data",
     ),
+    State(
+        "elae-project-id",
+        "data",
+    ),
+    State(
+        "elae-dataset-id",
+        "data",
+    ),
 )
-def correlations(data):
+def correlations(
+    data,
+    project_id,
+    dataset_id,
+):
 
     dataframe = _df(data)
 
@@ -546,6 +874,22 @@ def correlations(data):
         )
     )
 
+    _persist_elae(
+        project_id,
+        dataset_id,
+        "correlations",
+        {
+            "variables": (
+                list(corr.columns)
+            ),
+            "matrix": (
+                corr
+                .round(6)
+                .to_dict()
+            ),
+        },
+    )
+
     return (
         _table(display),
         figure,
@@ -573,11 +917,21 @@ def correlations(data):
         "elae-data",
         "data",
     ),
+    State(
+        "elae-project-id",
+        "data",
+    ),
+    State(
+        "elae-dataset-id",
+        "data",
+    ),
 )
 def grouped_analysis(
     group_variable,
     value_variable,
     data,
+    project_id,
+    dataset_id,
 ):
 
     dataframe = _df(data)
@@ -598,6 +952,62 @@ def grouped_analysis(
             ),
             {},
         )
+
+    persisted_values = pd.to_numeric(
+        dataframe[value_variable],
+        errors="coerce",
+    )
+
+    persisted_frame = pd.DataFrame(
+        {
+            group_variable: (
+                dataframe[group_variable]
+            ),
+            value_variable: (
+                persisted_values
+            ),
+        }
+    )
+
+    persisted_summary = (
+        persisted_frame
+        .groupby(
+            group_variable,
+            dropna=False,
+        )[value_variable]
+        .agg(
+            [
+                "count",
+                "mean",
+                "median",
+                "std",
+                "min",
+                "max",
+            ]
+        )
+        .reset_index()
+    )
+
+    _persist_elae(
+        project_id,
+        dataset_id,
+        "grouped",
+        {
+            "group_variable": (
+                group_variable
+            ),
+            "value_variable": (
+                value_variable
+            ),
+            "summary": (
+                persisted_summary
+                .round(6)
+                .to_dict(
+                    orient="records"
+                )
+            ),
+        },
+    )
 
     temp = dataframe[
         [

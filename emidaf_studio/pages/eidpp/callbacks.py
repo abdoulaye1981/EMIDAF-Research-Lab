@@ -23,6 +23,10 @@ from emidaf_core.preprocessing import (
     Scaling,
 )
 
+from emidaf_studio.services.model_registry import (
+    register_analysis,
+)
+
 
 def _deserialize(data):
     return pd.read_json(
@@ -412,6 +416,14 @@ def _scale_dataframe(dataframe, method):
         "eidpp-scaling",
         "value",
     ),
+    State(
+        "eidpp-project-id",
+        "data",
+    ),
+    State(
+        "eidpp-dataset-id",
+        "data",
+    ),
     prevent_initial_call=True,
 )
 def apply_preprocessing(
@@ -423,6 +435,8 @@ def apply_preprocessing(
     outliers,
     encoding,
     scaling,
+    project_id,
+    dataset_id,
 ):
 
     if not n_clicks:
@@ -515,6 +529,49 @@ def apply_preprocessing(
 
         dataframe = dataframe.reset_index(
             drop=True
+        )
+
+
+        # ==========================================
+        # PERSISTANCE EIDPP
+        # ==========================================
+
+        register_analysis(
+            project_id,
+            dataset_id,
+            "eidpp",
+            {
+                "before_metrics": _metrics(
+                    original
+                ),
+                "after_metrics": _metrics(
+                    dataframe
+                ),
+                "operations": {
+                    "imputation": imputation,
+                    "duplicates": duplicates,
+                    "outliers": outliers,
+                    "encoding": encoding,
+                    "scaling": scaling,
+                },
+                "converted_columns": list(
+                    converted_columns
+                ),
+                "rows_before": int(
+                    original.shape[0]
+                ),
+                "rows_after": int(
+                    dataframe.shape[0]
+                ),
+                "columns_before": int(
+                    original.shape[1]
+                ),
+                "columns_after": int(
+                    dataframe.shape[1]
+                ),
+                "processed_dataframe":
+                    dataframe.copy(),
+            },
         )
 
         return (

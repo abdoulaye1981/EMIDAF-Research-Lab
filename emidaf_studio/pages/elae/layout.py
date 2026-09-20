@@ -50,14 +50,16 @@ def elae_layout(project_id, dataset_id):
     return dbc.Container(
         [
             html.H2(
-                "📊 ELAE — Analyse exploratoire des données",
+                "Analyse exploratoire des données : ELAE",
                 className="mt-3",
             ),
 
             html.P(
                 (
-                    "Exploration statistique et graphique "
-                    "interactive du dataset."
+                    "Explorez les distributions, relations et principales "
+                    "caractéristiques du jeu de données avant toute "
+                    "modélisation. Les résultats sont descriptifs et "
+                    "ne constituent pas, à eux seuls, des relations causales."
                 ),
                 className="text-muted",
             ),
@@ -133,7 +135,7 @@ def elae_layout(project_id, dataset_id):
                     dbc.Tab(
                         [
                             html.H4(
-                                "📋 Statistiques descriptives",
+                                "Statistiques descriptives",
                                 className="mt-4",
                             ),
 
@@ -151,7 +153,7 @@ def elae_layout(project_id, dataset_id):
                     dbc.Tab(
                         [
                             html.H4(
-                                "📈 Analyse univariée",
+                                "Analyse univariée",
                                 className="mt-4",
                             ),
 
@@ -195,7 +197,7 @@ def elae_layout(project_id, dataset_id):
                     dbc.Tab(
                         [
                             html.H4(
-                                "🔗 Analyse bivariée",
+                                "Analyse bivariée",
                                 className="mt-4",
                             ),
 
@@ -390,7 +392,7 @@ def elae_layout(project_id, dataset_id):
                     dbc.Col(
                         dcc.Link(
                             dbc.Button(
-                                "🧹 EIDPP",
+                                "Prétraitement",
                                 color="primary",
                                 outline=True,
                                 className="w-100",
@@ -406,7 +408,7 @@ def elae_layout(project_id, dataset_id):
                     dbc.Col(
                         dcc.Link(
                             dbc.Button(
-                                "🧠 Ouvrir EKDE",
+                                "Ouvrir EKDE",
                                 color="success",
                                 className="w-100",
                             ),

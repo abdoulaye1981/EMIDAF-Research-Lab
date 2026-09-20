@@ -210,19 +210,6 @@ class DatasetProfiler:
             context
         )
 
-        print("\n======================================")
-        print("DEBUG ANALYZER RESULTS")
-        print("======================================")
-
-        for ar in analyzer_results:
-
-            print(
-                "NAME :", ar.name,
-                "| ANALYZER :", ar.analyzer,
-                "| STATUS :", ar.status
-            )
-
-        print("======================================\n")
 
         profile = self.builder.build(
             analyzer_results=analyzer_results,

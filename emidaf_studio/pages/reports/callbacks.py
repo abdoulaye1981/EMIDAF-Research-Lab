@@ -1,0 +1,1274 @@
+from __future__ import annotations
+
+import json
+
+from dash import (
+    Input,
+    Output,
+    State,
+    callback,
+    dcc,
+    html,
+    no_update,
+)
+
+import dash_bootstrap_components as dbc
+
+from emidaf_core.reporting import (
+    ReportEngine,
+    ReportRenderer,
+)
+
+from emidaf_studio.pages.inspection.layout import (
+    load_dataset,
+)
+
+from emidaf_studio.services.model_registry import (
+    get_all_analyses,
+)
+
+
+def _stage_unavailable(stage_name):
+
+    return {
+        "status": "non_disponible",
+        "message": (
+            f"Les résultats de l'étape "
+            f"« {stage_name} » ne sont pas "
+            "persistés dans la session actuelle."
+        ),
+    }
+
+
+@callback(
+    Output(
+        "reports-status",
+        "children",
+    ),
+    Output(
+        "reports-preview",
+        "children",
+    ),
+    Output(
+        "reports-generated-content",
+        "data",
+    ),
+    Output(
+        "reports-generated-filename",
+        "data",
+    ),
+    Output(
+        "reports-download-button",
+        "disabled",
+    ),
+    Input(
+        "reports-generate",
+        "n_clicks",
+    ),
+    State(
+        "reports-title",
+        "value",
+    ),
+    State(
+        "reports-sections",
+        "value",
+    ),
+    State(
+        "reports-format",
+        "value",
+    ),
+    State(
+        "reports-project-id",
+        "data",
+    ),
+    State(
+        "reports-dataset-id",
+        "data",
+    ),
+    prevent_initial_call=True,
+)
+def generate_report(
+    n_clicks,
+    title,
+    selected_sections,
+    export_format,
+    project_id,
+    dataset_id,
+):
+
+    if not n_clicks:
+        return (
+            no_update,
+            no_update,
+            no_update,
+            no_update,
+            no_update,
+        )
+
+    if not selected_sections:
+        return (
+            dbc.Alert(
+                (
+                    "Sélectionnez au moins "
+                    "une section."
+                ),
+                color="warning",
+            ),
+            "",
+            None,
+            None,
+            True,
+        )
+
+    project, dataset, dataframe = load_dataset(
+        project_id,
+        dataset_id,
+    )
+
+    if isinstance(dataframe, str):
+        return (
+            dbc.Alert(
+                dataframe,
+                color="danger",
+            ),
+            "",
+            None,
+            None,
+            True,
+        )
+
+    analyses = get_all_analyses(
+        project_id,
+        dataset_id,
+    )
+
+    eidpp_context = analyses.get("eidpp")
+    elae_context = analyses.get("elae")
+    ekde_context = analyses.get("ekde")
+    eaie_context = analyses.get("eaie")
+    exaie_context = analyses.get("exaie")
+    edse_context = analyses.get("edse")
+
+    report_title = (
+        title.strip()
+        if title and title.strip()
+        else "Rapport d'analyse EMIDAF"
+    )
+
+    engine = ReportEngine(
+        title=report_title,
+        subtitle=(
+            f"Projet : {project.name} — "
+            f"Jeu de données : {dataset.name}"
+        ),
+        summary=(
+            "Rapport consolidé des résultats "
+            "disponibles dans le pipeline EMIDAF."
+        ),
+    )
+
+    # ======================================================
+    # Projet
+    # ======================================================
+
+    if "project" in selected_sections:
+
+        engine.add_stage(
+            "project",
+            {
+                "project_id": project_id,
+                "project_name": project.name,
+                "dataset_id": dataset_id,
+                "dataset_name": dataset.name,
+                "observations": len(dataframe),
+                "variables": len(
+                    dataframe.columns
+                ),
+                "columns": list(
+                    dataframe.columns
+                ),
+            },
+            interpretation=(
+                "Cette section décrit le contexte "
+                "du projet et le jeu de données "
+                "utilisé dans l'analyse."
+            ),
+        )
+
+    # ======================================================
+    # Inspection
+    # ======================================================
+
+    if "inspection" in selected_sections:
+
+        missing_total = int(
+            dataframe.isna().sum().sum()
+        )
+
+        duplicate_rows = int(
+            dataframe.duplicated().sum()
+        )
+
+        engine.add_stage(
+            "inspection",
+            {
+                "shape": {
+                    "rows": len(dataframe),
+                    "columns": len(
+                        dataframe.columns
+                    ),
+                },
+                "missing_values_total": (
+                    missing_total
+                ),
+                "duplicate_rows": (
+                    duplicate_rows
+                ),
+                "data_types": {
+                    column: str(dtype)
+                    for column, dtype
+                    in dataframe.dtypes.items()
+                },
+            },
+            interpretation=(
+                "Synthèse structurelle du jeu "
+                "de données chargé dans EMIDAF."
+            ),
+            limitations=[
+                (
+                    "Cette synthèse reprend uniquement "
+                    "des indicateurs structurels simples. "
+                    "Elle ne remplace pas le diagnostic "
+                    "complet du module Inspection."
+                )
+            ],
+        )
+
+    # ======================================================
+    # Prétraitement
+    # ======================================================
+
+    if "preprocessing" in selected_sections:
+
+        if eidpp_context is None:
+
+            engine.add_stage(
+                "preprocessing",
+                _stage_unavailable(
+                    "Prétraitement des données"
+                ),
+                limitations=[
+                    (
+                        "Aucun résultat EIDPP "
+                        "persisté n'est disponible "
+                        "pour ce jeu de données."
+                    )
+                ],
+            )
+
+        else:
+
+            before = eidpp_context.get(
+                "before_metrics",
+                {},
+            )
+
+            after = eidpp_context.get(
+                "after_metrics",
+                {},
+            )
+
+            comparison = [
+                {
+                    "Indicateur": "Observations",
+                    "Avant": before.get(
+                        "rows"
+                    ),
+                    "Après": after.get(
+                        "rows"
+                    ),
+                },
+                {
+                    "Indicateur": "Variables",
+                    "Avant": before.get(
+                        "columns"
+                    ),
+                    "Après": after.get(
+                        "columns"
+                    ),
+                },
+                {
+                    "Indicateur": "Cellules",
+                    "Avant": before.get(
+                        "cells"
+                    ),
+                    "Après": after.get(
+                        "cells"
+                    ),
+                },
+                {
+                    "Indicateur": (
+                        "Valeurs manquantes"
+                    ),
+                    "Avant": before.get(
+                        "missing"
+                    ),
+                    "Après": after.get(
+                        "missing"
+                    ),
+                },
+                {
+                    "Indicateur": "Doublons",
+                    "Avant": before.get(
+                        "duplicates"
+                    ),
+                    "Après": after.get(
+                        "duplicates"
+                    ),
+                },
+            ]
+
+            operations = (
+                eidpp_context.get(
+                    "operations",
+                    {},
+                )
+                or {}
+            )
+
+            transformations = {}
+
+            imputation = operations.get(
+                "imputation"
+            )
+
+            if imputation not in (
+                None,
+                "",
+                "none",
+            ):
+                transformations[
+                    "Imputation"
+                ] = imputation
+
+            duplicates = operations.get(
+                "duplicates"
+            )
+
+            if duplicates:
+
+                if (
+                    isinstance(
+                        duplicates,
+                        list,
+                    )
+                    and "remove"
+                    in duplicates
+                ):
+                    transformations[
+                        "Doublons"
+                    ] = (
+                        "Suppression des "
+                        "lignes dupliquées"
+                    )
+
+                elif duplicates not in (
+                    None,
+                    "",
+                    "none",
+                    [],
+                ):
+                    transformations[
+                        "Doublons"
+                    ] = duplicates
+
+            outliers = operations.get(
+                "outliers"
+            )
+
+            if outliers not in (
+                None,
+                "",
+                "none",
+            ):
+                transformations[
+                    "Valeurs aberrantes"
+                ] = outliers
+
+            encoding = operations.get(
+                "encoding"
+            )
+
+            if encoding not in (
+                None,
+                "",
+                "none",
+            ):
+                transformations[
+                    "Encodage"
+                ] = encoding
+
+            scaling = operations.get(
+                "scaling"
+            )
+
+            if scaling not in (
+                None,
+                "",
+                "none",
+            ):
+                transformations[
+                    "Mise à l'échelle"
+                ] = scaling
+
+            converted_columns = (
+                eidpp_context.get(
+                    "converted_columns",
+                    [],
+                )
+                or []
+            )
+
+            data = {
+                "comparison": comparison,
+            }
+
+            if transformations:
+
+                data[
+                    "transformations"
+                ] = transformations
+
+            else:
+
+                data[
+                    "synthese_traitement"
+                ] = (
+                    "Aucune transformation "
+                    "substantielle n'a été "
+                    "nécessaire lors de cette "
+                    "exécution du prétraitement."
+                )
+
+            if converted_columns:
+
+                data[
+                    "converted_columns"
+                ] = converted_columns
+
+            engine.add_stage(
+                "preprocessing",
+                data,
+                interpretation=(
+                    "Le tableau compare l'état du "
+                    "jeu de données avant et après "
+                    "les traitements réellement "
+                    "appliqués par EIDPP. "
+                    "Le jeu de données source "
+                    "reste inchangé."
+                ),
+                limitations=[
+                    (
+                        "Les transformations appliquées "
+                        "doivent être interprétées au "
+                        "regard de l'objectif analytique "
+                        "et de la nature des variables."
+                    )
+                ],
+            )
+
+    # ======================================================
+    # ELAE
+    # ======================================================
+
+    if "elae" in selected_sections:
+
+        if elae_context is None:
+
+            engine.add_stage(
+                "elae",
+                _stage_unavailable(
+                    "Analyse exploratoire"
+                ),
+            )
+
+        else:
+
+            engine.add_stage(
+                "elae",
+                elae_context,
+                interpretation=(
+                    "Résultats de l'analyse "
+                    "exploratoire produits par ELAE."
+                ),
+            )
+
+    # ======================================================
+    # EKDE
+    # ======================================================
+
+    if "ekde" in selected_sections:
+
+        if ekde_context is None:
+
+            engine.add_stage(
+                "ekde",
+                _stage_unavailable(
+                    "Découverte de connaissances"
+                ),
+            )
+
+        else:
+
+            engine.add_stage(
+                "ekde",
+                ekde_context,
+                interpretation=(
+                    "Résultats de découverte de "
+                    "connaissances produits par EKDE."
+                ),
+            )
+
+    # ======================================================
+    # EAIE
+    # ======================================================
+
+    if "eaie" in selected_sections:
+
+        if eaie_context is None:
+
+            engine.add_stage(
+                "eaie",
+                _stage_unavailable(
+                    "Modélisation prédictive"
+                ),
+                limitations=[
+                    (
+                        "Aucune exécution EAIE "
+                        "n'est disponible dans "
+                        "la session actuelle."
+                    )
+                ],
+            )
+
+        else:
+
+            cv_mean = eaie_context.get(
+                "cv_mean"
+            )
+
+            test_score = eaie_context.get(
+                "test_score"
+            )
+
+            limitations = []
+
+            if (
+                eaie_context.get("task")
+                == "regression"
+                and (
+                    (
+                        cv_mean is not None
+                        and cv_mean <= 0
+                    )
+                    or (
+                        test_score is not None
+                        and test_score <= 0
+                    )
+                )
+            ):
+                limitations.append(
+                    (
+                        "La capacité prédictive "
+                        "du modèle n'est pas "
+                        "convaincante au regard "
+                        "des scores observés."
+                    )
+                )
+
+            engine.add_stage(
+                "eaie",
+                {
+                    "model": (
+                        eaie_context.get(
+                            "model_name"
+                        )
+                    ),
+                    "task": (
+                        eaie_context.get(
+                            "task"
+                        )
+                    ),
+                    "target": (
+                        eaie_context.get(
+                            "target"
+                        )
+                    ),
+                    "features": (
+                        eaie_context.get(
+                            "features",
+                            [],
+                        )
+                    ),
+                    "cv_mean": cv_mean,
+                    "cv_std": (
+                        eaie_context.get(
+                            "cv_std"
+                        )
+                    ),
+                    "test_score": (
+                        test_score
+                    ),
+                },
+                interpretation=(
+                    "Résultats issus du modèle "
+                    "sélectionné par EAIE."
+                ),
+                limitations=limitations,
+            )
+
+    # ======================================================
+    # EXAIE
+    # ======================================================
+
+    if "exaie" in selected_sections:
+
+        if exaie_context is None:
+
+            engine.add_stage(
+                "exaie",
+                _stage_unavailable(
+                    "Explicabilité des modèles"
+                ),
+                limitations=[
+                    (
+                        "Aucune analyse EXAIE "
+                        "persistée n'est disponible."
+                    )
+                ],
+            )
+
+        else:
+
+            summary = (
+                exaie_context.get(
+                    "summary",
+                    {},
+                )
+                or {}
+            )
+
+            cv_mean = exaie_context.get(
+                "cv_mean"
+            )
+
+            cv_std = exaie_context.get(
+                "cv_std"
+            )
+
+            test_score = exaie_context.get(
+                "test_score"
+            )
+
+            performance = {
+                "Score moyen en validation croisée": (
+                    round(
+                        float(cv_mean),
+                        4,
+                    )
+                    if cv_mean is not None
+                    else None
+                ),
+                "Écart-type en validation croisée": (
+                    round(
+                        float(cv_std),
+                        4,
+                    )
+                    if cv_std is not None
+                    else None
+                ),
+                "Score sur le jeu de test": (
+                    round(
+                        float(test_score),
+                        4,
+                    )
+                    if test_score is not None
+                    else None
+                ),
+            }
+
+            native_text = (
+                summary.get(
+                    "native_interpretation"
+                )
+                if isinstance(
+                    summary,
+                    dict,
+                )
+                else None
+            )
+
+            permutation_text = (
+                summary.get(
+                    "permutation_interpretation"
+                )
+                if isinstance(
+                    summary,
+                    dict,
+                )
+                else None
+            )
+
+            exaie_data = {
+                "model": (
+                    exaie_context.get(
+                        "model_name"
+                    )
+                ),
+                "task": (
+                    exaie_context.get(
+                        "task"
+                    )
+                ),
+                "target": (
+                    exaie_context.get(
+                        "target"
+                    )
+                ),
+                "performance": performance,
+            }
+
+            if native_text:
+
+                exaie_data[
+                    "importance_native"
+                ] = {
+                    "interpretation":
+                        native_text
+                }
+
+            if permutation_text:
+
+                exaie_data[
+                    "importance_permutation"
+                ] = {
+                    "interpretation":
+                        permutation_text
+                }
+
+            predictive_warning = (
+                exaie_context.get(
+                    "predictive_warning"
+                )
+            )
+
+            if predictive_warning:
+
+                exaie_data[
+                    "predictive_warning"
+                ] = predictive_warning
+
+            engine.add_stage(
+                "exaie",
+                exaie_data,
+                interpretation=(
+                    "EXAIE explique le comportement "
+                    "du modèle sélectionné par EAIE "
+                    "à partir d'informations globales "
+                    "et, lorsqu'elles sont disponibles, "
+                    "d'analyses par permutation ou "
+                    "d'explications locales."
+                ),
+                limitations=(
+                    exaie_context.get(
+                        "limitations",
+                        [
+                            (
+                                "Les importances et "
+                                "explications prédictives "
+                                "décrivent le comportement "
+                                "du modèle et ne constituent "
+                                "pas une preuve de causalité."
+                            )
+                        ],
+                    )
+                ),
+            )
+
+    # ======================================================
+    # EDSE
+    # ======================================================
+
+    if "edse" in selected_sections:
+
+        if edse_context is None:
+
+            engine.add_stage(
+                "edse",
+                _stage_unavailable(
+                    "Aide à la décision"
+                ),
+                limitations=[
+                    (
+                        "Aucune analyse EDSE "
+                        "persistée n'est disponible."
+                    )
+                ],
+            )
+
+        else:
+
+            engine.add_stage(
+                "edse",
+                {
+                    "model": (
+                        edse_context.get(
+                            "model_name"
+                        )
+                    ),
+                    "task": (
+                        edse_context.get(
+                            "task"
+                        )
+                    ),
+                    "target": (
+                        edse_context.get(
+                            "target"
+                        )
+                    ),
+                    "threshold": (
+                        edse_context.get(
+                            "threshold"
+                        )
+                    ),
+                    "direction": (
+                        edse_context.get(
+                            "direction"
+                        )
+                    ),
+                    "summary": (
+                        edse_context.get(
+                            "summary"
+                        )
+                    ),
+                },
+                interpretation=(
+                    "Les résultats EDSE fournissent "
+                    "une aide structurée à l'analyse "
+                    "de scénarios. Ils ne prennent "
+                    "pas la décision à la place "
+                    "de l'utilisateur."
+                ),
+                limitations=[
+                    (
+                        "Les seuils décisionnels "
+                        "doivent être définis et "
+                        "justifiés selon le contexte "
+                        "d'utilisation."
+                    ),
+                    (
+                        "Les résultats prédictifs "
+                        "doivent être considérés avec "
+                        "les performances et limites "
+                        "du modèle EAIE."
+                    ),
+                ],
+            )
+
+    report = engine.build()
+
+    if export_format == "markdown":
+
+        content = ReportRenderer.markdown(
+            report
+        )
+
+        extension = "md"
+
+    elif export_format == "json":
+
+        content = ReportRenderer.json(
+            report
+        )
+
+        extension = "json"
+
+    else:
+
+        content = ReportRenderer.html(
+            report
+        )
+
+        extension = "html"
+
+    filename = (
+        "rapport_emidaf_"
+        f"projet_{project_id}_"
+        f"dataset_{dataset_id}."
+        f"{extension}"
+    )
+
+    sections = report.metadata.get(
+        "structured_sections",
+        [],
+    )
+
+    def _preview_scalar(value):
+
+        if value is None:
+            return "—"
+
+        if isinstance(value, bool):
+            return "Oui" if value else "Non"
+
+        if isinstance(value, float):
+            return f"{value:.4f}"
+
+        if isinstance(value, list):
+            return ", ".join(
+                str(item)
+                for item in value
+            )
+
+        return str(value)
+
+
+    def _preview_table(data):
+
+        if not isinstance(data, dict):
+            return html.Pre(
+                json.dumps(
+                    data,
+                    ensure_ascii=False,
+                    indent=2,
+                    default=str,
+                ),
+                className="mb-0",
+            )
+
+        rows = []
+
+        simple_values = {}
+
+        for key, value in data.items():
+
+            if isinstance(
+                value,
+                (
+                    dict,
+                    list,
+                    tuple,
+                ),
+            ):
+                continue
+
+            simple_values[key] = value
+
+        if simple_values:
+
+            for key, value in simple_values.items():
+
+                label = (
+                    str(key)
+                    .replace("_", " ")
+                    .capitalize()
+                )
+
+                rows.append(
+                    html.Tr(
+                        [
+                            html.Th(
+                                label,
+                                style={
+                                    "width": "45%",
+                                    "fontWeight": "600",
+                                },
+                            ),
+                            html.Td(
+                                _preview_scalar(
+                                    value
+                                )
+                            ),
+                        ]
+                    )
+                )
+
+        components = []
+
+        if rows:
+
+            components.append(
+                dbc.Table(
+                    [
+                        html.Tbody(rows)
+                    ],
+                    bordered=False,
+                    hover=True,
+                    responsive=True,
+                    size="sm",
+                    className="mb-3",
+                )
+            )
+
+        for key, value in data.items():
+
+            if not isinstance(
+                value,
+                (
+                    dict,
+                    list,
+                    tuple,
+                ),
+            ):
+                continue
+
+            label = (
+                str(key)
+                .replace("_", " ")
+                .capitalize()
+            )
+
+            components.append(
+                html.H6(
+                    label,
+                    className=(
+                        "fw-semibold "
+                        "text-primary mt-3"
+                    ),
+                )
+            )
+
+            if isinstance(value, dict):
+
+                nested_rows = []
+
+                for nested_key, nested_value in value.items():
+
+                    nested_rows.append(
+                        html.Tr(
+                            [
+                                html.Th(
+                                    str(
+                                        nested_key
+                                    )
+                                    .replace(
+                                        "_",
+                                        " ",
+                                    )
+                                    .capitalize(),
+                                    style={
+                                        "width": "45%",
+                                    },
+                                ),
+                                html.Td(
+                                    _preview_scalar(
+                                        nested_value
+                                    )
+                                ),
+                            ]
+                        )
+                    )
+
+                components.append(
+                    dbc.Table(
+                        [
+                            html.Tbody(
+                                nested_rows
+                            )
+                        ],
+                        bordered=False,
+                        hover=True,
+                        responsive=True,
+                        size="sm",
+                    )
+                )
+
+            else:
+
+                components.append(
+                    html.Ul(
+                        [
+                            html.Li(
+                                _preview_scalar(
+                                    item
+                                )
+                            )
+                            for item in value
+                        ]
+                    )
+                )
+
+        if not components:
+
+            return dbc.Alert(
+                "Aucun résultat détaillé.",
+                color="secondary",
+            )
+
+        return html.Div(
+            components
+        )
+
+
+    preview_items = []
+
+    for index, section in enumerate(
+        sections,
+        start=1,
+    ):
+
+        interpretation = section.get(
+            "interpretation",
+            "",
+        )
+
+        limitations = section.get(
+            "limitations",
+            [],
+        )
+
+        card_content = [
+
+            html.Div(
+                [
+                    html.Span(
+                        f"{index:02d}",
+                        className=(
+                            "badge bg-primary "
+                            "rounded-pill me-2"
+                        ),
+                    ),
+
+                    html.Span(
+                        section["title"],
+                        className="fw-semibold",
+                    ),
+                ],
+                className="mb-3",
+            ),
+
+            _preview_table(
+                section.get(
+                    "data"
+                )
+            ),
+        ]
+
+        if interpretation:
+
+            card_content.append(
+                dbc.Alert(
+                    [
+                        html.Strong(
+                            "Interprétation"
+                        ),
+                        html.Br(),
+                        interpretation,
+                    ],
+                    color="info",
+                    className="mt-3 mb-2",
+                )
+            )
+
+        if limitations:
+
+            card_content.append(
+                dbc.Alert(
+                    [
+                        html.Strong(
+                            "Limites méthodologiques"
+                        ),
+                        html.Ul(
+                            [
+                                html.Li(
+                                    limitation
+                                )
+                                for limitation
+                                in limitations
+                            ],
+                            className="mb-0 mt-2",
+                        ),
+                    ],
+                    color="warning",
+                    className="mt-2 mb-0",
+                )
+            )
+
+        preview_items.append(
+            dbc.Card(
+                dbc.CardBody(
+                    card_content
+                ),
+                className=(
+                    "mb-4 shadow-sm "
+                    "border-0"
+                ),
+                style={
+                    "borderRadius": "12px",
+                },
+            )
+        )
+    return (
+        dbc.Alert(
+            (
+                "Rapport généré avec succès. "
+                f"{len(sections)} section(s) "
+                "ont été intégrées."
+            ),
+            color="success",
+        ),
+        preview_items,
+        content,
+        filename,
+        False,
+    )
+
+
+@callback(
+    Output(
+        "reports-download",
+        "data",
+    ),
+    Input(
+        "reports-download-button",
+        "n_clicks",
+    ),
+    State(
+        "reports-generated-content",
+        "data",
+    ),
+    State(
+        "reports-generated-filename",
+        "data",
+    ),
+    prevent_initial_call=True,
+)
+def download_report(
+    n_clicks,
+    content,
+    filename,
+):
+
+    if (
+        not n_clicks
+        or not content
+        or not filename
+    ):
+        return no_update
+
+    content_type = "text/plain"
+
+    if filename.endswith(".html"):
+        content_type = "text/html; charset=utf-8"
+
+    elif filename.endswith(".json"):
+        content_type = "application/json"
+
+    elif filename.endswith(".md"):
+        content_type = "text/markdown; charset=utf-8"
+
+    return dcc.send_string(
+        content,
+        filename,
+        type=content_type,
+    )

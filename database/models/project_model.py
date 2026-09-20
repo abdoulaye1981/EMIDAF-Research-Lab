@@ -38,6 +38,13 @@ class ProjectModel(Base):
         nullable=False
     )
 
+
+    user_id: Mapped[int | None] = mapped_column(
+        ForeignKey("users.id"),
+        nullable=True,
+        index=True,
+    )
+
     name: Mapped[str] = mapped_column(
         String(200),
         nullable=False

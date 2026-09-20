@@ -52,14 +52,16 @@ def eidpp_layout(project_id, dataset_id):
     return dbc.Container(
         [
             html.H2(
-                "🧹 EIDPP — Prétraitement des données",
+                "Prétraitement des données : EIDPP",
                 className="mt-3",
             ),
 
             html.P(
                 (
-                    "Environnement interactif de diagnostic, "
-                    "préparation et transformation des données."
+                    "Diagnostiquez, préparez et transformez les données "
+                    "avant leur exploitation statistique ou prédictive. "
+                    "Les traitements appliqués restent traçables afin "
+                    "de préserver la reproductibilité de l'analyse."
                 ),
                 className="text-muted",
             ),
@@ -93,7 +95,7 @@ def eidpp_layout(project_id, dataset_id):
             # ==================================================
 
             html.H4(
-                "📋 Dataset source",
+                "Dataset source",
                 className="mt-4",
             ),
 
@@ -136,7 +138,7 @@ def eidpp_layout(project_id, dataset_id):
             # ==================================================
 
             html.H4(
-                "⚙️ Configuration du prétraitement",
+                "Configuration du prétraitement",
                 className="mt-4",
             ),
 
@@ -203,7 +205,7 @@ def eidpp_layout(project_id, dataset_id):
                                 clearable=False,
                             ),
                         ],
-                        title="🧩 Valeurs manquantes",
+                        title="Valeurs manquantes",
                     ),
 
                     # ------------------------------------------
@@ -269,7 +271,7 @@ def eidpp_layout(project_id, dataset_id):
                                 clearable=False,
                             ),
                         ],
-                        title="⚠️ Valeurs aberrantes",
+                        title="Valeurs aberrantes",
                     ),
 
                     # ------------------------------------------
@@ -308,7 +310,7 @@ def eidpp_layout(project_id, dataset_id):
                                 clearable=False,
                             ),
                         ],
-                        title="🔤 Encodage",
+                        title="Encodage",
                     ),
 
                     # ------------------------------------------
@@ -353,7 +355,7 @@ def eidpp_layout(project_id, dataset_id):
                                 clearable=False,
                             ),
                         ],
-                        title="📏 Scaling / Normalisation",
+                        title="Scaling / Normalisation",
                     ),
                 ],
                 start_collapsed=True,
@@ -369,7 +371,7 @@ def eidpp_layout(project_id, dataset_id):
                 [
                     dbc.Col(
                         dbc.Button(
-                            "▶️ Appliquer le prétraitement",
+                            "Appliquer le prétraitement",
                             id="eidpp-apply",
                             color="primary",
                             className="w-100",
@@ -379,7 +381,7 @@ def eidpp_layout(project_id, dataset_id):
 
                     dbc.Col(
                         dbc.Button(
-                            "↩️ Réinitialiser",
+                            "Réinitialiser",
                             id="eidpp-reset",
                             color="secondary",
                             outline=True,
@@ -390,7 +392,7 @@ def eidpp_layout(project_id, dataset_id):
 
                     dbc.Col(
                         dbc.Button(
-                            "💾 Exporter le CSV",
+                            "Exporter le CSV",
                             id="eidpp-download",
                             color="success",
                             outline=True,
@@ -411,7 +413,7 @@ def eidpp_layout(project_id, dataset_id):
             # ==================================================
 
             html.H4(
-                "📊 Comparaison avant / après",
+                "Comparaison avant / après",
                 className="mt-4",
             ),
 
@@ -454,7 +456,7 @@ def eidpp_layout(project_id, dataset_id):
                     dbc.Col(
                         dcc.Link(
                             dbc.Button(
-                                "📊 Ouvrir ELAE",
+                                "Ouvrir ELAE",
                                 color="primary",
                                 className="w-100",
                             ),

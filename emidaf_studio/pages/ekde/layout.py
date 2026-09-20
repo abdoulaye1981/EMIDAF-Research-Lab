@@ -135,6 +135,8 @@ def ekde_layout(project_id, dataset_id):
         ) = structure_analysis(
             0.90,
             serialized_data,
+            project_id,
+            dataset_id,
         )
     except Exception as exc:
         initial_structure = dbc.Alert(
@@ -151,6 +153,8 @@ def ekde_layout(project_id, dataset_id):
         ) = pca_analysis(
             2,
             serialized_data,
+            project_id,
+            dataset_id,
         )
     except Exception as exc:
         initial_pca_summary = dbc.Alert(
@@ -168,6 +172,8 @@ def ekde_layout(project_id, dataset_id):
             default_x,
             default_y,
             serialized_data,
+            project_id,
+            dataset_id,
         )
     except Exception as exc:
         initial_association = dbc.Alert(
@@ -178,7 +184,9 @@ def ekde_layout(project_id, dataset_id):
 
     try:
         initial_knowledge = knowledge_summary(
-            serialized_data
+            serialized_data,
+            project_id,
+            dataset_id,
         )
     except Exception as exc:
         initial_knowledge = dbc.Alert(
@@ -189,14 +197,16 @@ def ekde_layout(project_id, dataset_id):
     return dbc.Container(
         [
             html.H2(
-                "🧠 EKDE — Exploratory Knowledge Discovery Engine",
+                "Découverte de connaissances : EKDE",
                 className="mt-3",
             ),
 
             html.P(
                 (
-                    "Découverte de structures, dépendances, "
-                    "redondances et dimensions latentes."
+                    "Identifiez les structures latentes, redondances, "
+                    "associations et variables informatives du jeu de données. "
+                    "Ces diagnostics exploratoires peuvent orienter la "
+                    "modélisation, sans établir à eux seuls de lien causal."
                 ),
                 className="text-muted",
             ),
@@ -343,7 +353,7 @@ def ekde_layout(project_id, dataset_id):
                     dbc.Tab(
                         [
                             html.H4(
-                                "📐 Réduction dimensionnelle — PCA",
+                                "Réduction dimensionnelle : ACP",
                                 className="mt-4",
                             ),
 
@@ -404,7 +414,7 @@ def ekde_layout(project_id, dataset_id):
                     dbc.Tab(
                         [
                             html.H4(
-                                "🔗 Découverte d'associations",
+                                "Découverte d'associations",
                                 className="mt-4",
                             ),
 
@@ -584,7 +594,7 @@ def ekde_layout(project_id, dataset_id):
                     dbc.Tab(
                         [
                             html.H4(
-                                "💡 Synthèse des connaissances",
+                                "Synthèse des connaissances",
                                 className="mt-4",
                             ),
 
@@ -620,7 +630,7 @@ def ekde_layout(project_id, dataset_id):
                     dbc.Col(
                         dcc.Link(
                             dbc.Button(
-                                "🧹 EIDPP",
+                                "Prétraitement",
                                 color="primary",
                                 outline=True,
                                 className="w-100",
@@ -636,7 +646,7 @@ def ekde_layout(project_id, dataset_id):
                     dbc.Col(
                         dcc.Link(
                             dbc.Button(
-                                "🤖 Ouvrir EAIE",
+                                "Ouvrir EAIE",
                                 color="success",
                                 className="w-100",
                             ),

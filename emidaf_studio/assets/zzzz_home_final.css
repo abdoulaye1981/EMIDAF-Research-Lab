@@ -1,0 +1,155 @@
+/* ==========================================================
+   EMIDAF RESEARCH LAB — HOME PUBLIC V1
+   ========================================================== */
+
+/* HERO : visuel Sénégal / élèves / étudiants */
+
+.v3-orbit {
+    position: relative;
+    width: 100%;
+    min-height: 430px;
+
+    border-radius: 30px;
+    overflow: hidden;
+
+    background:
+        linear-gradient(
+            180deg,
+            rgba(8, 45, 52, 0.02),
+            rgba(8, 45, 52, 0.12)
+        ),
+        url("/assets/images/emidaf_senegal_education.png");
+
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+
+    box-shadow:
+        0 22px 55px rgba(18, 55, 68, 0.17);
+
+    border:
+        1px solid rgba(31, 145, 115, 0.18);
+}
+
+/* Masque l'ancien diagramme orbital */
+.v3-orbit > * {
+    display: none !important;
+}
+
+.v3-orbit::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+
+    background:
+        linear-gradient(
+            90deg,
+            rgba(255, 255, 255, 0.03),
+            transparent 35%
+        );
+
+    pointer-events: none;
+}
+
+/* HERO TEXT */
+
+.v3-hero-title {
+    max-width: 820px;
+}
+
+.v3-hero-subtitle {
+    max-width: 760px;
+    line-height: 1.7;
+}
+
+/* Responsive */
+
+@media (max-width: 1199px) {
+    .v3-orbit {
+        min-height: 390px;
+    }
+}
+
+@media (max-width: 991px) {
+    .v3-orbit {
+        min-height: 340px;
+        margin-top: 24px;
+    }
+}
+
+@media (max-width: 576px) {
+    .v3-orbit {
+        min-height: 260px;
+        border-radius: 22px;
+    }
+}
+
+
+/* ==========================================================
+   HERO FINAL — IMAGE SÉNÉGAL
+   ========================================================== */
+
+.v3-hero-senegal-visual {
+    width: 100%;
+    border-radius: 28px;
+    overflow: hidden;
+    background: #ffffff;
+
+    box-shadow:
+        0 22px 55px rgba(18, 55, 68, 0.16);
+
+    border:
+        1px solid rgba(31, 145, 115, 0.18);
+}
+
+.v3-hero-senegal-image {
+    display: block;
+    width: 100%;
+    height: 430px;
+    object-fit: cover;
+    object-position: center;
+}
+
+.v3-hero-country-line {
+    color: var(--emidaf-accent, #269d82);
+}
+
+@media (max-width: 1199px) {
+    .v3-hero-senegal-image {
+        height: 390px;
+    }
+}
+
+@media (max-width: 991px) {
+    .v3-hero-senegal-image {
+        height: 350px;
+    }
+}
+
+@media (max-width: 576px) {
+    .v3-hero-senegal-image {
+        height: 260px;
+    }
+
+    .v3-hero-senegal-visual {
+        border-radius: 20px;
+    }
+}
+
+
+/* Impression / export PDF */
+
+@media print {
+    .v3-hero-senegal-image {
+        display: block !important;
+        visibility: visible !important;
+        print-color-adjust: exact;
+        -webkit-print-color-adjust: exact;
+    }
+
+    .v3-accent-text,
+    .v3-hero-country-line {
+        color: #218f78 !important;
+        -webkit-text-fill-color: #218f78 !important;
+    }
+}

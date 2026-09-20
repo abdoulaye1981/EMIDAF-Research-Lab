@@ -27,13 +27,13 @@ def project_modal():
                     html.Br(),
 
                     dbc.Label(
-                        "Workspace"
+                        "Espace de travail"
                     ),
 
                     dbc.Select(
                         id="project-workspace",
                         options=[],
-                        placeholder="Sélectionner un workspace"
+                        placeholder="Sélectionner un espace de travail"
                     ),
 
                     html.Br(),

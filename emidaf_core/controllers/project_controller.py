@@ -32,6 +32,52 @@ class ProjectController:
 
         return self._service.get_all_projects()
 
+    def get_for_user(
+        self,
+        project_id: int,
+        user_id: int,
+    ) -> Optional[ProjectModel]:
+        return self._service.get_project_for_user(
+            project_id,
+            user_id,
+        )
+
+    def get_all_for_user(
+        self,
+        user_id: int,
+    ) -> List[ProjectModel]:
+        return self._service.get_all_projects_for_user(
+            user_id
+        )
+
+    def exists_for_user(
+        self,
+        project_id: int,
+        user_id: int,
+    ) -> bool:
+        return self._service.project_exists_for_user(
+            project_id,
+            user_id,
+        )
+
+    def count_for_user(
+        self,
+        user_id: int,
+    ) -> int:
+        return self._service.count_projects_for_user(
+            user_id
+        )
+
+    def delete_for_user(
+        self,
+        project_id: int,
+        user_id: int,
+    ) -> bool:
+        return self._service.delete_project_for_user(
+            project_id,
+            user_id,
+        )
+
     def exists(self, project_id: int) -> bool:
 
         return self._service.project_exists(project_id)

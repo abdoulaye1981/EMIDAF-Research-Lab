@@ -9,6 +9,7 @@ from dash import State
 from dash import callback
 from dash import html
 import dash_bootstrap_components as dbc
+from flask import session
 
 from database.models.dataset_model import DatasetModel
 from emidaf_core.bootstrap.bootstrap import Bootstrap
@@ -24,6 +25,15 @@ _container = _bootstrap.initialize()
 _project_controller = _bootstrap.project_controller
 _dataset_controller = _bootstrap.dataset_controller
 _workspace_manager = _bootstrap.workspace_manager
+
+
+def _current_user_id():
+    value = session.get("user_id")
+
+    if value is None:
+        return None
+
+    return int(value)
 
 
 # ============================================================
@@ -188,12 +198,26 @@ def save_dataset(
         # Récupération du projet
         # ----------------------------------------------------
 
-        project = _project_controller.get(int(project_id))
+        user_id = _current_user_id()
+
+        if user_id is None:
+            return dbc.Alert(
+                (
+                    "Votre session a expiré. "
+                    "Veuillez vous reconnecter."
+                ),
+                color="danger",
+            )
+
+        project = _project_controller.get_for_user(
+            int(project_id),
+            user_id,
+        )
 
         if project is None:
 
             return dbc.Alert(
-                "Le projet sélectionné n'existe pas.",
+                "Projet introuvable ou accès non autorisé.",
                 color="danger"
             )
 
@@ -238,6 +262,73 @@ def save_dataset(
         original_path = Path(filename)
 
         extension = original_path.suffix.lower()
+
+        # ----------------------------------------------------
+        # Vérification des doublons dans le projet
+        # ----------------------------------------------------
+
+        current_project_id = int(project_id)
+
+        normalized_filename = (
+            Path(filename)
+            .name
+            .strip()
+            .casefold()
+        )
+
+        duplicate = next(
+            (
+                existing
+                for existing
+                in _dataset_controller.get_all()
+                if (
+                    existing.project_id
+                    == current_project_id
+                    and
+                    Path(
+                        existing.original_filename
+                    )
+                    .name
+                    .strip()
+                    .casefold()
+                    == normalized_filename
+                )
+            ),
+            None,
+        )
+
+        if duplicate is not None:
+
+            return dbc.Alert(
+                [
+                    html.Strong(
+                        "Importation refusée : "
+                    ),
+                    (
+                        "un jeu de données provenant "
+                        "du même fichier existe déjà "
+                        "dans ce projet."
+                    ),
+                    html.Br(),
+                    f"Nom existant : {duplicate.name}",
+                    html.Br(),
+                    (
+                        "Fichier : "
+                        f"{duplicate.original_filename}"
+                    ),
+                    html.Br(),
+                    f"Identifiant : {duplicate.id}",
+                    html.Br(),
+                    html.Small(
+                        (
+                            "Si le fichier correspond à "
+                            "une nouvelle version, utilisez "
+                            "un nom de fichier différent."
+                        )
+                    ),
+                ],
+                color="warning",
+            )
 
         stored_filename = filename
 
@@ -331,7 +422,7 @@ def save_dataset(
         return dbc.Alert(
             [
                 html.Strong(
-                    "Dataset enregistré avec succès."
+                    "Jeu de données enregistré avec succès."
                 ),
                 html.Br(),
                 f"Nom : {saved_dataset.name}",

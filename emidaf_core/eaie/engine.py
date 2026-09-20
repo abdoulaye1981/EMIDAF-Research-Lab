@@ -51,6 +51,15 @@ class EAIEEngine:
         self.baseline_cv_mean_ = None
         self.selection_metric_ = None
 
+        # Contexte conservé pour EXAIE
+        self.target_ = None
+        self.feature_names_ = []
+
+        self.X_train_ = None
+        self.X_test_ = None
+        self.y_train_ = None
+        self.y_test_ = None
+
     def run(
         self,
         dataframe: pd.DataFrame,
@@ -73,6 +82,11 @@ class EAIEEngine:
         )
 
         self.task_ = detected_task
+
+        self.target_ = target
+        self.feature_names_ = list(
+            prepared.X.columns
+        )
 
         stratify = None
 
@@ -100,6 +114,12 @@ class EAIEEngine:
             random_state=self.random_state,
             stratify=stratify,
         )
+
+        # Conservation du split final pour EXAIE.
+        self.X_train_ = X_train.copy()
+        self.X_test_ = X_test.copy()
+        self.y_train_ = y_train.copy()
+        self.y_test_ = y_test.copy()
 
         preprocessor = (
             DataPreparation
@@ -320,6 +340,51 @@ class EAIEEngine:
                     )
 
         return self.results_
+
+    def explainability_context(self):
+        """
+        Retourne le contexte scientifique nécessaire
+        au module EXAIE.
+
+        Le modèle retourné est celui sélectionné
+        par EAIE sur la validation croisée.
+        """
+
+        if self.best_result_ is None:
+            raise RuntimeError(
+                "Aucun modèle EAIE sélectionné."
+            )
+
+        if self.X_test_ is None:
+            raise RuntimeError(
+                "Le jeu de test EAIE "
+                "n'est pas disponible."
+            )
+
+        return {
+            "estimator": self.best_result_.estimator,
+            "model_name": self.best_result_.model_name,
+            "task": self.task_,
+            "target": self.target_,
+            "features": list(
+                self.feature_names_
+            ),
+            "X_train": self.X_train_.copy(),
+            "X_test": self.X_test_.copy(),
+            "y_train": self.y_train_.copy(),
+            "y_test": self.y_test_.copy(),
+            "cv_mean": (
+                self.best_result_
+                .metadata
+                .get("cv_mean")
+            ),
+            "cv_std": (
+                self.best_result_
+                .metadata
+                .get("cv_std")
+            ),
+            "test_score": self.best_result_.score,
+        }
 
     def compare(self):
 

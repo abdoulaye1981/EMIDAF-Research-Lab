@@ -1,0 +1,753 @@
+/* =========================================================
+   EMIDAF — EDSE V2
+   ========================================================= */
+
+.edse-v2-page {
+    width: 100%;
+    max-width: 1500px;
+    margin: 0 auto;
+}
+
+
+/* HERO */
+
+.edse-v2-hero {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    gap: 30px;
+
+    padding: 38px 40px;
+    margin-bottom: 22px;
+
+    border-radius: 25px;
+
+    background:
+        radial-gradient(
+            circle at 92% 12%,
+            rgba(32, 184, 154, 0.15),
+            transparent 30%
+        ),
+        linear-gradient(
+            135deg,
+            rgba(248, 252, 253, 0.97),
+            rgba(233, 242, 246, 0.96)
+        );
+
+    border:
+        1px solid rgba(112, 143, 157, 0.17);
+
+    box-shadow:
+        0 16px 42px rgba(29, 53, 69, 0.07);
+}
+
+.edse-v2-kicker {
+    padding: 5px 8px;
+
+    border-radius: 7px;
+
+    background: #20b89a;
+
+    color: white;
+
+    font-size: 0.64rem;
+    font-weight: 800;
+
+    letter-spacing: 0.1em;
+}
+
+.edse-v2-eyebrow {
+    color: #66808f;
+
+    font-size: 0.68rem;
+    font-weight: 750;
+
+    letter-spacing: 0.11em;
+}
+
+.edse-v2-title {
+    margin: 0 0 12px;
+
+    color: #223e51;
+
+    font-size:
+        clamp(
+            2rem,
+            3.5vw,
+            3.4rem
+        );
+
+    line-height: 1.06;
+
+    font-weight: 760;
+
+    letter-spacing: -0.035em;
+}
+
+.edse-v2-subtitle {
+    max-width: 780px;
+
+    margin: 0;
+
+    color: #6b7f8c;
+
+    font-size: 0.94rem;
+    line-height: 1.7;
+}
+
+.edse-v2-hero-icon-box {
+    flex: 0 0 auto;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    width: 92px;
+    height: 92px;
+
+    border-radius: 26px;
+
+    background:
+        linear-gradient(
+            145deg,
+            rgba(32, 184, 154, 0.16),
+            rgba(43, 126, 173, 0.08)
+        );
+
+    border:
+        1px solid rgba(32, 184, 154, 0.17);
+}
+
+.edse-v2-hero-icon {
+    color: #168f79;
+
+    font-size: 2rem;
+}
+
+
+/* BREADCRUMB */
+
+.edse-v2-breadcrumb {
+    margin-bottom: 22px;
+
+    font-size: 0.72rem;
+}
+
+
+/* MÉTHODOLOGIE */
+
+.edse-v2-method-card {
+    display: grid;
+
+    grid-template-columns:
+        48px
+        minmax(0, 1fr);
+
+    gap: 15px;
+
+    align-items: center;
+
+    margin-bottom: 38px;
+
+    padding: 18px 20px;
+
+    border-radius: 17px;
+
+    background:
+        linear-gradient(
+            145deg,
+            rgba(240, 249, 247, 0.95),
+            rgba(235, 244, 248, 0.94)
+        );
+
+    border:
+        1px solid rgba(32, 184, 154, 0.18);
+}
+
+.edse-v2-method-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    width: 44px;
+    height: 44px;
+
+    border-radius: 13px;
+
+    background:
+        rgba(32, 184, 154, 0.11);
+
+    color: #168f79;
+}
+
+.edse-v2-method-label {
+    margin-bottom: 3px;
+
+    color: #168f79;
+
+    font-size: 0.6rem;
+    font-weight: 800;
+
+    letter-spacing: 0.1em;
+}
+
+.edse-v2-method-text {
+    margin: 0;
+
+    color: #607886;
+
+    font-size: 0.77rem;
+    line-height: 1.55;
+}
+
+
+/* SECTIONS */
+
+.edse-v2-section,
+.edse-v2-config-section,
+.edse-v2-results-section,
+.edse-v2-next-section {
+    margin: 40px 0;
+}
+
+.edse-v2-section-heading {
+    max-width: 760px;
+
+    margin-bottom: 22px;
+}
+
+.edse-v2-section-kicker {
+    margin-bottom: 7px;
+
+    color: #168f79;
+
+    font-size: 0.65rem;
+    font-weight: 800;
+
+    letter-spacing: 0.12em;
+}
+
+.edse-v2-section-title {
+    margin: 0;
+
+    color: #284457;
+
+    font-size:
+        clamp(
+            1.45rem,
+            2.3vw,
+            2.15rem
+        );
+
+    font-weight: 730;
+
+    letter-spacing: -0.025em;
+}
+
+.edse-v2-section-subtitle {
+    max-width: 760px;
+
+    margin: 8px 0 0;
+
+    color: #778893;
+
+    font-size: 0.82rem;
+    line-height: 1.65;
+}
+
+
+/* STATS */
+
+.edse-v2-stats {
+    display: grid;
+
+    grid-template-columns:
+        repeat(4, minmax(0, 1fr));
+
+    gap: 14px;
+
+    margin-top: 22px;
+}
+
+.edse-v2-stat-card {
+    min-height: 145px;
+
+    padding: 20px;
+
+    border-radius: 19px;
+
+    background:
+        linear-gradient(
+            145deg,
+            rgba(255, 255, 255, 0.96),
+            rgba(239, 246, 248, 0.93)
+        );
+
+    border:
+        1px solid rgba(119, 148, 161, 0.17);
+
+    box-shadow:
+        0 8px 22px rgba(30, 54, 69, 0.05);
+}
+
+.edse-v2-stat-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    width: 38px;
+    height: 38px;
+
+    margin-bottom: 18px;
+
+    border-radius: 12px;
+
+    background:
+        rgba(32, 184, 154, 0.10);
+
+    color: #168f79;
+}
+
+.edse-v2-stat-label {
+    margin-bottom: 5px;
+
+    color: #83929b;
+
+    font-size: 0.65rem;
+}
+
+.edse-v2-stat-value {
+    overflow-wrap: anywhere;
+
+    color: #29495c;
+
+    font-size: 1.05rem;
+    font-weight: 740;
+}
+
+
+/* SCORES */
+
+.edse-v2-scores {
+    display: grid;
+
+    grid-template-columns:
+        repeat(2, minmax(0, 1fr));
+
+    gap: 14px;
+
+    margin-top: 14px;
+}
+
+.edse-v2-score-card {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    gap: 15px;
+
+    padding: 16px 18px;
+
+    border-radius: 15px;
+
+    background:
+        rgba(255, 255, 255, 0.88);
+
+    border:
+        1px solid rgba(115, 146, 160, 0.16);
+}
+
+.edse-v2-score-label {
+    color: #6e828e;
+
+    font-size: 0.72rem;
+    font-weight: 650;
+}
+
+.edse-v2-score-value {
+    color: #28495c;
+
+    font-size: 1rem;
+    font-weight: 780;
+}
+
+
+/* CONFIGURATION */
+
+.edse-v2-config-section {
+    padding: 26px;
+
+    border-radius: 22px;
+
+    background:
+        rgba(246, 250, 251, 0.72);
+
+    border:
+        1px solid rgba(119, 147, 160, 0.15);
+}
+
+.edse-v2-config-grid {
+    display: grid;
+
+    grid-template-columns:
+        repeat(2, minmax(0, 1fr));
+
+    gap: 18px;
+}
+
+.edse-v2-field {
+    min-width: 0;
+}
+
+.edse-v2-label {
+    margin-bottom: 7px;
+
+    color: #456477;
+
+    font-size: 0.72rem;
+    font-weight: 700;
+}
+
+.edse-v2-input {
+    min-height: 42px;
+
+    border-radius: 11px !important;
+
+    border:
+        1px solid rgba(112, 143, 157, 0.25) !important;
+
+    font-size: 0.78rem;
+}
+
+.edse-v2-input:focus {
+    border-color:
+        rgba(32, 184, 154, 0.65) !important;
+
+    box-shadow:
+        0 0 0 0.16rem
+        rgba(32, 184, 154, 0.10) !important;
+}
+
+.edse-v2-dropdown {
+    font-size: 0.76rem;
+}
+
+.edse-v2-help {
+    margin-top: 7px;
+
+    color: #919da4;
+
+    font-size: 0.61rem;
+    line-height: 1.5;
+}
+
+.edse-v2-run-area {
+    margin-top: 23px;
+}
+
+.edse-v2-run-button {
+    padding:
+        9px
+        14px !important;
+
+    border: none !important;
+
+    border-radius: 11px !important;
+
+    background:
+        #168f79 !important;
+
+    color:
+        white !important;
+
+    font-size:
+        0.72rem !important;
+
+    font-weight:
+        700 !important;
+}
+
+.edse-v2-run-button:hover {
+    background:
+        #107866 !important;
+}
+
+.edse-v2-status {
+    margin-top: 16px;
+}
+
+
+/* RESULTS */
+
+.edse-v2-results-section {
+    padding: 26px;
+
+    border-radius: 22px;
+
+    background:
+        rgba(246, 250, 251, 0.72);
+
+    border:
+        1px solid rgba(119, 147, 160, 0.15);
+}
+
+.edse-v2-tabs {
+    margin-top: 24px;
+}
+
+.edse-v2-tabs .nav-tabs {
+    gap: 5px;
+
+    border-bottom:
+        1px solid rgba(112, 143, 157, 0.18);
+}
+
+.edse-v2-tabs .nav-link {
+    border: none !important;
+
+    border-radius:
+        10px
+        10px
+        0
+        0 !important;
+
+    color: #64808f !important;
+
+    font-size: 0.72rem;
+
+    font-weight: 680;
+}
+
+.edse-v2-tabs .nav-link.active {
+    background:
+        rgba(32, 184, 154, 0.10) !important;
+
+    color:
+        #168f79 !important;
+}
+
+.edse-v2-tab-content {
+    padding: 23px 4px 5px;
+}
+
+.edse-v2-tab-content .card {
+    border-radius: 17px !important;
+
+    border:
+        1px solid rgba(116, 146, 160, 0.15) !important;
+
+    box-shadow:
+        0 7px 18px rgba(30, 54, 69, 0.045);
+}
+
+.edse-v2-tab-content table {
+    font-size: 0.71rem;
+}
+
+.edse-v2-tab-content thead th {
+    background:
+        rgba(38, 72, 91, 0.06);
+
+    color: #426176;
+
+    font-weight: 700;
+}
+
+
+/* NAVIGATION */
+
+.edse-v2-next-card {
+    display: flex;
+
+    align-items: center;
+    justify-content: space-between;
+
+    gap: 24px;
+
+    padding: 25px;
+
+    border-radius: 21px;
+
+    background:
+        linear-gradient(
+            145deg,
+            rgba(248, 252, 252, 0.97),
+            rgba(235, 245, 246, 0.94)
+        );
+
+    border:
+        1px solid rgba(32, 184, 154, 0.15);
+}
+
+.edse-v2-actions {
+    display: flex;
+
+    gap: 10px;
+}
+
+.edse-v2-primary-link,
+.edse-v2-secondary-link {
+    display: inline-flex;
+
+    align-items: center;
+
+    padding:
+        8px
+        13px;
+
+    border-radius: 10px;
+
+    text-decoration: none !important;
+
+    font-size: 0.71rem;
+    font-weight: 700;
+}
+
+.edse-v2-primary-link {
+    background: #168f79;
+
+    color: white !important;
+}
+
+.edse-v2-primary-link:hover {
+    background: #107866;
+}
+
+.edse-v2-secondary-link {
+    background:
+        rgba(75, 104, 120, 0.08);
+
+    color: #557285 !important;
+}
+
+
+/* EMPTY */
+
+.edse-v2-empty-state {
+    max-width: 680px;
+
+    margin: 45px auto;
+
+    padding: 42px;
+
+    text-align: center;
+
+    border-radius: 22px;
+
+    background:
+        rgba(255, 255, 255, 0.88);
+
+    border:
+        1px solid rgba(116, 146, 160, 0.16);
+}
+
+.edse-v2-empty-icon {
+    display: flex;
+
+    align-items: center;
+    justify-content: center;
+
+    width: 54px;
+    height: 54px;
+
+    margin:
+        0
+        auto
+        15px;
+
+    border-radius: 16px;
+
+    background:
+        rgba(241, 174, 56, 0.12);
+
+    color: #a46d10;
+
+    font-size: 1.3rem;
+}
+
+.edse-v2-empty-title {
+    color: #355468;
+
+    font-size: 1.2rem;
+}
+
+.edse-v2-empty-text {
+    max-width: 520px;
+
+    margin:
+        10px
+        auto
+        20px;
+
+    color: #7d8e98;
+
+    font-size: 0.78rem;
+    line-height: 1.65;
+}
+
+
+/* RESPONSIVE */
+
+@media (max-width: 1000px) {
+
+    .edse-v2-stats {
+        grid-template-columns:
+            repeat(2, minmax(0, 1fr));
+    }
+
+    .edse-v2-next-card {
+        align-items: flex-start;
+
+        flex-direction: column;
+    }
+}
+
+@media (max-width: 650px) {
+
+    .edse-v2-hero {
+        align-items: flex-start;
+
+        flex-direction: column;
+
+        padding: 28px 22px;
+    }
+
+    .edse-v2-stats,
+    .edse-v2-scores,
+    .edse-v2-config-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .edse-v2-actions {
+        flex-direction: column;
+
+        width: 100%;
+    }
+
+    .edse-v2-primary-link,
+    .edse-v2-secondary-link {
+        justify-content: center;
+    }
+}
+
+
+/* PRINT */
+
+@media print {
+
+    .edse-v2-hero,
+    .edse-v2-method-card,
+    .edse-v2-stat-card,
+    .edse-v2-score-card,
+    .edse-v2-config-section,
+    .edse-v2-results-section,
+    .edse-v2-next-card {
+        break-inside: avoid !important;
+        page-break-inside: avoid !important;
+    }
+
+    .edse-v2-run-button {
+        display: none !important;
+    }
+}

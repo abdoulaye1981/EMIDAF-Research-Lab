@@ -15,8 +15,10 @@ from sqlalchemy.orm import sessionmaker
 
 from database.base import Base
 from database.models.dataset_model import DatasetModel
+from database.models.analysis_result_model import AnalysisResultModel
 from database.models.project_model import ProjectModel
 from database.models.workspace_model import WorkspaceModel
+from database.models.user_model import UserModel
 from database.providers.provider import DatabaseProvider
 
 

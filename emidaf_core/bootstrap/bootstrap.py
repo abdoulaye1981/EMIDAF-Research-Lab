@@ -99,6 +99,8 @@ class Bootstrap:
         from emidaf_core.repositories.workspace_repository import WorkspaceRepository
         from emidaf_core.repositories.project_repository import ProjectRepository
         from emidaf_core.repositories.dataset_repository import DatasetRepository
+        from emidaf_core.repositories.analysis_result_repository import AnalysisResultRepository
+        from emidaf_core.repositories.user_repository import UserRepository
 
         self.workspace_repository = WorkspaceRepository(
              self.database_manager
@@ -111,11 +113,20 @@ class Bootstrap:
         self.dataset_repository = DatasetRepository(
              self.database_manager
         )
+        self.analysis_result_repository = AnalysisResultRepository(
+             self.database_manager
+        )
+
+        self.user_repository = UserRepository(
+            self.database_manager
+        )
 
     def _create_services(self):
         from emidaf_core.services.workspace_service import WorkspaceService
         from emidaf_core.services.project_service import ProjectService
         from emidaf_core.services.dataset_service import DatasetService
+        from emidaf_core.services.auth_service import AuthService
+        from emidaf_core.services.user_service import UserService
 
         self.workspace_service = WorkspaceService(
              self.workspace_repository
@@ -127,6 +138,14 @@ class Bootstrap:
 
         self.dataset_service = DatasetService(
              self.dataset_repository
+        )
+
+        self.auth_service = AuthService(
+            self.user_repository
+        )
+
+        self.user_service = UserService(
+            self.user_repository
         )
 
         from emidaf_core.managers.project_manager import ProjectManager
@@ -170,10 +189,14 @@ class Bootstrap:
         self.workspace_repository,
         self.project_repository,
         self.dataset_repository,
+        self.analysis_result_repository,
+            self.user_repository,
 
         self.workspace_service,
         self.project_service,
         self.dataset_service,
+            self.auth_service,
+            self.user_service,
 
         self.project_manager,
         self.dataset_manager,

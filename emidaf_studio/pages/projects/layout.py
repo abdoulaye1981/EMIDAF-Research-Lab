@@ -37,52 +37,540 @@ projects = project_controller.get_all()
 
 layout = dbc.Container(
     [
-        html.H2(
-            "Gestion des projets"
-        ),
+        # ==================================================
+        # HERO / COMMAND CENTER
+        # ==================================================
 
-        html.Hr(),
-
-        Toolbar.projects(),
-
-        html.Br(),
-
-        html.Div(
+        html.Section(
             [
-                ProjectCard.create(project)
-                for project in projects
+                dbc.Row(
+                    [
+                        dbc.Col(
+                            [
+                                html.Div(
+                                    [
+                                        html.Span(
+                                            "PROJETS",
+                                            className=(
+                                                "projects-v2-kicker"
+                                            ),
+                                        ),
+                                        html.Span(
+                                            (
+                                                "ESPACE DE "
+                                                "RECHERCHE"
+                                            ),
+                                            className=(
+                                                "projects-v2-eyebrow"
+                                            ),
+                                        ),
+                                    ],
+                                    className=(
+                                        "d-flex "
+                                        "align-items-center "
+                                        "gap-2 mb-3"
+                                    ),
+                                ),
+
+                                html.H1(
+                                    (
+                                        "Projets de recherche "
+                                        "et d'analyse"
+                                    ),
+                                    className=(
+                                        "projects-v2-title"
+                                    ),
+                                ),
+
+                                html.P(
+                                    (
+                                        "Structurez vos jeux de "
+                                        "données, analyses, modèles "
+                                        "et résultats dans des espaces "
+                                        "de travail scientifiques "
+                                        "indépendants."
+                                    ),
+                                    className=(
+                                        "projects-v2-subtitle"
+                                    ),
+                                ),
+                            ],
+                            lg=8,
+                        ),
+
+                        dbc.Col(
+                            html.Div(
+                                Toolbar.projects(),
+                                className=(
+                                    "projects-v2-toolbar"
+                                ),
+                            ),
+                            lg=4,
+                            className=(
+                                "d-flex "
+                                "align-items-center "
+                                "justify-content-lg-end"
+                            ),
+                        ),
+                    ],
+                    className="g-4 align-items-center",
+                ),
             ],
-            id="projects-container"
+            className="projects-v2-hero",
         ),
 
         # ==================================================
-        # Alerte utilisateur
+        # APERÇU
+        # ==================================================
+
+        html.Section(
+            [
+                html.Div(
+                    [
+                        html.Div(
+                            [
+                                html.Div(
+                                    html.I(
+                                        className=(
+                                            "bi "
+                                            "bi-folder2-open"
+                                        )
+                                    ),
+                                    className=(
+                                        "projects-v2-stat-icon"
+                                    ),
+                                ),
+
+                                html.Div(
+                                    [
+                                        html.Div(
+                                            str(len(projects)),
+                                            className=(
+                                                "projects-v2-stat-value"
+                                            ),
+                                        ),
+                                        html.Div(
+                                            (
+                                                "Projet"
+                                                if len(projects) == 1
+                                                else "Projets"
+                                            ),
+                                            className=(
+                                                "projects-v2-stat-label"
+                                            ),
+                                        ),
+                                    ]
+                                ),
+                            ],
+                            className=(
+                                "projects-v2-stat-card"
+                            ),
+                        ),
+
+                        html.Div(
+                            [
+                                html.Div(
+                                    html.I(
+                                        className=(
+                                            "bi "
+                                            "bi-diagram-3"
+                                        )
+                                    ),
+                                    className=(
+                                        "projects-v2-stat-icon"
+                                    ),
+                                ),
+
+                                html.Div(
+                                    [
+                                        html.Div(
+                                            "09",
+                                            className=(
+                                                "projects-v2-stat-value"
+                                            ),
+                                        ),
+                                        html.Div(
+                                            "Étapes analytiques",
+                                            className=(
+                                                "projects-v2-stat-label"
+                                            ),
+                                        ),
+                                    ]
+                                ),
+                            ],
+                            className=(
+                                "projects-v2-stat-card"
+                            ),
+                        ),
+
+                        html.Div(
+                            [
+                                html.Div(
+                                    html.I(
+                                        className=(
+                                            "bi "
+                                            "bi-database-check"
+                                        )
+                                    ),
+                                    className=(
+                                        "projects-v2-stat-icon"
+                                    ),
+                                ),
+
+                                html.Div(
+                                    [
+                                        html.Div(
+                                            "Data → IA",
+                                            className=(
+                                                "projects-v2-stat-value "
+                                                "projects-v2-stat-text"
+                                            ),
+                                        ),
+                                        html.Div(
+                                            "Cycle scientifique",
+                                            className=(
+                                                "projects-v2-stat-label"
+                                            ),
+                                        ),
+                                    ]
+                                ),
+                            ],
+                            className=(
+                                "projects-v2-stat-card"
+                            ),
+                        ),
+
+                        html.Div(
+                            [
+                                html.Div(
+                                    html.I(
+                                        className=(
+                                            "bi "
+                                            "bi-file-earmark-"
+                                            "bar-graph"
+                                        )
+                                    ),
+                                    className=(
+                                        "projects-v2-stat-icon"
+                                    ),
+                                ),
+
+                                html.Div(
+                                    [
+                                        html.Div(
+                                            "Rapports",
+                                            className=(
+                                                "projects-v2-stat-value "
+                                                "projects-v2-stat-text"
+                                            ),
+                                        ),
+                                        html.Div(
+                                            "Restitution structurée",
+                                            className=(
+                                                "projects-v2-stat-label"
+                                            ),
+                                        ),
+                                    ]
+                                ),
+                            ],
+                            className=(
+                                "projects-v2-stat-card"
+                            ),
+                        ),
+                    ],
+                    className="projects-v2-stats",
+                ),
+            ],
+            className="projects-v2-overview",
+        ),
+
+        # ==================================================
+        # PRINCIPES D'ORGANISATION
+        # ==================================================
+
+        html.Section(
+            [
+                html.Div(
+                    [
+                        html.Div(
+                            "ORGANISATION SCIENTIFIQUE",
+                            className=(
+                                "projects-v2-section-kicker"
+                            ),
+                        ),
+
+                        html.H2(
+                            "Un projet, un cycle analytique complet",
+                            className=(
+                                "projects-v2-section-title"
+                            ),
+                        ),
+
+                        html.P(
+                            (
+                                "Chaque projet constitue un espace "
+                                "cohérent regroupant les données, "
+                                "les analyses et les résultats."
+                            ),
+                            className=(
+                                "projects-v2-section-subtitle"
+                            ),
+                        ),
+                    ],
+                    className=(
+                        "projects-v2-section-heading"
+                    ),
+                ),
+
+                html.Div(
+                    [
+                        html.Div(
+                            [
+                                html.Div(
+                                    "01",
+                                    className=(
+                                        "projects-v2-principle-number"
+                                    ),
+                                ),
+                                html.I(
+                                    className=(
+                                        "bi bi-folder2-open "
+                                        "projects-v2-principle-icon"
+                                    )
+                                ),
+                                html.H3(
+                                    "Organisation",
+                                    className=(
+                                        "projects-v2-principle-title"
+                                    ),
+                                ),
+                                html.P(
+                                    (
+                                        "Centralisez jeux de données, "
+                                        "analyses et résultats dans "
+                                        "un espace de travail unique."
+                                    ),
+                                    className=(
+                                        "projects-v2-principle-text"
+                                    ),
+                                ),
+                            ],
+                            className=(
+                                "projects-v2-principle-card"
+                            ),
+                        ),
+
+                        html.Div(
+                            [
+                                html.Div(
+                                    "02",
+                                    className=(
+                                        "projects-v2-principle-number"
+                                    ),
+                                ),
+                                html.I(
+                                    className=(
+                                        "bi bi-bar-chart-line "
+                                        "projects-v2-principle-icon"
+                                    )
+                                ),
+                                html.H3(
+                                    "Analyse",
+                                    className=(
+                                        "projects-v2-principle-title"
+                                    ),
+                                ),
+                                html.P(
+                                    (
+                                        "Progressez de l'inspection "
+                                        "jusqu'à la modélisation, "
+                                        "l'explicabilité et la décision."
+                                    ),
+                                    className=(
+                                        "projects-v2-principle-text"
+                                    ),
+                                ),
+                            ],
+                            className=(
+                                "projects-v2-principle-card"
+                            ),
+                        ),
+
+                        html.Div(
+                            [
+                                html.Div(
+                                    "03",
+                                    className=(
+                                        "projects-v2-principle-number"
+                                    ),
+                                ),
+                                html.I(
+                                    className=(
+                                        "bi bi-file-earmark-text "
+                                        "projects-v2-principle-icon"
+                                    )
+                                ),
+                                html.H3(
+                                    "Restitution",
+                                    className=(
+                                        "projects-v2-principle-title"
+                                    ),
+                                ),
+                                html.P(
+                                    (
+                                        "Conservez les résultats "
+                                        "analytiques et produisez des "
+                                        "rapports structurés."
+                                    ),
+                                    className=(
+                                        "projects-v2-principle-text"
+                                    ),
+                                ),
+                            ],
+                            className=(
+                                "projects-v2-principle-card"
+                            ),
+                        ),
+                    ],
+                    className=(
+                        "projects-v2-principles"
+                    ),
+                ),
+            ],
+            className="projects-v2-section",
+        ),
+
+        # ==================================================
+        # LISTE DES PROJETS
+        # ==================================================
+
+        html.Section(
+            [
+                # ------------------------------------------
+                # En-tête de la zone projets
+                # ------------------------------------------
+
+                html.Div(
+                    [
+                        html.Div(
+                            [
+                                html.Div(
+                                    "ESPACE DE TRAVAIL",
+                                    className=(
+                                        "projects-v2-section-kicker"
+                                    ),
+                                ),
+
+                                html.H2(
+                                    "Mes projets",
+                                    className=(
+                                        "projects-v2-section-title "
+                                        "mb-0"
+                                    ),
+                                ),
+                            ]
+                        ),
+
+                        html.Div(
+                            [
+                                html.I(
+                                    className=(
+                                        "bi bi-grid-3x3-gap me-2"
+                                    )
+                                ),
+
+                                (
+                                    f"{len(projects)} projet"
+                                    if len(projects) == 1
+                                    else (
+                                        f"{len(projects)} "
+                                        "projets"
+                                    )
+                                ),
+                            ],
+                            className="projects-v2-count",
+                        ),
+                    ],
+                    className="projects-v2-projects-header",
+                ),
+
+                # ------------------------------------------
+                # Cartes projets
+                # ------------------------------------------
+
+                html.Div(
+                    [
+                        ProjectCard.create(project)
+                        for project in projects
+                    ],
+                    id="projects-container",
+                    className="projects-v2-projects-grid",
+                ),
+
+                # ------------------------------------------
+                # État vide
+                # ------------------------------------------
+
+                html.Div(
+                    [
+                        html.I(
+                            className="bi bi-folder-plus"
+                        ),
+
+                        html.H3(
+                            "Aucun projet",
+                        ),
+
+                        html.P(
+                            (
+                                "Créez votre premier espace "
+                                "de recherche pour commencer "
+                                "le cycle analytique EMIDAF."
+                            )
+                        ),
+                    ],
+                    className=(
+                        "projects-v2-empty "
+                        + (
+                            "d-none"
+                            if projects
+                            else ""
+                        )
+                    ),
+                ),
+            ],
+            className="projects-v2-workspace",
+        ),
+
+        # ==================================================
+        # ÉTAT / CALLBACKS
         # ==================================================
 
         dbc.Alert(
             id="project-alert",
-            is_open=False
+            is_open=False,
+            className="projects-v2-alert",
         ),
 
         dcc.Store(
             id="selected-project",
-            data=None
+            data=None,
         ),
 
         html.Div(
             id="selected-project-info",
-            className="mt-3"
+            className="projects-v2-selection",
         ),
 
         # ==================================================
-        # Modal Nouveau Projet
+        # MODALES EXISTANTES
         # ==================================================
 
         project_modal(),
-
-        delete_project_modal()
+        delete_project_modal(),
     ],
-    fluid=True
+    fluid=True,
+    className="projects-v2-page",
 )
 
 
@@ -125,70 +613,157 @@ def project_detail_layout(project_id):
     ]
 
     # ------------------------------------------------------
-    # Construction des cartes datasets
+    # Tableau compact des jeux de données
     # ------------------------------------------------------
 
     if datasets:
 
-        dataset_cards = [
-            dbc.Card(
+        dataset_rows = []
+
+        for dataset in datasets:
+
+            inspect_href = (
+                f"/projects/{project_id}"
+                f"/datasets/{dataset.id}"
+            )
+
+            actions = dbc.DropdownMenu(
                 [
-                    dbc.CardBody(
-                        [
-                            html.H5(
-                                f"📄 {dataset.name}"
-                            ),
+                    dbc.DropdownMenuItem(
+                        "Inspection",
+                        href=inspect_href,
+                    ),
 
-                            html.P(
-                                f"Fichier : "
-                                f"{dataset.original_filename}"
-                            ),
+                    dbc.DropdownMenuItem(
+                        "Prétraitement",
+                        href=(
+                            inspect_href
+                            + "/eidpp"
+                        ),
+                    ),
 
-                            html.P(
-                                f"Dimensions : "
-                                f"{dataset.rows} lignes × "
-                                f"{dataset.columns} colonnes"
-                            ),
+                    dbc.DropdownMenuItem(
+                        "Analyse exploratoire",
+                        href=(
+                            inspect_href
+                            + "/elae"
+                        ),
+                    ),
 
-                            html.P(
-                                f"Extension : "
-                                f"{dataset.extension}"
-                            ),
+                    dbc.DropdownMenuItem(
+                        "Découverte de connaissances",
+                        href=(
+                            inspect_href
+                            + "/ekde"
+                        ),
+                    ),
 
-                            html.P(
-                                f"Taille : "
-                                f"{dataset.size / 1024:.2f} Ko"
-                            ),
+                    dbc.DropdownMenuItem(
+                        "Modélisation prédictive",
+                        href=(
+                            inspect_href
+                            + "/eaie"
+                        ),
+                    ),
 
-                            # ==================================
-                            # Action Inspection
-                            # ==================================
+                    dbc.DropdownMenuItem(
+                        "Explicabilité des modèles",
+                        href=(
+                            inspect_href
+                            + "/exaie"
+                        ),
+                    ),
 
-                            dcc.Link(
-                                dbc.Button(
-                                    "🔎 Inspecter",
-                                    color="primary",
-                                    size="sm"
-                                ),
-                                href=(
-                                    f"/projects/"
-                                    f"{project_id}/datasets/"
-                                    f"{dataset.id}"
-                                )
+                    dbc.DropdownMenuItem(
+                        "Aide à la décision",
+                        href=(
+                            inspect_href
+                            + "/edse"
+                        ),
+                    ),
+
+                    dbc.DropdownMenuItem(
+                        "Rapports",
+                        href=(
+                            inspect_href
+                            + "/reports"
+                        ),
+                    ),
+                ],
+                label="Actions",
+                size="sm",
+                color="primary",
+            )
+
+            dataset_rows.append(
+                html.Tr(
+                    [
+                        html.Td(
+                            dataset.name
+                        ),
+
+                        html.Td(
+                            dataset.original_filename
+                        ),
+
+                        html.Td(
+                            (
+                                f"{dataset.rows} × "
+                                f"{dataset.columns}"
                             )
+                        ),
+
+                        html.Td(
+                            dataset.extension.upper()
+                        ),
+
+                        html.Td(
+                            (
+                                f"{dataset.size / 1024:.2f} Ko"
+                            )
+                        ),
+
+                        html.Td(
+                            actions
+                        ),
+                    ]
+                )
+            )
+
+        dataset_view = dbc.Table(
+            [
+                html.Thead(
+                    html.Tr(
+                        [
+                            html.Th("Nom"),
+                            html.Th("Fichier"),
+                            html.Th("Dimensions"),
+                            html.Th("Format"),
+                            html.Th("Taille"),
+                            html.Th("Actions"),
                         ]
                     )
-                ],
-                className="mb-3"
-            )
-            for dataset in datasets
-        ]
+                ),
+
+                html.Tbody(
+                    dataset_rows
+                ),
+            ],
+            bordered=True,
+            hover=True,
+            responsive=True,
+            striped=True,
+            size="sm",
+        )
 
     else:
 
-        dataset_cards = dbc.Alert(
-            "Aucun dataset n'est encore associé à ce projet.",
-            color="secondary"
+        dataset_view = dbc.Alert(
+            (
+                "Aucun jeu de données n'est encore "
+                "associé à ce projet."
+            ),
+            color="secondary",
         )
 
     # ======================================================
@@ -202,7 +777,7 @@ def project_detail_layout(project_id):
             # ------------------------------------------------
 
             html.H2(
-                f"📁 {project.name}"
+                project.name
             ),
 
             html.Hr(),
@@ -237,7 +812,7 @@ def project_detail_layout(project_id):
                                 dbc.CardBody(
                                     [
                                         html.H5(
-                                            "📥 Importation"
+                                            "Importation"
                                         ),
 
                                         html.P(
@@ -297,7 +872,7 @@ def project_detail_layout(project_id):
                                 dbc.CardBody(
                                     [
                                         html.H5(
-                                            "📊 Analyses"
+                                            "Analyses"
                                         ),
 
                                         html.P(
@@ -321,11 +896,11 @@ def project_detail_layout(project_id):
             html.Hr(),
 
             html.H4(
-                "📊 Datasets du projet"
+                "Jeux de données du projet"
             ),
 
             html.Div(
-                dataset_cards,
+                dataset_view,
                 className="mt-3"
             ),
 
@@ -342,3 +917,128 @@ def project_detail_layout(project_id):
         ],
         fluid=True
     )
+
+
+# ==========================================================
+# MULTI-USER LAYOUT
+# ==========================================================
+
+def user_projects_layout(user_id: int):
+    """
+    Construit la page Projets pour un utilisateur donné.
+
+    Toutes les données affichées sont limitées aux projets
+    appartenant à cet utilisateur.
+    """
+
+    from copy import deepcopy
+
+    user_projects = (
+        project_controller
+        .get_all_for_user(
+            int(user_id)
+        )
+    )
+
+    page = deepcopy(layout)
+
+    project_cards = [
+        ProjectCard.create(project)
+        for project in user_projects
+    ]
+
+    global_count = len(projects)
+    user_count = len(user_projects)
+
+    old_label = (
+        f"{global_count} projet"
+        if global_count == 1
+        else f"{global_count} projets"
+    )
+
+    new_label = (
+        f"{user_count} projet"
+        if user_count == 1
+        else f"{user_count} projets"
+    )
+
+    old_label_capitalized = (
+        f"{global_count} Projet"
+        if global_count == 1
+        else f"{global_count} Projets"
+    )
+
+    new_label_capitalized = (
+        f"{user_count} Projet"
+        if user_count == 1
+        else f"{user_count} Projets"
+    )
+
+    def update_component(component):
+        if component is None:
+            return
+
+        # ----------------------------------------------
+        # Container des cartes projets
+        # ----------------------------------------------
+
+        if (
+            getattr(
+                component,
+                "id",
+                None,
+            )
+            == "projects-container"
+        ):
+            component.children = project_cards
+            return
+
+        children = getattr(
+            component,
+            "children",
+            None,
+        )
+
+        if children is None:
+            return
+
+        # ----------------------------------------------
+        # Texte simple
+        # ----------------------------------------------
+
+        if isinstance(
+            children,
+            str,
+        ):
+            if children == str(global_count):
+                component.children = str(
+                    user_count
+                )
+
+            elif children == old_label:
+                component.children = new_label
+
+            elif children == old_label_capitalized:
+                component.children = (
+                    new_label_capitalized
+                )
+
+            return
+
+        # ----------------------------------------------
+        # Descente récursive
+        # ----------------------------------------------
+
+        if isinstance(
+            children,
+            (list, tuple),
+        ):
+            for child in children:
+                update_component(child)
+
+        else:
+            update_component(children)
+
+    update_component(page)
+
+    return page

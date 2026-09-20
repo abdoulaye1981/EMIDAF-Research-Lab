@@ -19,6 +19,10 @@ from dash import (
 
 import dash_bootstrap_components as dbc
 
+from emidaf_studio.services.model_registry import (
+    merge_analysis_section,
+)
+
 from sklearn.preprocessing import StandardScaler
 
 from emidaf_core.preprocessing.dimensionality import (
@@ -384,6 +388,32 @@ def _extract_explained_variance(
     return None
 
 
+def _persist_ekde(
+    project_id,
+    dataset_id,
+    section,
+    payload,
+):
+    """
+    Persiste atomiquement une sous-section EKDE
+    sans écraser les autres résultats du même stage.
+    """
+
+    if (
+        project_id is None
+        or dataset_id is None
+    ):
+        return
+
+    merge_analysis_section(
+        project_id,
+        dataset_id,
+        "ekde",
+        section,
+        payload,
+    )
+
+
 # ============================================================
 # STRUCTURE / REDUNDANCY
 # ============================================================
@@ -406,10 +436,20 @@ def _extract_explained_variance(
         "ekde-data",
         "data",
     ),
+    State(
+        "ekde-project-id",
+        "data",
+    ),
+    State(
+        "ekde-dataset-id",
+        "data",
+    ),
 )
 def structure_analysis(
     threshold,
     data,
+    project_id,
+    dataset_id,
 ):
 
     dataframe = _deserialize(data)
@@ -514,6 +554,29 @@ def structure_analysis(
         ),
     )
 
+    _persist_ekde(
+        project_id,
+        dataset_id,
+        "structure",
+        {
+            "threshold": float(threshold),
+            "numeric_variables": list(corr.columns),
+            "converted_columns": conversions,
+            "strong_pairs": (
+                pairs_df.to_dict(
+                    orient="records"
+                )
+                if not pairs_df.empty
+                else []
+            ),
+            "correlation_matrix": (
+                corr
+                .round(6)
+                .to_dict()
+            ),
+        },
+    )
+
     return result, figure
 
 
@@ -543,10 +606,20 @@ def structure_analysis(
         "ekde-data",
         "data",
     ),
+    State(
+        "ekde-project-id",
+        "data",
+    ),
+    State(
+        "ekde-dataset-id",
+        "data",
+    ),
 )
 def pca_analysis(
     n_components,
     data,
+    project_id,
+    dataset_id,
 ):
 
     dataframe = _deserialize(data)
@@ -732,6 +805,66 @@ def pca_analysis(
         ),
     )
 
+    summary_df = _result_to_dataframe(
+        summary
+    )
+
+    pca_payload = {
+        "n_components": int(n_components),
+        "numeric_variables": (
+            list(numeric.columns)
+        ),
+        "converted_columns": conversions,
+        "summary": (
+            summary_df
+            .to_dict(
+                orient="records"
+            )
+        ),
+    }
+
+    if variance_ratio is not None:
+
+        pca_payload[
+            "explained_variance"
+        ] = (
+            variance_df
+            .assign(
+                **{
+                    "Variance expliquée": (
+                        100
+                        * variance_df[
+                            "Variance expliquée"
+                        ]
+                    ),
+                    "Variance cumulée": (
+                        100
+                        * variance_df[
+                            "Variance cumulée"
+                        ]
+                    ),
+                }
+            )
+            .round(6)
+            .to_dict(
+                orient="records"
+            )
+        )
+
+        pca_payload[
+            "cumulative_variance_percent"
+        ] = round(
+            float(cumulative),
+            6,
+        )
+
+    _persist_ekde(
+        project_id,
+        dataset_id,
+        "pca",
+        pca_payload,
+    )
+
     return (
         summary_content,
         variance_figure,
@@ -765,11 +898,21 @@ def pca_analysis(
         "ekde-data",
         "data",
     ),
+    State(
+        "ekde-project-id",
+        "data",
+    ),
+    State(
+        "ekde-dataset-id",
+        "data",
+    ),
 )
 def association_analysis(
     x,
     y,
     data,
+    project_id,
+    dataset_id,
 ):
 
     dataframe = _deserialize(data)
@@ -891,6 +1034,33 @@ def association_analysis(
         ),
     )
 
+    _persist_ekde(
+        project_id,
+        dataset_id,
+        "associations",
+        {
+            "x": x,
+            "y": y,
+            "n": int(len(pair)),
+            "pearson": round(
+                float(pearson),
+                6,
+            ),
+            "spearman": round(
+                float(spearman),
+                6,
+            ),
+            "mutual_information": (
+                mi_text
+            ),
+            "metrics": (
+                metrics.to_dict(
+                    orient="records"
+                )
+            ),
+        },
+    )
+
     return (
         _table(metrics),
         figure,
@@ -927,6 +1097,14 @@ def association_analysis(
         "ekde-data",
         "data",
     ),
+    State(
+        "ekde-project-id",
+        "data",
+    ),
+    State(
+        "ekde-dataset-id",
+        "data",
+    ),
     prevent_initial_call=True,
 )
 def selection_analysis(
@@ -935,6 +1113,8 @@ def selection_analysis(
     target,
     variance_threshold,
     data,
+    project_id,
+    dataset_id,
 ):
 
     if not n_clicks:
@@ -1101,6 +1281,34 @@ def selection_analysis(
             )
         )
 
+        _persist_ekde(
+            project_id,
+            dataset_id,
+            "selection",
+            {
+                "method": method,
+                "target": target,
+                "variance_threshold": (
+                    float(
+                        variance_threshold
+                        or 0.0
+                    )
+                    if method == "variance"
+                    else None
+                ),
+                "numeric_variables": (
+                    list(numeric.columns)
+                ),
+                "converted_columns": conversions,
+                "result": (
+                    result_df
+                    .to_dict(
+                        orient="records"
+                    )
+                ),
+            },
+        )
+
         return [
             dbc.Alert(
                 "Analyse de sélection terminée.",
@@ -1138,8 +1346,20 @@ def selection_analysis(
         "ekde-data",
         "data",
     ),
+    State(
+        "ekde-project-id",
+        "data",
+    ),
+    State(
+        "ekde-dataset-id",
+        "data",
+    ),
 )
-def knowledge_summary(data):
+def knowledge_summary(
+    data,
+    project_id,
+    dataset_id,
+):
 
     dataframe = _deserialize(data)
 
@@ -1150,38 +1370,53 @@ def knowledge_summary(data):
     )
 
     findings = []
+    findings_text = []
+
+    numeric_message = (
+        f"{numeric.shape[1]} variable(s) "
+        "numérique(s) ou numeric-like "
+        "sont exploitables pour les analyses "
+        "multivariées."
+    )
 
     findings.append(
         html.Li(
-            (
-                f"{numeric.shape[1]} variable(s) "
-                "numérique(s) ou numeric-like "
-                "sont exploitables pour les analyses "
-                "multivariées."
-            )
+            numeric_message
         )
+    )
+
+    findings_text.append(
+        numeric_message
     )
 
     if conversions:
 
+        converted_names = [
+            item["column"]
+            for item in conversions
+        ]
+
+        conversion_message = (
+            "Variables numeric-like identifiées : "
+            + ", ".join(converted_names)
+            + "."
+        )
+
         findings.append(
             html.Li(
-                (
-                    "Variables numeric-like identifiées : "
-                    + ", ".join(
-                        item["column"]
-                        for item in conversions
-                    )
-                    + "."
-                )
+                conversion_message
             )
         )
+
+        findings_text.append(
+            conversion_message
+        )
+
+    strong_pairs = []
 
     if numeric.shape[1] >= 2:
 
         corr = numeric.corr()
-
-        strong = []
 
         for i, column_a in enumerate(
             corr.columns
@@ -1204,39 +1439,83 @@ def knowledge_summary(data):
                     and abs(value) >= 0.90
                 ):
 
-                    strong.append(
-                        (
-                            column_a,
-                            column_b,
-                            value,
-                        )
+                    strong_pairs.append(
+                        {
+                            "variable_1":
+                                column_a,
+                            "variable_2":
+                                column_b,
+                            "correlation":
+                                round(
+                                    float(value),
+                                    6,
+                                ),
+                            "absolute_correlation":
+                                round(
+                                    abs(
+                                        float(value)
+                                    ),
+                                    6,
+                                ),
+                        }
                     )
 
-        if strong:
+        if strong_pairs:
 
-            findings.append(
-                html.Li(
-                    (
-                        f"{len(strong)} association(s) "
-                        "linéaire(s) forte(s) "
-                        "(|r| ≥ 0,90) détectée(s). "
-                        "Elles peuvent signaler une "
-                        "redondance entre variables."
-                    )
-                )
+            correlation_message = (
+                f"{len(strong_pairs)} association(s) "
+                "linéaire(s) forte(s) "
+                "(|r| ≥ 0,90) détectée(s). "
+                "Elles peuvent signaler une "
+                "redondance entre variables."
             )
 
         else:
 
-            findings.append(
-                html.Li(
-                    (
-                        "Aucune redondance linéaire "
-                        "forte n'est détectée au seuil "
-                        "|r| ≥ 0,90."
-                    )
-                )
+            correlation_message = (
+                "Aucune redondance linéaire "
+                "forte n'est détectée au seuil "
+                "|r| ≥ 0,90."
             )
+
+        findings.append(
+            html.Li(
+                correlation_message
+            )
+        )
+
+        findings_text.append(
+            correlation_message
+        )
+
+    limitation = (
+        "Ces éléments sont des diagnostics "
+        "exploratoires. Une association ou "
+        "une composante latente ne constitue "
+        "pas, à elle seule, une relation "
+        "causale."
+    )
+
+    _persist_ekde(
+        project_id,
+        dataset_id,
+        "knowledge_summary",
+        {
+            "numeric_variable_count": int(
+                numeric.shape[1]
+            ),
+            "numeric_variables": (
+                list(numeric.columns)
+            ),
+            "converted_columns": conversions,
+            "correlation_threshold": 0.90,
+            "strong_correlations": strong_pairs,
+            "findings": findings_text,
+            "limitations": [
+                limitation
+            ],
+        },
+    )
 
     return dbc.Card(
         dbc.CardBody(
@@ -1245,18 +1524,14 @@ def knowledge_summary(data):
                     "Connaissances automatiquement dégagées"
                 ),
 
-                html.Ul(findings),
+                html.Ul(
+                    findings
+                ),
 
                 html.Hr(),
 
                 html.Small(
-                    (
-                        "Ces éléments sont des diagnostics "
-                        "exploratoires. Une association ou "
-                        "une composante latente ne constitue "
-                        "pas, à elle seule, une relation "
-                        "causale."
-                    ),
+                    limitation,
                     className="text-muted",
                 ),
             ]

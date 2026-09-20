@@ -64,6 +64,90 @@ class ProjectRepository:
 
             return list(session.scalars(statement).all())
 
+    def get_by_id_for_user(
+        self,
+        project_id: int,
+        user_id: int,
+    ) -> Optional[ProjectModel]:
+        with self._database.session_scope() as session:
+            statement = select(ProjectModel).where(
+                ProjectModel.id == project_id,
+                ProjectModel.user_id == user_id,
+            )
+
+            return session.scalar(statement)
+
+    def get_all_for_user(
+        self,
+        user_id: int,
+    ) -> List[ProjectModel]:
+        with self._database.session_scope() as session:
+            statement = (
+                select(ProjectModel)
+                .where(
+                    ProjectModel.user_id == user_id
+                )
+                .order_by(
+                    ProjectModel.created_at.desc()
+                )
+            )
+
+            return list(
+                session.scalars(statement).all()
+            )
+
+    def exists_for_user(
+        self,
+        project_id: int,
+        user_id: int,
+    ) -> bool:
+        with self._database.session_scope() as session:
+            statement = select(
+                exists().where(
+                    ProjectModel.id == project_id,
+                    ProjectModel.user_id == user_id,
+                )
+            )
+
+            return bool(
+                session.scalar(statement)
+            )
+
+    def count_for_user(
+        self,
+        user_id: int,
+    ) -> int:
+        with self._database.session_scope() as session:
+            statement = select(
+                func.count(ProjectModel.id)
+            ).where(
+                ProjectModel.user_id == user_id
+            )
+
+            return int(
+                session.scalar(statement) or 0
+            )
+
+    def delete_for_user(
+        self,
+        project_id: int,
+        user_id: int,
+    ) -> bool:
+        with self._database.session_scope() as session:
+            statement = select(ProjectModel).where(
+                ProjectModel.id == project_id,
+                ProjectModel.user_id == user_id,
+            )
+
+            project = session.scalar(statement)
+
+            if project is None:
+                return False
+
+            session.delete(project)
+
+            return True
+
     def exists(self, project_id: int) -> bool:
 
         with self._database.session_scope() as session:

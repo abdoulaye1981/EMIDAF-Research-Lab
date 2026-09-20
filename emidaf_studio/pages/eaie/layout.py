@@ -35,14 +35,16 @@ def eaie_layout(project_id, dataset_id):
     return dbc.Container(
         [
             html.H2(
-                "🤖 EAIE — Exploratory Artificial Intelligence Engine",
+                "Modélisation prédictive : EAIE",
                 className="mt-3",
             ),
 
             html.P(
                 (
-                    "Modélisation supervisée, comparaison "
-                    "de modèles et validation scientifique."
+                    "Entraînez, comparez et sélectionnez des modèles "
+                    "prédictifs selon des critères de validation adaptés "
+                    "au problème étudié. Le jeu de test reste réservé "
+                    "à l'évaluation finale du modèle retenu."
                 ),
                 className="text-muted",
             ),
@@ -294,7 +296,7 @@ def eaie_layout(project_id, dataset_id):
                         ),
 
                         dbc.Button(
-                            "🚀 Lancer EAIE",
+                            "Lancer la modélisation",
                             id="eaie-run",
                             color="primary",
                             className="mt-4",
@@ -377,7 +379,7 @@ def eaie_layout(project_id, dataset_id):
                     dbc.Col(
                         dcc.Link(
                             dbc.Button(
-                                "💡 EXAIE →",
+                                "EXAIE →",
                                 color="success",
                                 outline=True,
                                 className="w-100",
