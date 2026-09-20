@@ -7,6 +7,8 @@ Bootstrap
 
 from __future__ import annotations
 
+import os
+
 from emidaf_core.container import Container
 
 
@@ -62,29 +64,60 @@ class Bootstrap:
     def _create_database(self):
         from pathlib import Path
 
-        from database.database_manager import DatabaseManager
-        from database.providers.sqlite_provider import SQLiteProvider
+        from database.database_manager import (
+            DatabaseManager,
+        )
+        from database.providers.sqlite_provider import (
+            SQLiteProvider,
+        )
+
+        configured_database = (
+            os.environ.get(
+                "EMIDAF_DATABASE_PATH"
+            )
+            or self.configuration_manager.database
+        )
 
         database_path = Path(
-        self.configuration_manager.database
-        )
+            configured_database
+        ).expanduser().resolve()
 
         database_path.parent.mkdir(
             parents=True,
-            exist_ok=True
+            exist_ok=True,
         )
 
         provider = SQLiteProvider(
             f"sqlite:///{database_path}"
         )
 
-        self.database_manager = DatabaseManager(provider)
-        self.database_manager.create_database(database_path)
+        self.database_manager = (
+            DatabaseManager(provider)
+        )
+
+        self.database_manager.create_database(
+            database_path
+        )
+
 
     def _create_managers(self):
-        from emidaf_core.managers.workspace_manager import WorkspaceManager
+        from pathlib import Path
 
-        self.workspace_manager = WorkspaceManager()
+        from emidaf_core.managers.workspace_manager import (
+            WorkspaceManager,
+        )
+
+        workspace_path = Path(
+            os.environ.get(
+                "EMIDAF_WORKSPACE_PATH",
+                "workspace",
+            )
+        ).expanduser().resolve()
+
+        self.workspace_manager = WorkspaceManager(
+            workspace=workspace_path
+        )
+
 
     def _create_mappers(self):
         from emidaf_core.mappers.workspace_mapper import WorkspaceMapper

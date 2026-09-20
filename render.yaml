@@ -1,0 +1,55 @@
+services:
+  - type: web
+    name: emidaf-research-lab
+    runtime: python
+
+    buildCommand: pip install -r requirements.txt
+
+    startCommand: >
+      python scripts/bootstrap_admin.py &&
+      exec gunicorn emidaf_studio.app:server
+      --bind 0.0.0.0:$PORT
+      --workers 1
+      --threads 4
+      --timeout 180
+
+    numInstances: 1
+
+    envVars:
+      - key: EMIDAF_ENV
+        value: production
+
+      - key: EMIDAF_DEBUG
+        value: "0"
+
+      - key: EMIDAF_SECRET_KEY
+        generateValue: true
+
+      - key: EMIDAF_DATABASE_PATH
+        value: /var/data/database/emidaf.db
+
+      - key: EMIDAF_WORKSPACE_PATH
+        value: /var/data/workspace
+
+      - key: EMIDAF_ADMIN_EMAIL
+        sync: false
+
+      - key: EMIDAF_ADMIN_PASSWORD
+        sync: false
+
+      - key: EMIDAF_ADMIN_FIRST_NAME
+        sync: false
+
+      - key: EMIDAF_ADMIN_LAST_NAME
+        sync: false
+
+      - key: EMIDAF_ADMIN_INSTITUTION
+        sync: false
+
+      - key: EMIDAF_ADMIN_COUNTRY
+        sync: false
+
+    disk:
+      name: emidaf-data
+      mountPath: /var/data
+      sizeGB: 1
