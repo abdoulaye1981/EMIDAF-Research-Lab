@@ -7,6 +7,7 @@ services:
 
     startCommand: >
       export PYTHONPATH=. &&
+      python scripts/bootstrap_workspace.py &&
       python scripts/bootstrap_admin.py &&
       exec gunicorn emidaf_studio.app:server
       --bind 0.0.0.0:$PORT
