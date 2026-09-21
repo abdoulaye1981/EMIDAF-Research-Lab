@@ -437,6 +437,10 @@ def _persist_ekde(
         "figure",
     ),
     Input(
+        "ekde-structure-run",
+        "n_clicks",
+    ),
+    State(
         "ekde-correlation-threshold",
         "value",
     ),
@@ -455,11 +459,15 @@ def _persist_ekde(
     prevent_initial_call=True,
 )
 def structure_analysis(
+    n_clicks,
     threshold,
     data,
     project_id,
     dataset_id,
 ):
+
+    if not n_clicks:
+        return no_update, no_update
 
     dataframe = _deserialize(data)
 
@@ -608,6 +616,10 @@ def structure_analysis(
         "figure",
     ),
     Input(
+        "ekde-pca-run",
+        "n_clicks",
+    ),
+    State(
         "ekde-pca-components",
         "value",
     ),
@@ -626,11 +638,19 @@ def structure_analysis(
     prevent_initial_call=True,
 )
 def pca_analysis(
+    n_clicks,
     n_components,
     data,
     project_id,
     dataset_id,
 ):
+
+    if not n_clicks:
+        return (
+            no_update,
+            no_update,
+            no_update,
+        )
 
     dataframe = _deserialize(data)
 
@@ -2782,10 +2802,14 @@ def agglomerative_analysis(
         "figure",
     ),
     Input(
+        "ekde-association-run",
+        "n_clicks",
+    ),
+    State(
         "ekde-association-x",
         "value",
     ),
-    Input(
+    State(
         "ekde-association-y",
         "value",
     ),
@@ -2804,12 +2828,16 @@ def agglomerative_analysis(
     prevent_initial_call=True,
 )
 def association_analysis(
+    n_clicks,
     x,
     y,
     data,
     project_id,
     dataset_id,
 ):
+
+    if not n_clicks:
+        return no_update, no_update
 
     dataframe = _deserialize(data)
 
@@ -3239,6 +3267,10 @@ def selection_analysis(
         "children",
     ),
     Input(
+        "ekde-knowledge-run",
+        "n_clicks",
+    ),
+    State(
         "ekde-data",
         "data",
     ),
@@ -3250,12 +3282,17 @@ def selection_analysis(
         "ekde-dataset-id",
         "data",
     ),
+    prevent_initial_call=True,
 )
 def knowledge_summary(
+    n_clicks,
     data,
     project_id,
     dataset_id,
 ):
+
+    if not n_clicks:
+        return no_update
 
     dataframe = _deserialize(data)
 

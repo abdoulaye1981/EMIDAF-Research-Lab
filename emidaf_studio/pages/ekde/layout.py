@@ -339,6 +339,13 @@ def ekde_layout(project_id, dataset_id):
                                 },
                             ),
 
+                            dbc.Button(
+                                "Lancer l'analyse de structure",
+                                id="ekde-structure-run",
+                                color="primary",
+                                className="mt-3",
+                            ),
+
                             html.Div(
                                 initial_structure,
                                 id="ekde-structure-summary",
@@ -393,6 +400,13 @@ def ekde_layout(project_id, dataset_id):
                                         max_components + 1,
                                     )
                                 },
+                            ),
+
+                            dbc.Button(
+                                "Lancer la PCA",
+                                id="ekde-pca-run",
+                                color="primary",
+                                className="mt-3",
                             ),
 
                             html.Div(
@@ -1034,6 +1048,13 @@ def ekde_layout(project_id, dataset_id):
                                 className="g-3",
                             ),
 
+                            dbc.Button(
+                                "Analyser l'association",
+                                id="ekde-association-run",
+                                color="primary",
+                                className="mt-3",
+                            ),
+
                             html.Div(
                                 initial_association,
                                 id="ekde-association-results",
@@ -1153,6 +1174,22 @@ def ekde_layout(project_id, dataset_id):
                             html.H4(
                                 "Synthèse des connaissances",
                                 className="mt-4",
+                            ),
+
+                            dbc.Alert(
+                                (
+                                    "La synthèse n'est pas calculée "
+                                    "automatiquement afin de préserver "
+                                    "la réactivité de l'application."
+                                ),
+                                color="secondary",
+                            ),
+
+                            dbc.Button(
+                                "Générer la synthèse",
+                                id="ekde-knowledge-run",
+                                color="primary",
+                                className="mb-3",
                             ),
 
                             html.Div(
