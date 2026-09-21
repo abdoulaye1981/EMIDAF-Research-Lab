@@ -622,125 +622,59 @@ def project_detail_layout(project_id):
 
         for dataset in datasets:
 
-            inspect_href = (
-                f"/projects/{project_id}"
-                f"/datasets/{dataset.id}"
-            )
-
-            actions = dbc.DropdownMenu(
-                [
-                    dbc.DropdownMenuItem(
-                        "Inspection",
-                        href=inspect_href,
-                    ),
-
-                    dbc.DropdownMenuItem(
-                        "Prétraitement",
-                        href=(
-                            inspect_href
-                            + "/eidpp"
-                        ),
-                    ),
-
-                    dbc.DropdownMenuItem(
-                        "Analyse exploratoire",
-                        href=(
-                            inspect_href
-                            + "/elae"
-                        ),
-                    ),
-
-                    dbc.DropdownMenuItem(
-                        "Découverte de connaissances",
-                        href=(
-                            inspect_href
-                            + "/ekde"
-                        ),
-                    ),
-
-                    dbc.DropdownMenuItem(
-                        "Modélisation prédictive",
-                        href=(
-                            inspect_href
-                            + "/eaie"
-                        ),
-                    ),
-
-                    dbc.DropdownMenuItem(
-                        "Explicabilité des modèles",
-                        href=(
-                            inspect_href
-                            + "/exaie"
-                        ),
-                    ),
-
-                    dbc.DropdownMenuItem(
-                        "Aide à la décision",
-                        href=(
-                            inspect_href
-                            + "/edse"
-                        ),
-                    ),
-
-                    dbc.DropdownMenuItem(
-                        "Rapports",
-                        href=(
-                            inspect_href
-                            + "/reports"
-                        ),
-                    ),
-                ],
-                label="Actions",
-                size="sm",
-                color="primary",
-            )
-
             dataset_rows.append(
                 html.Tr(
                     [
                         html.Td(
-                            dataset.name
+                            [
+                                html.Div(
+                                    dataset.name,
+                                    style={
+                                        "fontWeight": "600",
+                                    },
+                                ),
+                                html.Small(
+                                    dataset.original_filename,
+                                    className="text-muted",
+                                ),
+                            ]
                         ),
 
                         html.Td(
-                            dataset.original_filename
+                            f"{dataset.rows} × "
+                            f"{dataset.columns}"
                         ),
 
                         html.Td(
-                            (
-                                f"{dataset.rows} × "
-                                f"{dataset.columns}"
-                            )
+                            dataset.extension
+                            .replace(".", "")
+                            .upper()
                         ),
 
                         html.Td(
-                            dataset.extension.upper()
-                        ),
-
-                        html.Td(
-                            (
-                                f"{dataset.size / 1024:.2f} Ko"
-                            )
-                        ),
-
-                        html.Td(
-                            actions
+                            f"{dataset.size / 1024:.2f} Ko"
                         ),
                     ]
                 )
             )
 
-        dataset_view = dbc.Table(
+        dataset_table = dbc.Table(
             [
                 html.Thead(
                     html.Tr(
                         [
-                            html.Th("Nom"),
-                            html.Th("Fichier"),
-                            html.Th("Dimensions"),
-                            html.Th("Format"),
-                            html.Th("Taille"),
-                            html.Th("Actions"),
+                            html.Th(
+                                "Jeu de données"
+                            ),
+                            html.Th(
+                                "Dimensions"
+                            ),
+                            html.Th(
+                                "Format"
+                            ),
+                            html.Th(
+                                "Taille"
+                            ),
                         ]
                     )
                 ),
@@ -749,11 +683,70 @@ def project_detail_layout(project_id):
                     dataset_rows
                 ),
             ],
-            bordered=True,
+            bordered=False,
             hover=True,
             responsive=True,
-            striped=True,
+            striped=False,
             size="sm",
+            className="mb-0",
+        )
+
+        dataset_view = html.Details(
+            [
+                html.Summary(
+                    [
+                        html.I(
+                            className=(
+                                "bi bi-database me-2"
+                            )
+                        ),
+                        (
+                            f"Gérer les jeux de données "
+                            f"({len(datasets)})"
+                        ),
+                    ],
+                    style={
+                        "cursor": "pointer",
+                        "fontWeight": "600",
+                        "fontSize": "1rem",
+                        "padding": "14px 16px",
+                        "userSelect": "none",
+                    },
+                ),
+
+                html.Div(
+                    [
+                        html.P(
+                            (
+                                "Consultez les jeux de données "
+                                "associés à ce projet. "
+                                "Le dataset actif se choisit "
+                                "dans l'espace de travail "
+                                "ci-dessus."
+                            ),
+                            className=(
+                                "text-muted small mb-3"
+                            ),
+                        ),
+
+                        dataset_table,
+                    ],
+                    style={
+                        "padding": (
+                            "0 16px 16px 16px"
+                        ),
+                    },
+                ),
+            ],
+            open=False,
+            style={
+                "border": (
+                    "1px solid "
+                    "rgba(0, 0, 0, 0.10)"
+                ),
+                "borderRadius": "10px",
+                "background": "white",
+            },
         )
 
     else:
@@ -1029,29 +1022,12 @@ def project_detail_layout(project_id):
             ),
 
             # ------------------------------------------------
-            # Datasets du projet
+            # Gestion secondaire des datasets
             # ------------------------------------------------
-
-            html.Hr(),
-
-            html.H4(
-                "Jeux de données du projet"
-            ),
 
             html.Div(
                 dataset_view,
-                className="mt-3"
-            ),
-
-            # ------------------------------------------------
-            # Information générale
-            # ------------------------------------------------
-
-            html.Hr(),
-
-            dbc.Alert(
-                "Les modules seront activés progressivement.",
-                color="info"
+                className="mt-4",
             )
         ],
         fluid=True
