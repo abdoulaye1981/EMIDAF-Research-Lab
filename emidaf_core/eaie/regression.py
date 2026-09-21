@@ -39,9 +39,9 @@ class RegressionModels:
             ),
             "random_forest": (
                 RandomForestRegressor(
-                    n_estimators=200,
+                    n_estimators=100,
                     random_state=random_state,
-                    n_jobs=-1,
+                    n_jobs=1,
                 )
             ),
             "knn": (

@@ -285,7 +285,7 @@ def eaie_layout(project_id, dataset_id):
                                                     "value": 10,
                                                 },
                                             ],
-                                            value=5,
+                                            value=3,
                                             clearable=False,
                                         ),
                                     ],

@@ -1,6 +1,8 @@
 from __future__ import annotations
 
 from io import StringIO
+
+import logging
 import re
 
 import pandas as pd
@@ -15,6 +17,8 @@ from dash import (
 )
 
 import dash_bootstrap_components as dbc
+
+logger = logging.getLogger(__name__)
 
 from emidaf_core.eaie import EAIEEngine
 from emidaf_studio.services.model_registry import (
@@ -158,6 +162,14 @@ def run_eaie(
 
 
     except Exception as exc:
+
+        logger.exception(
+            "EAIE modelling failed "
+            "(target=%s, task=%s, cv=%s)",
+            target,
+            task,
+            cv,
+        )
 
         message = dbc.Alert(
             [
