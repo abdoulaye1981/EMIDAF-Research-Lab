@@ -38,6 +38,8 @@ from sklearn.manifold import (
     TSNE
 )
 
+from umap import UMAP
+
 from .base import BasePreprocessor
 
 # ==========================================================
@@ -371,6 +373,149 @@ class TSNEReduction(
             index=X.index
 
         )
+
+# ==========================================================
+# UMAP
+# ==========================================================
+
+class UMAPReduction(
+    BasePreprocessor
+):
+    """
+    Réduction dimensionnelle non linéaire par UMAP.
+
+    Contrairement à t-SNE, UMAP permet également
+    transform() après ajustement du modèle.
+    """
+
+    name = "UMAP"
+
+    def __init__(
+        self,
+        n_components=2,
+        n_neighbors=15,
+        min_dist=0.1,
+        metric="euclidean",
+        random_state=42,
+    ):
+        super().__init__()
+
+        self.n_components = int(
+            n_components
+        )
+
+        self.n_neighbors = int(
+            n_neighbors
+        )
+
+        self.min_dist = float(
+            min_dist
+        )
+
+        self.metric = metric
+
+        self.random_state = (
+            random_state
+        )
+
+        if self.n_components < 2:
+            raise ValueError(
+                "n_components doit être "
+                "au moins égal à 2."
+            )
+
+        if self.n_neighbors < 2:
+            raise ValueError(
+                "n_neighbors doit être "
+                "au moins égal à 2."
+            )
+
+        if self.min_dist < 0:
+            raise ValueError(
+                "min_dist doit être "
+                "supérieur ou égal à 0."
+            )
+
+        self.model = UMAP(
+            n_components=(
+                self.n_components
+            ),
+            n_neighbors=(
+                self.n_neighbors
+            ),
+            min_dist=(
+                self.min_dist
+            ),
+            metric=self.metric,
+            random_state=(
+                self.random_state
+            ),
+        )
+
+    def fit(
+        self,
+        X,
+        y=None,
+    ):
+        self.model.fit(
+            X,
+            y=y,
+        )
+
+        self.fitted = True
+
+        return self
+
+    def transform(
+        self,
+        X,
+    ):
+        values = (
+            self.model.transform(
+                X
+            )
+        )
+
+        columns = [
+            f"UMAP{i + 1}"
+            for i in range(
+                values.shape[1]
+            )
+        ]
+
+        return pd.DataFrame(
+            values,
+            columns=columns,
+            index=X.index,
+        )
+
+    def fit_transform(
+        self,
+        X,
+        y=None,
+    ):
+        values = (
+            self.model.fit_transform(
+                X,
+                y=y,
+            )
+        )
+
+        self.fitted = True
+
+        columns = [
+            f"UMAP{i + 1}"
+            for i in range(
+                values.shape[1]
+            )
+        ]
+
+        return pd.DataFrame(
+            values,
+            columns=columns,
+            index=X.index,
+        )
+
 
 # ==========================================================
 # AUTO

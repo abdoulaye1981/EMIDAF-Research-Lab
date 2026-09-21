@@ -28,6 +28,7 @@ from sklearn.preprocessing import StandardScaler
 from emidaf_core.preprocessing.dimensionality import (
     PCAReduction,
     TSNEReduction,
+    UMAPReduction,
 )
 
 from emidaf_core.preprocessing.feature_selection import (
@@ -1107,6 +1108,327 @@ def tsne_analysis(
                 effective_perplexity
             ),
             "standardized": True,
+        },
+    )
+
+    return (
+        summary_content,
+        projection_figure,
+    )
+
+
+# ============================================================
+# UMAP
+# ============================================================
+
+
+@callback(
+    Output(
+        "ekde-umap-summary",
+        "children",
+    ),
+    Output(
+        "ekde-umap-projection",
+        "figure",
+    ),
+    Input(
+        "ekde-umap-run",
+        "n_clicks",
+    ),
+    State(
+        "ekde-umap-neighbors",
+        "value",
+    ),
+    State(
+        "ekde-umap-min-dist",
+        "value",
+    ),
+    State(
+        "ekde-umap-metric",
+        "value",
+    ),
+    State(
+        "ekde-data",
+        "data",
+    ),
+    State(
+        "ekde-project-id",
+        "data",
+    ),
+    State(
+        "ekde-dataset-id",
+        "data",
+    ),
+    prevent_initial_call=True,
+)
+def umap_analysis(
+    n_clicks,
+    n_neighbors,
+    min_dist,
+    metric,
+    data,
+    project_id,
+    dataset_id,
+):
+    if not n_clicks:
+        return no_update, no_update
+
+    dataframe = _deserialize(data)
+
+    numeric, conversions = (
+        _prepare_numeric_matrix(
+            dataframe
+        )
+    )
+
+    if numeric.shape[1] < 2:
+        return (
+            dbc.Alert(
+                (
+                    "UMAP nécessite au moins "
+                    "deux variables numériques."
+                ),
+                color="warning",
+            ),
+            {},
+        )
+
+    n_observations = int(
+        numeric.shape[0]
+    )
+
+    if n_observations < 3:
+        return (
+            dbc.Alert(
+                (
+                    "UMAP nécessite au moins "
+                    "trois observations."
+                ),
+                color="warning",
+            ),
+            {},
+        )
+
+    try:
+        requested_neighbors = int(
+            n_neighbors
+            if n_neighbors is not None
+            else 15
+        )
+    except (TypeError, ValueError):
+        requested_neighbors = 15
+
+    try:
+        requested_min_dist = float(
+            min_dist
+            if min_dist is not None
+            else 0.1
+        )
+    except (TypeError, ValueError):
+        requested_min_dist = 0.1
+
+    requested_metric = (
+        metric
+        if metric is not None
+        else "euclidean"
+    )
+
+    allowed_metrics = {
+        "euclidean",
+        "manhattan",
+        "cosine",
+    }
+
+    if requested_metric not in allowed_metrics:
+        return (
+            dbc.Alert(
+                "Métrique UMAP non reconnue.",
+                color="warning",
+            ),
+            {},
+        )
+
+    effective_neighbors = min(
+        max(
+            2,
+            requested_neighbors,
+        ),
+        n_observations - 1,
+    )
+
+    if requested_min_dist < 0:
+        return (
+            dbc.Alert(
+                (
+                    "min_dist doit être "
+                    "supérieur ou égal à 0."
+                ),
+                color="warning",
+            ),
+            {},
+        )
+
+    scaler = StandardScaler()
+
+    standardized = pd.DataFrame(
+        scaler.fit_transform(
+            numeric
+        ),
+        columns=numeric.columns,
+        index=numeric.index,
+    )
+
+    try:
+        model = UMAPReduction(
+            n_components=2,
+            n_neighbors=(
+                effective_neighbors
+            ),
+            min_dist=(
+                requested_min_dist
+            ),
+            metric=(
+                requested_metric
+            ),
+            random_state=42,
+        )
+
+        components = (
+            model.fit_transform(
+                standardized
+            )
+        )
+
+    except Exception as exc:
+        return (
+            dbc.Alert(
+                (
+                    "Le calcul UMAP n'a pas "
+                    "pu être terminé : "
+                    f"{exc}"
+                ),
+                color="danger",
+            ),
+            {},
+        )
+
+    projection = components.copy()
+
+    projection["Observation"] = (
+        np.arange(
+            1,
+            len(projection) + 1,
+        )
+    )
+
+    projection_figure = px.scatter(
+        projection,
+        x="UMAP1",
+        y="UMAP2",
+        hover_data=["Observation"],
+        title=(
+            "Projection UMAP "
+            "des observations"
+        ),
+    )
+
+    summary_df = pd.DataFrame(
+        [
+            {
+                "Indicateur":
+                    "Observations",
+                "Valeur":
+                    n_observations,
+            },
+            {
+                "Indicateur":
+                    "Variables utilisées",
+                "Valeur":
+                    int(
+                        numeric.shape[1]
+                    ),
+            },
+            {
+                "Indicateur":
+                    "n_neighbors demandé",
+                "Valeur":
+                    requested_neighbors,
+            },
+            {
+                "Indicateur":
+                    "n_neighbors utilisé",
+                "Valeur":
+                    effective_neighbors,
+            },
+            {
+                "Indicateur":
+                    "min_dist",
+                "Valeur":
+                    requested_min_dist,
+            },
+            {
+                "Indicateur":
+                    "Métrique",
+                "Valeur":
+                    requested_metric,
+            },
+        ]
+    )
+
+    summary_content = [
+        dbc.Alert(
+            (
+                "Projection UMAP calculée "
+                "sur les variables numériques "
+                "standardisées."
+            ),
+            color="info",
+        ),
+        _table(summary_df),
+        dbc.Alert(
+            (
+                "UMAP cherche à préserver "
+                "principalement les structures "
+                "locales tout en conservant "
+                "une partie de l'organisation "
+                "globale. Les distances et "
+                "séparations visibles dans la "
+                "projection doivent néanmoins "
+                "être interprétées avec "
+                "prudence."
+            ),
+            color="secondary",
+        ),
+    ]
+
+    _persist_ekde(
+        project_id,
+        dataset_id,
+        "umap",
+        {
+            "n_components": 2,
+            "n_observations": (
+                n_observations
+            ),
+            "numeric_variables": (
+                list(numeric.columns)
+            ),
+            "converted_columns": (
+                conversions
+            ),
+            "standardized": True,
+            "requested_neighbors": (
+                requested_neighbors
+            ),
+            "effective_neighbors": (
+                effective_neighbors
+            ),
+            "min_dist": (
+                requested_min_dist
+            ),
+            "metric": (
+                requested_metric
+            ),
         },
     )
 

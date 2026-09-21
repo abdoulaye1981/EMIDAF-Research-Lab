@@ -71,6 +71,29 @@ class IsolationForestDetector(BaseOutlierDetector):
 
         ).dropna()
 
+
+        # Validation explicite EMIDAF.
+        #
+        # Ne pas dépendre du comportement interne
+        # de validation de scikit-learn.
+        if dataframe.empty:
+            raise ValueError(
+                "IsolationForestDetector nécessite "
+                "au moins une observation numérique "
+                "complète."
+            )
+
+        values = dataframe.to_numpy(
+            dtype=float
+        )
+
+        if not np.isfinite(values).all():
+            raise ValueError(
+                "IsolationForestDetector ne peut "
+                "pas être exécuté avec des valeurs "
+                "infinies."
+            )
+
         model = IsolationForest(
 
             contamination=contamination,

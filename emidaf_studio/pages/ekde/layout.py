@@ -509,6 +509,135 @@ def ekde_layout(project_id, dataset_id):
                     ),
 
                     # ==========================================
+                    # UMAP
+                    # ==========================================
+
+                    dbc.Tab(
+                        [
+                            html.H4(
+                                "Réduction dimensionnelle : UMAP",
+                                className="mt-4",
+                            ),
+                            html.P(
+                                (
+                                    "UMAP produit une représentation "
+                                    "non linéaire des observations à "
+                                    "partir des variables numériques "
+                                    "standardisées."
+                                ),
+                                className="text-muted",
+                            ),
+                            dbc.Alert(
+                                (
+                                    "Le calcul UMAP n'est pas lancé "
+                                    "automatiquement. Configurez les "
+                                    "paramètres puis cliquez sur "
+                                    "« Lancer UMAP »."
+                                ),
+                                color="secondary",
+                            ),
+                            dbc.Row(
+                                [
+                                    dbc.Col(
+                                        [
+                                            dbc.Label(
+                                                "n_neighbors"
+                                            ),
+                                            dbc.Input(
+                                                id="ekde-umap-neighbors",
+                                                type="number",
+                                                min=2,
+                                                step=1,
+                                                value=15,
+                                            ),
+                                            html.Small(
+                                                (
+                                                    "Contrôle l'échelle "
+                                                    "locale du voisinage."
+                                                ),
+                                                className="text-muted",
+                                            ),
+                                        ],
+                                        md=4,
+                                    ),
+                                    dbc.Col(
+                                        [
+                                            dbc.Label(
+                                                "min_dist"
+                                            ),
+                                            dbc.Input(
+                                                id="ekde-umap-min-dist",
+                                                type="number",
+                                                min=0,
+                                                step=0.05,
+                                                value=0.1,
+                                            ),
+                                            html.Small(
+                                                (
+                                                    "Contrôle la compacité "
+                                                    "des groupes dans "
+                                                    "l'espace projeté."
+                                                ),
+                                                className="text-muted",
+                                            ),
+                                        ],
+                                        md=4,
+                                    ),
+                                    dbc.Col(
+                                        [
+                                            dbc.Label(
+                                                "Métrique"
+                                            ),
+                                            dcc.Dropdown(
+                                                id="ekde-umap-metric",
+                                                options=[
+                                                    {
+                                                        "label": "Euclidienne",
+                                                        "value": "euclidean",
+                                                    },
+                                                    {
+                                                        "label": "Manhattan",
+                                                        "value": "manhattan",
+                                                    },
+                                                    {
+                                                        "label": "Cosinus",
+                                                        "value": "cosine",
+                                                    },
+                                                ],
+                                                value="euclidean",
+                                                clearable=False,
+                                            ),
+                                        ],
+                                        md=4,
+                                    ),
+                                ],
+                                className="mt-3",
+                            ),
+                            html.Div(
+                                [
+                                    dbc.Button(
+                                        "Lancer UMAP",
+                                        id="ekde-umap-run",
+                                        color="primary",
+                                        className="mt-3",
+                                    ),
+                                ]
+                            ),
+                            dbc.Spinner(
+                                html.Div(
+                                    id="ekde-umap-summary",
+                                    className="mt-4",
+                                ),
+                            ),
+                            dcc.Graph(
+                                id="ekde-umap-projection",
+                                figure={},
+                            ),
+                        ],
+                        label="UMAP",
+                    ),
+
+                    # ==========================================
                     # CLUSTERING - K-MEANS
                     # ==========================================
 
