@@ -144,6 +144,7 @@ def elae_layout(project_id, dataset_id):
                             ),
                         ],
                         label="Résumé descriptif",
+                        tab_id="descriptive",
                     ),
 
                     # ==========================================
@@ -188,6 +189,7 @@ def elae_layout(project_id, dataset_id):
                             ),
                         ],
                         label="Univariée",
+                        tab_id="univariate",
                     ),
 
                     # ==========================================
@@ -265,6 +267,7 @@ def elae_layout(project_id, dataset_id):
                             ),
                         ],
                         label="Bivariée",
+                        tab_id="bivariate",
                     ),
 
                     # ==========================================
@@ -287,6 +290,7 @@ def elae_layout(project_id, dataset_id):
                             ),
                         ],
                         label="Corrélations",
+                        tab_id="correlations",
                     ),
 
                     # ==========================================
@@ -366,8 +370,11 @@ def elae_layout(project_id, dataset_id):
                             ),
                         ],
                         label="Groupes",
+                        tab_id="grouped",
                     ),
-                ]
+                ],
+                id="elae-tabs",
+                active_tab="descriptive",
             ),
 
             html.Hr(),

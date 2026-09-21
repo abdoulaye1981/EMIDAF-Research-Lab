@@ -94,6 +94,10 @@ def _persist_elae(
         "children",
     ),
     Input(
+        "elae-tabs",
+        "active_tab",
+    ),
+    Input(
         "elae-data",
         "data",
     ),
@@ -107,10 +111,14 @@ def _persist_elae(
     ),
 )
 def descriptive_analysis(
+    active_tab,
     data,
     project_id,
     dataset_id,
 ):
+    if active_tab != "descriptive":
+        return no_update
+
 
     dataframe = _df(data)
 
@@ -207,6 +215,10 @@ def descriptive_analysis(
         "figure",
     ),
     Input(
+        "elae-tabs",
+        "active_tab",
+    ),
+    Input(
         "elae-univariate-variable",
         "value",
     ),
@@ -224,11 +236,15 @@ def descriptive_analysis(
     ),
 )
 def univariate(
+    active_tab,
     variable,
     data,
     project_id,
     dataset_id,
 ):
+    if active_tab != "univariate":
+        return no_update, no_update
+
 
     dataframe = _df(data)
 
@@ -404,6 +420,10 @@ def univariate(
         "figure",
     ),
     Input(
+        "elae-tabs",
+        "active_tab",
+    ),
+    Input(
         "elae-x",
         "value",
     ),
@@ -425,12 +445,16 @@ def univariate(
     ),
 )
 def bivariate(
+    active_tab,
     x,
     y,
     data,
     project_id,
     dataset_id,
 ):
+    if active_tab != "bivariate":
+        return no_update, no_update
+
 
     dataframe = _df(data)
 
@@ -788,6 +812,10 @@ def bivariate(
         "figure",
     ),
     Input(
+        "elae-tabs",
+        "active_tab",
+    ),
+    Input(
         "elae-data",
         "data",
     ),
@@ -801,10 +829,14 @@ def bivariate(
     ),
 )
 def correlations(
+    active_tab,
     data,
     project_id,
     dataset_id,
 ):
+    if active_tab != "correlations":
+        return no_update, no_update
+
 
     dataframe = _df(data)
 
@@ -906,6 +938,10 @@ def correlations(
         "figure",
     ),
     Input(
+        "elae-tabs",
+        "active_tab",
+    ),
+    Input(
         "elae-group-variable",
         "value",
     ),
@@ -927,12 +963,16 @@ def correlations(
     ),
 )
 def grouped_analysis(
+    active_tab,
     group_variable,
     value_variable,
     data,
     project_id,
     dataset_id,
 ):
+    if active_tab != "grouped":
+        return no_update, no_update
+
 
     dataframe = _df(data)
 
