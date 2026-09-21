@@ -34,6 +34,10 @@ from emidaf_core.preprocessing.feature_selection import (
     FeatureSelection,
 )
 
+from emidaf_core.ekde import (
+    KMeansClustering,
+)
+
 
 # ============================================================
 # UTILITIES
@@ -1101,6 +1105,402 @@ def tsne_analysis(
                 effective_perplexity
             ),
             "standardized": True,
+        },
+    )
+
+    return (
+        summary_content,
+        projection_figure,
+    )
+
+
+# ============================================================
+# K-MEANS CLUSTERING
+# ============================================================
+
+
+@callback(
+    Output(
+        "ekde-kmeans-summary",
+        "children",
+    ),
+    Output(
+        "ekde-kmeans-projection",
+        "figure",
+    ),
+    Input(
+        "ekde-kmeans-run",
+        "n_clicks",
+    ),
+    State(
+        "ekde-kmeans-clusters",
+        "value",
+    ),
+    State(
+        "ekde-data",
+        "data",
+    ),
+    State(
+        "ekde-project-id",
+        "data",
+    ),
+    State(
+        "ekde-dataset-id",
+        "data",
+    ),
+    prevent_initial_call=True,
+)
+def kmeans_analysis(
+    n_clicks,
+    n_clusters,
+    data,
+    project_id,
+    dataset_id,
+):
+    if not n_clicks:
+        return no_update, no_update
+
+    dataframe = _deserialize(data)
+
+    numeric, conversions = (
+        _prepare_numeric_matrix(
+            dataframe
+        )
+    )
+
+    if numeric.shape[1] < 1:
+        return (
+            dbc.Alert(
+                (
+                    "K-Means nécessite au moins "
+                    "une variable numérique."
+                ),
+                color="warning",
+            ),
+            {},
+        )
+
+    n_observations = int(
+        numeric.shape[0]
+    )
+
+    if n_observations < 3:
+        return (
+            dbc.Alert(
+                (
+                    "K-Means nécessite au moins "
+                    "trois observations pour "
+                    "cette analyse."
+                ),
+                color="warning",
+            ),
+            {},
+        )
+
+    try:
+        requested_clusters = int(
+            n_clusters
+            if n_clusters is not None
+            else 3
+        )
+    except (TypeError, ValueError):
+        requested_clusters = 3
+
+    if (
+        requested_clusters < 2
+        or requested_clusters
+        >= n_observations
+    ):
+        return (
+            dbc.Alert(
+                (
+                    "Le nombre de clusters doit "
+                    "être au moins égal à 2 et "
+                    "strictement inférieur au "
+                    "nombre d'observations."
+                ),
+                color="warning",
+            ),
+            {},
+        )
+
+    # K-Means dépend de l'échelle :
+    # standardisation analytique temporaire.
+    scaler = StandardScaler()
+
+    standardized = pd.DataFrame(
+        scaler.fit_transform(
+            numeric
+        ),
+        columns=numeric.columns,
+        index=numeric.index,
+    )
+
+    try:
+        result = KMeansClustering.fit(
+            standardized,
+            n_clusters=requested_clusters,
+            random_state=42,
+        )
+
+    except Exception as exc:
+        return (
+            dbc.Alert(
+                (
+                    "Le clustering K-Means "
+                    "n'a pas pu être terminé : "
+                    f"{exc}"
+                ),
+                color="danger",
+            ),
+            {},
+        )
+
+    labels = pd.Series(
+        result.predictions,
+        index=standardized.index,
+        name="Cluster",
+    )
+
+    cluster_sizes = (
+        labels
+        .value_counts()
+        .sort_index()
+        .rename_axis("Cluster")
+        .reset_index(name="Effectif")
+    )
+
+    cluster_sizes[
+        "Cluster"
+    ] = cluster_sizes[
+        "Cluster"
+    ].astype(int) + 1
+
+    cluster_sizes[
+        "Pourcentage"
+    ] = (
+        100
+        * cluster_sizes["Effectif"]
+        / n_observations
+    ).round(2)
+
+    metrics_df = pd.DataFrame(
+        [
+            {
+                "Métrique": "Nombre de clusters",
+                "Valeur": requested_clusters,
+            },
+            {
+                "Métrique": "Inertie",
+                "Valeur": round(
+                    float(result.inertia),
+                    6,
+                ),
+            },
+            {
+                "Métrique": "Silhouette",
+                "Valeur": (
+                    round(
+                        float(
+                            result.silhouette_score
+                        ),
+                        6,
+                    )
+                    if (
+                        result.silhouette_score
+                        is not None
+                    )
+                    else None
+                ),
+            },
+            {
+                "Métrique": "Davies-Bouldin",
+                "Valeur": (
+                    round(
+                        float(
+                            result.davies_bouldin_score
+                        ),
+                        6,
+                    )
+                    if (
+                        result.davies_bouldin_score
+                        is not None
+                    )
+                    else None
+                ),
+            },
+            {
+                "Métrique": "Calinski-Harabasz",
+                "Valeur": (
+                    round(
+                        float(
+                            result.calinski_harabasz_score
+                        ),
+                        6,
+                    )
+                    if (
+                        result.calinski_harabasz_score
+                        is not None
+                    )
+                    else None
+                ),
+            },
+        ]
+    )
+
+    # Projection PCA utilisée uniquement
+    # pour la visualisation du clustering.
+    if standardized.shape[1] >= 2:
+        projection_model = PCAReduction(
+            n_components=2
+        )
+
+        transformed = (
+            projection_model.fit_transform(
+                standardized
+            )
+        )
+
+        projection = _unwrap_transformed(
+            transformed,
+            index=standardized.index,
+        )
+
+        projection.columns = [
+            "Dimension 1",
+            "Dimension 2",
+        ]
+
+    else:
+        projection = pd.DataFrame(
+            {
+                "Dimension 1":
+                    standardized.iloc[:, 0],
+                "Dimension 2":
+                    np.zeros(
+                        n_observations
+                    ),
+            },
+            index=standardized.index,
+        )
+
+    projection["Cluster"] = (
+        labels
+        .astype(int)
+        .add(1)
+        .astype(str)
+    )
+
+    projection["Observation"] = (
+        np.arange(
+            1,
+            n_observations + 1,
+        )
+    )
+
+    projection_figure = px.scatter(
+        projection,
+        x="Dimension 1",
+        y="Dimension 2",
+        color="Cluster",
+        hover_data=["Observation"],
+        title=(
+            "Projection 2D des clusters K-Means"
+        ),
+    )
+
+    summary_content = [
+        dbc.Alert(
+            (
+                "Clustering K-Means calculé sur "
+                "les variables numériques après "
+                "standardisation analytique "
+                "temporaire."
+            ),
+            color="info",
+        ),
+        html.H6(
+            "Métriques du partitionnement",
+            className="mt-3",
+        ),
+        _table(metrics_df),
+        html.H6(
+            "Effectifs par cluster",
+            className="mt-4",
+        ),
+        _table(cluster_sizes),
+        dbc.Alert(
+            (
+                "La projection 2D est une "
+                "représentation destinée à la "
+                "visualisation. Lorsqu'il existe "
+                "au moins deux variables, elle "
+                "est obtenue par PCA et ne "
+                "modifie pas le clustering "
+                "K-Means calculé dans l'espace "
+                "standardisé complet."
+            ),
+            color="secondary",
+        ),
+        dbc.Alert(
+            (
+                "Les métriques aident à comparer "
+                "des partitionnements. Elles ne "
+                "suffisent pas, à elles seules, "
+                "à établir qu'un nombre de "
+                "clusters est scientifiquement "
+                "optimal."
+            ),
+            color="secondary",
+        ),
+    ]
+
+    _persist_ekde(
+        project_id,
+        dataset_id,
+        "kmeans",
+        {
+            "n_clusters": (
+                requested_clusters
+            ),
+            "n_observations": (
+                n_observations
+            ),
+            "numeric_variables": (
+                list(numeric.columns)
+            ),
+            "converted_columns": (
+                conversions
+            ),
+            "standardized": True,
+            "inertia": (
+                float(result.inertia)
+            ),
+            "silhouette_score": (
+                result.silhouette_score
+            ),
+            "davies_bouldin_score": (
+                result.davies_bouldin_score
+            ),
+            "calinski_harabasz_score": (
+                result.calinski_harabasz_score
+            ),
+            "cluster_sizes": (
+                cluster_sizes
+                .to_dict(
+                    orient="records"
+                )
+            ),
+            "labels": (
+                [
+                    int(value) + 1
+                    for value
+                    in result.predictions
+                ]
+            ),
+            "cluster_centers": (
+                result.cluster_centers
+            ),
         },
     )
 

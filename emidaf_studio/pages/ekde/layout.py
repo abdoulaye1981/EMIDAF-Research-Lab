@@ -132,6 +132,22 @@ def ekde_layout(project_id, dataset_id):
         tsne_max_perplexity,
     )
 
+    kmeans_max_clusters = max(
+        2,
+        min(
+            10,
+            max(
+                2,
+                len(df) - 1,
+            ),
+        ),
+    )
+
+    kmeans_default_clusters = min(
+        3,
+        kmeans_max_clusters,
+    )
+
     # ======================================================
     # INITIAL SERVER-SIDE RENDERING
     # ======================================================
@@ -490,6 +506,83 @@ def ekde_layout(project_id, dataset_id):
                             ),
                         ],
                         label="t-SNE",
+                    ),
+
+                    # ==========================================
+                    # CLUSTERING - K-MEANS
+                    # ==========================================
+
+                    dbc.Tab(
+                        [
+                            html.H4(
+                                "Clustering exploratoire : K-Means",
+                                className="mt-4",
+                            ),
+                            html.P(
+                                (
+                                    "K-Means partitionne les observations "
+                                    "en groupes à partir des variables "
+                                    "numériques standardisées."
+                                ),
+                                className="text-muted",
+                            ),
+                            dbc.Alert(
+                                (
+                                    "Le clustering n'est pas exécuté "
+                                    "automatiquement. Choisissez le "
+                                    "nombre de clusters puis cliquez "
+                                    "sur « Lancer K-Means »."
+                                ),
+                                color="secondary",
+                            ),
+                            dbc.Label(
+                                "Nombre de clusters"
+                            ),
+                            dcc.Slider(
+                                id="ekde-kmeans-clusters",
+                                min=2,
+                                max=kmeans_max_clusters,
+                                step=1,
+                                value=kmeans_default_clusters,
+                                marks={
+                                    i: str(i)
+                                    for i in range(
+                                        2,
+                                        kmeans_max_clusters + 1,
+                                    )
+                                },
+                            ),
+                            html.Small(
+                                (
+                                    "Le nombre choisi représente une "
+                                    "hypothèse de partitionnement à "
+                                    "évaluer ; il n'est pas présenté "
+                                    "comme optimal par défaut."
+                                ),
+                                className="text-muted",
+                            ),
+                            html.Div(
+                                [
+                                    dbc.Button(
+                                        "Lancer K-Means",
+                                        id="ekde-kmeans-run",
+                                        color="primary",
+                                        className="mt-3",
+                                    ),
+                                ]
+                            ),
+                            dbc.Spinner(
+                                html.Div(
+                                    id="ekde-kmeans-summary",
+                                    className="mt-4",
+                                ),
+                            ),
+                            dcc.Graph(
+                                id="ekde-kmeans-projection",
+                                figure={},
+                            ),
+                        ],
+                        label="Clustering",
                     ),
 
                     # ==========================================

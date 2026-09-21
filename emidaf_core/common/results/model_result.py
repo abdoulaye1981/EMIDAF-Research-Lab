@@ -115,6 +115,10 @@ class ModelResult(BaseResult):
     davies_bouldin_score: float | None = None
 
     calinski_harabasz_score: float | None = None
+    inertia: float | None = None
+    cluster_centers: list = field(
+        default_factory=list
+    )
 
     # =====================================================
     # Importance
