@@ -581,6 +581,109 @@ def ekde_layout(project_id, dataset_id):
                                 id="ekde-kmeans-projection",
                                 figure={},
                             ),
+
+                            html.Hr(
+                                className="my-5"
+                            ),
+                            html.H4(
+                                "Clustering exploratoire : DBSCAN",
+                                className="mt-4",
+                            ),
+                            html.P(
+                                (
+                                    "DBSCAN recherche des groupes "
+                                    "denses sans imposer à l'avance "
+                                    "leur nombre. Les observations "
+                                    "isolées peuvent être identifiées "
+                                    "comme bruit."
+                                ),
+                                className="text-muted",
+                            ),
+                            dbc.Alert(
+                                (
+                                    "Les observations identifiées "
+                                    "comme bruit ne sont ni supprimées "
+                                    "ni modifiées. Elles restent "
+                                    "présentes dans l'analyse."
+                                ),
+                                color="secondary",
+                            ),
+                            dbc.Row(
+                                [
+                                    dbc.Col(
+                                        [
+                                            dbc.Label(
+                                                "eps"
+                                            ),
+                                            dbc.Input(
+                                                id="ekde-dbscan-eps",
+                                                type="number",
+                                                min=0.01,
+                                                step=0.05,
+                                                value=0.5,
+                                            ),
+                                            html.Small(
+                                                (
+                                                    "Rayon maximal du "
+                                                    "voisinage autour "
+                                                    "d'une observation."
+                                                ),
+                                                className="text-muted",
+                                            ),
+                                        ],
+                                        md=6,
+                                    ),
+                                    dbc.Col(
+                                        [
+                                            dbc.Label(
+                                                "min_samples"
+                                            ),
+                                            dbc.Input(
+                                                id=(
+                                                    "ekde-dbscan-"
+                                                    "min-samples"
+                                                ),
+                                                type="number",
+                                                min=2,
+                                                step=1,
+                                                value=5,
+                                            ),
+                                            html.Small(
+                                                (
+                                                    "Nombre minimal "
+                                                    "d'observations "
+                                                    "nécessaires pour "
+                                                    "former une zone "
+                                                    "dense."
+                                                ),
+                                                className="text-muted",
+                                            ),
+                                        ],
+                                        md=6,
+                                    ),
+                                ],
+                                className="mt-3",
+                            ),
+                            html.Div(
+                                [
+                                    dbc.Button(
+                                        "Lancer DBSCAN",
+                                        id="ekde-dbscan-run",
+                                        color="primary",
+                                        className="mt-3",
+                                    ),
+                                ]
+                            ),
+                            dbc.Spinner(
+                                html.Div(
+                                    id="ekde-dbscan-summary",
+                                    className="mt-4",
+                                ),
+                            ),
+                            dcc.Graph(
+                                id="ekde-dbscan-projection",
+                                figure={},
+                            ),
                         ],
                         label="Clustering",
                     ),

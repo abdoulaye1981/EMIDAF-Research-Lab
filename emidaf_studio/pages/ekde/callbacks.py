@@ -36,6 +36,7 @@ from emidaf_core.preprocessing.feature_selection import (
 
 from emidaf_core.ekde import (
     KMeansClustering,
+    DBSCANClustering,
 )
 
 
@@ -1500,6 +1501,453 @@ def kmeans_analysis(
             ),
             "cluster_centers": (
                 result.cluster_centers
+            ),
+        },
+    )
+
+    return (
+        summary_content,
+        projection_figure,
+    )
+
+
+# ============================================================
+# DBSCAN CLUSTERING
+# ============================================================
+
+
+@callback(
+    Output(
+        "ekde-dbscan-summary",
+        "children",
+    ),
+    Output(
+        "ekde-dbscan-projection",
+        "figure",
+    ),
+    Input(
+        "ekde-dbscan-run",
+        "n_clicks",
+    ),
+    State(
+        "ekde-dbscan-eps",
+        "value",
+    ),
+    State(
+        "ekde-dbscan-min-samples",
+        "value",
+    ),
+    State(
+        "ekde-data",
+        "data",
+    ),
+    State(
+        "ekde-project-id",
+        "data",
+    ),
+    State(
+        "ekde-dataset-id",
+        "data",
+    ),
+    prevent_initial_call=True,
+)
+def dbscan_analysis(
+    n_clicks,
+    eps,
+    min_samples,
+    data,
+    project_id,
+    dataset_id,
+):
+    if not n_clicks:
+        return no_update, no_update
+
+    dataframe = _deserialize(data)
+
+    numeric, conversions = (
+        _prepare_numeric_matrix(
+            dataframe
+        )
+    )
+
+    if numeric.shape[1] < 1:
+        return (
+            dbc.Alert(
+                (
+                    "DBSCAN nécessite au moins "
+                    "une variable numérique."
+                ),
+                color="warning",
+            ),
+            {},
+        )
+
+    n_observations = int(
+        numeric.shape[0]
+    )
+
+    if n_observations < 3:
+        return (
+            dbc.Alert(
+                (
+                    "DBSCAN nécessite au moins "
+                    "trois observations pour "
+                    "cette analyse."
+                ),
+                color="warning",
+            ),
+            {},
+        )
+
+    try:
+        requested_eps = float(
+            eps
+            if eps is not None
+            else 0.5
+        )
+    except (TypeError, ValueError):
+        requested_eps = 0.5
+
+    try:
+        requested_min_samples = int(
+            min_samples
+            if min_samples is not None
+            else 5
+        )
+    except (TypeError, ValueError):
+        requested_min_samples = 5
+
+    if requested_eps <= 0:
+        return (
+            dbc.Alert(
+                (
+                    "eps doit être strictement "
+                    "positif."
+                ),
+                color="warning",
+            ),
+            {},
+        )
+
+    if (
+        requested_min_samples < 2
+        or requested_min_samples
+        > n_observations
+    ):
+        return (
+            dbc.Alert(
+                (
+                    "min_samples doit être au "
+                    "moins égal à 2 et ne peut "
+                    "pas dépasser le nombre "
+                    "d'observations."
+                ),
+                color="warning",
+            ),
+            {},
+        )
+
+    # DBSCAN est sensible aux échelles.
+    scaler = StandardScaler()
+
+    standardized = pd.DataFrame(
+        scaler.fit_transform(
+            numeric
+        ),
+        columns=numeric.columns,
+        index=numeric.index,
+    )
+
+    try:
+        result = DBSCANClustering.fit(
+            standardized,
+            eps=requested_eps,
+            min_samples=(
+                requested_min_samples
+            ),
+        )
+
+    except Exception as exc:
+        return (
+            dbc.Alert(
+                (
+                    "Le clustering DBSCAN "
+                    "n'a pas pu être terminé : "
+                    f"{exc}"
+                ),
+                color="danger",
+            ),
+            {},
+        )
+
+    labels = pd.Series(
+        result.predictions,
+        index=standardized.index,
+        name="Cluster",
+    )
+
+    n_clusters = int(
+        result.parameters[
+            "n_clusters"
+        ]
+    )
+
+    noise_count = int(
+        result.parameters[
+            "noise_count"
+        ]
+    )
+
+    noise_percentage = float(
+        result.parameters[
+            "noise_percentage"
+        ]
+    )
+
+    def _label_name(value):
+        value = int(value)
+
+        if value == -1:
+            return "Bruit"
+
+        return f"Cluster {value + 1}"
+
+    display_labels = labels.map(
+        _label_name
+    )
+
+    cluster_sizes = (
+        display_labels
+        .value_counts()
+        .rename_axis("Groupe")
+        .reset_index(name="Effectif")
+    )
+
+    cluster_sizes[
+        "Pourcentage"
+    ] = (
+        100
+        * cluster_sizes["Effectif"]
+        / n_observations
+    ).round(2)
+
+    def _metric_value(value):
+        if value is None:
+            return None
+
+        return round(
+            float(value),
+            6,
+        )
+
+    metrics_df = pd.DataFrame(
+        [
+            {
+                "Métrique":
+                    "Clusters détectés",
+                "Valeur": n_clusters,
+            },
+            {
+                "Métrique":
+                    "Observations bruit",
+                "Valeur": noise_count,
+            },
+            {
+                "Métrique":
+                    "Bruit (%)",
+                "Valeur": round(
+                    noise_percentage,
+                    2,
+                ),
+            },
+            {
+                "Métrique":
+                    "Silhouette",
+                "Valeur": _metric_value(
+                    result.silhouette_score
+                ),
+            },
+            {
+                "Métrique":
+                    "Davies-Bouldin",
+                "Valeur": _metric_value(
+                    result.davies_bouldin_score
+                ),
+            },
+            {
+                "Métrique":
+                    "Calinski-Harabasz",
+                "Valeur": _metric_value(
+                    result.calinski_harabasz_score
+                ),
+            },
+        ]
+    )
+
+    # PCA uniquement pour la visualisation.
+    if standardized.shape[1] >= 2:
+        projection_model = PCAReduction(
+            n_components=2
+        )
+
+        transformed = (
+            projection_model.fit_transform(
+                standardized
+            )
+        )
+
+        projection = _unwrap_transformed(
+            transformed,
+            index=standardized.index,
+        )
+
+        projection.columns = [
+            "Dimension 1",
+            "Dimension 2",
+        ]
+
+    else:
+        projection = pd.DataFrame(
+            {
+                "Dimension 1":
+                    standardized.iloc[:, 0],
+                "Dimension 2":
+                    np.zeros(
+                        n_observations
+                    ),
+            },
+            index=standardized.index,
+        )
+
+    projection["Groupe"] = (
+        display_labels
+    )
+
+    projection["Observation"] = (
+        np.arange(
+            1,
+            n_observations + 1,
+        )
+    )
+
+    projection_figure = px.scatter(
+        projection,
+        x="Dimension 1",
+        y="Dimension 2",
+        color="Groupe",
+        hover_data=["Observation"],
+        title=(
+            "Projection 2D des groupes DBSCAN"
+        ),
+    )
+
+    summary_content = [
+        dbc.Alert(
+            (
+                "DBSCAN a été exécuté sur "
+                "les variables numériques "
+                "standardisées."
+            ),
+            color="info",
+        ),
+        html.H6(
+            "Résumé du partitionnement",
+            className="mt-3",
+        ),
+        _table(metrics_df),
+        html.H6(
+            "Effectifs par groupe",
+            className="mt-4",
+        ),
+        _table(cluster_sizes),
+    ]
+
+    if n_clusters < 2:
+        summary_content.append(
+            dbc.Alert(
+                (
+                    "DBSCAN n'a pas identifié "
+                    "au moins deux clusters "
+                    "distincts. Les métriques "
+                    "comparatives de clustering "
+                    "ne sont donc pas calculées."
+                ),
+                color="warning",
+            )
+        )
+
+    summary_content.extend(
+        [
+            dbc.Alert(
+                (
+                    "Le groupe « Bruit » "
+                    "correspond aux observations "
+                    "étiquetées -1 par DBSCAN. "
+                    "Ces observations ne sont "
+                    "pas automatiquement "
+                    "considérées comme des "
+                    "erreurs ou supprimées."
+                ),
+                color="secondary",
+            ),
+            dbc.Alert(
+                (
+                    "La projection PCA sert "
+                    "uniquement à la "
+                    "visualisation. DBSCAN est "
+                    "calculé dans l'espace "
+                    "standardisé complet."
+                ),
+                color="secondary",
+            ),
+        ]
+    )
+
+    _persist_ekde(
+        project_id,
+        dataset_id,
+        "dbscan",
+        {
+            "eps": requested_eps,
+            "min_samples": (
+                requested_min_samples
+            ),
+            "n_observations": (
+                n_observations
+            ),
+            "n_clusters": n_clusters,
+            "noise_count": noise_count,
+            "noise_percentage": (
+                noise_percentage
+            ),
+            "numeric_variables": (
+                list(numeric.columns)
+            ),
+            "converted_columns": (
+                conversions
+            ),
+            "standardized": True,
+            "silhouette_score": (
+                result.silhouette_score
+            ),
+            "davies_bouldin_score": (
+                result.davies_bouldin_score
+            ),
+            "calinski_harabasz_score": (
+                result.calinski_harabasz_score
+            ),
+            "cluster_sizes": (
+                cluster_sizes
+                .to_dict(
+                    orient="records"
+                )
+            ),
+            "labels": (
+                [
+                    int(value)
+                    for value
+                    in result.predictions
+                ]
             ),
         },
     )
