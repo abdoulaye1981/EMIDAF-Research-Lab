@@ -440,13 +440,6 @@ def elae_layout(project_id, dataset_id):
                 data=dataset_id,
             ),
 
-            dcc.Store(
-                id="elae-data",
-                data=df.to_json(
-                    orient="split",
-                    date_format="iso",
-                ),
-            ),
 
             dcc.Download(
                 id="elae-download-data"

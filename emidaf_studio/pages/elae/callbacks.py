@@ -1,6 +1,4 @@
 
-from io import StringIO
-
 import numpy as np
 import pandas as pd
 import plotly.express as px
@@ -22,13 +20,34 @@ from emidaf_studio.services.model_registry import (
 )
 
 from emidaf_core.dataset.profiler import DatasetProfiler
+from dash.exceptions import PreventUpdate
+
+from emidaf_studio.pages.inspection.layout import (
+    load_dataset,
+)
 
 
-def _df(data):
-    return pd.read_json(
-        StringIO(data),
-        orient="split",
+def _load_elae_dataframe(
+    project_id,
+    dataset_id,
+):
+    """
+    Charge le dataset côté serveur.
+
+    Le DataFrame complet ne transite pas
+    par le navigateur.
+    """
+
+    _, _, result = load_dataset(
+        project_id,
+        dataset_id,
     )
+
+    if isinstance(result, str):
+        raise PreventUpdate
+
+    return result
+
 
 
 def _table(dataframe):
@@ -97,10 +116,6 @@ def _persist_elae(
         "elae-tabs",
         "active_tab",
     ),
-    Input(
-        "elae-data",
-        "data",
-    ),
     State(
         "elae-project-id",
         "data",
@@ -112,7 +127,6 @@ def _persist_elae(
 )
 def descriptive_analysis(
     active_tab,
-    data,
     project_id,
     dataset_id,
 ):
@@ -120,7 +134,10 @@ def descriptive_analysis(
         return no_update
 
 
-    dataframe = _df(data)
+    dataframe = _load_elae_dataframe(
+        project_id,
+        dataset_id,
+    )
 
     numeric = dataframe.select_dtypes(
         include="number"
@@ -223,10 +240,6 @@ def descriptive_analysis(
         "value",
     ),
     State(
-        "elae-data",
-        "data",
-    ),
-    State(
         "elae-project-id",
         "data",
     ),
@@ -238,7 +251,6 @@ def descriptive_analysis(
 def univariate(
     active_tab,
     variable,
-    data,
     project_id,
     dataset_id,
 ):
@@ -246,7 +258,10 @@ def univariate(
         return no_update, no_update
 
 
-    dataframe = _df(data)
+    dataframe = _load_elae_dataframe(
+        project_id,
+        dataset_id,
+    )
 
     if (
         variable is None
@@ -432,10 +447,6 @@ def univariate(
         "value",
     ),
     State(
-        "elae-data",
-        "data",
-    ),
-    State(
         "elae-project-id",
         "data",
     ),
@@ -448,7 +459,6 @@ def bivariate(
     active_tab,
     x,
     y,
-    data,
     project_id,
     dataset_id,
 ):
@@ -456,7 +466,10 @@ def bivariate(
         return no_update, no_update
 
 
-    dataframe = _df(data)
+    dataframe = _load_elae_dataframe(
+        project_id,
+        dataset_id,
+    )
 
     if (
         x not in dataframe.columns
@@ -815,10 +828,6 @@ def bivariate(
         "elae-tabs",
         "active_tab",
     ),
-    Input(
-        "elae-data",
-        "data",
-    ),
     State(
         "elae-project-id",
         "data",
@@ -830,7 +839,6 @@ def bivariate(
 )
 def correlations(
     active_tab,
-    data,
     project_id,
     dataset_id,
 ):
@@ -838,7 +846,10 @@ def correlations(
         return no_update, no_update
 
 
-    dataframe = _df(data)
+    dataframe = _load_elae_dataframe(
+        project_id,
+        dataset_id,
+    )
 
     numeric = dataframe.select_dtypes(
         include="number"
@@ -950,10 +961,6 @@ def correlations(
         "value",
     ),
     State(
-        "elae-data",
-        "data",
-    ),
-    State(
         "elae-project-id",
         "data",
     ),
@@ -966,7 +973,6 @@ def grouped_analysis(
     active_tab,
     group_variable,
     value_variable,
-    data,
     project_id,
     dataset_id,
 ):
@@ -974,7 +980,10 @@ def grouped_analysis(
         return no_update, no_update
 
 
-    dataframe = _df(data)
+    dataframe = _load_elae_dataframe(
+        project_id,
+        dataset_id,
+    )
 
     if (
         not group_variable
@@ -1107,20 +1116,28 @@ def grouped_analysis(
         "n_clicks",
     ),
     State(
-        "elae-data",
+        "elae-project-id",
+        "data",
+    ),
+    State(
+        "elae-dataset-id",
         "data",
     ),
     prevent_initial_call=True,
 )
 def download_summary(
     n_clicks,
-    data,
+    project_id,
+    dataset_id,
 ):
 
     if not n_clicks:
         return no_update
 
-    dataframe = _df(data)
+    dataframe = _load_elae_dataframe(
+        project_id,
+        dataset_id,
+    )
 
     summary = (
         dataframe
