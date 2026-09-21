@@ -767,6 +767,27 @@ def project_detail_layout(project_id):
         )
 
     # ======================================================
+    # Sélection du dataset de travail
+    # ======================================================
+
+    dataset_options = [
+        {
+            "label": (
+                f"{dataset.name} "
+                f"({dataset.rows} × {dataset.columns})"
+            ),
+            "value": int(dataset.id),
+        }
+        for dataset in datasets
+    ]
+
+    default_dataset_id = (
+        int(datasets[0].id)
+        if datasets
+        else None
+    )
+
+    # ======================================================
     # Layout détaillé
     # ======================================================
 
@@ -800,93 +821,211 @@ def project_detail_layout(project_id):
                 "Espace de travail"
             ),
 
-            dbc.Row(
-                [
-                    # ========================================
-                    # Importation
-                    # ========================================
+            html.P(
+                (
+                    "Sélectionnez le jeu de données sur lequel "
+                    "vous souhaitez travailler, puis ouvrez "
+                    "le module correspondant."
+                ),
+                className="text-muted",
+            ),
 
-                    dbc.Col(
-                        dbc.Card(
+            dbc.Card(
+                dbc.CardBody(
+                    [
+                        dbc.Row(
                             [
-                                dbc.CardBody(
+                                dbc.Col(
                                     [
-                                        html.H5(
-                                            "Importation"
+                                        dbc.Label(
+                                            "Jeu de données"
                                         ),
-
-                                        html.P(
-                                            "Importer et gérer "
-                                            "les datasets."
-                                        ),
-
-                                        dcc.Link(
-                                            dbc.Button(
-                                                "Ouvrir",
-                                                color="primary",
-                                                size="sm"
+                                        dcc.Dropdown(
+                                            id=(
+                                                "project-detail-"
+                                                "dataset-selector"
                                             ),
-                                            href=(
-                                                f"/projects/"
-                                                f"{project_id}/import"
-                                            )
-                                        )
-                                    ]
-                                )
-                            ]
-                        ),
-                        width=4
-                    ),
-
-                    # ========================================
-                    # Inspection
-                    # ========================================
-
-                    dbc.Col(
-                        dbc.Card(
-                            [
-                                dbc.CardBody(
-                                    [
-                                        html.H5(
-                                            "🔎 Inspection"
+                                            options=(
+                                                dataset_options
+                                            ),
+                                            value=(
+                                                default_dataset_id
+                                            ),
+                                            clearable=False,
+                                            placeholder=(
+                                                "Sélectionner "
+                                                "un dataset"
+                                            ),
+                                            disabled=(
+                                                not bool(
+                                                    datasets
+                                                )
+                                            ),
                                         ),
-
-                                        html.P(
-                                            "Explorer et inspecter "
-                                            "les données."
-                                        )
-                                    ]
-                                )
-                            ]
+                                    ],
+                                    md=12,
+                                ),
+                            ],
+                            className="mb-4",
                         ),
-                        width=4
-                    ),
 
-                    # ========================================
-                    # Analyses
-                    # ========================================
-
-                    dbc.Col(
-                        dbc.Card(
+                        html.Div(
                             [
-                                dbc.CardBody(
-                                    [
-                                        html.H5(
-                                            "Analyses"
-                                        ),
+                                dcc.Link(
+                                    dbc.Button(
+                                        [
+                                            html.I(
+                                                className=(
+                                                    "bi bi-search "
+                                                    "me-2"
+                                                )
+                                            ),
+                                            "Inspection",
+                                        ],
+                                        color="primary",
+                                        className="w-100",
+                                    ),
+                                    id=(
+                                        "project-detail-"
+                                        "inspection-link"
+                                    ),
+                                    href="#",
+                                ),
 
-                                        html.P(
-                                            "Accéder aux modules "
-                                            "d'analyse."
-                                        )
-                                    ]
-                                )
-                            ]
+                                dcc.Link(
+                                    dbc.Button(
+                                        "Prétraitement EIDPP",
+                                        color="secondary",
+                                        outline=True,
+                                        className="w-100",
+                                    ),
+                                    id=(
+                                        "project-detail-"
+                                        "eidpp-link"
+                                    ),
+                                    href="#",
+                                ),
+
+                                dcc.Link(
+                                    dbc.Button(
+                                        "Analyse ELAE",
+                                        color="secondary",
+                                        outline=True,
+                                        className="w-100",
+                                    ),
+                                    id=(
+                                        "project-detail-"
+                                        "elae-link"
+                                    ),
+                                    href="#",
+                                ),
+
+                                dcc.Link(
+                                    dbc.Button(
+                                        "Découverte EKDE",
+                                        color="secondary",
+                                        outline=True,
+                                        className="w-100",
+                                    ),
+                                    id=(
+                                        "project-detail-"
+                                        "ekde-link"
+                                    ),
+                                    href="#",
+                                ),
+
+                                dcc.Link(
+                                    dbc.Button(
+                                        "Modélisation EAIE",
+                                        color="secondary",
+                                        outline=True,
+                                        className="w-100",
+                                    ),
+                                    id=(
+                                        "project-detail-"
+                                        "eaie-link"
+                                    ),
+                                    href="#",
+                                ),
+
+                                dcc.Link(
+                                    dbc.Button(
+                                        "Explicabilité EXAIE",
+                                        color="secondary",
+                                        outline=True,
+                                        className="w-100",
+                                    ),
+                                    id=(
+                                        "project-detail-"
+                                        "exaie-link"
+                                    ),
+                                    href="#",
+                                ),
+
+                                dcc.Link(
+                                    dbc.Button(
+                                        "Décision EDSE",
+                                        color="secondary",
+                                        outline=True,
+                                        className="w-100",
+                                    ),
+                                    id=(
+                                        "project-detail-"
+                                        "edse-link"
+                                    ),
+                                    href="#",
+                                ),
+
+                                dcc.Link(
+                                    dbc.Button(
+                                        "Rapports",
+                                        color="secondary",
+                                        outline=True,
+                                        className="w-100",
+                                    ),
+                                    id=(
+                                        "project-detail-"
+                                        "reports-link"
+                                    ),
+                                    href="#",
+                                ),
+                            ],
+                            style={
+                                "display": "grid",
+                                "gridTemplateColumns": (
+                                    "repeat("
+                                    "auto-fit, "
+                                    "minmax(190px, 1fr)"
+                                    ")"
+                                ),
+                                "gap": "12px",
+                            },
                         ),
-                        width=4
-                    )
-                ],
-                className="mb-4"
+
+                        (
+                            dbc.Alert(
+                                (
+                                    "Aucun jeu de données n'est "
+                                    "encore disponible. Utilisez "
+                                    "l'importation pour ajouter "
+                                    "un dataset à ce projet."
+                                ),
+                                color="warning",
+                                className="mt-4 mb-0",
+                            )
+                            if not datasets
+                            else html.Div()
+                        ),
+
+                        dcc.Store(
+                            id=(
+                                "project-detail-project-id"
+                            ),
+                            data=int(project_id),
+                        ),
+                    ]
+                ),
+                className="mb-4",
             ),
 
             # ------------------------------------------------

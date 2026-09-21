@@ -238,49 +238,74 @@ def manage_projects(
 # ==========================================================
 
 @callback(
-    Output("selected-project", "data"),
-    Output("selected-project-info", "children"),
-
+    Output(
+        "selected-project",
+        "data",
+    ),
+    Output(
+        "selected-project-info",
+        "children",
+    ),
+    Output(
+        "url",
+        "pathname",
+        allow_duplicate=True,
+    ),
     Input(
         {
             "type": "select-project",
-            "index": ALL
+            "index": ALL,
         },
-        "n_clicks"
+        "n_clicks",
     ),
-
-    prevent_initial_call=True
+    prevent_initial_call=True,
 )
 def select_project(n_clicks):
 
     triggered = ctx.triggered_id
 
     if not triggered:
-        return no_update, no_update
+        return (
+            no_update,
+            no_update,
+            no_update,
+        )
 
-    project_id = triggered["index"]
+    project_id = int(
+        triggered["index"]
+    )
 
     bootstrap = Bootstrap()
     bootstrap.initialize()
 
-    project_controller = bootstrap.project_controller
+    project_controller = (
+        bootstrap.project_controller
+    )
 
-    project = project_controller.get_for_user(project_id, _current_user_id())
+    project = (
+        project_controller.get_for_user(
+            project_id,
+            _current_user_id(),
+        )
+    )
 
     if project is None:
         return (
             no_update,
-            "Projet introuvable."
+            "Projet introuvable.",
+            no_update,
         )
 
     return (
         project_id,
-        f"Projet sélectionné : {project.name} (ID : {project.id})"
+        (
+            f"Projet sélectionné : "
+            f"{project.name} "
+            f"(ID : {project.id})"
+        ),
+        f"/projects/{project_id}",
     )
 
-# ==========================================================
-# Ouvrir le projet sélectionné
-# ==========================================================
 
 @callback(
     Output("url", "pathname"),
@@ -463,4 +488,86 @@ def request_delete_project(
         no_update,
         no_update,
         no_update
+    )
+
+
+# ==========================================================
+# Navigation depuis l'espace de travail d'un projet
+# ==========================================================
+
+@callback(
+    Output(
+        "project-detail-inspection-link",
+        "href",
+    ),
+    Output(
+        "project-detail-eidpp-link",
+        "href",
+    ),
+    Output(
+        "project-detail-elae-link",
+        "href",
+    ),
+    Output(
+        "project-detail-ekde-link",
+        "href",
+    ),
+    Output(
+        "project-detail-eaie-link",
+        "href",
+    ),
+    Output(
+        "project-detail-exaie-link",
+        "href",
+    ),
+    Output(
+        "project-detail-edse-link",
+        "href",
+    ),
+    Output(
+        "project-detail-reports-link",
+        "href",
+    ),
+    Input(
+        "project-detail-dataset-selector",
+        "value",
+    ),
+    State(
+        "project-detail-project-id",
+        "data",
+    ),
+)
+def update_project_workspace_links(
+    dataset_id,
+    project_id,
+):
+    if (
+        project_id is None
+        or dataset_id is None
+    ):
+        return (
+            "#",
+            "#",
+            "#",
+            "#",
+            "#",
+            "#",
+            "#",
+            "#",
+        )
+
+    base = (
+        f"/projects/{int(project_id)}"
+        f"/datasets/{int(dataset_id)}"
+    )
+
+    return (
+        base,
+        base + "/eidpp",
+        base + "/elae",
+        base + "/ekde",
+        base + "/eaie",
+        base + "/exaie",
+        base + "/edse",
+        base + "/reports",
     )
