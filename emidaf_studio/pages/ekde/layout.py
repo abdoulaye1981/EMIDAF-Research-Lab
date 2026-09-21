@@ -149,79 +149,57 @@ def ekde_layout(project_id, dataset_id):
     )
 
     # ======================================================
-    # INITIAL SERVER-SIDE RENDERING
+    # INITIAL LIGHTWEIGHT RENDERING
     # ======================================================
 
+    # Le dataset reste temporairement sérialisé pour les
+    # callbacks existants. Les analyses scientifiques lourdes
+    # ne sont plus exécutées pendant la construction du layout.
     serialized_data = df.to_json(
         orient="split",
         date_format="iso",
     )
 
-    try:
+    initial_structure = dbc.Alert(
         (
-            initial_structure,
-            initial_correlation_figure,
-        ) = structure_analysis(
-            0.90,
-            serialized_data,
-            project_id,
-            dataset_id,
-        )
-    except Exception as exc:
-        initial_structure = dbc.Alert(
-            f"Structure non disponible : {exc}",
-            color="warning",
-        )
-        initial_correlation_figure = {}
+            "Aucun calcul n'est lancé automatiquement. "
+            "Modifiez le seuil pour exécuter l'analyse "
+            "de structure."
+        ),
+        color="secondary",
+    )
 
-    try:
+    initial_correlation_figure = {}
+
+    initial_pca_summary = dbc.Alert(
         (
-            initial_pca_summary,
-            initial_pca_variance,
-            initial_pca_projection,
-        ) = pca_analysis(
-            2,
-            serialized_data,
-            project_id,
-            dataset_id,
-        )
-    except Exception as exc:
-        initial_pca_summary = dbc.Alert(
-            f"PCA non disponible : {exc}",
-            color="warning",
-        )
-        initial_pca_variance = {}
-        initial_pca_projection = {}
+            "La PCA sera calculée à la demande. "
+            "Modifiez le nombre de composantes "
+            "pour lancer l'analyse."
+        ),
+        color="secondary",
+    )
 
-    try:
+    initial_pca_variance = {}
+    initial_pca_projection = {}
+
+    initial_association = dbc.Alert(
         (
-            initial_association,
-            initial_association_figure,
-        ) = association_analysis(
-            default_x,
-            default_y,
-            serialized_data,
-            project_id,
-            dataset_id,
-        )
-    except Exception as exc:
-        initial_association = dbc.Alert(
-            f"Association non disponible : {exc}",
-            color="warning",
-        )
-        initial_association_figure = {}
+            "Sélectionnez les variables à étudier "
+            "pour calculer leur association."
+        ),
+        color="secondary",
+    )
 
-    try:
-        initial_knowledge = knowledge_summary(
-            serialized_data,
-            project_id,
-            dataset_id,
-        )
-    except Exception as exc:
-        initial_knowledge = dbc.Alert(
-            f"Synthèse non disponible : {exc}",
-            color="warning",
-        )
+    initial_association_figure = {}
+
+    initial_knowledge = dbc.Alert(
+        (
+            "La synthèse des connaissances sera "
+            "disponible après les analyses EKDE."
+        ),
+        color="secondary",
+    )
 
     return dbc.Container(
         [

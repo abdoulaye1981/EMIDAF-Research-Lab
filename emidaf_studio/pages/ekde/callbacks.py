@@ -452,6 +452,7 @@ def _persist_ekde(
         "ekde-dataset-id",
         "data",
     ),
+    prevent_initial_call=True,
 )
 def structure_analysis(
     threshold,
@@ -622,6 +623,7 @@ def structure_analysis(
         "ekde-dataset-id",
         "data",
     ),
+    prevent_initial_call=True,
 )
 def pca_analysis(
     n_components,
@@ -2799,6 +2801,7 @@ def agglomerative_analysis(
         "ekde-dataset-id",
         "data",
     ),
+    prevent_initial_call=True,
 )
 def association_analysis(
     x,
