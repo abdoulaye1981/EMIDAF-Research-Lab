@@ -1,6 +1,8 @@
 
 from io import StringIO
 
+import logging
+
 import pandas as pd
 
 from dash import (
@@ -26,6 +28,9 @@ from emidaf_core.preprocessing import (
 from emidaf_studio.services.model_registry import (
     register_analysis,
 )
+
+
+logger = logging.getLogger(__name__)
 
 
 def _deserialize(data):
@@ -617,6 +622,13 @@ def apply_preprocessing(
         )
 
     except Exception as exc:
+
+        logger.exception(
+            "EIDPP preprocessing failed "
+            "(project_id=%s, dataset_id=%s)",
+            project_id,
+            dataset_id,
+        )
 
         return (
             no_update,
