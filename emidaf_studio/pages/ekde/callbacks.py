@@ -37,6 +37,7 @@ from emidaf_core.preprocessing.feature_selection import (
 from emidaf_core.ekde import (
     KMeansClustering,
     DBSCANClustering,
+    AgglomerativeClusteringEngine,
 )
 
 
@@ -1949,6 +1950,490 @@ def dbscan_analysis(
                     in result.predictions
                 ]
             ),
+        },
+    )
+
+    return (
+        summary_content,
+        projection_figure,
+    )
+
+
+# ============================================================
+# AGGLOMERATIVE CLUSTERING
+# ============================================================
+
+
+@callback(
+    Output(
+        "ekde-agglomerative-summary",
+        "children",
+    ),
+    Output(
+        "ekde-agglomerative-projection",
+        "figure",
+    ),
+    Input(
+        "ekde-agglomerative-run",
+        "n_clicks",
+    ),
+    State(
+        "ekde-agglomerative-clusters",
+        "value",
+    ),
+    State(
+        "ekde-agglomerative-linkage",
+        "value",
+    ),
+    State(
+        "ekde-agglomerative-metric",
+        "value",
+    ),
+    State(
+        "ekde-data",
+        "data",
+    ),
+    State(
+        "ekde-project-id",
+        "data",
+    ),
+    State(
+        "ekde-dataset-id",
+        "data",
+    ),
+    prevent_initial_call=True,
+)
+def agglomerative_analysis(
+    n_clicks,
+    n_clusters,
+    linkage,
+    metric,
+    data,
+    project_id,
+    dataset_id,
+):
+    if not n_clicks:
+        return no_update, no_update
+
+    dataframe = _deserialize(data)
+
+    numeric, conversions = (
+        _prepare_numeric_matrix(
+            dataframe
+        )
+    )
+
+    if numeric.shape[1] < 1:
+        return (
+            dbc.Alert(
+                (
+                    "Le clustering hiérarchique "
+                    "nécessite au moins une "
+                    "variable numérique."
+                ),
+                color="warning",
+            ),
+            {},
+        )
+
+    n_observations = int(
+        numeric.shape[0]
+    )
+
+    if n_observations < 3:
+        return (
+            dbc.Alert(
+                (
+                    "Le clustering hiérarchique "
+                    "nécessite au moins trois "
+                    "observations."
+                ),
+                color="warning",
+            ),
+            {},
+        )
+
+    try:
+        requested_clusters = int(
+            n_clusters
+            if n_clusters is not None
+            else 3
+        )
+    except (TypeError, ValueError):
+        requested_clusters = 3
+
+    if (
+        requested_clusters < 2
+        or requested_clusters
+        >= n_observations
+    ):
+        return (
+            dbc.Alert(
+                (
+                    "Le nombre de clusters doit "
+                    "être au moins égal à 2 et "
+                    "strictement inférieur au "
+                    "nombre d'observations."
+                ),
+                color="warning",
+            ),
+            {},
+        )
+
+    requested_linkage = (
+        linkage
+        if linkage is not None
+        else "ward"
+    )
+
+    requested_metric = (
+        metric
+        if metric is not None
+        else "euclidean"
+    )
+
+    allowed_linkages = {
+        "ward",
+        "complete",
+        "average",
+        "single",
+    }
+
+    if requested_linkage not in allowed_linkages:
+        return (
+            dbc.Alert(
+                "Linkage non reconnu.",
+                color="warning",
+            ),
+            {},
+        )
+
+    allowed_metrics = {
+        "euclidean",
+        "manhattan",
+        "cosine",
+    }
+
+    if requested_metric not in allowed_metrics:
+        return (
+            dbc.Alert(
+                "Métrique non reconnue.",
+                color="warning",
+            ),
+            {},
+        )
+
+    # Le linkage Ward exige la métrique euclidienne.
+    effective_metric = requested_metric
+
+    if requested_linkage == "ward":
+        effective_metric = "euclidean"
+
+    # Standardisation analytique temporaire.
+    scaler = StandardScaler()
+
+    standardized = pd.DataFrame(
+        scaler.fit_transform(
+            numeric
+        ),
+        columns=numeric.columns,
+        index=numeric.index,
+    )
+
+    try:
+        result = (
+            AgglomerativeClusteringEngine.fit(
+                standardized,
+                n_clusters=(
+                    requested_clusters
+                ),
+                linkage=(
+                    requested_linkage
+                ),
+                metric=(
+                    effective_metric
+                ),
+            )
+        )
+
+    except Exception as exc:
+        return (
+            dbc.Alert(
+                (
+                    "Le clustering hiérarchique "
+                    "n'a pas pu être terminé : "
+                    f"{exc}"
+                ),
+                color="danger",
+            ),
+            {},
+        )
+
+    labels = pd.Series(
+        result.predictions,
+        index=standardized.index,
+        name="Cluster",
+    )
+
+    display_labels = (
+        labels
+        .astype(int)
+        .add(1)
+        .map(
+            lambda value:
+                f"Cluster {value}"
+        )
+    )
+
+    cluster_sizes = (
+        display_labels
+        .value_counts()
+        .sort_index()
+        .rename_axis("Cluster")
+        .reset_index(name="Effectif")
+    )
+
+    cluster_sizes[
+        "Pourcentage"
+    ] = (
+        100
+        * cluster_sizes["Effectif"]
+        / n_observations
+    ).round(2)
+
+    def _metric_value(value):
+        if value is None:
+            return None
+
+        return round(
+            float(value),
+            6,
+        )
+
+    metrics_df = pd.DataFrame(
+        [
+            {
+                "Métrique":
+                    "Nombre de clusters",
+                "Valeur":
+                    requested_clusters,
+            },
+            {
+                "Métrique":
+                    "Linkage",
+                "Valeur":
+                    requested_linkage,
+            },
+            {
+                "Métrique":
+                    "Métrique demandée",
+                "Valeur":
+                    requested_metric,
+            },
+            {
+                "Métrique":
+                    "Métrique utilisée",
+                "Valeur":
+                    effective_metric,
+            },
+            {
+                "Métrique":
+                    "Silhouette",
+                "Valeur":
+                    _metric_value(
+                        result.silhouette_score
+                    ),
+            },
+            {
+                "Métrique":
+                    "Davies-Bouldin",
+                "Valeur":
+                    _metric_value(
+                        result.davies_bouldin_score
+                    ),
+            },
+            {
+                "Métrique":
+                    "Calinski-Harabasz",
+                "Valeur":
+                    _metric_value(
+                        result.calinski_harabasz_score
+                    ),
+            },
+        ]
+    )
+
+    # PCA uniquement pour la visualisation.
+    if standardized.shape[1] >= 2:
+        projection_model = PCAReduction(
+            n_components=2
+        )
+
+        transformed = (
+            projection_model.fit_transform(
+                standardized
+            )
+        )
+
+        projection = _unwrap_transformed(
+            transformed,
+            index=standardized.index,
+        )
+
+        projection.columns = [
+            "Dimension 1",
+            "Dimension 2",
+        ]
+
+    else:
+        projection = pd.DataFrame(
+            {
+                "Dimension 1":
+                    standardized.iloc[:, 0],
+                "Dimension 2":
+                    np.zeros(
+                        n_observations
+                    ),
+            },
+            index=standardized.index,
+        )
+
+    projection["Cluster"] = (
+        display_labels
+    )
+
+    projection["Observation"] = (
+        np.arange(
+            1,
+            n_observations + 1,
+        )
+    )
+
+    projection_figure = px.scatter(
+        projection,
+        x="Dimension 1",
+        y="Dimension 2",
+        color="Cluster",
+        hover_data=["Observation"],
+        title=(
+            "Projection 2D du clustering "
+            "hiérarchique"
+        ),
+    )
+
+    summary_content = [
+        dbc.Alert(
+            (
+                "Le clustering hiérarchique "
+                "agglomératif a été exécuté "
+                "sur les variables numériques "
+                "standardisées."
+            ),
+            color="info",
+        ),
+        html.H6(
+            "Paramètres et métriques",
+            className="mt-3",
+        ),
+        _table(metrics_df),
+        html.H6(
+            "Effectifs par cluster",
+            className="mt-4",
+        ),
+        _table(cluster_sizes),
+    ]
+
+    if (
+        requested_linkage == "ward"
+        and requested_metric
+        != "euclidean"
+    ):
+        summary_content.append(
+            dbc.Alert(
+                (
+                    "Le linkage Ward nécessite "
+                    "la distance euclidienne. "
+                    "La métrique demandée a donc "
+                    "été remplacée par "
+                    "« euclidean »."
+                ),
+                color="warning",
+            )
+        )
+
+    summary_content.extend(
+        [
+            dbc.Alert(
+                (
+                    "Les métriques permettent "
+                    "d'évaluer et de comparer "
+                    "des partitionnements, mais "
+                    "ne démontrent pas à elles "
+                    "seules qu'un nombre de "
+                    "clusters est optimal."
+                ),
+                color="secondary",
+            ),
+            dbc.Alert(
+                (
+                    "La projection PCA 2D sert "
+                    "uniquement à visualiser "
+                    "les groupes. Le clustering "
+                    "est calculé dans l'espace "
+                    "standardisé complet."
+                ),
+                color="secondary",
+            ),
+        ]
+    )
+
+    _persist_ekde(
+        project_id,
+        dataset_id,
+        "agglomerative",
+        {
+            "n_clusters": (
+                requested_clusters
+            ),
+            "linkage": (
+                requested_linkage
+            ),
+            "requested_metric": (
+                requested_metric
+            ),
+            "effective_metric": (
+                effective_metric
+            ),
+            "n_observations": (
+                n_observations
+            ),
+            "numeric_variables": (
+                list(numeric.columns)
+            ),
+            "converted_columns": (
+                conversions
+            ),
+            "standardized": True,
+            "silhouette_score": (
+                result.silhouette_score
+            ),
+            "davies_bouldin_score": (
+                result.davies_bouldin_score
+            ),
+            "calinski_harabasz_score": (
+                result.calinski_harabasz_score
+            ),
+            "cluster_sizes": (
+                cluster_sizes
+                .to_dict(
+                    orient="records"
+                )
+            ),
+            "labels": [
+                int(value) + 1
+                for value
+                in result.predictions
+            ],
         },
     )
 

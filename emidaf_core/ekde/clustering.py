@@ -23,6 +23,7 @@ import pandas as pd
 from sklearn.cluster import (
     KMeans,
     DBSCAN,
+    AgglomerativeClustering,
 )
 from sklearn.metrics import (
     silhouette_score,
@@ -396,6 +397,199 @@ class DBSCANClustering:
                 "noise_percentage": (
                     noise_percentage
                 ),
+            },
+            predictions=(
+                labels
+                .astype(int)
+                .tolist()
+            ),
+            silhouette_score=silhouette,
+            davies_bouldin_score=(
+                davies_bouldin
+            ),
+            calinski_harabasz_score=(
+                calinski_harabasz
+            ),
+        )
+
+    fit_predict = fit
+
+
+class AgglomerativeClusteringEngine:
+    """
+    Clustering hiérarchique agglomératif exploratoire.
+
+    Le moteur ne standardise pas silencieusement les données.
+    La préparation et la standardisation doivent être réalisées
+    explicitement avant l'appel.
+    """
+
+    name = "Agglomerative Clustering"
+    task = "clustering"
+    scaling_sensitive = True
+
+    @classmethod
+    def fit(
+        cls,
+        dataframe: pd.DataFrame,
+        n_clusters: int = 3,
+        linkage: str = "ward",
+        metric: str = "euclidean",
+    ) -> ModelResult:
+
+        if not isinstance(
+            dataframe,
+            pd.DataFrame,
+        ):
+            raise TypeError(
+                "AgglomerativeClusteringEngine "
+                "attend un pandas.DataFrame."
+            )
+
+        if dataframe.empty:
+            raise ValueError(
+                "Le dataframe est vide."
+            )
+
+        non_numeric = [
+            column
+            for column in dataframe.columns
+            if not pd.api.types.is_numeric_dtype(
+                dataframe[column]
+            )
+        ]
+
+        if non_numeric:
+            raise ValueError(
+                "Toutes les variables doivent être "
+                "numériques avant le clustering "
+                "hiérarchique. Variables non "
+                f"numériques : {non_numeric}"
+            )
+
+        if dataframe.isna().any().any():
+            raise ValueError(
+                "Le clustering hiérarchique ne peut "
+                "pas être exécuté avec des valeurs "
+                "manquantes."
+            )
+
+        n_observations = len(
+            dataframe
+        )
+
+        try:
+            n_clusters = int(
+                n_clusters
+            )
+        except (TypeError, ValueError) as exc:
+            raise ValueError(
+                "n_clusters doit être un entier."
+            ) from exc
+
+        if n_clusters < 2:
+            raise ValueError(
+                "Le clustering hiérarchique "
+                "nécessite au moins 2 clusters."
+            )
+
+        if n_clusters >= n_observations:
+            raise ValueError(
+                "n_clusters doit être strictement "
+                "inférieur au nombre "
+                "d'observations."
+            )
+
+        allowed_linkages = {
+            "ward",
+            "complete",
+            "average",
+            "single",
+        }
+
+        if linkage not in allowed_linkages:
+            raise ValueError(
+                "linkage doit appartenir à "
+                "{'ward', 'complete', "
+                "'average', 'single'}."
+            )
+
+        if not isinstance(
+            metric,
+            str,
+        ):
+            raise ValueError(
+                "metric doit être une chaîne "
+                "de caractères."
+            )
+
+        if linkage == "ward":
+            metric = "euclidean"
+
+        model = AgglomerativeClustering(
+            n_clusters=n_clusters,
+            linkage=linkage,
+            metric=metric,
+        )
+
+        labels = model.fit_predict(
+            dataframe
+        )
+
+        unique_labels = np.unique(
+            labels
+        )
+
+        silhouette = None
+        davies_bouldin = None
+        calinski_harabasz = None
+
+        if (
+            len(unique_labels) >= 2
+            and len(unique_labels)
+            < n_observations
+        ):
+            silhouette = float(
+                silhouette_score(
+                    dataframe,
+                    labels,
+                )
+            )
+
+            davies_bouldin = float(
+                davies_bouldin_score(
+                    dataframe,
+                    labels,
+                )
+            )
+
+            calinski_harabasz = float(
+                calinski_harabasz_score(
+                    dataframe,
+                    labels,
+                )
+            )
+
+        return ModelResult(
+            model_name=cls.name,
+            algorithm=(
+                "AgglomerativeClustering"
+            ),
+            model_type="unsupervised",
+            task="clustering",
+            library="scikit-learn",
+            fitted=True,
+            train_size=n_observations,
+            test_size=0,
+            features=list(
+                dataframe.columns
+            ),
+            estimator=model,
+            parameters={
+                "n_clusters": n_clusters,
+                "linkage": linkage,
+                "metric": metric,
+                "scaling_sensitive": True,
             },
             predictions=(
                 labels

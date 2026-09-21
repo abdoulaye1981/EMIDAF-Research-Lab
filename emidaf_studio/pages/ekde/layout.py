@@ -684,6 +684,175 @@ def ekde_layout(project_id, dataset_id):
                                 id="ekde-dbscan-projection",
                                 figure={},
                             ),
+
+                            html.Hr(
+                                className="my-5"
+                            ),
+                            html.H4(
+                                (
+                                    "Clustering hiérarchique "
+                                    "agglomératif"
+                                ),
+                                className="mt-4",
+                            ),
+                            html.P(
+                                (
+                                    "Le clustering hiérarchique "
+                                    "agglomératif construit "
+                                    "progressivement des groupes en "
+                                    "fusionnant les observations ou "
+                                    "clusters les plus proches."
+                                ),
+                                className="text-muted",
+                            ),
+                            dbc.Alert(
+                                (
+                                    "L'analyse n'est pas exécutée "
+                                    "automatiquement. Le nombre de "
+                                    "clusters représente une hypothèse "
+                                    "de partitionnement à évaluer."
+                                ),
+                                color="secondary",
+                            ),
+                            dbc.Row(
+                                [
+                                    dbc.Col(
+                                        [
+                                            dbc.Label(
+                                                "Nombre de clusters"
+                                            ),
+                                            dcc.Slider(
+                                                id=(
+                                                    "ekde-agglomerative-"
+                                                    "clusters"
+                                                ),
+                                                min=2,
+                                                max=(
+                                                    kmeans_max_clusters
+                                                ),
+                                                step=1,
+                                                value=(
+                                                    kmeans_default_clusters
+                                                ),
+                                                marks={
+                                                    i: str(i)
+                                                    for i in range(
+                                                        2,
+                                                        (
+                                                            kmeans_max_clusters
+                                                            + 1
+                                                        ),
+                                                    )
+                                                },
+                                            ),
+                                        ],
+                                        md=4,
+                                    ),
+                                    dbc.Col(
+                                        [
+                                            dbc.Label(
+                                                "Linkage"
+                                            ),
+                                            dcc.Dropdown(
+                                                id=(
+                                                    "ekde-agglomerative-"
+                                                    "linkage"
+                                                ),
+                                                options=[
+                                                    {
+                                                        "label": "Ward",
+                                                        "value": "ward",
+                                                    },
+                                                    {
+                                                        "label": "Complete",
+                                                        "value": "complete",
+                                                    },
+                                                    {
+                                                        "label": "Average",
+                                                        "value": "average",
+                                                    },
+                                                    {
+                                                        "label": "Single",
+                                                        "value": "single",
+                                                    },
+                                                ],
+                                                value="ward",
+                                                clearable=False,
+                                            ),
+                                        ],
+                                        md=4,
+                                    ),
+                                    dbc.Col(
+                                        [
+                                            dbc.Label(
+                                                "Métrique"
+                                            ),
+                                            dcc.Dropdown(
+                                                id=(
+                                                    "ekde-agglomerative-"
+                                                    "metric"
+                                                ),
+                                                options=[
+                                                    {
+                                                        "label": "Euclidienne",
+                                                        "value": "euclidean",
+                                                    },
+                                                    {
+                                                        "label": "Manhattan",
+                                                        "value": "manhattan",
+                                                    },
+                                                    {
+                                                        "label": "Cosinus",
+                                                        "value": "cosine",
+                                                    },
+                                                ],
+                                                value="euclidean",
+                                                clearable=False,
+                                            ),
+                                        ],
+                                        md=4,
+                                    ),
+                                ],
+                                className="mt-3",
+                            ),
+                            html.Small(
+                                (
+                                    "Avec le linkage Ward, la distance "
+                                    "euclidienne est imposée par le "
+                                    "moteur scientifique, quelle que "
+                                    "soit la métrique sélectionnée."
+                                ),
+                                className="text-muted",
+                            ),
+                            html.Div(
+                                [
+                                    dbc.Button(
+                                        (
+                                            "Lancer le clustering "
+                                            "hiérarchique"
+                                        ),
+                                        id=(
+                                            "ekde-agglomerative-run"
+                                        ),
+                                        color="primary",
+                                        className="mt-3",
+                                    ),
+                                ]
+                            ),
+                            dbc.Spinner(
+                                html.Div(
+                                    id=(
+                                        "ekde-agglomerative-summary"
+                                    ),
+                                    className="mt-4",
+                                ),
+                            ),
+                            dcc.Graph(
+                                id=(
+                                    "ekde-agglomerative-projection"
+                                ),
+                                figure={},
+                            ),
                         ],
                         label="Clustering",
                     ),
