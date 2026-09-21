@@ -319,12 +319,14 @@ class TSNEReduction(
         self,
 
         n_components=2,
+        perplexity=30.0,
 
     ):
 
         self.model = TSNE(
 
             n_components=n_components,
+            perplexity=float(perplexity),
 
             random_state=42
 

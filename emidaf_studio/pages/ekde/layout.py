@@ -119,6 +119,19 @@ def ekde_layout(project_id, dataset_id):
         ),
     )
 
+    tsne_max_perplexity = max(
+        1,
+        min(
+            50,
+            len(df) - 1,
+        ),
+    )
+
+    tsne_default_perplexity = min(
+        30,
+        tsne_max_perplexity,
+    )
+
     # ======================================================
     # INITIAL SERVER-SIDE RENDERING
     # ======================================================
@@ -405,6 +418,78 @@ def ekde_layout(project_id, dataset_id):
                             ),
                         ],
                         label="PCA",
+                    ),
+
+                    # ==========================================
+                    # t-SNE
+                    # ==========================================
+
+                    dbc.Tab(
+                        [
+                            html.H4(
+                                "Réduction dimensionnelle : t-SNE",
+                                className="mt-4",
+                            ),
+                            html.P(
+                                (
+                                    "t-SNE produit une représentation "
+                                    "bidimensionnelle non linéaire des "
+                                    "observations à partir des variables "
+                                    "numériques standardisées."
+                                ),
+                                className="text-muted",
+                            ),
+                            dbc.Alert(
+                                (
+                                    "Le calcul t-SNE n'est pas lancé "
+                                    "automatiquement. Configurez la "
+                                    "perplexité puis cliquez sur "
+                                    "« Lancer t-SNE »."
+                                ),
+                                color="secondary",
+                            ),
+                            dbc.Label(
+                                "Perplexité"
+                            ),
+                            dbc.Input(
+                                id="ekde-tsne-perplexity",
+                                type="number",
+                                min=1,
+                                max=tsne_max_perplexity,
+                                step=1,
+                                value=tsne_default_perplexity,
+                            ),
+                            html.Small(
+                                (
+                                    "La perplexité doit être strictement "
+                                    "inférieure au nombre d'observations. "
+                                    "EMIDAF ajuste automatiquement la "
+                                    "valeur si nécessaire."
+                                ),
+                                className="text-muted",
+                            ),
+                            html.Div(
+                                [
+                                    dbc.Button(
+                                        "Lancer t-SNE",
+                                        id="ekde-tsne-run",
+                                        color="primary",
+                                        className="mt-3",
+                                    ),
+                                ]
+                            ),
+                            dbc.Spinner(
+                                html.Div(
+                                    id="ekde-tsne-summary",
+                                    className="mt-4",
+                                ),
+                            ),
+                            dcc.Graph(
+                                id="ekde-tsne-projection",
+                                figure={},
+                            ),
+                        ],
+                        label="t-SNE",
                     ),
 
                     # ==========================================

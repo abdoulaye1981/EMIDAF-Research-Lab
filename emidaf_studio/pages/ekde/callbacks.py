@@ -27,6 +27,7 @@ from sklearn.preprocessing import StandardScaler
 
 from emidaf_core.preprocessing.dimensionality import (
     PCAReduction,
+    TSNEReduction,
 )
 
 from emidaf_core.preprocessing.feature_selection import (
@@ -868,6 +869,243 @@ def pca_analysis(
     return (
         summary_content,
         variance_figure,
+        projection_figure,
+    )
+
+
+# ============================================================
+# t-SNE
+# ============================================================
+
+
+@callback(
+    Output(
+        "ekde-tsne-summary",
+        "children",
+    ),
+    Output(
+        "ekde-tsne-projection",
+        "figure",
+    ),
+    Input(
+        "ekde-tsne-run",
+        "n_clicks",
+    ),
+    State(
+        "ekde-tsne-perplexity",
+        "value",
+    ),
+    State(
+        "ekde-data",
+        "data",
+    ),
+    State(
+        "ekde-project-id",
+        "data",
+    ),
+    State(
+        "ekde-dataset-id",
+        "data",
+    ),
+    prevent_initial_call=True,
+)
+def tsne_analysis(
+    n_clicks,
+    perplexity,
+    data,
+    project_id,
+    dataset_id,
+):
+    if not n_clicks:
+        return no_update, no_update
+
+    dataframe = _deserialize(data)
+
+    numeric, conversions = (
+        _prepare_numeric_matrix(
+            dataframe
+        )
+    )
+
+    if numeric.shape[1] < 2:
+        return (
+            dbc.Alert(
+                (
+                    "t-SNE nécessite au moins "
+                    "deux variables numériques."
+                ),
+                color="warning",
+            ),
+            {},
+        )
+
+    n_observations = int(
+        numeric.shape[0]
+    )
+
+    if n_observations < 3:
+        return (
+            dbc.Alert(
+                (
+                    "t-SNE nécessite au moins "
+                    "trois observations."
+                ),
+                color="warning",
+            ),
+            {},
+        )
+
+    try:
+        requested_perplexity = float(
+            perplexity
+            if perplexity is not None
+            else 30.0
+        )
+    except (TypeError, ValueError):
+        requested_perplexity = 30.0
+
+    # sklearn impose perplexity < n_samples.
+    effective_perplexity = min(
+        max(
+            1.0,
+            requested_perplexity,
+        ),
+        float(
+            n_observations - 1
+        ),
+    )
+
+    # t-SNE dépend fortement de l'échelle.
+    scaler = StandardScaler()
+
+    standardized = pd.DataFrame(
+        scaler.fit_transform(
+            numeric
+        ),
+        columns=numeric.columns,
+        index=numeric.index,
+    )
+
+    try:
+        model = TSNEReduction(
+            n_components=2,
+            perplexity=effective_perplexity,
+        )
+
+        transformed = model.fit_transform(
+            standardized
+        )
+
+        components = _unwrap_transformed(
+            transformed,
+            index=numeric.index,
+        )
+
+    except Exception as exc:
+        return (
+            dbc.Alert(
+                (
+                    "Le calcul t-SNE n'a pas "
+                    f"pu être terminé : {exc}"
+                ),
+                color="danger",
+            ),
+            {},
+        )
+
+    components.columns = [
+        "TSNE1",
+        "TSNE2",
+    ]
+
+    projection = components.copy()
+
+    projection["Observation"] = np.arange(
+        1,
+        len(projection) + 1,
+    )
+
+    projection_figure = px.scatter(
+        projection,
+        x="TSNE1",
+        y="TSNE2",
+        hover_data=["Observation"],
+        title=(
+            "Projection t-SNE "
+            "des observations"
+        ),
+    )
+
+    summary_df = pd.DataFrame(
+        [
+            {
+                "Indicateur": "Observations",
+                "Valeur": n_observations,
+            },
+            {
+                "Indicateur": "Variables utilisées",
+                "Valeur": int(
+                    numeric.shape[1]
+                ),
+            },
+            {
+                "Indicateur": "Perplexité demandée",
+                "Valeur": requested_perplexity,
+            },
+            {
+                "Indicateur": "Perplexité utilisée",
+                "Valeur": effective_perplexity,
+            },
+        ]
+    )
+
+    summary_content = [
+        dbc.Alert(
+            (
+                "Projection t-SNE calculée "
+                "sur les variables numériques "
+                "standardisées."
+            ),
+            color="info",
+        ),
+        _table(summary_df),
+        dbc.Alert(
+            (
+                "t-SNE vise principalement à "
+                "préserver les structures locales. "
+                "Les distances globales entre "
+                "groupes et leur taille apparente "
+                "ne doivent pas être interprétées "
+                "comme des mesures quantitatives "
+                "directes de similarité."
+            ),
+            color="secondary",
+        ),
+    ]
+
+    _persist_ekde(
+        project_id,
+        dataset_id,
+        "tsne",
+        {
+            "n_components": 2,
+            "n_observations": n_observations,
+            "numeric_variables": (
+                list(numeric.columns)
+            ),
+            "converted_columns": conversions,
+            "requested_perplexity": float(
+                requested_perplexity
+            ),
+            "effective_perplexity": float(
+                effective_perplexity
+            ),
+            "standardized": True,
+        },
+    )
+
+    return (
+        summary_content,
         projection_figure,
     )
 
