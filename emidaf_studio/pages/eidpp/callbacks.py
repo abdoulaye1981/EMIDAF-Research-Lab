@@ -1,5 +1,4 @@
 
-from io import StringIO
 
 import logging
 
@@ -26,25 +25,16 @@ from emidaf_core.preprocessing import (
 )
 
 from emidaf_studio.services.model_registry import (
+    get_analysis,
     register_analysis,
+)
+
+from emidaf_studio.pages.inspection.layout import (
+    load_dataset,
 )
 
 
 logger = logging.getLogger(__name__)
-
-
-def _deserialize(data):
-    return pd.read_json(
-        StringIO(data),
-        orient="split",
-    )
-
-
-def _serialize(dataframe):
-    return dataframe.to_json(
-        orient="split",
-        date_format="iso",
-    )
 
 
 def _unwrap_dataframe(result):
@@ -370,11 +360,6 @@ def _scale_dataframe(dataframe, method):
 
 @callback(
     Output(
-        "eidpp-working-data",
-        "data",
-        allow_duplicate=True,
-    ),
-    Output(
         "eidpp-comparison",
         "children",
         allow_duplicate=True,
@@ -392,14 +377,6 @@ def _scale_dataframe(dataframe, method):
     Input(
         "eidpp-apply",
         "n_clicks",
-    ),
-    State(
-        "eidpp-original-data",
-        "data",
-    ),
-    State(
-        "eidpp-working-data",
-        "data",
     ),
     State(
         "eidpp-imputation",
@@ -433,8 +410,6 @@ def _scale_dataframe(dataframe, method):
 )
 def apply_preprocessing(
     n_clicks,
-    original_json,
-    working_json,
     imputation,
     duplicates,
     outliers,
@@ -443,23 +418,36 @@ def apply_preprocessing(
     project_id,
     dataset_id,
 ):
-
     if not n_clicks:
         return (
-            no_update,
             no_update,
             no_update,
             no_update,
         )
 
     try:
-
-        original = _deserialize(
-            original_json
+        project, dataset, result = load_dataset(
+            project_id,
+            dataset_id,
         )
 
-        dataframe = _deserialize(
-            working_json
+        if isinstance(result, str):
+            return (
+                no_update,
+                no_update,
+                dbc.Alert(
+                    result,
+                    color="danger",
+                ),
+            )
+
+        original = result
+
+        # Chaque exécution repart du dataset source.
+        # Cela évite de cumuler silencieusement les
+        # transformations lors de plusieurs clics.
+        dataframe = original.copy(
+            deep=True
         )
 
         # ==========================================
@@ -486,7 +474,6 @@ def apply_preprocessing(
         # ==========================================
 
         if "remove" in (duplicates or []):
-
             dataframe = (
                 DuplicateDetection.remove(
                     dataframe,
@@ -499,7 +486,6 @@ def apply_preprocessing(
         # ==========================================
 
         if outliers == "remove_iqr":
-
             dataframe = (
                 OutlierDetection.remove_iqr(
                     dataframe
@@ -507,7 +493,6 @@ def apply_preprocessing(
             )
 
         elif outliers == "winsorize":
-
             dataframe = (
                 OutlierDetection.winsorize(
                     dataframe
@@ -535,7 +520,6 @@ def apply_preprocessing(
         dataframe = dataframe.reset_index(
             drop=True
         )
-
 
         # ==========================================
         # PERSISTANCE EIDPP
@@ -575,12 +559,13 @@ def apply_preprocessing(
                     dataframe.shape[1]
                 ),
                 "processed_dataframe":
-                    dataframe.copy(),
+                    dataframe.copy(
+                        deep=True
+                    ),
             },
         )
 
         return (
-            _serialize(dataframe),
             _comparison_table(
                 original,
                 dataframe,
@@ -589,11 +574,13 @@ def apply_preprocessing(
             dbc.Alert(
                 [
                     html.Strong(
-                        "Prétraitement appliqué avec succès. "
+                        "Prétraitement appliqué "
+                        "avec succès. "
                     ),
                     html.Span(
                         (
-                            "Le dataset source n'a pas été modifié."
+                            "Le dataset source "
+                            "n'a pas été modifié."
                         )
                     ),
                     (
@@ -601,7 +588,10 @@ def apply_preprocessing(
                             [
                                 html.Br(),
                                 html.Strong(
-                                    "Types corrigés automatiquement : "
+                                    (
+                                        "Types corrigés "
+                                        "automatiquement : "
+                                    )
                                 ),
                                 ", ".join(
                                     (
@@ -609,7 +599,8 @@ def apply_preprocessing(
                                         f"({item['conversion_rate']:.2f} % "
                                         "convertible)"
                                     )
-                                    for item in converted_columns
+                                    for item
+                                    in converted_columns
                                 ),
                             ]
                         )
@@ -622,7 +613,6 @@ def apply_preprocessing(
         )
 
     except Exception as exc:
-
         logger.exception(
             "EIDPP preprocessing failed "
             "(project_id=%s, dataset_id=%s)",
@@ -631,7 +621,6 @@ def apply_preprocessing(
         )
 
         return (
-            no_update,
             no_update,
             no_update,
             dbc.Alert(
@@ -649,11 +638,6 @@ def apply_preprocessing(
 
 
 @callback(
-    Output(
-        "eidpp-working-data",
-        "data",
-        allow_duplicate=True,
-    ),
     Output(
         "eidpp-comparison",
         "children",
@@ -674,30 +658,83 @@ def apply_preprocessing(
         "n_clicks",
     ),
     State(
-        "eidpp-original-data",
+        "eidpp-project-id",
+        "data",
+    ),
+    State(
+        "eidpp-dataset-id",
         "data",
     ),
     prevent_initial_call=True,
 )
 def reset_preprocessing(
     n_clicks,
-    original_json,
+    project_id,
+    dataset_id,
 ):
-
     if not n_clicks:
         return (
             no_update,
             no_update,
             no_update,
-            no_update,
         )
 
-    dataframe = _deserialize(
-        original_json
+    project, dataset, result = load_dataset(
+        project_id,
+        dataset_id,
+    )
+
+    if isinstance(result, str):
+        return (
+            no_update,
+            no_update,
+            dbc.Alert(
+                result,
+                color="danger",
+            ),
+        )
+
+    dataframe = result
+
+    register_analysis(
+        project_id,
+        dataset_id,
+        "eidpp",
+        {
+            "before_metrics": _metrics(
+                dataframe
+            ),
+            "after_metrics": _metrics(
+                dataframe
+            ),
+            "operations": {
+                "imputation": "none",
+                "duplicates": [],
+                "outliers": "none",
+                "encoding": "none",
+                "scaling": "none",
+            },
+            "converted_columns": [],
+            "rows_before": int(
+                dataframe.shape[0]
+            ),
+            "rows_after": int(
+                dataframe.shape[0]
+            ),
+            "columns_before": int(
+                dataframe.shape[1]
+            ),
+            "columns_after": int(
+                dataframe.shape[1]
+            ),
+            "processed_dataframe":
+                dataframe.copy(
+                    deep=True
+                ),
+        },
     )
 
     return (
-        original_json,
         _comparison_table(
             dataframe,
             dataframe,
@@ -720,7 +757,7 @@ def reset_preprocessing(
         "n_clicks",
     ),
     State(
-        "eidpp-working-data",
+        "eidpp-project-id",
         "data",
     ),
     State(
@@ -731,16 +768,48 @@ def reset_preprocessing(
 )
 def download_processed_dataset(
     n_clicks,
-    working_json,
+    project_id,
     dataset_id,
 ):
-
     if not n_clicks:
         return no_update
 
-    dataframe = _deserialize(
-        working_json
+    context = get_analysis(
+        project_id,
+        dataset_id,
+        "eidpp",
+        default=None,
     )
+
+    dataframe = None
+
+    if isinstance(
+        context,
+        dict,
+    ):
+        candidate = context.get(
+            "processed_dataframe"
+        )
+
+        if isinstance(
+            candidate,
+            pd.DataFrame,
+        ):
+            dataframe = candidate
+
+    # Avant tout prétraitement EIDPP, le bouton
+    # conserve son comportement utile en permettant
+    # de télécharger le dataset source.
+    if dataframe is None:
+        project, dataset, result = load_dataset(
+            project_id,
+            dataset_id,
+        )
+
+        if isinstance(result, str):
+            return no_update
+
+        dataframe = result
 
     return dcc.send_data_frame(
         dataframe.to_csv,

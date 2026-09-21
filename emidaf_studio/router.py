@@ -416,6 +416,12 @@ def _redirect(href):
 def get_page_layout(pathname):
     pathname = pathname or "/"
 
+    print(
+        "[EMIDAF ROUTER] PATH:",
+        pathname,
+        flush=True,
+    )
+
     # ======================================================
     # AUTHENTIFICATION
     # ======================================================

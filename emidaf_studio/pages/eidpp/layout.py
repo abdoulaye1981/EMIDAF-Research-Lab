@@ -485,22 +485,6 @@ def eidpp_layout(project_id, dataset_id):
                 data=dataset_id,
             ),
 
-            dcc.Store(
-                id="eidpp-original-data",
-                data=dataframe.to_json(
-                    orient="split",
-                    date_format="iso",
-                ),
-            ),
-
-            dcc.Store(
-                id="eidpp-working-data",
-                data=dataframe.to_json(
-                    orient="split",
-                    date_format="iso",
-                ),
-            ),
-
             dcc.Download(
                 id="eidpp-download-data"
             ),
