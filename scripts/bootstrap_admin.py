@@ -7,6 +7,9 @@ from emidaf_core.bootstrap.bootstrap import Bootstrap
 from emidaf_core.repositories.user_repository import (
     UserRepository,
 )
+from emidaf_core.security.password import (
+    hash_password,
+)
 from emidaf_core.services.auth_service import (
     AuthService,
 )
@@ -21,6 +24,20 @@ def _required_env(name: str) -> str:
         )
 
     return value
+
+
+def _env_flag(name: str) -> bool:
+    return (
+        os.environ.get(name, "0")
+        .strip()
+        .lower()
+        in {
+            "1",
+            "true",
+            "yes",
+            "on",
+        }
+    )
 
 
 def main() -> int:
@@ -56,6 +73,10 @@ def main() -> int:
         or None
     )
 
+    reset_password = _env_flag(
+        "EMIDAF_ADMIN_RESET_PASSWORD"
+    )
+
     bootstrap = Bootstrap()
     bootstrap.initialize()
 
@@ -76,15 +97,37 @@ def main() -> int:
     )
 
     if existing is not None:
+
+        if existing.role != "super_admin":
+            raise RuntimeError(
+                "Le compte existe déjà mais "
+                "n'est pas super-admin."
+            )
+
+        if reset_password:
+            existing.password_hash = (
+                hash_password(password)
+            )
+
+            existing.is_active = True
+            existing.is_verified = True
+
+            repository.update(existing)
+
+            print(
+                "SUPER ADMIN : "
+                "mot de passe réinitialisé"
+            )
+
+            return 0
+
         if (
-            existing.role != "super_admin"
-            or not existing.is_active
+            not existing.is_active
             or not existing.is_verified
         ):
             raise RuntimeError(
-                "Le compte administrateur existe déjà "
-                "mais n'est pas un super-admin actif "
-                "et vérifié. Bootstrap refusé."
+                "Le super-admin existe mais "
+                "n'est pas actif et vérifié."
             )
 
         print(
@@ -121,4 +164,5 @@ if __name__ == "__main__":
             f"BOOTSTRAP ADMIN ERROR : {exc}",
             file=sys.stderr,
         )
+
         raise SystemExit(1)
