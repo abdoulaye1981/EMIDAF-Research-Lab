@@ -450,6 +450,7 @@ class UMAPReduction(
             random_state=(
                 self.random_state
             ),
+            init="random",
         )
 
     def fit(
