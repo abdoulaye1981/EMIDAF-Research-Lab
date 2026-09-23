@@ -323,37 +323,75 @@ def _encode_dataframe(dataframe, method):
 def _scale_dataframe(dataframe, method):
 
     if method == "none":
+
         return dataframe.copy()
 
     result = dataframe.copy()
 
     numeric_columns = list(
+
         result.select_dtypes(
+
             include="number"
+
         ).columns
+
     )
 
     if not numeric_columns:
+
         return result
 
     scaler = Scaling(
+
         method=method
+
     )
 
     transformed = scaler.fit_transform(
+
         result[numeric_columns]
+
     )
 
     transformed = _unwrap_dataframe(
+
         transformed
+
     )
 
-    result.loc[
-        :,
-        numeric_columns,
-    ] = transformed[
+    # Les méthodes de mise à l'échelle produisent
+    # généralement des valeurs flottantes, même lorsque
+    # les variables sources sont de type entier.
+    #
+    # La conversion explicite évite une affectation de
+    # float64 dans des colonnes int64 avec les versions
+    # récentes de pandas.
+    scaled_values = (
+
+        transformed[
+
+            numeric_columns
+
+        ]
+
+        .astype("float64")
+
+        .to_numpy()
+
+    )
+
+    for position, column in enumerate(
+
         numeric_columns
-    ].to_numpy()
+
+    ):
+
+        result[column] = (
+
+            scaled_values[:, position]
+
+        )
 
     return result
 

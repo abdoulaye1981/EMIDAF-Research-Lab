@@ -252,3 +252,49 @@ def test_download_falls_back_to_source_dataset(
         result.get("filename")
         == "dataset_2_eidpp.csv"
     )
+
+
+def test_scale_dataframe_converts_integer_columns_to_float():
+
+    dataframe = pd.DataFrame(
+        {
+            "age": [18, 20, 22, 24],
+            "score": [10, 12, 15, 18],
+            "group": ["A", "B", "A", "B"],
+        }
+    )
+
+    result = callbacks._scale_dataframe(
+        dataframe,
+        "standard",
+    )
+
+    assert result is not dataframe
+
+    assert str(
+        result["age"].dtype
+    ) == "float64"
+
+    assert str(
+        result["score"].dtype
+    ) == "float64"
+
+    assert result[
+        "group"
+    ].tolist() == dataframe[
+        "group"
+    ].tolist()
+
+    assert str(
+        result["group"].dtype
+    ) == str(
+        dataframe["group"].dtype
+    )
+
+    assert dataframe[
+        "age"
+    ].dtype == "int64"
+
+    assert dataframe[
+        "score"
+    ].dtype == "int64"
