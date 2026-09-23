@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-from io import StringIO
 from typing import Any
 
 import numpy as np
@@ -18,6 +17,12 @@ from dash import (
 )
 
 import dash_bootstrap_components as dbc
+
+from dash.exceptions import PreventUpdate
+
+from emidaf_studio.pages.inspection.layout import (
+    load_dataset,
+)
 
 from emidaf_studio.services.model_registry import (
     merge_analysis_section,
@@ -47,12 +52,28 @@ from emidaf_core.ekde import (
 # ============================================================
 
 
-def _deserialize(data):
+def _load_ekde_dataframe(
+    project_id,
+    dataset_id,
+):
+    """
+    Charge le dataset EKDE côté serveur.
 
-    return pd.read_json(
-        StringIO(data),
-        orient="split",
+    Le navigateur ne doit à terme conserver que
+    project_id et dataset_id, jamais le DataFrame complet.
+    """
+    _, _, result = load_dataset(
+        project_id,
+        dataset_id,
     )
+
+    if isinstance(result, str):
+        raise PreventUpdate
+
+    if not isinstance(result, pd.DataFrame):
+        raise PreventUpdate
+
+    return result
 
 
 def _table(dataframe):
@@ -445,10 +466,6 @@ def _persist_ekde(
         "value",
     ),
     State(
-        "ekde-data",
-        "data",
-    ),
-    State(
         "ekde-project-id",
         "data",
     ),
@@ -461,7 +478,6 @@ def _persist_ekde(
 def structure_analysis(
     n_clicks,
     threshold,
-    data,
     project_id,
     dataset_id,
 ):
@@ -469,7 +485,10 @@ def structure_analysis(
     if not n_clicks:
         return no_update, no_update
 
-    dataframe = _deserialize(data)
+    dataframe = _load_ekde_dataframe(
+        project_id,
+        dataset_id,
+    )
 
     numeric, conversions = (
         _prepare_numeric_matrix(
@@ -624,10 +643,6 @@ def structure_analysis(
         "value",
     ),
     State(
-        "ekde-data",
-        "data",
-    ),
-    State(
         "ekde-project-id",
         "data",
     ),
@@ -640,7 +655,6 @@ def structure_analysis(
 def pca_analysis(
     n_clicks,
     n_components,
-    data,
     project_id,
     dataset_id,
 ):
@@ -652,7 +666,10 @@ def pca_analysis(
             no_update,
         )
 
-    dataframe = _deserialize(data)
+    dataframe = _load_ekde_dataframe(
+        project_id,
+        dataset_id,
+    )
 
     numeric, conversions = (
         _prepare_numeric_matrix(
@@ -925,10 +942,6 @@ def pca_analysis(
         "value",
     ),
     State(
-        "ekde-data",
-        "data",
-    ),
-    State(
         "ekde-project-id",
         "data",
     ),
@@ -941,14 +954,16 @@ def pca_analysis(
 def tsne_analysis(
     n_clicks,
     perplexity,
-    data,
     project_id,
     dataset_id,
 ):
     if not n_clicks:
         return no_update, no_update
 
-    dataframe = _deserialize(data)
+    dataframe = _load_ekde_dataframe(
+        project_id,
+        dataset_id,
+    )
 
     numeric, conversions = (
         _prepare_numeric_matrix(
@@ -1170,10 +1185,6 @@ def tsne_analysis(
         "value",
     ),
     State(
-        "ekde-data",
-        "data",
-    ),
-    State(
         "ekde-project-id",
         "data",
     ),
@@ -1188,14 +1199,16 @@ def umap_analysis(
     n_neighbors,
     min_dist,
     metric,
-    data,
     project_id,
     dataset_id,
 ):
     if not n_clicks:
         return no_update, no_update
 
-    dataframe = _deserialize(data)
+    dataframe = _load_ekde_dataframe(
+        project_id,
+        dataset_id,
+    )
 
     numeric, conversions = (
         _prepare_numeric_matrix(
@@ -1483,10 +1496,6 @@ def umap_analysis(
         "value",
     ),
     State(
-        "ekde-data",
-        "data",
-    ),
-    State(
         "ekde-project-id",
         "data",
     ),
@@ -1499,14 +1508,16 @@ def umap_analysis(
 def kmeans_analysis(
     n_clicks,
     n_clusters,
-    data,
     project_id,
     dataset_id,
 ):
     if not n_clicks:
         return no_update, no_update
 
-    dataframe = _deserialize(data)
+    dataframe = _load_ekde_dataframe(
+        project_id,
+        dataset_id,
+    )
 
     numeric, conversions = (
         _prepare_numeric_matrix(
@@ -1883,10 +1894,6 @@ def kmeans_analysis(
         "value",
     ),
     State(
-        "ekde-data",
-        "data",
-    ),
-    State(
         "ekde-project-id",
         "data",
     ),
@@ -1900,14 +1907,16 @@ def dbscan_analysis(
     n_clicks,
     eps,
     min_samples,
-    data,
     project_id,
     dataset_id,
 ):
     if not n_clicks:
         return no_update, no_update
 
-    dataframe = _deserialize(data)
+    dataframe = _load_ekde_dataframe(
+        project_id,
+        dataset_id,
+    )
 
     numeric, conversions = (
         _prepare_numeric_matrix(
@@ -2334,10 +2343,6 @@ def dbscan_analysis(
         "value",
     ),
     State(
-        "ekde-data",
-        "data",
-    ),
-    State(
         "ekde-project-id",
         "data",
     ),
@@ -2352,14 +2357,16 @@ def agglomerative_analysis(
     n_clusters,
     linkage,
     metric,
-    data,
     project_id,
     dataset_id,
 ):
     if not n_clicks:
         return no_update, no_update
 
-    dataframe = _deserialize(data)
+    dataframe = _load_ekde_dataframe(
+        project_id,
+        dataset_id,
+    )
 
     numeric, conversions = (
         _prepare_numeric_matrix(
@@ -2814,10 +2821,6 @@ def agglomerative_analysis(
         "value",
     ),
     State(
-        "ekde-data",
-        "data",
-    ),
-    State(
         "ekde-project-id",
         "data",
     ),
@@ -2831,7 +2834,6 @@ def association_analysis(
     n_clicks,
     x,
     y,
-    data,
     project_id,
     dataset_id,
 ):
@@ -2839,7 +2841,10 @@ def association_analysis(
     if not n_clicks:
         return no_update, no_update
 
-    dataframe = _deserialize(data)
+    dataframe = _load_ekde_dataframe(
+        project_id,
+        dataset_id,
+    )
 
     if (
         not x
@@ -3018,10 +3023,6 @@ def association_analysis(
         "value",
     ),
     State(
-        "ekde-data",
-        "data",
-    ),
-    State(
         "ekde-project-id",
         "data",
     ),
@@ -3036,7 +3037,6 @@ def selection_analysis(
     method,
     target,
     variance_threshold,
-    data,
     project_id,
     dataset_id,
 ):
@@ -3044,7 +3044,10 @@ def selection_analysis(
     if not n_clicks:
         return no_update
 
-    dataframe = _deserialize(data)
+    dataframe = _load_ekde_dataframe(
+        project_id,
+        dataset_id,
+    )
 
     numeric, conversions = (
         _prepare_numeric_matrix(
@@ -3271,10 +3274,6 @@ def selection_analysis(
         "n_clicks",
     ),
     State(
-        "ekde-data",
-        "data",
-    ),
-    State(
         "ekde-project-id",
         "data",
     ),
@@ -3286,7 +3285,6 @@ def selection_analysis(
 )
 def knowledge_summary(
     n_clicks,
-    data,
     project_id,
     dataset_id,
 ):
@@ -3294,7 +3292,10 @@ def knowledge_summary(
     if not n_clicks:
         return no_update
 
-    dataframe = _deserialize(data)
+    dataframe = _load_ekde_dataframe(
+        project_id,
+        dataset_id,
+    )
 
     numeric, conversions = (
         _prepare_numeric_matrix(
@@ -3487,20 +3488,28 @@ def knowledge_summary(
         "n_clicks",
     ),
     State(
-        "ekde-data",
+        "ekde-project-id",
+        "data",
+    ),
+    State(
+        "ekde-dataset-id",
         "data",
     ),
     prevent_initial_call=True,
 )
 def export_knowledge(
     n_clicks,
-    data,
+    project_id,
+    dataset_id,
 ):
 
     if not n_clicks:
         return no_update
 
-    dataframe = _deserialize(data)
+    dataframe = _load_ekde_dataframe(
+        project_id,
+        dataset_id,
+    )
 
     numeric, conversions = (
         _prepare_numeric_matrix(

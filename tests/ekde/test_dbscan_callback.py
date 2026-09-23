@@ -1,11 +1,13 @@
 import pandas as pd
 
+from emidaf_studio.pages.ekde import callbacks
+
 from emidaf_studio.pages.ekde.callbacks import (
     dbscan_analysis,
 )
 
 
-def _serialized_dataframe():
+def _dataframe():
     dataframe = pd.DataFrame(
         {
             "x1": [
@@ -21,17 +23,32 @@ def _serialized_dataframe():
         }
     )
 
-    return dataframe.to_json(
-        orient="split"
+    return dataframe
+
+
+def _use_dataframe(
+    monkeypatch,
+    dataframe,
+):
+    monkeypatch.setattr(
+        callbacks,
+        "_load_ekde_dataframe",
+        lambda project_id, dataset_id: dataframe,
     )
 
 
-def test_dbscan_callback_returns_summary_and_figure():
+def test_dbscan_callback_returns_summary_and_figure(monkeypatch):
+    dataframe = _dataframe()
+
+    _use_dataframe(
+        monkeypatch,
+        dataframe,
+    )
+
     summary, figure = dbscan_analysis(
         1,
         0.35,
         2,
-        _serialized_dataframe(),
         None,
         None,
     )
@@ -48,12 +65,18 @@ def test_dbscan_callback_returns_summary_and_figure():
     ) > 0
 
 
-def test_dbscan_callback_displays_noise():
+def test_dbscan_callback_displays_noise(monkeypatch):
+    dataframe = _dataframe()
+
+    _use_dataframe(
+        monkeypatch,
+        dataframe,
+    )
+
     summary, figure = dbscan_analysis(
         1,
         0.35,
         2,
-        _serialized_dataframe(),
         None,
         None,
     )
@@ -71,7 +94,7 @@ def test_dbscan_callback_displays_noise():
     )
 
 
-def test_dbscan_callback_handles_single_cluster():
+def test_dbscan_callback_handles_single_cluster(monkeypatch):
     dataframe = pd.DataFrame(
         {
             "x1": [
@@ -89,15 +112,15 @@ def test_dbscan_callback_handles_single_cluster():
         }
     )
 
-    serialized = dataframe.to_json(
-        orient="split"
+    _use_dataframe(
+        monkeypatch,
+        dataframe,
     )
 
     summary, figure = dbscan_analysis(
         1,
         0.5,
         2,
-        serialized,
         None,
         None,
     )
@@ -115,7 +138,7 @@ def test_dbscan_callback_handles_single_cluster():
     )
 
 
-def test_dbscan_callback_rejects_invalid_eps():
+def test_dbscan_callback_rejects_invalid_eps(monkeypatch):
     dataframe = pd.DataFrame(
         {
             "x1": [1, 2, 3, 4],
@@ -123,15 +146,15 @@ def test_dbscan_callback_rejects_invalid_eps():
         }
     )
 
-    serialized = dataframe.to_json(
-        orient="split"
+    _use_dataframe(
+        monkeypatch,
+        dataframe,
     )
 
     summary, figure = dbscan_analysis(
         1,
         0,
         2,
-        serialized,
         None,
         None,
     )
@@ -144,7 +167,7 @@ def test_dbscan_callback_rejects_invalid_eps():
     )
 
 
-def test_dbscan_callback_rejects_invalid_min_samples():
+def test_dbscan_callback_rejects_invalid_min_samples(monkeypatch):
     dataframe = pd.DataFrame(
         {
             "x1": [1, 2, 3, 4],
@@ -152,15 +175,15 @@ def test_dbscan_callback_rejects_invalid_min_samples():
         }
     )
 
-    serialized = dataframe.to_json(
-        orient="split"
+    _use_dataframe(
+        monkeypatch,
+        dataframe,
     )
 
     summary, figure = dbscan_analysis(
         1,
         0.5,
         5,
-        serialized,
         None,
         None,
     )
@@ -173,7 +196,7 @@ def test_dbscan_callback_rejects_invalid_min_samples():
     )
 
 
-def test_dbscan_callback_requires_numeric_data():
+def test_dbscan_callback_requires_numeric_data(monkeypatch):
     dataframe = pd.DataFrame(
         {
             "group": [
@@ -185,15 +208,15 @@ def test_dbscan_callback_requires_numeric_data():
         }
     )
 
-    serialized = dataframe.to_json(
-        orient="split"
+    _use_dataframe(
+        monkeypatch,
+        dataframe,
     )
 
     summary, figure = dbscan_analysis(
         1,
         0.5,
         2,
-        serialized,
         None,
         None,
     )

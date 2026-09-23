@@ -152,13 +152,8 @@ def ekde_layout(project_id, dataset_id):
     # INITIAL LIGHTWEIGHT RENDERING
     # ======================================================
 
-    # Le dataset reste temporairement sérialisé pour les
-    # callbacks existants. Les analyses scientifiques lourdes
-    # ne sont plus exécutées pendant la construction du layout.
-    serialized_data = df.to_json(
-        orient="split",
-        date_format="iso",
-    )
+    # Les analyses scientifiques lourdes sont exécutées
+    # uniquement à la demande. Le dataset reste côté serveur.
 
     initial_structure = dbc.Alert(
         (
@@ -1265,12 +1260,7 @@ def ekde_layout(project_id, dataset_id):
                 data=dataset_id,
             ),
 
-            dcc.Store(
-                id="ekde-data",
-                data=serialized_data,
-            ),
-
-            dcc.Download(
+dcc.Download(
                 id="ekde-download-data"
             ),
         ],

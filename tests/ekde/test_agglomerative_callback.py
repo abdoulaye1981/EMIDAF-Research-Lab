@@ -1,11 +1,13 @@
 import pandas as pd
 
+from emidaf_studio.pages.ekde import callbacks
+
 from emidaf_studio.pages.ekde.callbacks import (
     agglomerative_analysis,
 )
 
 
-def _serialized_dataframe():
+def _dataframe():
     dataframe = pd.DataFrame(
         {
             "x1": [
@@ -21,18 +23,33 @@ def _serialized_dataframe():
         }
     )
 
-    return dataframe.to_json(
-        orient="split"
+    return dataframe
+
+
+def _use_dataframe(
+    monkeypatch,
+    dataframe,
+):
+    monkeypatch.setattr(
+        callbacks,
+        "_load_ekde_dataframe",
+        lambda project_id, dataset_id: dataframe,
     )
 
 
-def test_agglomerative_callback_returns_summary_and_figure():
+def test_agglomerative_callback_returns_summary_and_figure(monkeypatch):
+    dataframe = _dataframe()
+
+    _use_dataframe(
+        monkeypatch,
+        dataframe,
+    )
+
     summary, figure = agglomerative_analysis(
         1,
         3,
         "ward",
         "euclidean",
-        _serialized_dataframe(),
         None,
         None,
     )
@@ -42,13 +59,19 @@ def test_agglomerative_callback_returns_summary_and_figure():
     assert len(figure.data) > 0
 
 
-def test_agglomerative_callback_ward_forces_euclidean():
+def test_agglomerative_callback_ward_forces_euclidean(monkeypatch):
+    dataframe = _dataframe()
+
+    _use_dataframe(
+        monkeypatch,
+        dataframe,
+    )
+
     summary, figure = agglomerative_analysis(
         1,
         3,
         "ward",
         "manhattan",
-        _serialized_dataframe(),
         None,
         None,
     )
@@ -62,13 +85,19 @@ def test_agglomerative_callback_ward_forces_euclidean():
     assert "euclidean" in summary_text
 
 
-def test_agglomerative_callback_accepts_average_manhattan():
+def test_agglomerative_callback_accepts_average_manhattan(monkeypatch):
+    dataframe = _dataframe()
+
+    _use_dataframe(
+        monkeypatch,
+        dataframe,
+    )
+
     summary, figure = agglomerative_analysis(
         1,
         3,
         "average",
         "manhattan",
-        _serialized_dataframe(),
         None,
         None,
     )
@@ -78,7 +107,7 @@ def test_agglomerative_callback_accepts_average_manhattan():
     assert "manhattan" in str(summary)
 
 
-def test_agglomerative_callback_rejects_invalid_cluster_number():
+def test_agglomerative_callback_rejects_invalid_cluster_number(monkeypatch):
     dataframe = pd.DataFrame(
         {
             "x1": [1, 2, 3, 4],
@@ -86,12 +115,16 @@ def test_agglomerative_callback_rejects_invalid_cluster_number():
         }
     )
 
+    _use_dataframe(
+        monkeypatch,
+        dataframe,
+    )
+
     summary, figure = agglomerative_analysis(
         1,
         4,
         "ward",
         "euclidean",
-        dataframe.to_json(orient="split"),
         None,
         None,
     )
@@ -104,13 +137,19 @@ def test_agglomerative_callback_rejects_invalid_cluster_number():
     )
 
 
-def test_agglomerative_callback_rejects_invalid_linkage():
+def test_agglomerative_callback_rejects_invalid_linkage(monkeypatch):
+    dataframe = _dataframe()
+
+    _use_dataframe(
+        monkeypatch,
+        dataframe,
+    )
+
     summary, figure = agglomerative_analysis(
         1,
         3,
         "invalid",
         "euclidean",
-        _serialized_dataframe(),
         None,
         None,
     )
@@ -119,13 +158,19 @@ def test_agglomerative_callback_rejects_invalid_linkage():
     assert "Linkage non reconnu" in str(summary)
 
 
-def test_agglomerative_callback_rejects_invalid_metric():
+def test_agglomerative_callback_rejects_invalid_metric(monkeypatch):
+    dataframe = _dataframe()
+
+    _use_dataframe(
+        monkeypatch,
+        dataframe,
+    )
+
     summary, figure = agglomerative_analysis(
         1,
         3,
         "average",
         "invalid",
-        _serialized_dataframe(),
         None,
         None,
     )
@@ -134,7 +179,7 @@ def test_agglomerative_callback_rejects_invalid_metric():
     assert "Métrique non reconnue" in str(summary)
 
 
-def test_agglomerative_callback_requires_numeric_data():
+def test_agglomerative_callback_requires_numeric_data(monkeypatch):
     dataframe = pd.DataFrame(
         {
             "group": [
@@ -146,14 +191,16 @@ def test_agglomerative_callback_requires_numeric_data():
         }
     )
 
+    _use_dataframe(
+        monkeypatch,
+        dataframe,
+    )
+
     summary, figure = agglomerative_analysis(
         1,
         2,
         "ward",
         "euclidean",
-        dataframe.to_json(
-            orient="split"
-        ),
         None,
         None,
     )

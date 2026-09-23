@@ -4,9 +4,22 @@ from emidaf_core.preprocessing.dimensionality import (
     TSNEReduction,
 )
 
+from emidaf_studio.pages.ekde import callbacks
+
 from emidaf_studio.pages.ekde.callbacks import (
     tsne_analysis,
 )
+
+
+def _use_dataframe(
+    monkeypatch,
+    dataframe,
+):
+    monkeypatch.setattr(
+        callbacks,
+        "_load_ekde_dataframe",
+        lambda project_id, dataset_id: dataframe,
+    )
 
 
 def test_tsne_reduction_accepts_perplexity():
@@ -92,7 +105,7 @@ def test_tsne_is_reproducible_with_fixed_random_state():
     )
 
 
-def test_tsne_callback_adjusts_invalid_perplexity():
+def test_tsne_callback_adjusts_invalid_perplexity(monkeypatch):
     dataframe = pd.DataFrame(
         {
             "x1": range(1, 11),
@@ -104,14 +117,14 @@ def test_tsne_callback_adjusts_invalid_perplexity():
         }
     )
 
-    serialized = dataframe.to_json(
-        orient="split"
+    _use_dataframe(
+        monkeypatch,
+        dataframe,
     )
 
     summary, figure = tsne_analysis(
         1,
         100,
-        serialized,
         None,
         None,
     )
@@ -124,7 +137,7 @@ def test_tsne_callback_adjusts_invalid_perplexity():
     assert figure is not None
 
 
-def test_tsne_callback_requires_two_numeric_variables():
+def test_tsne_callback_requires_two_numeric_variables(monkeypatch):
     dataframe = pd.DataFrame(
         {
             "x1": range(1, 11),
@@ -143,14 +156,14 @@ def test_tsne_callback_requires_two_numeric_variables():
         }
     )
 
-    serialized = dataframe.to_json(
-        orient="split"
+    _use_dataframe(
+        monkeypatch,
+        dataframe,
     )
 
     summary, figure = tsne_analysis(
         1,
         3,
-        serialized,
         None,
         None,
     )

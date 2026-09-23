@@ -1,12 +1,14 @@
 import pandas as pd
 
+from emidaf_studio.pages.ekde import callbacks
+
 from emidaf_studio.pages.ekde.callbacks import (
     umap_analysis,
 )
 
 
-def _serialized_dataframe():
-    dataframe = pd.DataFrame(
+def _dataframe():
+    return pd.DataFrame(
         {
             "x1": [
                 1.0, 1.1, 0.9,
@@ -26,18 +28,33 @@ def _serialized_dataframe():
         }
     )
 
-    return dataframe.to_json(
-        orient="split"
+
+def _use_dataframe(
+    monkeypatch,
+    dataframe,
+):
+    monkeypatch.setattr(
+        callbacks,
+        "_load_ekde_dataframe",
+        lambda project_id, dataset_id: dataframe,
     )
 
 
-def test_umap_callback_returns_summary_and_figure():
+def test_umap_callback_returns_summary_and_figure(
+    monkeypatch,
+):
+    dataframe = _dataframe()
+
+    _use_dataframe(
+        monkeypatch,
+        dataframe,
+    )
+
     summary, figure = umap_analysis(
         1,
         3,
         0.1,
         "euclidean",
-        _serialized_dataframe(),
         None,
         None,
     )
@@ -54,7 +71,9 @@ def test_umap_callback_returns_summary_and_figure():
     ) > 0
 
 
-def test_umap_callback_adjusts_neighbors():
+def test_umap_callback_adjusts_neighbors(
+    monkeypatch,
+):
     dataframe = pd.DataFrame(
         {
             "x1": [1, 2, 3, 4, 5],
@@ -63,14 +82,16 @@ def test_umap_callback_adjusts_neighbors():
         }
     )
 
+    _use_dataframe(
+        monkeypatch,
+        dataframe,
+    )
+
     summary, figure = umap_analysis(
         1,
         50,
         0.1,
         "euclidean",
-        dataframe.to_json(
-            orient="split"
-        ),
         None,
         None,
     )
@@ -88,13 +109,21 @@ def test_umap_callback_adjusts_neighbors():
     assert "4" in summary_text
 
 
-def test_umap_callback_rejects_invalid_min_dist():
+def test_umap_callback_rejects_invalid_min_dist(
+    monkeypatch,
+):
+    dataframe = _dataframe()
+
+    _use_dataframe(
+        monkeypatch,
+        dataframe,
+    )
+
     summary, figure = umap_analysis(
         1,
         3,
         -0.1,
         "euclidean",
-        _serialized_dataframe(),
         None,
         None,
     )
@@ -107,13 +136,21 @@ def test_umap_callback_rejects_invalid_min_dist():
     )
 
 
-def test_umap_callback_rejects_invalid_metric():
+def test_umap_callback_rejects_invalid_metric(
+    monkeypatch,
+):
+    dataframe = _dataframe()
+
+    _use_dataframe(
+        monkeypatch,
+        dataframe,
+    )
+
     summary, figure = umap_analysis(
         1,
         3,
         0.1,
         "invalid",
-        _serialized_dataframe(),
         None,
         None,
     )
@@ -126,7 +163,9 @@ def test_umap_callback_rejects_invalid_metric():
     )
 
 
-def test_umap_callback_requires_two_numeric_variables():
+def test_umap_callback_requires_two_numeric_variables(
+    monkeypatch,
+):
     dataframe = pd.DataFrame(
         {
             "x1": [1, 2, 3, 4],
@@ -139,14 +178,16 @@ def test_umap_callback_requires_two_numeric_variables():
         }
     )
 
+    _use_dataframe(
+        monkeypatch,
+        dataframe,
+    )
+
     summary, figure = umap_analysis(
         1,
         3,
         0.1,
         "euclidean",
-        dataframe.to_json(
-            orient="split"
-        ),
         None,
         None,
     )

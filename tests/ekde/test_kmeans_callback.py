@@ -1,11 +1,13 @@
 import pandas as pd
 
+from emidaf_studio.pages.ekde import callbacks
+
 from emidaf_studio.pages.ekde.callbacks import (
     kmeans_analysis,
 )
 
 
-def _serialized_dataframe():
+def _dataframe():
     dataframe = pd.DataFrame(
         {
             "x1": [
@@ -26,16 +28,31 @@ def _serialized_dataframe():
         }
     )
 
-    return dataframe.to_json(
-        orient="split"
+    return dataframe
+
+
+def _use_dataframe(
+    monkeypatch,
+    dataframe,
+):
+    monkeypatch.setattr(
+        callbacks,
+        "_load_ekde_dataframe",
+        lambda project_id, dataset_id: dataframe,
     )
 
 
-def test_kmeans_callback_returns_summary_and_figure():
+def test_kmeans_callback_returns_summary_and_figure(monkeypatch):
+    dataframe = _dataframe()
+
+    _use_dataframe(
+        monkeypatch,
+        dataframe,
+    )
+
     summary, figure = kmeans_analysis(
         1,
         3,
-        _serialized_dataframe(),
         None,
         None,
     )
@@ -52,7 +69,7 @@ def test_kmeans_callback_returns_summary_and_figure():
     ) > 0
 
 
-def test_kmeans_callback_rejects_invalid_cluster_number():
+def test_kmeans_callback_rejects_invalid_cluster_number(monkeypatch):
     dataframe = pd.DataFrame(
         {
             "x1": [1, 2, 3, 4],
@@ -60,14 +77,14 @@ def test_kmeans_callback_rejects_invalid_cluster_number():
         }
     )
 
-    serialized = dataframe.to_json(
-        orient="split"
+    _use_dataframe(
+        monkeypatch,
+        dataframe,
     )
 
     summary, figure = kmeans_analysis(
         1,
         4,
-        serialized,
         None,
         None,
     )
@@ -80,7 +97,7 @@ def test_kmeans_callback_rejects_invalid_cluster_number():
     )
 
 
-def test_kmeans_callback_requires_numeric_data():
+def test_kmeans_callback_requires_numeric_data(monkeypatch):
     dataframe = pd.DataFrame(
         {
             "group": [
@@ -92,14 +109,14 @@ def test_kmeans_callback_requires_numeric_data():
         }
     )
 
-    serialized = dataframe.to_json(
-        orient="split"
+    _use_dataframe(
+        monkeypatch,
+        dataframe,
     )
 
     summary, figure = kmeans_analysis(
         1,
         2,
-        serialized,
         None,
         None,
     )
