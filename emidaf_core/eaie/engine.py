@@ -361,6 +361,8 @@ class EAIEEngine:
                 "n'est pas disponible."
             )
 
+        scientific_summary = self.summary()
+
         return {
             "estimator": self.best_result_.estimator,
             "model_name": self.best_result_.model_name,
@@ -384,6 +386,16 @@ class EAIEEngine:
                 .get("cv_std")
             ),
             "test_score": self.best_result_.score,
+            "baseline_cv_mean": (
+                scientific_summary.get(
+                    "baseline_cv_mean"
+                )
+            ),
+            "better_than_baseline": (
+                scientific_summary.get(
+                    "better_than_baseline"
+                )
+            ),
         }
 
     def compare(self):

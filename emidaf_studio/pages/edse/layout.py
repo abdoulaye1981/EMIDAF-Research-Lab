@@ -566,9 +566,11 @@ def edse_layout(project_id, dataset_id):
                             html.P(
                                 (
                                     "Le seuil ci-dessous constitue "
-                                    "un paramètre de scénario défini "
-                                    "par l'utilisateur. Il n'est pas "
-                                    "présenté comme un seuil optimal."
+                                    "une valeur initiale de scénario. "
+                                    "Il peut être modifié et doit être "
+                                    "justifié par l'utilisateur. Il "
+                                    "n'est pas présenté comme un seuil "
+                                    "optimal."
                                 ),
                                 className="edse-v2-section-subtitle",
                             ),

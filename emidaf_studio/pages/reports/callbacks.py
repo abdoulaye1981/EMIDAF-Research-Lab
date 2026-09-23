@@ -35,7 +35,8 @@ def _stage_unavailable(stage_name):
         "message": (
             f"Les résultats de l'étape "
             f"« {stage_name} » ne sont pas "
-            "persistés dans la session actuelle."
+            "persistés ne sont disponibles "
+            "pour ce jeu de données."
         ),
     }
 
@@ -545,8 +546,8 @@ def generate_report(
                 limitations=[
                     (
                         "Aucune exécution EAIE "
-                        "n'est disponible dans "
-                        "la session actuelle."
+                        "persistée n'est disponible "
+                        "pour ce jeu de données."
                     )
                 ],
             )
@@ -559,6 +560,18 @@ def generate_report(
 
             test_score = eaie_context.get(
                 "test_score"
+            )
+
+            baseline_cv_mean = (
+                eaie_context.get(
+                    "baseline_cv_mean"
+                )
+            )
+
+            better_than_baseline = (
+                eaie_context.get(
+                    "better_than_baseline"
+                )
             )
 
             limitations = []
@@ -583,6 +596,15 @@ def generate_report(
                         "du modèle n'est pas "
                         "convaincante au regard "
                         "des scores observés."
+                    )
+                )
+
+            if better_than_baseline is False:
+                limitations.append(
+                    (
+                        "Le modèle sélectionné ne "
+                        "dépasse pas la référence "
+                        "naïve en validation croisée."
                     )
                 )
 
@@ -616,13 +638,20 @@ def generate_report(
                             "cv_std"
                         )
                     ),
-                    "test_score": (
-                        test_score
+                    "test_score": test_score,
+                    "baseline_cv_mean": (
+                        baseline_cv_mean
+                    ),
+                    "better_than_baseline": (
+                        better_than_baseline
                     ),
                 },
                 interpretation=(
                     "Résultats issus du modèle "
-                    "sélectionné par EAIE."
+                    "sélectionné par EAIE sur la "
+                    "validation croisée. La comparaison "
+                    "à la référence naïve est conservée "
+                    "lorsqu'elle est disponible."
                 ),
                 limitations=limitations,
             )
@@ -697,28 +726,6 @@ def generate_report(
                 ),
             }
 
-            native_text = (
-                summary.get(
-                    "native_interpretation"
-                )
-                if isinstance(
-                    summary,
-                    dict,
-                )
-                else None
-            )
-
-            permutation_text = (
-                summary.get(
-                    "permutation_interpretation"
-                )
-                if isinstance(
-                    summary,
-                    dict,
-                )
-                else None
-            )
-
             exaie_data = {
                 "model": (
                     exaie_context.get(
@@ -738,23 +745,54 @@ def generate_report(
                 "performance": performance,
             }
 
-            if native_text:
+            native_importance = (
+                exaie_context.get(
+                    "native_importance"
+                )
+            )
 
+            if native_importance is not None:
                 exaie_data[
                     "importance_native"
                 ] = {
-                    "interpretation":
-                        native_text
+                    "results": native_importance,
+                    "interpretation": (
+                        summary.get(
+                            "native_interpretation"
+                        )
+                    ),
                 }
 
-            if permutation_text:
+            permutation_importance = (
+                exaie_context.get(
+                    "permutation_importance"
+                )
+            )
 
+            if permutation_importance is not None:
                 exaie_data[
                     "importance_permutation"
                 ] = {
-                    "interpretation":
-                        permutation_text
+                    "results": (
+                        permutation_importance
+                    ),
+                    "interpretation": (
+                        summary.get(
+                            "permutation_interpretation"
+                        )
+                    ),
                 }
+
+            local_explanation = (
+                exaie_context.get(
+                    "local_explanation"
+                )
+            )
+
+            if local_explanation is not None:
+                exaie_data[
+                    "local_explanation"
+                ] = local_explanation
 
             predictive_warning = (
                 exaie_context.get(
@@ -763,7 +801,6 @@ def generate_report(
             )
 
             if predictive_warning:
-
                 exaie_data[
                     "predictive_warning"
                 ] = predictive_warning
@@ -773,11 +810,11 @@ def generate_report(
                 exaie_data,
                 interpretation=(
                     "EXAIE explique le comportement "
-                    "du modèle sélectionné par EAIE "
-                    "à partir d'informations globales "
-                    "et, lorsqu'elles sont disponibles, "
-                    "d'analyses par permutation ou "
-                    "d'explications locales."
+                    "du modèle sélectionné par EAIE. "
+                    "Le rapport reprend les résultats "
+                    "globaux, par permutation et locaux "
+                    "réellement persistés lorsqu'ils "
+                    "sont disponibles."
                 ),
                 limitations=(
                     exaie_context.get(
@@ -851,13 +888,25 @@ def generate_report(
                             "summary"
                         )
                     ),
+                    "scenario": (
+                        edse_context.get(
+                            "scenario"
+                        )
+                    ),
+                    "profiles": (
+                        edse_context.get(
+                            "profiles"
+                        )
+                    ),
                 },
                 interpretation=(
                     "Les résultats EDSE fournissent "
                     "une aide structurée à l'analyse "
-                    "de scénarios. Ils ne prennent "
-                    "pas la décision à la place "
-                    "de l'utilisateur."
+                    "de scénarios. Le rapport reprend "
+                    "le scénario et les profils "
+                    "persistés sans recalculer le modèle "
+                    "et sans prendre la décision à la "
+                    "place de l'utilisateur."
                 ),
                 limitations=[
                     (
@@ -871,6 +920,11 @@ def generate_report(
                         "doivent être considérés avec "
                         "les performances et limites "
                         "du modèle EAIE."
+                    ),
+                    (
+                        "Les profils et observations "
+                        "présentés ne constituent pas "
+                        "une priorisation normative."
                     ),
                 ],
             )

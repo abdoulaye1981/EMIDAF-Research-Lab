@@ -22,8 +22,12 @@ class DecisionAssessment:
         test_score: float | None,
         better_than_baseline: bool | None = None,
     ) -> dict:
-
         warnings = []
+
+        evaluable = (
+            cv_mean is not None
+            and test_score is not None
+        )
 
         if cv_mean is None:
             warnings.append(
@@ -37,16 +41,14 @@ class DecisionAssessment:
                 "n'est pas disponible."
             )
 
-        reliable = True
+        reliable = evaluable
 
         if task == "regression":
-
             if (
                 cv_mean is not None
                 and cv_mean <= 0
             ):
                 reliable = False
-
                 warnings.append(
                     "Le score de validation croisée "
                     "n'indique pas une capacité prédictive "
@@ -58,7 +60,6 @@ class DecisionAssessment:
                 and test_score <= 0
             ):
                 reliable = False
-
                 warnings.append(
                     "Le score sur le jeu de test "
                     "est nul ou négatif."
@@ -66,18 +67,20 @@ class DecisionAssessment:
 
         if better_than_baseline is False:
             reliable = False
-
             warnings.append(
                 "Le modèle ne fait pas mieux que "
                 "la référence naïve utilisée par EAIE."
             )
 
-        if reliable:
+        if not evaluable:
+            level = "non évaluable"
+        elif reliable:
             level = "acceptable"
         else:
             level = "prudence"
 
         return {
+            "evaluable": evaluable,
             "reliable": reliable,
             "level": level,
             "warnings": warnings,

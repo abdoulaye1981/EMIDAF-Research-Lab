@@ -396,15 +396,12 @@ def eaie_layout(project_id, dataset_id):
             ),
 
             dcc.Store(
-                id="eaie-data",
-                data=df.to_json(
-                    orient="split",
-                    date_format="iso",
-                ),
+                id="eaie-project-id",
+                data=project_id,
             ),
-
             dcc.Store(
-                id="eaie-result-store",
+                id="eaie-dataset-id",
+                data=dataset_id,
             ),
         ],
         fluid=True,

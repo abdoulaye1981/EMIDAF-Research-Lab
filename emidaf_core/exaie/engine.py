@@ -100,9 +100,16 @@ class EXAIEEngine:
     ) -> dict:
         """
         Synthèse EXAIE.
+
+        Réutilise les importances déjà calculées
+        lorsqu'elles sont disponibles afin d'éviter
+        des calculs coûteux redondants.
         """
 
-        native = self.global_importance()
+        native = self.native_importance_
+
+        if native is None:
+            native = self.global_importance()
 
         summary = {
             "native_available": (
@@ -119,8 +126,13 @@ class EXAIEEngine:
         if self.y is not None:
 
             permutation = (
-                self.permutation_importance()
+                self.permutation_importance_
             )
+
+            if permutation is None:
+                permutation = (
+                    self.permutation_importance()
+                )
 
             summary[
                 "permutation_available"

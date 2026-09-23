@@ -120,6 +120,9 @@ def run_edse(
             test_score=context.get(
                 "test_score"
             ),
+            better_than_baseline=context.get(
+                "better_than_baseline"
+            ),
         )
 
         summary = engine.summary()

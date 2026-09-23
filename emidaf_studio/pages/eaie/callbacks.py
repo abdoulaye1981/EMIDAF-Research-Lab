@@ -1,9 +1,7 @@
 from __future__ import annotations
 
-from io import StringIO
 
 import logging
-import re
 
 import pandas as pd
 
@@ -21,16 +19,36 @@ import dash_bootstrap_components as dbc
 logger = logging.getLogger(__name__)
 
 from emidaf_core.eaie import EAIEEngine
+
+from emidaf_studio.pages.inspection.layout import (
+    load_dataset,
+)
 from emidaf_studio.services.model_registry import (
     register_eaie_run,
 )
 
 
-def _df(data):
-    return pd.read_json(
-        StringIO(data),
-        orient="split",
+def _load_eaie_dataframe(
+    project_id,
+    dataset_id,
+):
+    _, _, result = load_dataset(
+        project_id,
+        dataset_id,
     )
+
+    if isinstance(result, str):
+        raise ValueError(result)
+
+    if not isinstance(
+        result,
+        pd.DataFrame,
+    ):
+        raise ValueError(
+            "Le dataset EAIE est indisponible."
+        )
+
+    return result
 
 
 def _table(dataframe):
@@ -63,8 +81,9 @@ def _table(dataframe):
     State("eaie-task", "value"),
     State("eaie-test-size", "value"),
     State("eaie-cv", "value"),
-    State("eaie-data", "data"),
-    State("url", "pathname"),
+    State("eaie-project-id", "data"),
+    State("eaie-dataset-id", "data"),
+
     prevent_initial_call=True,
 )
 def run_eaie(
@@ -73,8 +92,10 @@ def run_eaie(
     task,
     test_size,
     cv,
-    data,
-    pathname,
+    project_id,
+
+    dataset_id,
+
 ):
 
     if not n_clicks:
@@ -101,7 +122,24 @@ def run_eaie(
             "",
         )
 
-    dataframe = _df(data)
+    try:
+        dataframe = _load_eaie_dataframe(
+            project_id,
+            dataset_id,
+        )
+    except Exception as exc:
+        message = dbc.Alert(
+            str(exc),
+            color="danger",
+        )
+
+        return (
+            message,
+            "",
+            "",
+            "",
+            "",
+        )
 
     task_value = (
         None
@@ -133,33 +171,11 @@ def run_eaie(
         # Transmission EAIE -> EXAIE
         # --------------------------------------------------
 
-        route_match = re.fullmatch(
-            (
-                r"/projects/(\d+)/datasets/"
-                r"(\d+)/eaie/?"
-            ),
-            pathname or "",
+        register_eaie_run(
+            project_id,
+            dataset_id,
+            engine.explainability_context(),
         )
-
-        if route_match is not None:
-
-            project_id = int(
-                route_match.group(1)
-            )
-
-            dataset_id = int(
-                route_match.group(2)
-            )
-
-
-
-            register_eaie_run(
-                project_id,
-                dataset_id,
-                engine.explainability_context(),
-            )
-
-
 
     except Exception as exc:
 

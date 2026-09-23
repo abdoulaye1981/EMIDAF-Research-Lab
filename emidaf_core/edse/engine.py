@@ -37,6 +37,15 @@ class EDSEEngine:
         better_than_baseline: bool | None = None,
     ):
 
+        if task not in {
+            "classification",
+            "regression",
+        }:
+            raise ValueError(
+                "task doit être 'classification' "
+                "ou 'regression'."
+            )
+
         self.estimator = estimator
         self.X = X.copy()
         self.task = task
