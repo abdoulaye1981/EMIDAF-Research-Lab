@@ -1306,11 +1306,23 @@ def umap_analysis(
     scaler = StandardScaler()
 
     standardized = pd.DataFrame(
+
         scaler.fit_transform(
+
             numeric
+
+        ).astype(
+
+            np.float32,
+
+            copy=False,
+
         ),
+
         columns=numeric.columns,
+
         index=numeric.index,
+
     )
 
     try:

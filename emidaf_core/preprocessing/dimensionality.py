@@ -451,6 +451,8 @@ class UMAPReduction(
                 self.random_state
             ),
             init="random",
+            low_memory=True,
+            n_jobs=1,
         )
 
     def fit(
