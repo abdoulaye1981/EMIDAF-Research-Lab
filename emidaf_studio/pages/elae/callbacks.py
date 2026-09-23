@@ -19,7 +19,6 @@ from emidaf_studio.services.model_registry import (
     merge_analysis_section,
 )
 
-from emidaf_core.dataset.profiler import DatasetProfiler
 from dash.exceptions import PreventUpdate
 
 from emidaf_studio.pages.inspection.layout import (
@@ -149,57 +148,43 @@ def descriptive_analysis(
             color="warning",
         )
 
-    profiler = DatasetProfiler()
-    profile = profiler.profile(dataframe)
-
-    distributions = (
-        getattr(
-            profile,
-            "distributions",
-            {},
-        )
-        or {}
+    summary = pd.DataFrame(
+        {
+            "Variable": list(numeric.columns),
+            "n": [
+                int(
+                    numeric[column]
+                    .notna()
+                    .sum()
+                )
+                for column in numeric.columns
+            ],
+            "Moyenne": [
+                numeric[column].mean()
+                for column in numeric.columns
+            ],
+            "Médiane": [
+                numeric[column].median()
+                for column in numeric.columns
+            ],
+            "Écart-type": [
+                numeric[column].std()
+                for column in numeric.columns
+            ],
+            "Variance": [
+                numeric[column].var()
+                for column in numeric.columns
+            ],
+            "Minimum": [
+                numeric[column].min()
+                for column in numeric.columns
+            ],
+            "Maximum": [
+                numeric[column].max()
+                for column in numeric.columns
+            ],
+        }
     )
-
-    columns = distributions.get(
-        "columns",
-        {},
-    )
-
-    if columns:
-
-        rows = []
-
-        for variable, stats in columns.items():
-
-            rows.append(
-                {
-                    "Variable": variable,
-                    "n": stats.get("count"),
-                    "Moyenne": stats.get("mean"),
-                    "Médiane": stats.get("median"),
-                    "Écart-type": stats.get("std"),
-                    "Variance": stats.get("variance"),
-                    "Minimum": stats.get("minimum"),
-                    "Maximum": stats.get("maximum"),
-                }
-            )
-
-        summary = pd.DataFrame(rows)
-
-    else:
-
-        summary = (
-            numeric
-            .describe()
-            .T
-            .reset_index()
-            .rename(
-                columns={
-                    "index": "Variable"
-                }
-            )
-        )
 
     summary = summary.round(4)
 
