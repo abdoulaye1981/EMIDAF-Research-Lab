@@ -729,6 +729,27 @@ def project_detail_layout(project_id):
                             ),
                         ),
 
+                        dcc.Link(
+                            dbc.Button(
+                                [
+                                    html.I(
+                                        className=(
+                                            "bi bi-cloud-arrow-up "
+                                            "me-2"
+                                        )
+                                    ),
+                                    "Ajouter un jeu de données",
+                                ],
+                                color="primary",
+                                outline=True,
+                                size="sm",
+                            ),
+                            href=(
+                                f"/projects/{project_id}/import"
+                            ),
+                            className="d-inline-block mb-3",
+                        ),
+
                         dataset_table,
                     ],
                     style={
@@ -751,13 +772,8 @@ def project_detail_layout(project_id):
 
     else:
 
-        dataset_view = dbc.Alert(
-            (
-                "Aucun jeu de données n'est encore "
-                "associé à ce projet."
-            ),
-            color="secondary",
-        )
+        dataset_view = html.Div()
+
 
     # ======================================================
     # Sélection du dataset de travail
@@ -997,14 +1013,53 @@ def project_detail_layout(project_id):
 
                         (
                             dbc.Alert(
-                                (
-                                    "Aucun jeu de données n'est "
-                                    "encore disponible. Utilisez "
-                                    "l'importation pour ajouter "
-                                    "un dataset à ce projet."
-                                ),
-                                color="warning",
-                                className="mt-4 mb-0",
+                                [
+                                    html.Div(
+                                        [
+                                            html.I(
+                                                className=(
+                                                    "bi bi-database-add "
+                                                    "me-2"
+                                                )
+                                            ),
+                                            html.Strong(
+                                                "Aucun jeu de données"
+                                            ),
+                                        ],
+                                        className="mb-2",
+                                    ),
+                                    html.P(
+                                        (
+                                            "Ce projet ne contient "
+                                            "encore aucun jeu de "
+                                            "données. Importez un "
+                                            "fichier pour commencer "
+                                            "votre analyse."
+                                        ),
+                                        className="mb-3",
+                                    ),
+                                    dcc.Link(
+                                        dbc.Button(
+                                            [
+                                                html.I(
+                                                    className=(
+                                                        "bi "
+                                                        "bi-cloud-arrow-up "
+                                                        "me-2"
+                                                    )
+                                                ),
+                                                "Importer un jeu de données",
+                                            ],
+                                            color="primary",
+                                        ),
+                                        href=(
+                                            f"/projects/"
+                                            f"{project_id}/import"
+                                        ),
+                                    ),
+                                ],
+                                color="light",
+                                className="mt-4 mb-0 border",
                             )
                             if not datasets
                             else html.Div()
