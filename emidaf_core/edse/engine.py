@@ -58,6 +58,7 @@ class EDSEEngine:
 
         self.predictions_ = None
         self.probabilities_ = None
+        self.positive_class_ = None
 
     def predict(self):
 
@@ -81,12 +82,39 @@ class EDSEEngine:
                 )
             )
 
-            if probabilities.ndim == 2:
+            if probabilities.ndim != 2:
 
-                if probabilities.shape[1] == 2:
-                    self.probabilities_ = (
-                        probabilities[:, 1]
-                    )
+                raise RuntimeError(
+                    "predict_proba doit retourner "
+                    "une matrice bidimensionnelle."
+                )
+
+            if probabilities.shape[1] != 2:
+
+                raise RuntimeError(
+                    "EDSE 1.0 prend actuellement "
+                    "en charge uniquement les "
+                    "scénarios de classification "
+                    "binaire."
+                )
+
+            self.probabilities_ = (
+                probabilities[:, 1]
+            )
+
+            classes = getattr(
+                self.estimator,
+                "classes_",
+                None,
+            )
+
+            if (
+                classes is not None
+                and len(classes) == 2
+            ):
+                self.positive_class_ = (
+                    classes[1]
+                )
 
         return self.predictions_
 
@@ -106,10 +134,15 @@ class EDSEEngine:
         if self.predictions_ is None:
             self.predict()
 
-        if (
-            self.task == "classification"
-            and self.probabilities_ is not None
-        ):
+        if self.task == "classification":
+
+            if self.probabilities_ is None:
+
+                raise RuntimeError(
+                    "Les probabilités de "
+                    "classification ne sont "
+                    "pas disponibles."
+                )
 
             return (
                 DecisionProfiles
@@ -153,6 +186,12 @@ class EDSEEngine:
                 )
             )
 
+            table.insert(
+                0,
+                "observation",
+                list(self.X.index),
+            )
+
             summary = (
                 DecisionScenarios
                 .summarize(
@@ -178,6 +217,12 @@ class EDSEEngine:
                     threshold=threshold,
                     direction=direction,
                 )
+            )
+
+            table.insert(
+                0,
+                "observation",
+                list(self.X.index),
             )
 
             summary = (
@@ -212,6 +257,9 @@ class EDSEEngine:
             "observations": len(self.X),
             "cv_mean": self.cv_mean,
             "test_score": self.test_score,
+            "positive_class": (
+                self.positive_class_
+            ),
             "assessment": assessment,
             "interpretation": (
                 DecisionInterpreter

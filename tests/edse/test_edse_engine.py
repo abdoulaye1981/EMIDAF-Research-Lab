@@ -364,3 +364,147 @@ def test_baseline_failure_requires_prudence():
         "référence naïve" in warning
         for warning in assessment["warnings"]
     )
+
+
+def test_profiles_preserve_original_index():
+
+    X_array, y = make_regression(
+        n_samples=30,
+        n_features=3,
+        random_state=42,
+    )
+
+    X = pd.DataFrame(
+        X_array,
+        columns=["x1", "x2", "x3"],
+        index=range(100, 130),
+    )
+
+    model = LinearRegression()
+    model.fit(X, y)
+
+    engine = EDSEEngine(
+        model,
+        X,
+        task="regression",
+    )
+
+    profiles = engine.profiles()
+
+    assert set(
+        profiles["observation"].tolist()
+    ) == set(
+        X.index.tolist()
+    )
+
+
+def test_binary_classification_exposes_positive_class():
+
+    X_array, y = make_classification(
+        n_samples=100,
+        n_features=5,
+        random_state=42,
+    )
+
+    X = pd.DataFrame(
+        X_array,
+        columns=["a", "b", "c", "d", "e"],
+    )
+
+    model = LogisticRegression(
+        max_iter=1000
+    )
+    model.fit(X, y)
+
+    engine = EDSEEngine(
+        model,
+        X,
+        task="classification",
+    )
+
+    engine.scenario(
+        threshold=0.50
+    )
+
+    assert (
+        engine.positive_class_
+        == model.classes_[1]
+    )
+
+
+def test_scenario_preserves_original_index():
+
+    X_array, y = make_regression(
+        n_samples=30,
+        n_features=3,
+        random_state=42,
+    )
+
+    X = pd.DataFrame(
+        X_array,
+        columns=["x1", "x2", "x3"],
+        index=range(200, 230),
+    )
+
+    model = LinearRegression()
+    model.fit(X, y)
+
+    engine = EDSEEngine(
+        model,
+        X,
+        task="regression",
+    )
+
+    result = engine.scenario(
+        threshold=0.0,
+        direction="above",
+    )
+
+    assert (
+        result["table"]["observation"]
+        .tolist()
+        == X.index.tolist()
+    )
+
+
+def test_multiclass_classification_is_rejected():
+
+    X_array, y = make_classification(
+        n_samples=120,
+        n_features=6,
+        n_classes=3,
+        n_informative=4,
+        n_redundant=0,
+        random_state=42,
+    )
+
+    X = pd.DataFrame(
+        X_array,
+        columns=[
+            "a", "b", "c",
+            "d", "e", "f",
+        ],
+    )
+
+    model = LogisticRegression(
+        max_iter=1000
+    )
+    model.fit(X, y)
+
+    engine = EDSEEngine(
+        model,
+        X,
+        task="classification",
+    )
+
+    try:
+        engine.scenario(
+            threshold=0.50
+        )
+    except RuntimeError as exc:
+        assert "binaire" in str(exc)
+    else:
+        raise AssertionError(
+            "EDSE doit rejeter explicitement "
+            "la classification multiclasse."
+        )

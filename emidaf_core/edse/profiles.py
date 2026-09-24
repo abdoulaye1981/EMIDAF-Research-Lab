@@ -24,7 +24,7 @@ class DecisionProfiles:
         table.insert(
             0,
             "observation",
-            range(len(table)),
+            list(X.index),
         )
 
         table["prediction"] = np.asarray(
@@ -51,7 +51,7 @@ class DecisionProfiles:
         table.insert(
             0,
             "observation",
-            range(len(table)),
+            list(X.index),
         )
 
         table["probability"] = np.asarray(

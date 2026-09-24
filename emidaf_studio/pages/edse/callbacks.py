@@ -11,8 +11,6 @@ from dash import (
 
 import dash_bootstrap_components as dbc
 
-from emidaf_core.edse import EDSEEngine
-
 from emidaf_studio.services.model_registry import (
     get_eaie_run,
     register_analysis,
@@ -110,6 +108,8 @@ def run_edse(
 
     try:
 
+        from emidaf_core.edse import EDSEEngine
+
         engine = EDSEEngine(
             context["estimator"],
             context["X_test"],
@@ -125,14 +125,14 @@ def run_edse(
             ),
         )
 
-        summary = engine.summary()
-
         scenario = engine.scenario(
             threshold=float(threshold),
             direction=direction or "above",
         )
 
         profiles = engine.profiles()
+
+        summary = engine.summary()
 
         # ==================================================
         # Persistance de session EDSE
@@ -201,6 +201,36 @@ def run_edse(
         "assessment"
     ]
 
+    positive_class = summary.get(
+        "positive_class"
+    )
+
+    classification_context = (
+        dbc.Alert(
+            [
+                html.Strong(
+                    "Classification binaire — "
+                ),
+                "classe analysée : ",
+                html.Strong(
+                    str(positive_class)
+                ),
+                " ; seuil de probabilité : ",
+                html.Strong(
+                    f"{float(threshold):.2f}"
+                ),
+                ".",
+            ],
+            color="info",
+        )
+        if (
+            context["task"]
+            == "classification"
+            and positive_class is not None
+        )
+        else html.Div()
+    )
+
     reliability_color = (
         "success"
         if assessment["reliable"]
@@ -249,6 +279,8 @@ def run_edse(
                         context["target"],
                     ]
                 ),
+
+                classification_context,
 
                 html.P(
                     [
