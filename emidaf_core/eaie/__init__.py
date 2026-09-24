@@ -31,6 +31,16 @@ from .logistic import (
     LogisticRegressionModel,
 )
 
+
+from .random_forest import (
+    RandomForestModel,
+)
+
+
+from .xgboost_model import (
+    XGBoostModel,
+)
+
 from .evaluation import (
     ModelEvaluator,
 )
@@ -55,6 +65,8 @@ __all__ = [
     "RegressionModels",
     "OLSRegression",
     "LogisticRegressionModel",
+    "RandomForestModel",
+    "XGBoostModel",
     "ModelEvaluator",
     "ModelComparison",
     "EAIEEngine",
