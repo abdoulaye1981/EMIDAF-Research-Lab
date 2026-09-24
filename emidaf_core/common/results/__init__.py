@@ -19,6 +19,7 @@ from .model_result import ModelResult
 from .ols_result import OLSResult
 from .logistic_result import LogisticResult
 from .multilevel_result import MultilevelResult
+from .shap_result import ShapResult
 
 
 __all__ = [
@@ -35,4 +36,5 @@ __all__ = [
     "OLSResult",
     "LogisticResult",
     "MultilevelResult",
+    "ShapResult",
 ]
