@@ -16,14 +16,6 @@ from dash import (
 
 import dash_bootstrap_components as dbc
 
-from emidaf_core.preprocessing import (
-    DuplicateDetection,
-    Encoding,
-    Imputation,
-    OutlierDetection,
-    Scaling,
-)
-
 from emidaf_studio.services.model_registry import (
     get_analysis,
     register_analysis,
@@ -224,6 +216,10 @@ def _impute_dataframe(dataframe, strategy):
     if strategy == "none":
         return dataframe.copy()
 
+    from emidaf_core.preprocessing.imputation import (
+        Imputation,
+    )
+
     result = dataframe.copy()
 
     numeric_columns = list(
@@ -309,6 +305,10 @@ def _encode_dataframe(dataframe, method):
     if method == "none":
         return dataframe.copy()
 
+    from emidaf_core.preprocessing.encoding import (
+        Encoding,
+    )
+
     transformer = Encoding(
         method=method
     )
@@ -325,6 +325,10 @@ def _scale_dataframe(dataframe, method):
     if method == "none":
 
         return dataframe.copy()
+
+    from emidaf_core.preprocessing.scaling import (
+        Scaling,
+    )
 
     result = dataframe.copy()
 
@@ -512,6 +516,11 @@ def apply_preprocessing(
         # ==========================================
 
         if "remove" in (duplicates or []):
+
+            from emidaf_core.preprocessing.duplicates import (
+                DuplicateDetection,
+            )
+
             dataframe = (
                 DuplicateDetection.remove(
                     dataframe,
@@ -524,6 +533,11 @@ def apply_preprocessing(
         # ==========================================
 
         if outliers == "remove_iqr":
+
+            from emidaf_core.preprocessing.outliers import (
+                OutlierDetection,
+            )
+
             dataframe = (
                 OutlierDetection.remove_iqr(
                     dataframe
@@ -531,6 +545,11 @@ def apply_preprocessing(
             )
 
         elif outliers == "winsorize":
+
+            from emidaf_core.preprocessing.outliers import (
+                OutlierDetection,
+            )
+
             dataframe = (
                 OutlierDetection.winsorize(
                     dataframe

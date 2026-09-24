@@ -28,24 +28,6 @@ from emidaf_studio.services.model_registry import (
     merge_analysis_section,
 )
 
-from sklearn.preprocessing import StandardScaler
-
-from emidaf_core.preprocessing.dimensionality import (
-    PCAReduction,
-    TSNEReduction,
-    UMAPReduction,
-)
-
-from emidaf_core.preprocessing.feature_selection import (
-    FeatureSelection,
-)
-
-from emidaf_core.ekde import (
-    KMeansClustering,
-    DBSCANClustering,
-    AgglomerativeClusteringEngine,
-)
-
 
 # ============================================================
 # UTILITIES
@@ -659,6 +641,12 @@ def pca_analysis(
     dataset_id,
 ):
 
+    from sklearn.preprocessing import StandardScaler
+    from emidaf_core.preprocessing.dimensionality import (
+        PCAReduction,
+    )
+
+
     if not n_clicks:
         return (
             no_update,
@@ -957,6 +945,12 @@ def tsne_analysis(
     project_id,
     dataset_id,
 ):
+
+    from sklearn.preprocessing import StandardScaler
+    from emidaf_core.preprocessing.dimensionality import (
+        TSNEReduction,
+    )
+
     if not n_clicks:
         return no_update, no_update
 
@@ -1202,6 +1196,12 @@ def umap_analysis(
     project_id,
     dataset_id,
 ):
+
+    from sklearn.preprocessing import StandardScaler
+    from emidaf_core.preprocessing.dimensionality import (
+        UMAPReduction,
+    )
+
     if not n_clicks:
         return no_update, no_update
 
@@ -1572,6 +1572,15 @@ def kmeans_analysis(
     project_id,
     dataset_id,
 ):
+
+    from sklearn.preprocessing import StandardScaler
+    from emidaf_core.preprocessing.dimensionality import (
+        PCAReduction,
+    )
+    from emidaf_core.ekde import (
+        KMeansClustering,
+    )
+
     if not n_clicks:
         return no_update, no_update
 
@@ -1971,6 +1980,15 @@ def dbscan_analysis(
     project_id,
     dataset_id,
 ):
+
+    from sklearn.preprocessing import StandardScaler
+    from emidaf_core.preprocessing.dimensionality import (
+        PCAReduction,
+    )
+    from emidaf_core.ekde import (
+        DBSCANClustering,
+    )
+
     if not n_clicks:
         return no_update, no_update
 
@@ -2421,6 +2439,15 @@ def agglomerative_analysis(
     project_id,
     dataset_id,
 ):
+
+    from sklearn.preprocessing import StandardScaler
+    from emidaf_core.preprocessing.dimensionality import (
+        PCAReduction,
+    )
+    from emidaf_core.ekde import (
+        AgglomerativeClusteringEngine,
+    )
+
     if not n_clicks:
         return no_update, no_update
 
@@ -3101,6 +3128,11 @@ def selection_analysis(
     project_id,
     dataset_id,
 ):
+
+    from emidaf_core.preprocessing.feature_selection import (
+        FeatureSelection,
+    )
+
 
     if not n_clicks:
         return no_update

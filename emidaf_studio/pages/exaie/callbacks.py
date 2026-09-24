@@ -13,8 +13,6 @@ from dash import (
 
 import dash_bootstrap_components as dbc
 
-from emidaf_core.exaie import EXAIEEngine
-
 from emidaf_studio.services.model_registry import (
     get_eaie_run,
     register_analysis,
@@ -98,6 +96,10 @@ def run_exaie(
         )
 
     try:
+
+        from emidaf_core.exaie import (
+            EXAIEEngine,
+        )
 
         engine = EXAIEEngine(
             context["estimator"],

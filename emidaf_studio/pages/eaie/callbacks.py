@@ -18,8 +18,6 @@ import dash_bootstrap_components as dbc
 
 logger = logging.getLogger(__name__)
 
-from emidaf_core.eaie import EAIEEngine
-
 from emidaf_studio.pages.inspection.layout import (
     load_dataset,
 )
@@ -97,6 +95,10 @@ def run_eaie(
     dataset_id,
 
 ):
+
+    from emidaf_core.eaie import (
+        EAIEEngine,
+    )
 
     if not n_clicks:
         return (
