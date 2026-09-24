@@ -33,11 +33,6 @@ from sklearn.metrics import (
     roc_auc_score,
 )
 
-from xgboost import (
-    XGBClassifier,
-    XGBRegressor,
-)
-
 from emidaf_core.common.results import (
     ModelResult,
 )
@@ -302,6 +297,22 @@ class XGBoostModel:
                 subsample = value
             else:
                 colsample_bytree = value
+
+        # =================================================
+        # Dépendance optionnelle : chargement paresseux
+        # =================================================
+
+        try:
+            from xgboost import (
+                XGBClassifier,
+                XGBRegressor,
+            )
+        except ImportError as exc:
+            raise RuntimeError(
+                "XGBoost n'est pas installé. "
+                "Installez la dépendance 'xgboost' "
+                "pour utiliser XGBoostModel."
+            ) from exc
 
         common_parameters = {
             "n_estimators": n_estimators,

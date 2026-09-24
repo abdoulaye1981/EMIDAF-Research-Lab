@@ -18,7 +18,6 @@ from typing import Any
 
 import numpy as np
 import pandas as pd
-import shap
 
 from sklearn.pipeline import Pipeline
 
@@ -193,6 +192,19 @@ class ShapExplainer:
                     "max_samples doit être "
                     "au moins égal à 1."
                 )
+
+        # =================================================
+        # Dépendance optionnelle : chargement paresseux
+        # =================================================
+
+        try:
+            import shap
+        except ImportError as exc:
+            raise RuntimeError(
+                "SHAP n'est pas installé. "
+                "Installez la dépendance 'shap' "
+                "pour utiliser ShapExplainer."
+            ) from exc
 
         model, prepared_X, feature_names = (
             cls._prepare_estimator(
