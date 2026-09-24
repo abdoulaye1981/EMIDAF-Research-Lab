@@ -22,7 +22,7 @@ class ClassificationModels:
         random_state: int = 42,
     ):
 
-        return {
+        registry = {
             "logistic_regression": (
                 LogisticRegression(
                     max_iter=2000,
@@ -56,3 +56,24 @@ class ClassificationModels:
                 )
             ),
         }
+
+        try:
+            from xgboost import XGBClassifier
+
+            registry["xgboost"] = (
+                XGBClassifier(
+                    n_estimators=100,
+                    max_depth=6,
+                    learning_rate=0.1,
+                    subsample=1.0,
+                    colsample_bytree=1.0,
+                    random_state=random_state,
+                    n_jobs=1,
+                    eval_metric="logloss",
+                )
+            )
+
+        except ImportError:
+            pass
+
+        return registry

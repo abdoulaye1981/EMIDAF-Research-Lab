@@ -77,6 +77,7 @@ def _table(dataframe):
     Input("eaie-run", "n_clicks"),
     State("eaie-target", "value"),
     State("eaie-task", "value"),
+    State("eaie-models", "value"),
     State("eaie-test-size", "value"),
     State("eaie-cv", "value"),
     State("eaie-project-id", "data"),
@@ -88,6 +89,7 @@ def run_eaie(
     n_clicks,
     target,
     task,
+    models,
     test_size,
     cv,
     project_id,
@@ -161,6 +163,11 @@ def run_eaie(
             dataframe,
             target=target,
             task=task_value,
+            models=(
+                models
+                if models
+                else None
+            ),
         )
 
         summary = engine.summary()
@@ -460,3 +467,675 @@ def run_eaie(
         best_view,
         evaluation_view,
     )
+
+
+# ============================================================
+# MODEL SELECTION
+# ============================================================
+
+@callback(
+    Output("eaie-models", "options"),
+    Output("eaie-models", "value"),
+    Input("eaie-task", "value"),
+)
+def update_eaie_model_options(task):
+
+    regression_models = [
+        {
+            "label": "Régression linéaire",
+            "value": "linear_regression",
+        },
+        {
+            "label": "Ridge",
+            "value": "ridge",
+        },
+        {
+            "label": "Arbre de décision",
+            "value": "decision_tree",
+        },
+        {
+            "label": "Random Forest",
+            "value": "random_forest",
+        },
+        {
+            "label": "KNN Regressor",
+            "value": "knn",
+        },
+        {
+            "label": "SVR",
+            "value": "svr",
+        },
+        {
+            "label": "Gradient Boosting",
+            "value": "gradient_boosting",
+        },
+        {
+            "label": "XGBoost",
+            "value": "xgboost",
+        },
+    ]
+
+    classification_models = [
+        {
+            "label": "Régression logistique",
+            "value": "logistic_regression",
+        },
+        {
+            "label": "Arbre de décision",
+            "value": "decision_tree",
+        },
+        {
+            "label": "Random Forest",
+            "value": "random_forest",
+        },
+        {
+            "label": "KNN Classifier",
+            "value": "knn",
+        },
+        {
+            "label": "SVM",
+            "value": "svm",
+        },
+        {
+            "label": "Gradient Boosting",
+            "value": "gradient_boosting",
+        },
+        {
+            "label": "XGBoost",
+            "value": "xgboost",
+        },
+    ]
+
+    if task == "regression":
+        return regression_models, []
+
+    if task == "classification":
+        return classification_models, []
+
+    # En mode automatique, EAIE détermine lui-même
+    # la tâche et évalue son registre complet.
+    return [], []
+
+
+# ============================================================
+# OLS
+# ============================================================
+
+@callback(
+    Output(
+        "eaie-ols-status",
+        "children",
+    ),
+    Output(
+        "eaie-ols-result",
+        "children",
+    ),
+    Input(
+        "eaie-ols-run",
+        "n_clicks",
+    ),
+    State(
+        "eaie-ols-target",
+        "value",
+    ),
+    State(
+        "eaie-ols-features",
+        "value",
+    ),
+    State(
+        "eaie-ols-alpha",
+        "value",
+    ),
+    State(
+        "eaie-project-id",
+        "data",
+    ),
+    State(
+        "eaie-dataset-id",
+        "data",
+    ),
+    prevent_initial_call=True,
+)
+def run_ols(
+    n_clicks,
+    target,
+    features,
+    alpha,
+    project_id,
+    dataset_id,
+):
+
+    if not n_clicks:
+        return no_update, no_update
+
+    if not target:
+        return (
+            dbc.Alert(
+                "Sélectionnez une variable dépendante.",
+                color="warning",
+            ),
+            "",
+        )
+
+    if not features:
+        return (
+            dbc.Alert(
+                "Sélectionnez au moins une variable explicative.",
+                color="warning",
+            ),
+            "",
+        )
+
+    try:
+        dataframe = _load_eaie_dataframe(
+            project_id,
+            dataset_id,
+        )
+
+        from emidaf_core.eaie import (
+            OLSRegression,
+        )
+
+        result = OLSRegression.fit(
+            dataframe,
+            target=target,
+            features=features,
+            alpha=float(alpha),
+        )
+
+        names = [
+            "const",
+            *features,
+        ]
+
+        rows = []
+
+        for name in names:
+
+            if name == "const":
+                coefficient = getattr(
+                    result,
+                    "intercept",
+                    None,
+                )
+            else:
+                coefficient = (
+                    getattr(
+                        result,
+                        "coefficients",
+                        {},
+                    )
+                    .get(name)
+                )
+
+            ci = (
+                getattr(
+                    result,
+                    "confidence_intervals",
+                    {},
+                )
+                .get(
+                    name,
+                    [None, None],
+                )
+            )
+
+            rows.append(
+                {
+                    "Variable": name,
+                    "Coefficient": coefficient,
+                    "Erreur standard": (
+                        getattr(
+                            result,
+                            "standard_errors",
+                            {},
+                        )
+                        .get(name)
+                    ),
+                    "t": (
+                        getattr(
+                            result,
+                            "t_statistics",
+                            {},
+                        )
+                        .get(name)
+                    ),
+                    "p-value": (
+                        getattr(
+                            result,
+                            "p_values",
+                            {},
+                        )
+                        .get(name)
+                    ),
+                    "IC inférieur": (
+                        ci[0]
+                        if len(ci) > 0
+                        else None
+                    ),
+                    "IC supérieur": (
+                        ci[1]
+                        if len(ci) > 1
+                        else None
+                    ),
+                }
+            )
+
+        inference = pd.DataFrame(rows)
+
+        summary = pd.DataFrame(
+            {
+                "Indicateur": [
+                    "R²",
+                    "R² ajusté",
+                    "F-statistic",
+                    "p-value F",
+                    "AIC",
+                    "BIC",
+                    "Observations",
+                    "Condition number",
+                ],
+                "Valeur": [
+                    getattr(
+                        result,
+                        "r2",
+                        None,
+                    ),
+                    getattr(
+                        result,
+                        "adjusted_r2",
+                        None,
+                    ),
+                    getattr(
+                        result,
+                        "f_statistic",
+                        None,
+                    ),
+                    getattr(
+                        result,
+                        "f_pvalue",
+                        None,
+                    ),
+                    getattr(
+                        result,
+                        "aic",
+                        None,
+                    ),
+                    getattr(
+                        result,
+                        "bic",
+                        None,
+                    ),
+                    getattr(
+                        result,
+                        "n_observations",
+                        None,
+                    ),
+                    getattr(
+                        result,
+                        "condition_number",
+                        None,
+                    ),
+                ],
+            }
+        )
+
+        view = [
+            html.H5(
+                "Synthèse OLS"
+            ),
+            _table(summary),
+            html.H5(
+                "Inférence sur les coefficients",
+                className="mt-4",
+            ),
+            _table(inference),
+        ]
+
+        return (
+            dbc.Alert(
+                "Analyse OLS terminée.",
+                color="success",
+            ),
+            view,
+        )
+
+    except Exception as exc:
+
+        logger.exception(
+            "OLS analysis failed "
+            "(target=%s)",
+            target,
+        )
+
+        return (
+            dbc.Alert(
+                [
+                    html.Strong(
+                        "OLS n'a pas pu terminer l'analyse : "
+                    ),
+                    str(exc),
+                ],
+                color="danger",
+            ),
+            "",
+        )
+
+
+# ============================================================
+# MULTILEVEL
+# ============================================================
+
+@callback(
+    Output(
+        "eaie-ml-status",
+        "children",
+    ),
+    Output(
+        "eaie-ml-result",
+        "children",
+    ),
+    Input(
+        "eaie-ml-run",
+        "n_clicks",
+    ),
+    State(
+        "eaie-ml-target",
+        "value",
+    ),
+    State(
+        "eaie-ml-features",
+        "value",
+    ),
+    State(
+        "eaie-ml-group",
+        "value",
+    ),
+    State(
+        "eaie-ml-method",
+        "value",
+    ),
+    State(
+        "eaie-ml-reml",
+        "value",
+    ),
+    State(
+        "eaie-project-id",
+        "data",
+    ),
+    State(
+        "eaie-dataset-id",
+        "data",
+    ),
+    prevent_initial_call=True,
+)
+def run_multilevel(
+    n_clicks,
+    target,
+    features,
+    group,
+    method,
+    reml_values,
+    project_id,
+    dataset_id,
+):
+
+    if not n_clicks:
+        return no_update, no_update
+
+    if not target:
+        return (
+            dbc.Alert(
+                "Sélectionnez une variable dépendante.",
+                color="warning",
+            ),
+            "",
+        )
+
+    if not features:
+        return (
+            dbc.Alert(
+                "Sélectionnez au moins un effet fixe.",
+                color="warning",
+            ),
+            "",
+        )
+
+    if not group:
+        return (
+            dbc.Alert(
+                "Sélectionnez une variable de groupe.",
+                color="warning",
+            ),
+            "",
+        )
+
+    try:
+        dataframe = _load_eaie_dataframe(
+            project_id,
+            dataset_id,
+        )
+
+        from emidaf_core.eaie import (
+            MultilevelLinearModel,
+        )
+
+        result = MultilevelLinearModel.fit(
+            dataframe,
+            target=target,
+            group=group,
+            features=features,
+            reml=(
+                "reml"
+                in (reml_values or [])
+            ),
+            method=method or "lbfgs",
+            maxiter=500,
+            alpha=0.05,
+        )
+
+        names = [
+            "const",
+            *features,
+        ]
+
+        rows = []
+
+        for name in names:
+
+            if name == "const":
+                coefficient = getattr(
+                    result,
+                    "intercept",
+                    None,
+                )
+            else:
+                coefficient = (
+                    getattr(
+                        result,
+                        "coefficients",
+                        {},
+                    )
+                    .get(name)
+                )
+
+            ci = (
+                getattr(
+                    result,
+                    "confidence_intervals",
+                    {},
+                )
+                .get(
+                    name,
+                    [None, None],
+                )
+            )
+
+            rows.append(
+                {
+                    "Effet fixe": name,
+                    "Coefficient": coefficient,
+                    "Erreur standard": (
+                        getattr(
+                            result,
+                            "standard_errors",
+                            {},
+                        )
+                        .get(name)
+                    ),
+                    "z": (
+                        getattr(
+                            result,
+                            "z_statistics",
+                            {},
+                        )
+                        .get(name)
+                    ),
+                    "p-value": (
+                        getattr(
+                            result,
+                            "p_values",
+                            {},
+                        )
+                        .get(name)
+                    ),
+                    "IC inférieur": (
+                        ci[0]
+                        if len(ci) > 0
+                        else None
+                    ),
+                    "IC supérieur": (
+                        ci[1]
+                        if len(ci) > 1
+                        else None
+                    ),
+                }
+            )
+
+        inference = pd.DataFrame(rows)
+
+        summary_items = [
+            (
+                "Variable de groupe",
+                group,
+            ),
+            (
+                "Nombre de groupes",
+                getattr(
+                    result,
+                    "n_groups",
+                    None,
+                ),
+            ),
+            (
+                "ICC",
+                getattr(
+                    result,
+                    "icc",
+                    None,
+                ),
+            ),
+            (
+                "Variance inter-groupes",
+                getattr(
+                    result,
+                    "group_variance",
+                    getattr(
+                        result,
+                        "random_effect_variance",
+                        None,
+                    ),
+                ),
+            ),
+            (
+                "Variance résiduelle",
+                getattr(
+                    result,
+                    "residual_variance",
+                    None,
+                ),
+            ),
+            (
+                "AIC",
+                getattr(
+                    result,
+                    "aic",
+                    None,
+                ),
+            ),
+            (
+                "BIC",
+                getattr(
+                    result,
+                    "bic",
+                    None,
+                ),
+            ),
+            (
+                "Convergence",
+                getattr(
+                    result,
+                    "converged",
+                    None,
+                ),
+            ),
+            (
+                "Observations",
+                getattr(
+                    result,
+                    "n_observations",
+                    None,
+                ),
+            ),
+        ]
+
+        summary = pd.DataFrame(
+            summary_items,
+            columns=[
+                "Indicateur",
+                "Valeur",
+            ],
+        )
+
+        view = [
+            html.H5(
+                "Synthèse du modèle multiniveau"
+            ),
+            _table(summary),
+            html.H5(
+                "Effets fixes",
+                className="mt-4",
+            ),
+            _table(inference),
+        ]
+
+        return (
+            dbc.Alert(
+                "Modèle multiniveau estimé.",
+                color="success",
+            ),
+            view,
+        )
+
+    except Exception as exc:
+
+        logger.exception(
+            "Multilevel analysis failed "
+            "(target=%s, group=%s)",
+            target,
+            group,
+        )
+
+        return (
+            dbc.Alert(
+                [
+                    html.Strong(
+                        "Le modèle multiniveau "
+                        "n'a pas pu être estimé : "
+                    ),
+                    str(exc),
+                ],
+                color="danger",
+            ),
+            "",
+        )

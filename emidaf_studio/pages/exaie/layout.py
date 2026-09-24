@@ -761,6 +761,17 @@ def exaie_layout(project_id, dataset_id):
                                 label="Explication locale",
                                 tab_id="exaie-tab-local",
                             ),
+                            dbc.Tab(
+                                html.Div(
+                                    id="exaie-shap",
+                                    className=(
+                                        "exaie-v2-tab-content"
+                                    ),
+                                ),
+                                label="SHAP",
+                                tab_id="exaie-tab-shap",
+                            ),
+
                         ],
                         active_tab="exaie-tab-summary",
                         className="exaie-v2-tabs",

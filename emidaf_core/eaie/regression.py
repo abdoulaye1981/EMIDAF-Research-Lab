@@ -25,7 +25,7 @@ class RegressionModels:
         random_state: int = 42,
     ):
 
-        return {
+        registry = {
             "linear_regression": (
                 LinearRegression()
             ),
@@ -56,3 +56,27 @@ class RegressionModels:
                 )
             ),
         }
+
+        # Dépendance optionnelle.
+        # XGBoost n'est chargé que lorsque EAIE
+        # construit réellement son registre.
+        try:
+            from xgboost import XGBRegressor
+
+            registry["xgboost"] = (
+                XGBRegressor(
+                    n_estimators=100,
+                    max_depth=6,
+                    learning_rate=0.1,
+                    subsample=1.0,
+                    colsample_bytree=1.0,
+                    random_state=random_state,
+                    n_jobs=1,
+                    objective="reg:squarederror",
+                )
+            )
+
+        except ImportError:
+            pass
+
+        return registry

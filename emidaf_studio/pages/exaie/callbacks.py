@@ -46,6 +46,7 @@ def _table(dataframe):
     Output("exaie-native", "children"),
     Output("exaie-permutation", "children"),
     Output("exaie-local", "children"),
+    Output("exaie-shap", "children"),
 
     Input("exaie-run", "n_clicks"),
 
@@ -65,6 +66,7 @@ def run_exaie(
     if not n_clicks:
 
         return (
+            no_update,
             no_update,
             no_update,
             no_update,
@@ -93,12 +95,14 @@ def run_exaie(
             "",
             "",
             "",
+            "",
         )
 
     try:
 
         from emidaf_core.exaie import (
             EXAIEEngine,
+            ShapExplainer,
         )
 
         engine = EXAIEEngine(
@@ -121,6 +125,92 @@ def run_exaie(
         )
 
         summary = engine.summary()
+
+        # ==================================================
+        # SHAP
+        # ==================================================
+
+        shap_result = None
+        shap_error = None
+        shap_selected_local = None
+
+        try:
+
+            X_test = context["X_test"]
+
+            selected_row = int(
+                row or 0
+            )
+
+            if (
+                selected_row < 0
+                or selected_row >= len(X_test)
+            ):
+                selected_row = 0
+
+            # Limitation raisonnable du coût SHAP.
+            # On conserve toujours l'observation choisie.
+            max_shap_samples = 100
+
+            if len(X_test) <= max_shap_samples:
+
+                X_shap = X_test.copy()
+                shap_row_position = (
+                    selected_row
+                )
+
+            else:
+
+                positions = list(
+                    range(max_shap_samples)
+                )
+
+                if selected_row not in positions:
+                    positions[-1] = selected_row
+
+                X_shap = (
+                    X_test.iloc[
+                        positions
+                    ]
+                    .copy()
+                )
+
+                shap_row_position = (
+                    positions.index(
+                        selected_row
+                    )
+                )
+
+            shap_result = (
+                ShapExplainer.explain(
+                    context["estimator"],
+                    X_shap,
+                    task=context.get(
+                        "task",
+                        "",
+                    ),
+                )
+            )
+
+            local_items = (
+                shap_result
+                .local_explanations
+            )
+
+            if (
+                0
+                <= shap_row_position
+                < len(local_items)
+            ):
+                shap_selected_local = (
+                    local_items[
+                        shap_row_position
+                    ]
+                )
+
+        except Exception as exc:
+
+            shap_error = str(exc)
 
         cv_mean = context.get(
             "cv_mean"
@@ -187,6 +277,36 @@ def run_exaie(
                 "permutation_importance": permutation,
                 "local_explanation": local,
                 "summary": summary,
+
+                "shap": (
+                    {
+                        "available": True,
+                        "model_name": (
+                            shap_result.model_name
+                        ),
+                        "explainer_type": (
+                            shap_result.explainer_type
+                        ),
+                        "n_observations": (
+                            shap_result.n_observations
+                        ),
+                        "feature_importance": (
+                            shap_result.feature_importance
+                        ),
+                        "local_explanation": (
+                            shap_selected_local
+                        ),
+                        "output_names": (
+                            shap_result.output_names
+                        ),
+                    }
+                    if shap_result is not None
+                    else {
+                        "available": False,
+                        "reason": shap_error,
+                    }
+                ),
+
                 "predictive_warning": predictive_warning,
                 "limitations": [
                     (
@@ -214,6 +334,7 @@ def run_exaie(
 
         return (
             message,
+            "",
             "",
             "",
             "",
@@ -395,10 +516,226 @@ def run_exaie(
             color="secondary",
         )
 
+    # ======================================================
+    # SHAP VIEW
+    # ======================================================
+
+    if shap_result is None:
+
+        shap_view = dbc.Alert(
+            [
+                html.Strong(
+                    "SHAP indisponible : "
+                ),
+                (
+                    shap_error
+                    or (
+                        "L'explication SHAP "
+                        "n'a pas pu être calculée."
+                    )
+                ),
+            ],
+            color="secondary",
+        )
+
+    else:
+
+        importance_rows = [
+            {
+                "Variable": feature,
+                "Importance SHAP moyenne": value,
+            }
+            for feature, value
+            in shap_result.feature_importance.items()
+        ]
+
+        importance_df = pd.DataFrame(
+            importance_rows
+        )
+
+        local_rows = []
+
+        if shap_selected_local is not None:
+
+            contributions = (
+                shap_selected_local.get(
+                    "contributions",
+                    {},
+                )
+            )
+
+            for feature, value in (
+                contributions.items()
+            ):
+
+                if isinstance(
+                    value,
+                    (list, tuple),
+                ):
+
+                    local_rows.append(
+                        {
+                            "Variable": feature,
+                            "Contribution SHAP": (
+                                str(
+                                    [
+                                        round(
+                                            float(item),
+                                            6,
+                                        )
+                                        for item
+                                        in value
+                                    ]
+                                )
+                            ),
+                            "Effet": (
+                                "Multiclasse"
+                            ),
+                        }
+                    )
+
+                else:
+
+                    numeric_value = float(
+                        value
+                    )
+
+                    if numeric_value > 0:
+                        direction = "Positive"
+                    elif numeric_value < 0:
+                        direction = "Négative"
+                    else:
+                        direction = "Nulle"
+
+                    local_rows.append(
+                        {
+                            "Variable": feature,
+                            "Contribution SHAP": (
+                                numeric_value
+                            ),
+                            "Effet": direction,
+                        }
+                    )
+
+        local_df = pd.DataFrame(
+            local_rows
+        )
+
+        if not local_df.empty:
+
+            local_df["_abs"] = (
+                local_df[
+                    "Contribution SHAP"
+                ]
+                .apply(
+                    lambda value: (
+                        abs(value)
+                        if isinstance(
+                            value,
+                            (int, float),
+                        )
+                        else 0
+                    )
+                )
+            )
+
+            local_df = (
+                local_df
+                .sort_values(
+                    "_abs",
+                    ascending=False,
+                )
+                .drop(
+                    columns="_abs"
+                )
+            )
+
+        shap_view = [
+            dbc.Alert(
+                [
+                    html.Strong(
+                        "Méthode : "
+                    ),
+                    "SHAP — ",
+                    shap_result.explainer_type,
+                    " | ",
+                    html.Strong(
+                        "Observations analysées : "
+                    ),
+                    str(
+                        shap_result.n_observations
+                    ),
+                ],
+                color="info",
+            ),
+
+            html.H5(
+                "Importance globale SHAP"
+            ),
+
+            html.P(
+                (
+                    "L'importance correspond à la "
+                    "moyenne de la valeur absolue "
+                    "des contributions SHAP."
+                ),
+                className="text-muted",
+            ),
+
+            _table(
+                importance_df.head(30)
+            ),
+
+            html.H5(
+                (
+                    "Explication SHAP de "
+                    f"l'observation {int(row or 0)}"
+                ),
+                className="mt-4",
+            ),
+
+            html.P(
+                (
+                    "Une contribution positive déplace "
+                    "la sortie du modèle dans le sens "
+                    "positif par rapport à la valeur "
+                    "de référence ; une contribution "
+                    "négative agit dans le sens opposé."
+                ),
+                className="text-muted",
+            ),
+
+            (
+                _table(
+                    local_df.head(30)
+                )
+                if not local_df.empty
+                else dbc.Alert(
+                    (
+                        "Aucune contribution locale "
+                        "SHAP disponible."
+                    ),
+                    color="secondary",
+                )
+            ),
+
+            dbc.Alert(
+                (
+                    "Les valeurs SHAP expliquent le "
+                    "comportement du modèle. Elles ne "
+                    "constituent pas une preuve de "
+                    "causalité."
+                ),
+                color="warning",
+                className="mt-3",
+            ),
+        ]
+
     return (
         status,
         summary_view,
         native_view,
         permutation_view,
         local_view,
+        shap_view,
     )
