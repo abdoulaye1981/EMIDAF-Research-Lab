@@ -26,6 +26,11 @@ from .ols import (
     OLSRegression,
 )
 
+
+from .logistic import (
+    LogisticRegressionModel,
+)
+
 from .evaluation import (
     ModelEvaluator,
 )
@@ -49,6 +54,7 @@ __all__ = [
     "ClassificationModels",
     "RegressionModels",
     "OLSRegression",
+    "LogisticRegressionModel",
     "ModelEvaluator",
     "ModelComparison",
     "EAIEEngine",

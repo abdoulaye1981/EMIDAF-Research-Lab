@@ -17,6 +17,7 @@ from .report_result import ReportResult
 from .visualization_result import VisualizationResult
 from .model_result import ModelResult
 from .ols_result import OLSResult
+from .logistic_result import LogisticResult
 
 
 __all__ = [
@@ -31,4 +32,5 @@ __all__ = [
     "VisualizationResult",
     "ModelResult",
     "OLSResult",
+    "LogisticResult",
 ]
