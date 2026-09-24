@@ -41,6 +41,11 @@ from .xgboost_model import (
     XGBoostModel,
 )
 
+
+from .multilevel import (
+    MultilevelLinearModel,
+)
+
 from .evaluation import (
     ModelEvaluator,
 )
@@ -67,6 +72,7 @@ __all__ = [
     "LogisticRegressionModel",
     "RandomForestModel",
     "XGBoostModel",
+    "MultilevelLinearModel",
     "ModelEvaluator",
     "ModelComparison",
     "EAIEEngine",
