@@ -1303,13 +1303,47 @@ def umap_analysis(
             {},
         )
 
+    # ======================================================
+    # CONTRÔLE MÉMOIRE UMAP
+    # ======================================================
+
+    max_umap_observations = 800
+
+    sampling_applied = (
+        n_observations
+        > max_umap_observations
+    )
+
+    if sampling_applied:
+
+        numeric_umap = numeric.sample(
+            n=max_umap_observations,
+            random_state=42,
+        )
+
+    else:
+
+        numeric_umap = numeric.copy()
+
+    n_observations_used = int(
+        numeric_umap.shape[0]
+    )
+
+    effective_neighbors = min(
+        max(
+            2,
+            requested_neighbors,
+        ),
+        n_observations_used - 1,
+    )
+
     scaler = StandardScaler()
 
     standardized = pd.DataFrame(
 
         scaler.fit_transform(
 
-            numeric
+            numeric_umap
 
         ).astype(
 
@@ -1319,9 +1353,9 @@ def umap_analysis(
 
         ),
 
-        columns=numeric.columns,
+        columns=numeric_umap.columns,
 
-        index=numeric.index,
+        index=numeric_umap.index,
 
     )
 
@@ -1386,6 +1420,21 @@ def umap_analysis(
                     "Observations",
                 "Valeur":
                     n_observations,
+            },
+            {
+                "Indicateur":
+                    "Observations utilisées",
+                "Valeur":
+                    n_observations_used,
+            },
+            {
+                "Indicateur":
+                    "Échantillonnage",
+                "Valeur": (
+                    "Oui - reproductible (random_state=42)"
+                    if sampling_applied
+                    else "Non"
+                ),
             },
             {
                 "Indicateur":
