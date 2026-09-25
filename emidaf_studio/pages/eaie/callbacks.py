@@ -132,8 +132,18 @@ def run_eaie(
             dataset_id,
         )
     except Exception as exc:
+        logger.exception(
+            "EAIE dataset loading failed "
+            "(project_id=%s, dataset_id=%s)",
+            project_id,
+            dataset_id,
+        )
+
         message = dbc.Alert(
-            str(exc),
+            (
+                "Impossible de charger les données "
+                "nécessaires à EAIE."
+            ),
             color="danger",
         )
 
@@ -199,9 +209,12 @@ def run_eaie(
         message = dbc.Alert(
             [
                 html.Strong(
-                    "EAIE n'a pas pu terminer l'analyse : "
+                    "EAIE n'a pas pu terminer l'analyse. "
                 ),
-                str(exc),
+                (
+                    "Vérifiez la variable cible, les variables "
+                    "sélectionnées et la configuration du modèle."
+                ),
             ],
             color="danger",
         )
@@ -812,9 +825,12 @@ def run_ols(
             dbc.Alert(
                 [
                     html.Strong(
-                        "OLS n'a pas pu terminer l'analyse : "
+                        "OLS n'a pas pu terminer l'analyse. "
                     ),
-                    str(exc),
+                    (
+                        "Vérifiez les variables sélectionnées "
+                        "et la qualité des données."
+                    ),
                 ],
                 color="danger",
             ),
@@ -1131,9 +1147,12 @@ def run_multilevel(
                 [
                     html.Strong(
                         "Le modèle multiniveau "
-                        "n'a pas pu être estimé : "
+                        "n'a pas pu être estimé. "
                     ),
-                    str(exc),
+                    (
+                        "Vérifiez la variable de groupe, "
+                        "les effets fixes et les données."
+                    ),
                 ],
                 color="danger",
             ),

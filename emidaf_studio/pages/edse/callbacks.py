@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import logging
+
 from dash import (
     Input,
     Output,
@@ -15,6 +17,9 @@ from emidaf_studio.services.model_registry import (
     get_eaie_run,
     register_analysis,
 )
+
+
+logger = logging.getLogger(__name__)
 
 
 def _table(dataframe):
@@ -164,15 +169,25 @@ def run_edse(
             },
         )
 
-    except Exception as exc:
+    except Exception:
+
+        logger.exception(
+            "EDSE analysis failed "
+            "(project_id=%s, dataset_id=%s)",
+            project_id,
+            dataset_id,
+        )
 
         message = dbc.Alert(
             [
                 html.Strong(
                     "EDSE n'a pas pu terminer "
-                    "l'analyse : "
+                    "l'analyse. "
                 ),
-                str(exc),
+                (
+                    "Vérifiez le seuil, le sens du scénario "
+                    "et le modèle EAIE disponible."
+                ),
             ],
             color="danger",
         )

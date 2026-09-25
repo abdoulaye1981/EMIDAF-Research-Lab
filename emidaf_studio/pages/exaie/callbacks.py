@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import logging
+
 import pandas as pd
 
 from dash import (
@@ -17,6 +19,9 @@ from emidaf_studio.services.model_registry import (
     get_eaie_run,
     register_analysis,
 )
+
+
+logger = logging.getLogger(__name__)
 
 
 def _table(dataframe):
@@ -208,9 +213,19 @@ def run_exaie(
                     ]
                 )
 
-        except Exception as exc:
+        except Exception:
 
-            shap_error = str(exc)
+            logger.exception(
+                "EXAIE SHAP computation failed "
+                "(project_id=%s, dataset_id=%s)",
+                project_id,
+                dataset_id,
+            )
+
+            shap_error = (
+                "SHAP n'a pas pu être calculé "
+                "pour le modèle sélectionné."
+            )
 
         cv_mean = context.get(
             "cv_mean"
@@ -325,9 +340,12 @@ def run_exaie(
             [
                 html.Strong(
                     "EXAIE n'a pas pu terminer "
-                    "l'analyse : "
+                    "l'analyse. "
                 ),
-                str(exc),
+                (
+                    "Vérifiez le modèle sélectionné "
+                    "et les données disponibles."
+                ),
             ],
             color="danger",
         )

@@ -1,5 +1,7 @@
 from pathlib import Path
 
+import logging
+
 import pandas as pd
 from dash import html, dcc, Input, Output, State, callback, no_update
 import re
@@ -8,6 +10,9 @@ from flask import has_request_context, session
 
 from emidaf_core.bootstrap import Bootstrap
 from emidaf_core.dataset.profiler import DatasetProfiler
+
+
+logger = logging.getLogger(__name__)
 
 
 bootstrap = Bootstrap()
@@ -2860,12 +2865,19 @@ def run_dataset_profile(n_clicks, project_id, dataset_id):
 
         return build_profile_summary(profile)
 
-    except Exception as exc:
+    except Exception:
+        logger.exception(
+            "Dataset profiling failed "
+            "(project_id=%s, dataset_id=%s)",
+            project_id,
+            dataset_id,
+        )
+
         return dbc.Alert(
-            [
-                html.Strong("Erreur lors du profilage : "),
-                html.Span(str(exc)),
-            ],
+            (
+                "Le profilage n'a pas pu être terminé "
+                "pour ce jeu de données."
+            ),
             color="danger",
             className="mt-3",
         )

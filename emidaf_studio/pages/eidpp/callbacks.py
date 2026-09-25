@@ -683,10 +683,13 @@ def apply_preprocessing(
             dbc.Alert(
                 [
                     html.Strong(
-                        "Erreur de prétraitement : "
+                        "Le prétraitement n'a pas pu être terminé. "
                     ),
                     html.Span(
-                        str(exc)
+                        (
+                            "Vérifiez les données et les options "
+                            "de prétraitement sélectionnées."
+                        )
                     ),
                 ],
                 color="danger",

@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import logging
+
 from typing import Any
 
 import numpy as np
@@ -27,6 +29,9 @@ from emidaf_studio.pages.inspection.layout import (
 from emidaf_studio.services.model_registry import (
     merge_analysis_section,
 )
+
+
+logger = logging.getLogger(__name__)
 
 
 # ============================================================
@@ -1380,13 +1385,17 @@ def umap_analysis(
             )
         )
 
-    except Exception as exc:
+    except Exception:
+        logger.exception(
+            "EKDE UMAP computation failed"
+        )
+
         return (
             dbc.Alert(
                 (
-                    "Le calcul UMAP n'a pas "
-                    "pu être terminé : "
-                    f"{exc}"
+                    "Le calcul UMAP n'a pas pu être "
+                    "terminé avec les paramètres "
+                    "et données sélectionnés."
                 ),
                 color="danger",
             ),
@@ -1670,13 +1679,17 @@ def kmeans_analysis(
             random_state=42,
         )
 
-    except Exception as exc:
+    except Exception:
+        logger.exception(
+            "EKDE K-Means clustering failed"
+        )
+
         return (
             dbc.Alert(
                 (
-                    "Le clustering K-Means "
-                    "n'a pas pu être terminé : "
-                    f"{exc}"
+                    "Le clustering K-Means n'a pas pu "
+                    "être terminé avec les données "
+                    "et paramètres sélectionnés."
                 ),
                 color="danger",
             ),
@@ -2100,13 +2113,17 @@ def dbscan_analysis(
             ),
         )
 
-    except Exception as exc:
+    except Exception:
+        logger.exception(
+            "EKDE DBSCAN clustering failed"
+        )
+
         return (
             dbc.Alert(
                 (
-                    "Le clustering DBSCAN "
-                    "n'a pas pu être terminé : "
-                    f"{exc}"
+                    "Le clustering DBSCAN n'a pas pu "
+                    "être terminé avec les données "
+                    "et paramètres sélectionnés."
                 ),
                 color="danger",
             ),
@@ -2595,13 +2612,17 @@ def agglomerative_analysis(
             )
         )
 
-    except Exception as exc:
+    except Exception:
+        logger.exception(
+            "EKDE agglomerative clustering failed"
+        )
+
         return (
             dbc.Alert(
                 (
-                    "Le clustering hiérarchique "
-                    "n'a pas pu être terminé : "
-                    f"{exc}"
+                    "Le clustering hiérarchique n'a "
+                    "pas pu être terminé avec les "
+                    "données et paramètres sélectionnés."
                 ),
                 color="danger",
             ),
@@ -3014,11 +3035,15 @@ def association_analysis(
             mi_df.iloc[0].to_dict()
         )
 
-    except Exception as exc:
+    except Exception:
+
+        logger.exception(
+            "EKDE mutual information computation failed"
+        )
 
         mi_text = (
-            "Non disponible : "
-            f"{exc}"
+            "Non disponible pour les variables "
+            "sélectionnées."
         )
 
     metrics = pd.DataFrame(
@@ -3339,15 +3364,17 @@ def selection_analysis(
             ),
         ]
 
-    except Exception as exc:
+    except Exception:
+
+        logger.exception(
+            "EKDE feature selection method failed"
+        )
 
         return dbc.Alert(
-            [
-                html.Strong(
-                    "La méthode n'a pas pu être calculée : "
-                ),
-                str(exc),
-            ],
+            (
+                "La méthode n'a pas pu être calculée "
+                "avec les données sélectionnées."
+            ),
             color="danger",
         )
 
