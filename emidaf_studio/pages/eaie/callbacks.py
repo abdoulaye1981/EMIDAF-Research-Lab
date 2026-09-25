@@ -571,6 +571,152 @@ def update_eaie_model_options(task):
 
 
 # ============================================================
+# OLS / MULTILEVEL DYNAMIC NUMERIC OPTIONS
+# ============================================================
+
+@callback(
+    Output(
+        "eaie-ols-features",
+        "options",
+    ),
+    Output(
+        "eaie-ols-features",
+        "value",
+    ),
+    Input(
+        "eaie-ols-target",
+        "value",
+    ),
+    State(
+        "eaie-ols-features",
+        "value",
+    ),
+    State(
+        "eaie-project-id",
+        "data",
+    ),
+    State(
+        "eaie-dataset-id",
+        "data",
+    ),
+)
+def update_ols_feature_options(
+    target,
+    selected_features,
+    project_id,
+    dataset_id,
+):
+    dataframe = _load_eaie_dataframe(
+        project_id,
+        dataset_id,
+    )
+
+    numeric_columns = list(
+        dataframe.select_dtypes(
+            include="number"
+        ).columns
+    )
+
+    available_columns = [
+        column
+        for column in numeric_columns
+        if column != target
+    ]
+
+    options = [
+        {
+            "label": column,
+            "value": column,
+        }
+        for column in available_columns
+    ]
+
+    selected_features = (
+        selected_features
+        or []
+    )
+
+    value = [
+        column
+        for column in selected_features
+        if column in available_columns
+    ]
+
+    return options, value
+
+
+@callback(
+    Output(
+        "eaie-ml-features",
+        "options",
+    ),
+    Output(
+        "eaie-ml-features",
+        "value",
+    ),
+    Input(
+        "eaie-ml-target",
+        "value",
+    ),
+    State(
+        "eaie-ml-features",
+        "value",
+    ),
+    State(
+        "eaie-project-id",
+        "data",
+    ),
+    State(
+        "eaie-dataset-id",
+        "data",
+    ),
+)
+def update_multilevel_feature_options(
+    target,
+    selected_features,
+    project_id,
+    dataset_id,
+):
+    dataframe = _load_eaie_dataframe(
+        project_id,
+        dataset_id,
+    )
+
+    numeric_columns = list(
+        dataframe.select_dtypes(
+            include="number"
+        ).columns
+    )
+
+    available_columns = [
+        column
+        for column in numeric_columns
+        if column != target
+    ]
+
+    options = [
+        {
+            "label": column,
+            "value": column,
+        }
+        for column in available_columns
+    ]
+
+    selected_features = (
+        selected_features
+        or []
+    )
+
+    value = [
+        column
+        for column in selected_features
+        if column in available_columns
+    ]
+
+    return options, value
+
+
+# ============================================================
 # OLS
 # ============================================================
 

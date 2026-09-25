@@ -24,12 +24,26 @@ def eaie_layout(project_id, dataset_id):
 
     columns = list(df.columns)
 
+    numeric_columns = list(
+        df.select_dtypes(
+            include="number"
+        ).columns
+    )
+
     options = [
         {
             "label": column,
             "value": column,
         }
         for column in columns
+    ]
+
+    numeric_options = [
+        {
+            "label": column,
+            "value": column,
+        }
+        for column in numeric_columns
     ]
 
     return dbc.Container(
@@ -417,7 +431,7 @@ def eaie_layout(project_id, dataset_id):
 
                                     dcc.Dropdown(
                                         id="eaie-ols-target",
-                                        options=options,
+                                        options=numeric_options,
                                         placeholder=(
                                             "Sélectionner la cible"
                                         ),
@@ -431,7 +445,7 @@ def eaie_layout(project_id, dataset_id):
 
                                     dcc.Dropdown(
                                         id="eaie-ols-features",
-                                        options=options,
+                                        options=numeric_options,
                                         multi=True,
                                         placeholder=(
                                             "Sélectionner les variables "
@@ -512,7 +526,7 @@ def eaie_layout(project_id, dataset_id):
 
                                     dcc.Dropdown(
                                         id="eaie-ml-target",
-                                        options=options,
+                                        options=numeric_options,
                                         placeholder=(
                                             "Sélectionner la cible"
                                         ),
@@ -526,7 +540,7 @@ def eaie_layout(project_id, dataset_id):
 
                                     dcc.Dropdown(
                                         id="eaie-ml-features",
-                                        options=options,
+                                        options=numeric_options,
                                         multi=True,
                                         placeholder=(
                                             "Sélectionner les effets fixes"
