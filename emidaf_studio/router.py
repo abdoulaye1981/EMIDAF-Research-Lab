@@ -510,6 +510,58 @@ def get_page_layout(pathname):
                 className="py-4",
             )
 
+        # ==================================================
+        # CONTRÔLE D'APPARTENANCE DU DATASET AU PROJET
+        # ==================================================
+
+        dataset_match = re.match(
+            (
+                r"^/projects/(\d+)/datasets/"
+                r"(\d+)(?:/|$)"
+            ),
+            pathname,
+        )
+
+        if dataset_match:
+
+            dataset_id = int(
+                dataset_match.group(2)
+            )
+
+            dataset = (
+                bootstrap.dataset_controller
+                .get(dataset_id)
+            )
+
+            if (
+                dataset is None
+                or int(dataset.project_id)
+                != project_id
+            ):
+                return dbc.Container(
+                    dbc.Alert(
+                        [
+                            html.H4(
+                                "Dataset introuvable",
+                                className=(
+                                    "alert-heading"
+                                ),
+                            ),
+                            html.P(
+                                (
+                                    "Ce jeu de données "
+                                    "n'existe pas dans le "
+                                    "projet demandé ou n'est "
+                                    "pas accessible."
+                                )
+                            ),
+                        ],
+                        color="danger",
+                    ),
+                    fluid=True,
+                    className="py-4",
+                )
+
     if pathname == "/account":
         from emidaf_studio.pages.account.layout import (
             account_layout,
