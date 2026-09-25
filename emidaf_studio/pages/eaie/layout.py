@@ -453,24 +453,35 @@ def eaie_layout(project_id, dataset_id):
                                         ),
                                     ),
 
-                                    dbc.ButtonGroup(
+                                    dbc.Row(
                                         [
-                                            dbc.Button(
-                                                "Sélectionner toutes les numériques",
-                                                id="eaie-ols-select-all",
-                                                color="secondary",
-                                                outline=True,
-                                                size="sm",
+                                            dbc.Col(
+                                                dbc.Button(
+                                                    (
+                                                        "Sélectionner toutes "
+                                                        "les numériques"
+                                                    ),
+                                                    id="eaie-ols-select-all",
+                                                    color="secondary",
+                                                    outline=True,
+                                                    size="sm",
+                                                    className="w-100",
+                                                ),
+                                                md=9,
                                             ),
-                                            dbc.Button(
-                                                "Effacer",
-                                                id="eaie-ols-clear",
-                                                color="secondary",
-                                                outline=True,
-                                                size="sm",
+                                            dbc.Col(
+                                                dbc.Button(
+                                                    "Effacer",
+                                                    id="eaie-ols-clear",
+                                                    color="secondary",
+                                                    outline=True,
+                                                    size="sm",
+                                                    className="w-100",
+                                                ),
+                                                md=3,
                                             ),
                                         ],
-                                        className="mt-2",
+                                        className="g-2 mt-2 mb-3",
                                     ),
 
                                     dbc.Label(
@@ -567,24 +578,35 @@ def eaie_layout(project_id, dataset_id):
                                         ),
                                     ),
 
-                                    dbc.ButtonGroup(
+                                    dbc.Row(
                                         [
-                                            dbc.Button(
-                                                "Sélectionner toutes les numériques",
-                                                id="eaie-ml-select-all",
-                                                color="secondary",
-                                                outline=True,
-                                                size="sm",
+                                            dbc.Col(
+                                                dbc.Button(
+                                                    (
+                                                        "Sélectionner toutes "
+                                                        "les numériques"
+                                                    ),
+                                                    id="eaie-ml-select-all",
+                                                    color="secondary",
+                                                    outline=True,
+                                                    size="sm",
+                                                    className="w-100",
+                                                ),
+                                                md=9,
                                             ),
-                                            dbc.Button(
-                                                "Effacer",
-                                                id="eaie-ml-clear",
-                                                color="secondary",
-                                                outline=True,
-                                                size="sm",
+                                            dbc.Col(
+                                                dbc.Button(
+                                                    "Effacer",
+                                                    id="eaie-ml-clear",
+                                                    color="secondary",
+                                                    outline=True,
+                                                    size="sm",
+                                                    className="w-100",
+                                                ),
+                                                md=3,
                                             ),
                                         ],
-                                        className="mt-2",
+                                        className="g-2 mt-2 mb-3",
                                     ),
 
                                     dbc.Label(
