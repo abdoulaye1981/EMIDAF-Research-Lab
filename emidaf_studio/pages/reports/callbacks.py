@@ -41,6 +41,123 @@ def _stage_unavailable(stage_name):
     }
 
 
+def _compact_ekde_for_report(
+    ekde_context,
+):
+    """
+    Prépare une version compacte et lisible des résultats EKDE
+    pour les rapports.
+
+    Les résultats persistés en base restent inchangés.
+    """
+
+    if not isinstance(
+        ekde_context,
+        dict,
+    ):
+        return ekde_context
+
+    compact = {}
+
+    for section, payload in ekde_context.items():
+
+        if not isinstance(
+            payload,
+            dict,
+        ):
+            compact[section] = payload
+            continue
+
+        section_data = dict(payload)
+
+        if section == "kmeans":
+
+            section_data.pop(
+                "labels",
+                None,
+            )
+
+            section_data.pop(
+                "cluster_centers",
+                None,
+            )
+
+        elif section in {
+            "dbscan",
+            "agglomerative",
+        }:
+
+            section_data.pop(
+                "labels",
+                None,
+            )
+
+        elif section == "selection":
+
+            result = section_data.get(
+                "result"
+            )
+
+            if isinstance(
+                result,
+                list,
+            ):
+
+                cleaned_rows = []
+
+                for row in result:
+
+                    if not isinstance(
+                        row,
+                        dict,
+                    ):
+                        continue
+
+                    cleaned_row = {}
+
+                    for key, value in row.items():
+
+                        if (
+                            key == "Résultat"
+                            and isinstance(
+                                value,
+                                str,
+                            )
+                            and (
+                                "VarianceThreshold(" in value
+                                or "SelectKBest(" in value
+                                or "object at 0x" in value
+                            )
+                        ):
+                            continue
+
+                        cleaned_row[key] = value
+
+                    if cleaned_row:
+                        cleaned_rows.append(
+                            cleaned_row
+                        )
+
+                if cleaned_rows:
+
+                    section_data[
+                        "result"
+                    ] = cleaned_rows
+
+                else:
+
+                    section_data.pop(
+                        "result",
+                        None,
+                    )
+
+        compact[
+            section
+        ] = section_data
+
+    return compact
+
+
 @callback(
     Output(
         "reports-status",
@@ -521,12 +638,21 @@ def generate_report(
 
         else:
 
+            ekde_report_data = (
+                _compact_ekde_for_report(
+                    ekde_context
+                )
+            )
+
             engine.add_stage(
                 "ekde",
-                ekde_context,
+                ekde_report_data,
                 interpretation=(
-                    "Résultats de découverte de "
-                    "connaissances produits par EKDE."
+                    "Synthèse des résultats de découverte "
+                    "de connaissances produits par EKDE. "
+                    "Les données techniques volumineuses "
+                    "sans intérêt direct pour "
+                    "l'interprétation sont omises du rapport."
                 ),
             )
 

@@ -313,3 +313,179 @@ def test_stage_unavailable_does_not_claim_session_only():
         "jeu de données"
         in result["message"]
     )
+
+
+def test_compact_ekde_removes_verbose_clustering_outputs():
+
+    original = {
+        "kmeans": {
+            "n_clusters": 3,
+            "n_observations": 1200,
+            "silhouette_score": 0.51,
+            "cluster_sizes": [
+                {"Cluster": 1, "Effectif": 400},
+                {"Cluster": 2, "Effectif": 420},
+                {"Cluster": 3, "Effectif": 380},
+            ],
+            "labels": [1, 2, 3, 1],
+            "cluster_centers": [
+                [0.1, 0.2],
+                [0.3, 0.4],
+                [0.5, 0.6],
+            ],
+        },
+        "dbscan": {
+            "n_clusters": 2,
+            "noise_count": 12,
+            "noise_percentage": 1.0,
+            "labels": [0, 0, 1, -1],
+        },
+        "agglomerative": {
+            "n_clusters": 3,
+            "linkage": "ward",
+            "silhouette_score": 0.44,
+            "labels": [1, 2, 3, 1],
+        },
+    }
+
+    compact = callbacks._compact_ekde_for_report(
+        original
+    )
+
+    assert "labels" not in compact["kmeans"]
+    assert "cluster_centers" not in compact["kmeans"]
+    assert compact["kmeans"]["silhouette_score"] == 0.51
+    assert "cluster_sizes" in compact["kmeans"]
+
+    assert "labels" not in compact["dbscan"]
+    assert compact["dbscan"]["noise_count"] == 12
+
+    assert "labels" not in compact["agglomerative"]
+    assert compact["agglomerative"]["linkage"] == "ward"
+
+
+def test_compact_ekde_preserves_pca_information():
+
+    original = {
+        "pca": {
+            "n_components": 2,
+            "numeric_variables": ["x1", "x2"],
+            "explained_variance": [
+                {
+                    "Composante": "PC1",
+                    "Variance expliquée": 62.5,
+                    "Variance cumulée": 62.5,
+                },
+                {
+                    "Composante": "PC2",
+                    "Variance expliquée": 24.3,
+                    "Variance cumulée": 86.8,
+                },
+            ],
+            "cumulative_variance_percent": 86.8,
+        },
+    }
+
+    compact = callbacks._compact_ekde_for_report(
+        original
+    )
+
+    assert (
+        compact["pca"]["explained_variance"]
+        == original["pca"]["explained_variance"]
+    )
+
+    assert (
+        compact["pca"]["cumulative_variance_percent"]
+        == 86.8
+    )
+
+
+def test_compact_ekde_removes_internal_selector_repr():
+
+    original = {
+        "selection": {
+            "method": "variance",
+            "target": None,
+            "variance_threshold": 0.2,
+            "numeric_variables": ["x1", "x2"],
+            "result": [
+                {
+                    "Résultat": (
+                        "VarianceThreshold("
+                        "threshold=0.2)"
+                    )
+                }
+            ],
+        },
+    }
+
+    compact = callbacks._compact_ekde_for_report(
+        original
+    )
+
+    selection = compact["selection"]
+
+    assert selection["method"] == "variance"
+    assert selection["variance_threshold"] == 0.2
+    assert "result" not in selection
+
+
+def test_compact_ekde_keeps_scientific_selection_rows():
+
+    original = {
+        "selection": {
+            "method": "mutual_information",
+            "target": "target",
+            "result": [
+                {
+                    "Variable": "x1",
+                    "Score": 0.81,
+                },
+                {
+                    "Variable": "x2",
+                    "Score": 0.34,
+                },
+            ],
+        },
+    }
+
+    compact = callbacks._compact_ekde_for_report(
+        original
+    )
+
+    assert (
+        compact["selection"]["result"]
+        == original["selection"]["result"]
+    )
+
+
+def test_compact_ekde_does_not_modify_original_context():
+
+    original = {
+        "kmeans": {
+            "n_clusters": 2,
+            "labels": [1, 2, 1],
+            "cluster_centers": [
+                [0.1],
+                [0.9],
+            ],
+        },
+    }
+
+    compact = callbacks._compact_ekde_for_report(
+        original
+    )
+
+    assert "labels" not in compact["kmeans"]
+    assert "cluster_centers" not in compact["kmeans"]
+
+    assert original["kmeans"]["labels"] == [1, 2, 1]
+
+    assert (
+        original["kmeans"]["cluster_centers"]
+        == [
+            [0.1],
+            [0.9],
+        ]
+    )
