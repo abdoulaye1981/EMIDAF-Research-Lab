@@ -1030,6 +1030,29 @@ def get_page_layout(pathname):
         )
 
     # ======================================================
+    # ETAE - Text Analysis Engine
+    # ======================================================
+
+    match = re.fullmatch(
+        r"/projects/(\d+)/datasets/(\d+)/etae",
+        pathname or ""
+    )
+
+    if match:
+
+        project_id = int(match.group(1))
+        dataset_id = int(match.group(2))
+
+        from emidaf_studio.pages.etae.layout import (
+            build_etae_layout
+        )
+
+        return build_etae_layout(
+            project_id=project_id,
+            dataset_id=dataset_id,
+        )
+
+    # ======================================================
     # EXAIE - Explicabilité des modèles
     # ======================================================
 

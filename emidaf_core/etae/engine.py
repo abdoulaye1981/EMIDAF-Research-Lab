@@ -29,7 +29,14 @@ from .semantics import (
     TopicModeler,
 )
 from .association import (
+    SentimentAssociationAnalyzer,
     TopicTargetAnalyzer,
+)
+from .sentiment import (
+    LexiconSentimentAnalyzer,
+)
+from .interpretation import (
+    AssociationInterpreter,
 )
 from .text_column_detector import (
     TextColumnCandidate,
@@ -66,6 +73,15 @@ class ETAEEngine:
         )
         self._topic_target_analyzer = (
             TopicTargetAnalyzer()
+        )
+        self._sentiment_association = (
+            SentimentAssociationAnalyzer()
+        )
+        self._sentiment_analyzer = (
+            LexiconSentimentAnalyzer()
+        )
+        self._association_interpreter = (
+            AssociationInterpreter()
         )
 
     def detect_text_columns(
@@ -234,6 +250,111 @@ class ETAEEngine:
                 target_column=target_column,
                 n_topics=n_topics,
                 **kwargs,
+            )
+        )
+
+    def analyze_sentiment(
+        self,
+        dataframe: pd.DataFrame,
+        text_column: str,
+    ):
+        """
+        Analyse la polarité des documents textuels.
+        """
+
+        return (
+            self._sentiment_analyzer
+            .analyze(
+                dataframe=dataframe,
+                text_column=text_column,
+            )
+        )
+
+    def analyze_sentiment_numeric(
+        self,
+        dataframe: pd.DataFrame,
+        text_column: str,
+        target_column: str,
+    ):
+        """
+        Associe la polarité textuelle à une
+        variable quantitative.
+        """
+
+        return (
+            self._sentiment_association
+            .analyze_numeric(
+                dataframe=dataframe,
+                text_column=text_column,
+                target_column=target_column,
+            )
+        )
+
+    def analyze_sentiment_categorical(
+        self,
+        dataframe: pd.DataFrame,
+        text_column: str,
+        target_column: str,
+    ):
+        """
+        Associe la polarité textuelle à une
+        variable catégorielle.
+        """
+
+        return (
+            self._sentiment_association
+            .analyze_categorical(
+                dataframe=dataframe,
+                text_column=text_column,
+                target_column=target_column,
+            )
+        )
+
+    def interpret_topic_target(
+        self,
+        result,
+    ):
+        """
+        Interprète scientifiquement une analyse
+        thèmes / variable quantitative.
+        """
+
+        return (
+            self._association_interpreter
+            .interpret_topic_target(
+                result
+            )
+        )
+
+    def interpret_sentiment_numeric(
+        self,
+        result,
+    ):
+        """
+        Interprète une association entre sentiment
+        et variable quantitative.
+        """
+
+        return (
+            self._association_interpreter
+            .interpret_sentiment_numeric(
+                result
+            )
+        )
+
+    def interpret_sentiment_categorical(
+        self,
+        result,
+    ):
+        """
+        Interprète une association entre sentiment
+        et variable catégorielle.
+        """
+
+        return (
+            self._association_interpreter
+            .interpret_sentiment_categorical(
+                result
             )
         )
 

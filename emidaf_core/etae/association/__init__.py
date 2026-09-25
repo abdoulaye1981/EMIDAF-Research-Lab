@@ -11,6 +11,13 @@ from .topic_target_analyzer import (
     TopicTargetResult,
 )
 
+from .sentiment_association import (
+    SentimentAssociationAnalyzer,
+    SentimentCategoricalResult,
+    SentimentNumericGroup,
+    SentimentNumericResult,
+)
+
 __all__ = [
     "EffectSizeResult",
     "StatisticalTestResult",
@@ -18,4 +25,8 @@ __all__ = [
     "TopicTargetGroup",
     "TopicTargetInference",
     "TopicTargetResult",
+    "SentimentAssociationAnalyzer",
+    "SentimentCategoricalResult",
+    "SentimentNumericGroup",
+    "SentimentNumericResult",
 ]
