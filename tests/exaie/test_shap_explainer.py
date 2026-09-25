@@ -8,13 +8,20 @@ import numpy as np
 import pandas as pd
 import pytest
 
+from sklearn.compose import ColumnTransformer
 from sklearn.ensemble import (
     RandomForestClassifier,
     RandomForestRegressor,
 )
-from sklearn.linear_model import LinearRegression
+from sklearn.linear_model import (
+    LinearRegression,
+    Ridge,
+)
 from sklearn.pipeline import Pipeline
-from sklearn.preprocessing import StandardScaler
+from sklearn.preprocessing import (
+    OneHotEncoder,
+    StandardScaler,
+)
 
 from xgboost import XGBClassifier
 
@@ -521,6 +528,150 @@ def test_shap_pipeline():
     assert len(
         result.features
     ) == 2
+
+
+def test_shap_pipeline_with_categorical_features():
+
+    rng = np.random.default_rng(2026)
+
+    n = 80
+
+    X = pd.DataFrame({
+        "age": rng.integers(
+            22,
+            60,
+            n,
+        ),
+        "experience": rng.normal(
+            10,
+            4,
+            n,
+        ),
+        "service": rng.choice(
+            [
+                "IT",
+                "Finance",
+                "RH",
+            ],
+            size=n,
+        ),
+    })
+
+    service_effect = (
+        X["service"]
+        .map({
+            "IT": 120_000,
+            "Finance": 80_000,
+            "RH": 40_000,
+        })
+        .astype(float)
+    )
+
+    y = (
+        500_000
+        + 15_000 * X["age"]
+        + 25_000 * X["experience"]
+        + service_effect
+        + rng.normal(
+            0,
+            20_000,
+            n,
+        )
+    )
+
+    preprocessor = ColumnTransformer(
+        transformers=[
+            (
+                "numeric",
+                StandardScaler(),
+                [
+                    "age",
+                    "experience",
+                ],
+            ),
+            (
+                "categorical",
+                OneHotEncoder(
+                    handle_unknown="ignore",
+                ),
+                [
+                    "service",
+                ],
+            ),
+        ],
+    )
+
+    pipeline = Pipeline([
+        (
+            "preprocessor",
+            preprocessor,
+        ),
+        (
+            "model",
+            Ridge(
+                alpha=1.0,
+            ),
+        ),
+    ])
+
+    pipeline.fit(
+        X,
+        y,
+    )
+
+    result = ShapExplainer.explain(
+        pipeline,
+        X,
+        task="regression",
+        max_samples=20,
+    )
+
+    assert isinstance(
+        result,
+        ShapResult,
+    )
+
+    assert result.model_name == "Ridge"
+
+    assert result.n_observations == 20
+
+    transformed = (
+        pipeline[:-1]
+        .transform(
+            X.iloc[:20]
+        )
+    )
+
+    assert len(
+        result.features
+    ) == transformed.shape[1]
+
+    assert any(
+        "service" in feature
+        for feature in result.features
+    )
+
+    assert set(
+        result.feature_importance
+    ) == set(
+        result.features
+    )
+
+    assert len(
+        result.local_explanations
+    ) == 20
+
+    first_local = (
+        result.local_explanations[0]
+    )
+
+    assert "contributions" in first_local
+
+    assert set(
+        first_local["contributions"]
+    ) == set(
+        result.features
+    )
 
 
 def test_shap_requires_dataframe():

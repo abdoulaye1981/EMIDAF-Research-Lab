@@ -60,7 +60,9 @@ class ShapExplainer:
                 list(X.columns),
             )
 
-        transformer = estimator.steps[0][1]
+        # Tous les traitements précédant le modèle final
+        # doivent être appliqués avant SHAP.
+        transformer = estimator[:-1]
 
         model = estimator.steps[-1][1]
 
@@ -140,36 +142,6 @@ class ShapExplainer:
                 "X est vide."
             )
 
-        if X.isna().any().any():
-            raise ValueError(
-                "SHAP ne peut pas être exécuté "
-                "avec des valeurs manquantes."
-            )
-
-        non_numeric = [
-            column
-            for column in X.columns
-            if not pd.api.types.is_numeric_dtype(
-                X[column]
-            )
-        ]
-
-        if non_numeric:
-            raise ValueError(
-                "Toutes les variables doivent être "
-                "numériques avant SHAP. "
-                f"Variables non numériques : "
-                f"{non_numeric}"
-            )
-
-        if not np.isfinite(
-            X.astype(float).to_numpy()
-        ).all():
-            raise ValueError(
-                "SHAP exige des valeurs "
-                "numériques finies."
-            )
-
         if max_samples is not None:
 
             try:
@@ -212,6 +184,65 @@ class ShapExplainer:
                 X,
             )
         )
+
+        # =================================================
+        # Validation des données réellement fournies à SHAP
+        # =================================================
+
+        if prepared_X.empty:
+            raise ValueError(
+                "Les données préparées pour SHAP "
+                "sont vides."
+            )
+
+        if prepared_X.isna().any().any():
+            raise ValueError(
+                "SHAP ne peut pas être exécuté "
+                "avec des valeurs manquantes après "
+                "prétraitement."
+            )
+
+        non_numeric = [
+            column
+            for column in prepared_X.columns
+            if not pd.api.types.is_numeric_dtype(
+                prepared_X[column]
+            )
+        ]
+
+        if non_numeric:
+            raise ValueError(
+                "Toutes les variables doivent être "
+                "numériques après prétraitement avant "
+                "SHAP. "
+                f"Variables non numériques : "
+                f"{non_numeric}"
+            )
+
+        try:
+            finite_values = (
+                prepared_X
+                .astype(float)
+                .to_numpy()
+            )
+        except (
+            TypeError,
+            ValueError,
+        ) as exc:
+            raise ValueError(
+                "Les données préparées pour SHAP "
+                "ne peuvent pas être converties "
+                "en valeurs numériques."
+            ) from exc
+
+        if not np.isfinite(
+            finite_values
+        ).all():
+            raise ValueError(
+                "SHAP exige des valeurs "
+                "numériques finies après "
+                "prétraitement."
+            )
 
         if max_samples is not None:
 
