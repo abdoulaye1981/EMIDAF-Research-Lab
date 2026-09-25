@@ -348,6 +348,50 @@ def eaie_layout(project_id, dataset_id):
                 className="mb-4",
             ),
 
+            dbc.Tabs(
+                [
+                    dbc.Tab(
+                        [
+                            html.Div(
+                                id="eaie-summary",
+                                className="mt-4",
+                            )
+                        ],
+                        label="Synthèse",
+                    ),
+
+                    dbc.Tab(
+                        [
+                            html.Div(
+                                id="eaie-comparison",
+                                className="mt-4",
+                            )
+                        ],
+                        label="Comparaison",
+                    ),
+
+                    dbc.Tab(
+                        [
+                            html.Div(
+                                id="eaie-best-model",
+                                className="mt-4",
+                            )
+                        ],
+                        label="Modèle sélectionné",
+                    ),
+
+                    dbc.Tab(
+                        [
+                            html.Div(
+                                id="eaie-evaluation",
+                                className="mt-4",
+                            )
+                        ],
+                        label="Évaluation",
+                    ),
+                ]
+            ),
+
             dbc.Row(
                 [
                     dbc.Col(
@@ -567,50 +611,6 @@ def eaie_layout(project_id, dataset_id):
                     ),
                 ],
                 className="g-3 mb-4",
-            ),
-
-            dbc.Tabs(
-                [
-                    dbc.Tab(
-                        [
-                            html.Div(
-                                id="eaie-summary",
-                                className="mt-4",
-                            )
-                        ],
-                        label="Synthèse",
-                    ),
-
-                    dbc.Tab(
-                        [
-                            html.Div(
-                                id="eaie-comparison",
-                                className="mt-4",
-                            )
-                        ],
-                        label="Comparaison",
-                    ),
-
-                    dbc.Tab(
-                        [
-                            html.Div(
-                                id="eaie-best-model",
-                                className="mt-4",
-                            )
-                        ],
-                        label="Modèle sélectionné",
-                    ),
-
-                    dbc.Tab(
-                        [
-                            html.Div(
-                                id="eaie-evaluation",
-                                className="mt-4",
-                            )
-                        ],
-                        label="Évaluation",
-                    ),
-                ]
             ),
 
             html.Hr(),

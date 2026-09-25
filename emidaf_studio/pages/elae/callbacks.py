@@ -19,6 +19,8 @@ from emidaf_studio.services.model_registry import (
     merge_analysis_section,
 )
 
+from emidaf_core.dataset.profiler import DatasetProfiler
+
 from dash.exceptions import PreventUpdate
 
 from emidaf_studio.pages.inspection.layout import (
@@ -866,17 +868,21 @@ def correlations(
         or {}
     )
 
-    matrix = (
-        correlation_result.get(
-            "correlation_matrix"
-        )
-        or correlation_result.get(
-            "matrix"
-        )
+    matrix = correlation_result.get(
+        "correlation_matrix"
     )
 
-    if isinstance(matrix, dict):
+    if matrix is None:
+        matrix = correlation_result.get(
+            "matrix"
+        )
+
+    if isinstance(matrix, pd.DataFrame):
+        corr = matrix.copy()
+
+    elif isinstance(matrix, dict):
         corr = pd.DataFrame(matrix)
+
     else:
         corr = numeric.corr()
 
