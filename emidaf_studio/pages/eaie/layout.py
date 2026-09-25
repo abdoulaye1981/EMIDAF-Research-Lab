@@ -453,6 +453,26 @@ def eaie_layout(project_id, dataset_id):
                                         ),
                                     ),
 
+                                    dbc.ButtonGroup(
+                                        [
+                                            dbc.Button(
+                                                "Sélectionner toutes les numériques",
+                                                id="eaie-ols-select-all",
+                                                color="secondary",
+                                                outline=True,
+                                                size="sm",
+                                            ),
+                                            dbc.Button(
+                                                "Effacer",
+                                                id="eaie-ols-clear",
+                                                color="secondary",
+                                                outline=True,
+                                                size="sm",
+                                            ),
+                                        ],
+                                        className="mt-2",
+                                    ),
+
                                     dbc.Label(
                                         "Niveau alpha",
                                         className="mt-3",
@@ -545,6 +565,26 @@ def eaie_layout(project_id, dataset_id):
                                         placeholder=(
                                             "Sélectionner les effets fixes"
                                         ),
+                                    ),
+
+                                    dbc.ButtonGroup(
+                                        [
+                                            dbc.Button(
+                                                "Sélectionner toutes les numériques",
+                                                id="eaie-ml-select-all",
+                                                color="secondary",
+                                                outline=True,
+                                                size="sm",
+                                            ),
+                                            dbc.Button(
+                                                "Effacer",
+                                                id="eaie-ml-clear",
+                                                color="secondary",
+                                                outline=True,
+                                                size="sm",
+                                            ),
+                                        ],
+                                        className="mt-2",
                                     ),
 
                                     dbc.Label(

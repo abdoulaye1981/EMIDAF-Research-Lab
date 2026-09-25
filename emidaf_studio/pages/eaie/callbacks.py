@@ -10,6 +10,7 @@ from dash import (
     Output,
     State,
     callback,
+    ctx,
     html,
     no_update,
 )
@@ -587,6 +588,14 @@ def update_eaie_model_options(task):
         "eaie-ols-target",
         "value",
     ),
+    Input(
+        "eaie-ols-select-all",
+        "n_clicks",
+    ),
+    Input(
+        "eaie-ols-clear",
+        "n_clicks",
+    ),
     State(
         "eaie-ols-features",
         "value",
@@ -602,6 +611,8 @@ def update_eaie_model_options(task):
 )
 def update_ols_feature_options(
     target,
+    select_all_clicks,
+    clear_clicks,
     selected_features,
     project_id,
     dataset_id,
@@ -631,16 +642,25 @@ def update_ols_feature_options(
         for column in available_columns
     ]
 
-    selected_features = (
-        selected_features
-        or []
-    )
+    trigger = ctx.triggered_id
 
-    value = [
-        column
-        for column in selected_features
-        if column in available_columns
-    ]
+    if trigger == "eaie-ols-select-all":
+        value = available_columns
+
+    elif trigger == "eaie-ols-clear":
+        value = []
+
+    else:
+        selected_features = (
+            selected_features
+            or []
+        )
+
+        value = [
+            column
+            for column in selected_features
+            if column in available_columns
+        ]
 
     return options, value
 
@@ -658,6 +678,14 @@ def update_ols_feature_options(
         "eaie-ml-target",
         "value",
     ),
+    Input(
+        "eaie-ml-select-all",
+        "n_clicks",
+    ),
+    Input(
+        "eaie-ml-clear",
+        "n_clicks",
+    ),
     State(
         "eaie-ml-features",
         "value",
@@ -673,6 +701,8 @@ def update_ols_feature_options(
 )
 def update_multilevel_feature_options(
     target,
+    select_all_clicks,
+    clear_clicks,
     selected_features,
     project_id,
     dataset_id,
@@ -702,16 +732,25 @@ def update_multilevel_feature_options(
         for column in available_columns
     ]
 
-    selected_features = (
-        selected_features
-        or []
-    )
+    trigger = ctx.triggered_id
 
-    value = [
-        column
-        for column in selected_features
-        if column in available_columns
-    ]
+    if trigger == "eaie-ml-select-all":
+        value = available_columns
+
+    elif trigger == "eaie-ml-clear":
+        value = []
+
+    else:
+        selected_features = (
+            selected_features
+            or []
+        )
+
+        value = [
+            column
+            for column in selected_features
+            if column in available_columns
+        ]
 
     return options, value
 
