@@ -35,7 +35,7 @@ def _stage_unavailable(stage_name):
         "message": (
             f"Les résultats de l'étape "
             f"« {stage_name} » ne sont pas "
-            "persistés ne sont disponibles "
+            "persistés ou disponibles "
             "pour ce jeu de données."
         ),
     }
@@ -794,6 +794,17 @@ def generate_report(
                     "local_explanation"
                 ] = local_explanation
 
+            shap_context = (
+                exaie_context.get(
+                    "shap"
+                )
+            )
+
+            if shap_context is not None:
+                exaie_data[
+                    "shap"
+                ] = shap_context
+
             predictive_warning = (
                 exaie_context.get(
                     "predictive_warning"
@@ -812,9 +823,9 @@ def generate_report(
                     "EXAIE explique le comportement "
                     "du modèle sélectionné par EAIE. "
                     "Le rapport reprend les résultats "
-                    "globaux, par permutation et locaux "
-                    "réellement persistés lorsqu'ils "
-                    "sont disponibles."
+                    "globaux, par permutation, locaux "
+                    "et SHAP réellement persistés "
+                    "lorsqu'ils sont disponibles."
                 ),
                 limitations=(
                     exaie_context.get(

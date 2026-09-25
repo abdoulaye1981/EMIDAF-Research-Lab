@@ -105,6 +105,28 @@ def test_generate_report_uses_persisted_analyses(
                     "Importance par permutation persistée."
                 ),
             },
+            "shap": {
+                "available": True,
+                "model_name": "logistic_regression",
+                "explainer_type": "LinearExplainer",
+                "n_observations": 3,
+                "feature_importance": {
+                    "x1": 0.42,
+                    "x2": 0.18,
+                },
+                "local_explanation": {
+                    "row": 0,
+                    "prediction": 0,
+                    "contributions": {
+                        "x1": 0.31,
+                        "x2": -0.07,
+                    },
+                },
+                "output_names": [
+                    "classe_0",
+                    "classe_1",
+                ],
+            },
             "predictive_warning": None,
             "limitations": [
                 (
@@ -233,6 +255,29 @@ def test_generate_report_uses_persisted_analyses(
     assert (
         "local_explanation"
         in exaie["data"]
+    )
+
+    assert "shap" in exaie["data"]
+
+    assert (
+        exaie["data"]["shap"][
+            "available"
+        ]
+        is True
+    )
+
+    assert (
+        exaie["data"]["shap"][
+            "explainer_type"
+        ]
+        == "LinearExplainer"
+    )
+
+    assert (
+        exaie["data"]["shap"][
+            "feature_importance"
+        ]["x1"]
+        == 0.42
     )
 
     edse = _section_by_title(
