@@ -41,6 +41,446 @@ def _stage_unavailable(stage_name):
     }
 
 
+
+def _compact_etae_for_report(
+    etae_context,
+):
+    """
+    Prépare une version compacte et lisible
+    des résultats ETAE pour le rapport.
+
+    Les vecteurs documentaires, labels,
+    indices et autres sorties volumineuses
+    ne sont pas reproduits intégralement.
+    """
+
+    if not isinstance(
+        etae_context,
+        dict,
+    ):
+        return etae_context
+
+    compact = {}
+
+    # --------------------------------------------------
+    # Corpus
+    # --------------------------------------------------
+
+    corpus = etae_context.get(
+        "corpus"
+    )
+
+    if isinstance(corpus, dict):
+
+        result = corpus.get(
+            "result",
+            {},
+        )
+
+        if isinstance(result, dict):
+            compact["Corpus"] = {
+                "Variable textuelle": (
+                    result.get(
+                        "text_column"
+                    )
+                    or corpus.get(
+                        "text_column"
+                    )
+                ),
+                "Documents": result.get(
+                    "n_documents"
+                ),
+                "Documents valides": result.get(
+                    "n_valid_documents"
+                ),
+                "Valeurs manquantes": result.get(
+                    "n_missing"
+                ),
+                "Documents vides": result.get(
+                    "n_empty"
+                ),
+                "Nombre total de mots": result.get(
+                    "total_words"
+                ),
+                "Taille du vocabulaire": result.get(
+                    "vocabulary_size"
+                ),
+                "Longueur moyenne en mots": result.get(
+                    "mean_words"
+                ),
+                "Diversité lexicale": result.get(
+                    "lexical_diversity"
+                ),
+            }
+
+    # --------------------------------------------------
+    # Lexique
+    # --------------------------------------------------
+
+    lexical = etae_context.get(
+        "lexique"
+    )
+
+    if isinstance(lexical, dict):
+
+        result = lexical.get(
+            "result",
+            {},
+        )
+
+        if isinstance(result, dict):
+            compact["Lexique"] = {
+                "Documents": result.get(
+                    "n_documents"
+                ),
+                "Nombre total de tokens": result.get(
+                    "total_tokens"
+                ),
+                "Taille du vocabulaire": result.get(
+                    "vocabulary_size"
+                ),
+                "Termes les plus fréquents": (
+                    result.get(
+                        "items",
+                        [],
+                    )[:10]
+                ),
+            }
+
+    # --------------------------------------------------
+    # N-grams
+    # --------------------------------------------------
+
+    ngrams = etae_context.get(
+        "ngrams"
+    )
+
+    if isinstance(ngrams, dict):
+
+        result = ngrams.get(
+            "result",
+            {},
+        )
+
+        if isinstance(result, dict):
+            compact["N-grams"] = {
+                "Taille des n-grams": result.get(
+                    "ngram_size"
+                ),
+                "Nombre total de n-grams": result.get(
+                    "total_tokens"
+                ),
+                "Vocabulaire": result.get(
+                    "vocabulary_size"
+                ),
+                "N-grams dominants": (
+                    result.get(
+                        "items",
+                        [],
+                    )[:10]
+                ),
+            }
+
+    # --------------------------------------------------
+    # TF-IDF
+    # --------------------------------------------------
+
+    tfidf = etae_context.get(
+        "tfidf"
+    )
+
+    if isinstance(tfidf, dict):
+
+        result = tfidf.get(
+            "result",
+            {},
+        )
+
+        if isinstance(result, dict):
+            compact["TF-IDF"] = {
+                "Documents": result.get(
+                    "n_documents"
+                ),
+                "Nombre de caractéristiques": result.get(
+                    "n_features"
+                ),
+                "Sparsité": result.get(
+                    "sparsity"
+                ),
+                "Termes TF-IDF dominants": (
+                    result.get(
+                        "top_terms",
+                        [],
+                    )[:10]
+                ),
+            }
+
+    # --------------------------------------------------
+    # Sentiment
+    # --------------------------------------------------
+
+    sentiment = etae_context.get(
+        "sentiment"
+    )
+
+    if isinstance(sentiment, dict):
+
+        result = sentiment.get(
+            "result",
+            {},
+        )
+
+        if isinstance(result, dict):
+            compact["Sentiment"] = {
+                "Méthode": result.get(
+                    "method"
+                ),
+                "Documents": result.get(
+                    "n_documents"
+                ),
+                "Score moyen": result.get(
+                    "mean_score"
+                ),
+                "Positifs": result.get(
+                    "positive_count"
+                ),
+                "Neutres": result.get(
+                    "neutral_count"
+                ),
+                "Négatifs": result.get(
+                    "negative_count"
+                ),
+                "Couverture lexicale moyenne": (
+                    result.get(
+                        "mean_coverage"
+                    )
+                ),
+            }
+
+    # --------------------------------------------------
+    # Topics
+    # --------------------------------------------------
+
+    topics = etae_context.get(
+        "topics"
+    )
+
+    if isinstance(topics, dict):
+
+        result = topics.get(
+            "result",
+            {},
+        )
+
+        if isinstance(result, dict):
+            compact["Thèmes"] = {
+                "Méthode": result.get(
+                    "method"
+                ),
+                "Documents": result.get(
+                    "n_documents"
+                ),
+                "Nombre de thèmes": result.get(
+                    "n_topics"
+                ),
+                "Thèmes détectés": result.get(
+                    "topics",
+                    [],
+                ),
+            }
+
+    # --------------------------------------------------
+    # Clusters
+    # --------------------------------------------------
+
+    clusters = etae_context.get(
+        "clusters"
+    )
+
+    if isinstance(clusters, dict):
+
+        result = clusters.get(
+            "result",
+            {},
+        )
+
+        if isinstance(result, dict):
+            compact["Clustering textuel"] = {
+                "Documents": result.get(
+                    "n_documents"
+                ),
+                "Nombre de clusters": result.get(
+                    "n_clusters"
+                ),
+                "Silhouette": result.get(
+                    "silhouette_score"
+                ),
+                "Davies-Bouldin": result.get(
+                    "davies_bouldin_score"
+                ),
+                "Calinski-Harabasz": result.get(
+                    "calinski_harabasz_score"
+                ),
+                "Clusters": result.get(
+                    "clusters",
+                    [],
+                ),
+            }
+
+    # --------------------------------------------------
+    # Associations
+    # --------------------------------------------------
+
+    associations = etae_context.get(
+        "associations"
+    )
+
+    if isinstance(
+        associations,
+        dict,
+    ):
+
+        association_summary = {
+            "Variable textuelle": (
+                associations.get(
+                    "text_column"
+                )
+            ),
+            "Variable structurée": (
+                associations.get(
+                    "target"
+                )
+            ),
+            "Type de variable": (
+                associations.get(
+                    "target_type"
+                )
+            ),
+        }
+
+        topic_result = associations.get(
+            "topic_result"
+        )
+
+        if isinstance(
+            topic_result,
+            dict,
+        ):
+            inference = topic_result.get(
+                "inference",
+                {},
+            )
+
+            if isinstance(
+                inference,
+                dict,
+            ):
+                anova = inference.get(
+                    "anova",
+                    {},
+                )
+
+                kruskal = inference.get(
+                    "kruskal",
+                    {},
+                )
+
+                eta_squared = inference.get(
+                    "eta_squared",
+                    {},
+                )
+
+                if isinstance(anova, dict):
+                    association_summary[
+                        "ANOVA - p-value"
+                    ] = anova.get(
+                        "p_value"
+                    )
+
+                if isinstance(
+                    kruskal,
+                    dict,
+                ):
+                    association_summary[
+                        "Kruskal-Wallis - p-value"
+                    ] = kruskal.get(
+                        "p_value"
+                    )
+
+                if isinstance(
+                    eta_squared,
+                    dict,
+                ):
+                    association_summary[
+                        "Eta carré"
+                    ] = eta_squared.get(
+                        "value"
+                    )
+
+        sentiment_result = associations.get(
+            "sentiment_result"
+        )
+
+        if isinstance(
+            sentiment_result,
+            dict,
+        ):
+            association_summary[
+                "Sentiment - ANOVA p-value"
+            ] = sentiment_result.get(
+                "anova_p_value"
+            )
+
+            association_summary[
+                "Sentiment - Kruskal p-value"
+            ] = sentiment_result.get(
+                "kruskal_p_value"
+            )
+
+        topic_interpretation = associations.get(
+            "topic_interpretation"
+        )
+
+        if isinstance(
+            topic_interpretation,
+            dict,
+        ):
+            association_summary[
+                "Interprétation thèmes"
+            ] = topic_interpretation.get(
+                "statements",
+                [],
+            )
+
+        sentiment_interpretation = (
+            associations.get(
+                "sentiment_interpretation"
+            )
+            or associations.get(
+                "interpretation"
+            )
+        )
+
+        if isinstance(
+            sentiment_interpretation,
+            dict,
+        ):
+            association_summary[
+                "Interprétation sentiment"
+            ] = (
+                sentiment_interpretation.get(
+                    "statements",
+                    [],
+                )
+            )
+
+        compact[
+            "Associations texte / données"
+        ] = association_summary
+
+    return compact
+
+
 def _compact_ekde_for_report(
     ekde_context,
 ):
@@ -262,6 +702,7 @@ def generate_report(
 
     eidpp_context = analyses.get("eidpp")
     elae_context = analyses.get("elae")
+    etae_context = analyses.get("etae")
     ekde_context = analyses.get("ekde")
     eaie_context = analyses.get("eaie")
     exaie_context = analyses.get("exaie")
@@ -620,6 +1061,59 @@ def generate_report(
                     "exploratoire produits par ELAE."
                 ),
             )
+
+    # ======================================================
+    # ETAE
+    # ======================================================
+
+    if "etae" in selected_sections:
+
+        if etae_context is None:
+
+            engine.add_stage(
+                "etae",
+                _stage_unavailable(
+                    "Analyse textuelle"
+                ),
+                limitations=[
+                    (
+                        "Aucune analyse textuelle ETAE "
+                        "persistée n'est disponible "
+                        "pour ce jeu de données."
+                    )
+                ],
+            )
+
+        else:
+
+            etae_report_data = (
+                _compact_etae_for_report(
+                    etae_context
+                )
+            )
+
+            engine.add_stage(
+                "etae",
+                etae_report_data,
+                interpretation=(
+                    "Résultats de l'analyse textuelle "
+                    "produits par ETAE : profil du corpus, "
+                    "fréquences lexicales, n-grammes, "
+                    "TF-IDF, sentiment, thèmes, clustering "
+                    "textuel et associations avec les "
+                    "variables structurées lorsque ces "
+                    "analyses sont disponibles."
+                ),
+                limitations=[
+                    (
+                        "Les résultats textuels doivent être "
+                        "interprétés en tenant compte de la "
+                        "diversité réelle du corpus et du "
+                        "nombre de textes distincts."
+                    )
+                ],
+            )
+
 
     # ======================================================
     # EKDE

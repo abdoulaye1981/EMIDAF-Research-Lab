@@ -737,6 +737,34 @@ def get_page_layout(pathname):
             "icon": "bi-bar-chart-line",
         },
 
+        "/etae": {
+            "title": "Analyse textuelle : ETAE",
+            "description": (
+                "Analysez les corpus textuels et mettez en évidence "
+                "leurs structures lexicales et sémantiques."
+            ),
+            "objective": (
+                "Extraire et interpréter des informations à partir "
+                "des variables textuelles du jeu de données."
+            ),
+            "approach": (
+                "Profil de corpus, fréquences lexicales, n-grams, "
+                "TF-IDF, sentiment, thèmes, clustering textuel "
+                "et associations texte/données."
+            ),
+            "result": (
+                "Une analyse textuelle structurée, documentée "
+                "et reliée aux variables quantitatives ou "
+                "catégorielles disponibles."
+            ),
+            "instruction": (
+                "Ouvrez un projet, sélectionnez un jeu de données "
+                "contenant au moins une variable textuelle puis "
+                "accédez à ETAE."
+            ),
+            "icon": "bi-chat-square-text",
+        },
+
         "/ekde": {
             "title": "Découverte de connaissances : EKDE",
             "description": (

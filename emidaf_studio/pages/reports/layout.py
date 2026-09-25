@@ -25,6 +25,10 @@ REPORT_STAGES = [
         "value": "elae",
     },
     {
+        "label": "Analyse textuelle",
+        "value": "etae",
+    },
+    {
         "label": "Découverte de connaissances",
         "value": "ekde",
     },
@@ -164,6 +168,11 @@ def reports_layout(project_id, dataset_id):
             project_id,
             dataset_id,
             "elae",
+        ),
+        "etae": has_analysis(
+            project_id,
+            dataset_id,
+            "etae",
         ),
         "ekde": has_analysis(
             project_id,

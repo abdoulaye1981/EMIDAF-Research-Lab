@@ -509,6 +509,10 @@ def request_delete_project(
         "href",
     ),
     Output(
+        "project-detail-etae-link",
+        "href",
+    ),
+    Output(
         "project-detail-ekde-link",
         "href",
     ),
@@ -554,6 +558,7 @@ def update_project_workspace_links(
             "#",
             "#",
             "#",
+            "#",
         )
 
     base = (
@@ -565,6 +570,7 @@ def update_project_workspace_links(
         base,
         base + "/eidpp",
         base + "/elae",
+        base + "/etae",
         base + "/ekde",
         base + "/eaie",
         base + "/exaie",

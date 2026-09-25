@@ -415,13 +415,13 @@ def elae_layout(project_id, dataset_id):
                     dbc.Col(
                         dcc.Link(
                             dbc.Button(
-                                "Ouvrir EKDE",
+                                "Ouvrir ETAE",
                                 color="success",
                                 className="w-100",
                             ),
                             href=(
                                 f"/projects/{project_id}"
-                                f"/datasets/{dataset_id}/ekde"
+                                f"/datasets/{dataset_id}/etae"
                             ),
                         ),
                         md=4,

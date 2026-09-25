@@ -931,6 +931,24 @@ def project_detail_layout(project_id):
 
                                 dcc.Link(
                                     dbc.Button(
+                                        "Analyse textuelle ETAE",
+                                        color="secondary",
+                                        outline=True,
+                                        className="w-100",
+                                    ),
+                                    id=(
+                                        "project-detail-"
+                                        "etae-link"
+                                    ),
+                                    href="#",
+                                ),
+
+
+
+
+
+                                dcc.Link(
+                                    dbc.Button(
                                         "Découverte EKDE",
                                         color="secondary",
                                         outline=True,

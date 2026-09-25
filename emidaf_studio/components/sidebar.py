@@ -126,6 +126,11 @@ sidebar = html.Div(
                     "/elae",
                 ),
                 nav_item(
+                    "bi-chat-square-text",
+                    "Analyse textuelle",
+                    "/etae",
+                ),
+                nav_item(
                     "bi-diagram-3",
                     "Découverte de connaissances",
                     "/ekde",

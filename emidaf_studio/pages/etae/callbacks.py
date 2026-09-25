@@ -15,9 +15,12 @@ from dash import (
     Input,
     Output,
     callback,
+    html,
 )
 
 import dash_bootstrap_components as dbc
+
+from emidaf_core.etae import ETAEEngine
 
 from emidaf_studio.pages.inspection.layout import (
     load_dataset,
@@ -61,6 +64,63 @@ def _load_etae_dataframe(
     return result
 
 
+
+
+def _serialize_etae_result(
+    result,
+):
+    """
+    Convertit un résultat ETAE en payload
+    compatible avec la persistance SQLite.
+    """
+
+    if result is None:
+        return None
+
+    to_dict = getattr(
+        result,
+        "to_dict",
+        None,
+    )
+
+    if callable(to_dict):
+        return to_dict()
+
+    if isinstance(
+        result,
+        dict,
+    ):
+        return dict(result)
+
+    raise TypeError(
+        "Le résultat ETAE n'est pas "
+        "sérialisable."
+    )
+
+
+def _persist_etae_section(
+    project_id,
+    dataset_id,
+    section,
+    payload,
+):
+    """
+    Persiste une sous-section ETAE dans
+    le registre analytique générique EMIDAF.
+    """
+
+    from emidaf_studio.services.model_registry import (
+        merge_analysis_section,
+    )
+
+    return merge_analysis_section(
+        int(project_id),
+        int(dataset_id),
+        "etae",
+        section,
+        payload,
+    )
+
 @callback(
     Output(
         "etae-text-column",
@@ -88,36 +148,30 @@ def initialize_etae_text_columns(
     dataset_id,
 ):
     """
-    Détecte automatiquement les variables
-    contenant vraisemblablement du texte libre.
+    Initialise les variables textuelles ETAE.
+
+    La détection automatique sert de recommandation.
+    Les colonnes candidates restent sélectionnables
+    manuellement même si elles ne franchissent pas
+    tous les seuils automatiques.
     """
 
-    if (
-        project_id is None
-        or dataset_id is None
-    ):
+
+    if project_id is None or dataset_id is None:
         return (
             [],
             None,
             dbc.Alert(
-                "Projet ou dataset indisponible.",
+                "Projet ou jeu de données indisponible.",
                 color="warning",
                 className="py-2 mb-0",
             ),
         )
 
     try:
-        dataframe = (
-            _load_etae_dataframe(
-                project_id,
-                dataset_id,
-            )
-        )
-
-        # Import différé pour préserver
-        # le démarrage léger de Studio.
-        from emidaf_core.etae import (
-            ETAEEngine,
+        dataframe = _load_etae_dataframe(
+            project_id,
+            dataset_id,
         )
 
         engine = ETAEEngine()
@@ -134,78 +188,85 @@ def initialize_etae_text_columns(
             if candidate.is_text
         ]
 
-    except Exception:
-        logger.exception(
-            "ETAE text-column detection failed "
-            "(project_id=%s, dataset_id=%s)",
-            project_id,
-            dataset_id,
+
+        # Toutes les colonnes candidates restent
+        # accessibles à l'utilisateur.
+        options = []
+
+        for candidate in candidates:
+            label = candidate.column
+
+            if candidate.is_text:
+                label = (
+                    f"{candidate.column} "
+                    "(texte détecté)"
+                )
+
+            options.append(
+                {
+                    "label": label,
+                    "value": candidate.column,
+                }
+            )
+
+        # Pré-sélection automatique uniquement
+        # lorsqu'un vrai texte libre est détecté.
+        selected = (
+            detected[0].column
+            if detected
+            else None
         )
+
+        if detected:
+            message = (
+                f"{len(detected)} variable(s) "
+                "textuelle(s) détectée(s) "
+                "automatiquement."
+            )
+            color = "success"
+
+        elif candidates:
+            message = (
+                "Aucune variable n'a franchi tous "
+                "les seuils automatiques. "
+                "Vous pouvez néanmoins sélectionner "
+                "manuellement une colonne textuelle "
+                "dans la liste."
+            )
+            color = "warning"
+
+        else:
+            message = (
+                "Aucune colonne textuelle candidate "
+                "n'est disponible dans ce jeu de données."
+            )
+            color = "warning"
+
+        return (
+            options,
+            selected,
+            dbc.Alert(
+                message,
+                color=color,
+                className="py-2 mb-0",
+            ),
+        )
+
+    except Exception as exc:
 
         return (
             [],
             None,
             dbc.Alert(
                 (
-                    "Impossible d'analyser les "
-                    "colonnes textuelles du dataset."
+                    "Impossible d'initialiser "
+                    "les variables textuelles : "
+                    f"{exc}"
                 ),
                 color="danger",
                 className="py-2 mb-0",
             ),
         )
-
-    if not detected:
-        return (
-            [],
-            None,
-            dbc.Alert(
-                (
-                    "Aucune variable de texte libre "
-                    "n'a été détectée automatiquement."
-                ),
-                color="warning",
-                className="py-2 mb-0",
-            ),
-        )
-
-    options = [
-        {
-            "label": (
-                f"{candidate.column} "
-                f"— {candidate.mean_words:.1f} "
-                "mots/doc."
-            ),
-            "value": candidate.column,
-        }
-        for candidate in detected
-    ]
-
-    selected = (
-        detected[0].column
-    )
-
-    count = len(
-        detected
-    )
-
-    message = (
-        f"{count} variable"
-        f"{'s' if count > 1 else ''} "
-        "de texte libre détectée"
-        f"{'s' if count > 1 else ''}."
-    )
-
-    return (
-        options,
-        selected,
-        dbc.Alert(
-            message,
-            color="success",
-            className="py-2 mb-0",
-        ),
-    )
-
 
 @callback(
     Output(
@@ -240,6 +301,7 @@ def render_etae_tab(
     dataset_id,
     association_target,
 ):
+
     """
     Rend le contenu de l'onglet ETAE actif.
     """
@@ -296,6 +358,29 @@ def render_etae_tab(
                     remove_stopwords=True,
                     preserve_negations=True,
                 ),
+            )
+
+            section_name = (
+                "lexique"
+                if ngram_size == 1
+                else "ngrams"
+            )
+
+            _persist_etae_section(
+                project_id,
+                dataset_id,
+                section_name,
+                {
+                    "schema_version": 1,
+                    "text_column": text_column,
+                    "ngram_size": ngram_size,
+                    "top_n": 30,
+                    "result": (
+                        _serialize_etae_result(
+                            result
+                        )
+                    ),
+                },
             )
 
             title = (
@@ -378,6 +463,24 @@ def render_etae_tab(
                 ),
             )
 
+            _persist_etae_section(
+                project_id,
+                dataset_id,
+                "tfidf",
+                {
+                    "schema_version": 1,
+                    "text_column": text_column,
+                    "max_features": 5000,
+                    "ngram_range": [1, 2],
+                    "top_n": 30,
+                    "result": (
+                        _serialize_etae_result(
+                            result
+                        )
+                    ),
+                },
+            )
+
             return html.Div(
                 [
                     html.H4(
@@ -440,6 +543,21 @@ def render_etae_tab(
             result = engine.analyze_sentiment(
                 dataframe,
                 text_column,
+            )
+
+            _persist_etae_section(
+                project_id,
+                dataset_id,
+                "sentiment",
+                {
+                    "schema_version": 1,
+                    "text_column": text_column,
+                    "result": (
+                        _serialize_etae_result(
+                            result
+                        )
+                    ),
+                },
             )
 
             return html.Div(
@@ -517,6 +635,24 @@ def render_etae_tab(
                 ),
             )
 
+            _persist_etae_section(
+                project_id,
+                dataset_id,
+                "topics",
+                {
+                    "schema_version": 1,
+                    "text_column": text_column,
+                    "n_topics": 3,
+                    "top_terms": 10,
+                    "ngram_range": [1, 2],
+                    "result": (
+                        _serialize_etae_result(
+                            result
+                        )
+                    ),
+                },
+            )
+
             return html.Div(
                 [
                     html.H4(
@@ -591,6 +727,25 @@ def render_etae_tab(
                     remove_stopwords=True,
                     preserve_negations=True,
                 ),
+            )
+
+            _persist_etae_section(
+                project_id,
+                dataset_id,
+                "clusters",
+                {
+                    "schema_version": 1,
+                    "text_column": text_column,
+                    "n_clusters": 3,
+                    "top_terms": 10,
+                    "ngram_range": [1, 2],
+                    "random_state": 42,
+                    "result": (
+                        _serialize_etae_result(
+                            result
+                        )
+                    ),
+                },
             )
 
             return html.Div(
@@ -699,6 +854,38 @@ def render_etae_tab(
                     )
                 )
 
+                _persist_etae_section(
+                    project_id,
+                    dataset_id,
+                    "associations",
+                    {
+                        "schema_version": 1,
+                        "text_column": text_column,
+                        "target": association_target,
+                        "target_type": "numeric",
+                        "topic_result": (
+                            _serialize_etae_result(
+                                topic_result
+                            )
+                        ),
+                        "sentiment_result": (
+                            _serialize_etae_result(
+                                sentiment_result
+                            )
+                        ),
+                        "topic_interpretation": (
+                            _serialize_etae_result(
+                                topic_interpretation
+                            )
+                        ),
+                        "sentiment_interpretation": (
+                            _serialize_etae_result(
+                                sentiment_interpretation
+                            )
+                        ),
+                    },
+                )
+
                 return html.Div(
                     [
                         html.H4(
@@ -753,6 +940,28 @@ def render_etae_tab(
                 engine.interpret_sentiment_categorical(
                     sentiment_result
                 )
+            )
+
+            _persist_etae_section(
+                project_id,
+                dataset_id,
+                "associations",
+                {
+                    "schema_version": 1,
+                    "text_column": text_column,
+                    "target": association_target,
+                    "target_type": "categorical",
+                    "sentiment_result": (
+                        _serialize_etae_result(
+                            sentiment_result
+                        )
+                    ),
+                    "interpretation": (
+                        _serialize_etae_result(
+                            interpretation
+                        )
+                    ),
+                },
             )
 
             return html.Div(
@@ -854,6 +1063,23 @@ def render_etae_tab(
             text_column,
         )
 
+
+        _persist_etae_section(
+            project_id,
+            dataset_id,
+            "corpus",
+            {
+                "schema_version": 1,
+                "text_column": text_column,
+                "result": (
+                    _serialize_etae_result(
+                        result
+                    )
+                ),
+            },
+        )
+
+
         return html.Div(
             [
                 html.Div(
@@ -907,113 +1133,6 @@ def render_etae_tab(
             ],
             color="danger",
         )
-
-
-@callback(
-    Output(
-        "etae-association-target",
-        "options",
-    ),
-    Output(
-        "etae-association-target",
-        "value",
-    ),
-    Input(
-        "etae-text-column",
-        "value",
-    ),
-    Input(
-        "etae-project-id",
-        "data",
-    ),
-    Input(
-        "etae-dataset-id",
-        "data",
-    ),
-)
-def initialize_etae_association_target(
-    text_column,
-    project_id,
-    dataset_id,
-):
-    """
-    Prépare les variables structurées utilisables
-    dans les analyses d'association ETAE.
-    """
-
-    if (
-        not text_column
-        or project_id is None
-        or dataset_id is None
-    ):
-        return (
-            [],
-            None,
-        )
-
-    try:
-        dataframe = (
-            _load_etae_dataframe(
-                project_id,
-                dataset_id,
-            )
-        )
-
-    except Exception:
-        logger.exception(
-            "ETAE association target loading failed "
-            "(project_id=%s, dataset_id=%s)",
-            project_id,
-            dataset_id,
-        )
-
-        return (
-            [],
-            None,
-        )
-
-    excluded = {
-        text_column,
-    }
-
-    options = []
-
-    numeric_columns = list(
-        dataframe
-        .select_dtypes(
-            include="number"
-        )
-        .columns
-    )
-
-    for column in dataframe.columns:
-        if column in excluded:
-            continue
-
-        kind = (
-            "Numérique"
-            if column in numeric_columns
-            else "Catégorielle"
-        )
-
-        options.append(
-            {
-                "label": (
-                    f"{column} — {kind}"
-                ),
-                "value": column,
-            }
-        )
-
-    selected = None
-
-    if "note_maths" in dataframe.columns:
-        selected = "note_maths"
-
-    return (
-        options,
-        selected,
-    )
 
 
 @callback(

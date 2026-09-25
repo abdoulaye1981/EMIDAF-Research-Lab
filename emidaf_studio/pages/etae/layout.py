@@ -161,6 +161,58 @@ def build_etae_layout(
                 ),
                 type="default",
             ),
+
+            html.Hr(),
+
+            dbc.Row(
+                [
+                    dbc.Col(
+                        dcc.Link(
+                            dbc.Button(
+                                "← ELAE",
+                                color="secondary",
+                                className="w-100",
+                            ),
+                            href=(
+                                f"/projects/{project_id}"
+                                f"/datasets/{dataset_id}/elae"
+                            ),
+                        ),
+                        md=4,
+                    ),
+
+                    dbc.Col(
+                        dcc.Link(
+                            dbc.Button(
+                                "Espace projet",
+                                color="primary",
+                                outline=True,
+                                className="w-100",
+                            ),
+                            href=(
+                                f"/projects/{project_id}"
+                            ),
+                        ),
+                        md=4,
+                    ),
+
+                    dbc.Col(
+                        dcc.Link(
+                            dbc.Button(
+                                "Ouvrir EKDE",
+                                color="success",
+                                className="w-100",
+                            ),
+                            href=(
+                                f"/projects/{project_id}"
+                                f"/datasets/{dataset_id}/ekde"
+                            ),
+                        ),
+                        md=4,
+                    ),
+                ],
+                className="g-3 mt-3",
+            ),
         ],
         fluid=True,
         className="py-4",

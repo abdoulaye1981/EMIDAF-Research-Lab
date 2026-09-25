@@ -27,6 +27,7 @@ class ReportEngine:
         "inspection": "Inspection des données",
         "preprocessing": "Prétraitement des données",
         "elae": "Analyse exploratoire",
+        "etae": "Analyse textuelle",
         "ekde": "Découverte de connaissances",
         "eaie": "Modélisation prédictive",
         "exaie": "Explicabilité des modèles",
