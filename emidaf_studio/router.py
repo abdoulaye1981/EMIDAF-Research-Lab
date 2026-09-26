@@ -765,6 +765,34 @@ def get_page_layout(pathname):
             "icon": "bi-chat-square-text",
         },
 
+        "/eqae": {
+            "title": "Analyse qualitative : EQAE",
+            "description": (
+                "Structurez, codez et interprétez les données "
+                "qualitatives avec validation du chercheur."
+            ),
+            "objective": (
+                "Construire une analyse qualitative traçable "
+                "à partir des segments, codes, thèmes, "
+                "verbatims et mémos analytiques."
+            ),
+            "approach": (
+                "Codebook, codage manuel et assisté, thèmes "
+                "et sous-thèmes, verbatims, cooccurrences, "
+                "mémos et synthèse qualitative."
+            ),
+            "result": (
+                "Une analyse qualitative structurée, "
+                "documentée et validée par le chercheur."
+            ),
+            "instruction": (
+                "Ouvrez un projet, sélectionnez un jeu de données "
+                "contenant des données qualitatives puis "
+                "accédez à EQAE."
+            ),
+            "icon": "bi-journal-text",
+        },
+
         "/ekde": {
             "title": "Découverte de connaissances : EKDE",
             "description": (
@@ -1076,6 +1104,29 @@ def get_page_layout(pathname):
         )
 
         return build_etae_layout(
+            project_id=project_id,
+            dataset_id=dataset_id,
+        )
+
+    # ======================================================
+    # EQAE - Qualitative Analysis Engine
+    # ======================================================
+
+    match = re.fullmatch(
+        r"/projects/(\d+)/datasets/(\d+)/eqae",
+        pathname or ""
+    )
+
+    if match:
+
+        project_id = int(match.group(1))
+        dataset_id = int(match.group(2))
+
+        from emidaf_studio.pages.eqae.layout import (
+            build_eqae_layout
+        )
+
+        return build_eqae_layout(
             project_id=project_id,
             dataset_id=dataset_id,
         )

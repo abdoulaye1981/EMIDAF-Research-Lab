@@ -171,6 +171,7 @@ import emidaf_studio.pages.elae.callbacks  # noqa: E402,F401
 import emidaf_studio.pages.ekde.callbacks  # noqa: E402,F401
 import emidaf_studio.pages.eaie.callbacks  # noqa: E402,F401
 import emidaf_studio.pages.etae.callbacks  # noqa: E402,F401
+import emidaf_studio.pages.eqae.callbacks  # noqa: E402,F401
 import emidaf_studio.pages.exaie.callbacks  # noqa: E402,F401
 import emidaf_studio.pages.edse.callbacks  # noqa: E402,F401
 import emidaf_studio.pages.reports.callbacks  # noqa: E402,F401

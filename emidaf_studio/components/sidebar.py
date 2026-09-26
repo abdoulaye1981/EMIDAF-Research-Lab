@@ -131,6 +131,11 @@ sidebar = html.Div(
                     "/etae",
                 ),
                 nav_item(
+                    "bi-journal-text",
+                    "Analyse qualitative",
+                    "/eqae",
+                ),
+                nav_item(
                     "bi-diagram-3",
                     "Découverte de connaissances",
                     "/ekde",
