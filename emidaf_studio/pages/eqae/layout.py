@@ -89,6 +89,67 @@ def build_eqae_layout(
                 className="mb-4",
             ),
 
+            dbc.Card(
+                dbc.CardBody(
+                    [
+                        dbc.Row(
+                            [
+                                dbc.Col(
+                                    [
+                                        html.Label(
+                                            "Variable qualitative",
+                                            className="fw-semibold",
+                                        ),
+                                        dcc.Dropdown(
+                                            id="eqae-text-column",
+                                            options=[],
+                                            value=None,
+                                            clearable=False,
+                                            placeholder=(
+                                                "Sélectionner une "
+                                                "variable qualitative"
+                                            ),
+                                        ),
+                                    ],
+                                    md=7,
+                                ),
+
+                                dbc.Col(
+                                    [
+                                        html.Label(
+                                            "Segmentation initiale",
+                                            className="fw-semibold",
+                                        ),
+                                        dcc.Dropdown(
+                                            id="eqae-segmentation-strategy",
+                                            options=[
+                                                {
+                                                    "label": (
+                                                        "Document entier "
+                                                        "(1 ligne = 1 segment)"
+                                                    ),
+                                                    "value": "document_entier",
+                                                },
+                                            ],
+                                            value="document_entier",
+                                            clearable=False,
+                                        ),
+                                    ],
+                                    md=5,
+                                ),
+                            ],
+                            className="g-3",
+                        ),
+
+                        html.Div(
+                            id="eqae-text-column-status",
+                            className="mt-3",
+                        ),
+                    ]
+                ),
+                className="mb-4 shadow-sm",
+            ),
+
             dbc.Tabs(
                 [
                     dbc.Tab(

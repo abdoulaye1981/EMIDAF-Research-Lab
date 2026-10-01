@@ -321,3 +321,124 @@ def test_serialization():
         result["suggestions"][0]["status"]
         == "pending"
     )
+
+
+def test_restore_pending_suggestion_without_assignment():
+
+    (
+        _,
+        stress,
+        _,
+        coder,
+        manager,
+        segment,
+    ) = build_objects()
+
+    from emidaf_core.eqae import (
+        CodingSuggestion,
+    )
+
+    suggestion = CodingSuggestion(
+        suggestion_id="persisted-pending",
+        segment_id=segment.segment_id,
+        document_id=segment.document_id,
+        suggested_code_id=stress.code_id,
+        confidence=0.82,
+        rationale="Suggestion persistée.",
+        source="assisted",
+        status="pending",
+    )
+
+    restored = manager.restore_suggestion(
+        segment=segment,
+        suggestion=suggestion,
+    )
+
+    assert restored == suggestion
+    assert len(manager.suggestions) == 1
+    assert coder.assignments == []
+
+
+def test_restore_reviewed_suggestion_does_not_duplicate_assignment():
+
+    (
+        _,
+        stress,
+        _,
+        coder,
+        manager,
+        segment,
+    ) = build_objects()
+
+    from emidaf_core.eqae import (
+        CodingSuggestion,
+    )
+
+    coder.assign_code(
+        segment=segment,
+        code_id=stress.code_id,
+        mode="assisted",
+        memo="Validation déjà persistée.",
+        assignment_id="persisted-assignment",
+    )
+
+    suggestion = CodingSuggestion(
+        suggestion_id="persisted-accepted",
+        segment_id=segment.segment_id,
+        document_id=segment.document_id,
+        suggested_code_id=stress.code_id,
+        confidence=0.90,
+        rationale="Suggestion persistée.",
+        source="assisted",
+        status="accepted",
+        reviewed_code_id=stress.code_id,
+        reviewer_note="Validation déjà persistée.",
+    )
+
+    manager.restore_suggestion(
+        segment=segment,
+        suggestion=suggestion,
+    )
+
+    assert len(manager.suggestions) == 1
+    assert len(coder.assignments) == 1
+    assert (
+        coder.assignments[0].assignment_id
+        == "persisted-assignment"
+    )
+
+
+def test_restore_rejected_suggestion_without_assignment():
+
+    (
+        _,
+        stress,
+        _,
+        coder,
+        manager,
+        segment,
+    ) = build_objects()
+
+    from emidaf_core.eqae import (
+        CodingSuggestion,
+    )
+
+    suggestion = CodingSuggestion(
+        suggestion_id="persisted-rejected",
+        segment_id=segment.segment_id,
+        document_id=segment.document_id,
+        suggested_code_id=stress.code_id,
+        status="rejected",
+        reviewer_note="Non pertinent.",
+    )
+
+    manager.restore_suggestion(
+        segment=segment,
+        suggestion=suggestion,
+    )
+
+    assert (
+        manager.suggestions[0].status
+        == "rejected"
+    )
+    assert coder.assignments == []

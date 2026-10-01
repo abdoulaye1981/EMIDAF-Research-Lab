@@ -223,6 +223,164 @@ class AssistedCodingManager:
 
         return suggestion
 
+    def restore_suggestion(
+        self,
+        *,
+        segment: QualitativeSegment,
+        suggestion: CodingSuggestion,
+    ) -> CodingSuggestion:
+        """
+        Restaure une suggestion persistée sans
+        réexécuter son action de validation.
+
+        Cette méthode est destinée à l'hydratation
+        d'un état EQAE déjà validé et ne crée aucune
+        nouvelle affectation dans QualitativeCoder.
+        """
+
+        if not isinstance(
+            segment,
+            QualitativeSegment,
+        ):
+            raise TypeError(
+                "segment doit être une instance "
+                "de QualitativeSegment."
+            )
+
+        if not isinstance(
+            suggestion,
+            CodingSuggestion,
+        ):
+            raise TypeError(
+                "suggestion doit être une instance "
+                "de CodingSuggestion."
+            )
+
+        identifier = str(
+            suggestion.suggestion_id
+        ).strip()
+
+        if not identifier:
+            raise ValueError(
+                "suggestion_id ne peut pas être vide."
+            )
+
+        if identifier in self._suggestions:
+            raise ValueError(
+                "Identifiant de suggestion déjà utilisé : "
+                f"{identifier}"
+            )
+
+        if (
+            suggestion.segment_id
+            != segment.segment_id
+        ):
+            raise ValueError(
+                "La suggestion ne correspond pas "
+                "au segment fourni."
+            )
+
+        if (
+            suggestion.document_id
+            != segment.document_id
+        ):
+            raise ValueError(
+                "Le document de la suggestion "
+                "ne correspond pas au segment."
+            )
+
+        if (
+            self.codebook.get_code(
+                suggestion.suggested_code_id
+            )
+            is None
+        ):
+            raise ValueError(
+                "Code suggéré introuvable : "
+                f"{suggestion.suggested_code_id}"
+            )
+
+        if (
+            suggestion.status
+            not in self.VALID_STATUSES
+        ):
+            raise ValueError(
+                "Statut invalide : "
+                f"{suggestion.status}"
+            )
+
+        if suggestion.confidence is not None:
+            confidence = float(
+                suggestion.confidence
+            )
+
+            if not (
+                0.0
+                <= confidence
+                <= 1.0
+            ):
+                raise ValueError(
+                    "confidence doit être comprise "
+                    "entre 0 et 1."
+                )
+
+        if (
+            suggestion.reviewed_code_id
+            is not None
+            and self.codebook.get_code(
+                suggestion.reviewed_code_id
+            )
+            is None
+        ):
+            raise ValueError(
+                "Code validé introuvable : "
+                f"{suggestion.reviewed_code_id}"
+            )
+
+        if (
+            suggestion.status
+            == "accepted"
+            and suggestion.reviewed_code_id
+            != suggestion.suggested_code_id
+        ):
+            raise ValueError(
+                "Une suggestion accepted doit conserver "
+                "le code suggéré comme code validé."
+            )
+
+        if (
+            suggestion.status
+            == "rejected"
+            and suggestion.reviewed_code_id
+            is not None
+        ):
+            raise ValueError(
+                "Une suggestion rejected ne peut pas "
+                "avoir de reviewed_code_id."
+            )
+
+        if (
+            suggestion.status
+            == "pending"
+            and suggestion.reviewed_code_id
+            is not None
+        ):
+            raise ValueError(
+                "Une suggestion pending ne peut pas "
+                "avoir de reviewed_code_id."
+            )
+
+        self._segments[
+            segment.segment_id
+        ] = segment
+
+        self._suggestions[
+            identifier
+        ] = suggestion
+
+        return suggestion
+
+
     def get_suggestion(
         self,
         suggestion_id: str,
