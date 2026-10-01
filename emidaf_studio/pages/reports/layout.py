@@ -29,6 +29,10 @@ REPORT_STAGES = [
         "value": "etae",
     },
     {
+        "label": "Analyse qualitative",
+        "value": "eqae",
+    },
+    {
         "label": "Découverte de connaissances",
         "value": "ekde",
     },
@@ -173,6 +177,11 @@ def reports_layout(project_id, dataset_id):
             project_id,
             dataset_id,
             "etae",
+        ),
+        "eqae": has_analysis(
+            project_id,
+            dataset_id,
+            "eqae",
         ),
         "ekde": has_analysis(
             project_id,

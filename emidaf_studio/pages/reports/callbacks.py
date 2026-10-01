@@ -481,6 +481,442 @@ def _compact_etae_for_report(
     return compact
 
 
+def _compact_eqae_for_report(
+    eqae_context,
+):
+    """
+    Prépare une version compacte et lisible
+    des résultats EQAE pour le rapport.
+
+    Cette fonction organise uniquement les
+    résultats persistés et validés dans EQAE.
+    Elle ne produit pas d'interprétation
+    qualitative automatique.
+    """
+
+    if not isinstance(
+        eqae_context,
+        dict,
+    ):
+        return eqae_context
+
+    compact = {}
+
+    # --------------------------------------------------
+    # Corpus
+    # --------------------------------------------------
+
+    corpus = eqae_context.get(
+        "corpus"
+    )
+
+    if isinstance(
+        corpus,
+        dict,
+    ):
+        compact["Corpus qualitatif"] = {
+            "Variable qualitative": (
+                corpus.get(
+                    "text_column"
+                )
+            ),
+            "Stratégie de segmentation": (
+                corpus.get(
+                    "segmentation_strategy"
+                )
+            ),
+            "Documents valides": (
+                corpus.get(
+                    "n_valid_documents"
+                )
+            ),
+            "Segments": (
+                corpus.get(
+                    "n_segments"
+                )
+            ),
+            "Valeurs manquantes": (
+                corpus.get(
+                    "n_missing"
+                )
+            ),
+            "Textes vides": (
+                corpus.get(
+                    "n_empty"
+                )
+            ),
+        }
+
+    # --------------------------------------------------
+    # Codebook
+    # --------------------------------------------------
+
+    codebook = eqae_context.get(
+        "codebook"
+    )
+
+    if isinstance(
+        codebook,
+        dict,
+    ):
+        codes = []
+
+        for item in codebook.get(
+            "codes",
+            [],
+        ):
+            if not isinstance(
+                item,
+                dict,
+            ):
+                continue
+
+            codes.append(
+                {
+                    "Nom": item.get(
+                        "name"
+                    ),
+                    "Description": item.get(
+                        "description"
+                    ),
+                    "Code parent": item.get(
+                        "parent_code_id"
+                    ),
+                    "Actif": item.get(
+                        "is_active"
+                    ),
+                }
+            )
+
+        compact["Codebook"] = {
+            "Nom": codebook.get(
+                "name"
+            ),
+            "Description": codebook.get(
+                "description"
+            ),
+            "Nombre de codes": len(
+                codes
+            ),
+            "Codes": codes,
+        }
+
+    # --------------------------------------------------
+    # Codage
+    # --------------------------------------------------
+
+    coding = eqae_context.get(
+        "coding"
+    )
+
+    if isinstance(
+        coding,
+        dict,
+    ):
+        assignments = coding.get(
+            "assignments",
+            [],
+        )
+
+        mode_counts = {}
+
+        for item in assignments:
+            if not isinstance(
+                item,
+                dict,
+            ):
+                continue
+
+            mode = item.get(
+                "mode",
+                "unknown",
+            )
+
+            mode_counts[mode] = (
+                mode_counts.get(
+                    mode,
+                    0,
+                )
+                + 1
+            )
+
+        compact["Codage qualitatif"] = {
+            "Variable qualitative": (
+                coding.get(
+                    "text_column"
+                )
+            ),
+            "Nombre d'affectations": len(
+                assignments
+            ),
+            "Répartition par mode": (
+                mode_counts
+            ),
+        }
+
+    # --------------------------------------------------
+    # Codage assisté
+    # --------------------------------------------------
+
+    assisted = eqae_context.get(
+        "assisted"
+    )
+
+    if isinstance(
+        assisted,
+        dict,
+    ):
+        suggestions = assisted.get(
+            "suggestions",
+            [],
+        )
+
+        status_counts = {
+            "pending": 0,
+            "accepted": 0,
+            "modified": 0,
+            "rejected": 0,
+        }
+
+        for item in suggestions:
+            if not isinstance(
+                item,
+                dict,
+            ):
+                continue
+
+            status = item.get(
+                "status"
+            )
+
+            if status in status_counts:
+                status_counts[status] += 1
+
+        compact["Codage assisté"] = {
+            "Nombre de suggestions": len(
+                suggestions
+            ),
+            "Statuts": status_counts,
+            "Principe": (
+                "Les suggestions assistées ne sont "
+                "pas considérées comme des codages "
+                "validés tant que le chercheur ne les "
+                "a pas acceptées ou modifiées."
+            ),
+        }
+
+    # --------------------------------------------------
+    # Thèmes
+    # --------------------------------------------------
+
+    themes_payload = eqae_context.get(
+        "themes"
+    )
+
+    if isinstance(
+        themes_payload,
+        dict,
+    ):
+        themes = []
+
+        for item in themes_payload.get(
+            "themes",
+            [],
+        ):
+            if not isinstance(
+                item,
+                dict,
+            ):
+                continue
+
+            themes.append(
+                {
+                    "Nom": item.get(
+                        "name"
+                    ),
+                    "Description": item.get(
+                        "description"
+                    ),
+                    "Thème parent": item.get(
+                        "parent_theme_id"
+                    ),
+                    "Nombre de codes associés": len(
+                        item.get(
+                            "code_ids",
+                            [],
+                        )
+                    ),
+                }
+            )
+
+        compact["Structure thématique"] = {
+            "Nombre de thèmes": len(
+                themes
+            ),
+            "Thèmes": themes,
+        }
+
+    # --------------------------------------------------
+    # Verbatims
+    # --------------------------------------------------
+
+    quotations = eqae_context.get(
+        "quotations"
+    )
+
+    if isinstance(
+        quotations,
+        dict,
+    ):
+        items = quotations.get(
+            "quotations",
+            [],
+        )
+
+        compact["Verbatims"] = {
+            "Nombre de verbatims": len(
+                items
+            ),
+            "Extraits": [
+                {
+                    "Document": item.get(
+                        "document_id"
+                    ),
+                    "Texte": item.get(
+                        "text"
+                    ),
+                    "Note": item.get(
+                        "note"
+                    ),
+                }
+                for item in items[:20]
+                if isinstance(
+                    item,
+                    dict,
+                )
+            ],
+        }
+
+    # --------------------------------------------------
+    # Cooccurrences
+    # --------------------------------------------------
+
+    cooccurrence = eqae_context.get(
+        "cooccurrence"
+    )
+
+    if isinstance(
+        cooccurrence,
+        dict,
+    ):
+        compact["Cooccurrences de codes"] = {
+            "Niveau": cooccurrence.get(
+                "level"
+            ),
+            "Nombre d'affectations": (
+                cooccurrence.get(
+                    "n_assignments"
+                )
+            ),
+            "Paires": (
+                cooccurrence.get(
+                    "cooccurrences",
+                    [],
+                )
+            ),
+            "Précaution": (
+                "Les cooccurrences sont descriptives "
+                "et ne démontrent pas à elles seules "
+                "une relation causale ou conceptuelle."
+            ),
+        }
+
+    # --------------------------------------------------
+    # Mémos
+    # --------------------------------------------------
+
+    memos = eqae_context.get(
+        "memos"
+    )
+
+    if isinstance(
+        memos,
+        dict,
+    ):
+        memo_items = memos.get(
+            "memos",
+            [],
+        )
+
+        compact["Mémos analytiques"] = {
+            "Nombre de mémos": len(
+                memo_items
+            ),
+            "Mémos": [
+                {
+                    "Titre": item.get(
+                        "title"
+                    ),
+                    "Type de cible": item.get(
+                        "target_type"
+                    ),
+                    "Contenu": item.get(
+                        "content"
+                    ),
+                    "Auteur": item.get(
+                        "author"
+                    ),
+                }
+                for item in memo_items[:20]
+                if isinstance(
+                    item,
+                    dict,
+                )
+            ],
+        }
+
+    # --------------------------------------------------
+    # Synthèse EQAE
+    # --------------------------------------------------
+
+    summary = eqae_context.get(
+        "summary"
+    )
+
+    if isinstance(
+        summary,
+        dict,
+    ):
+        compact["Synthèse qualitative"] = {
+            "Indicateurs globaux": (
+                summary.get(
+                    "global",
+                    {},
+                )
+            ),
+            "Synthèse par code": (
+                summary.get(
+                    "codes",
+                    [],
+                )
+            ),
+            "Synthèse par thème": (
+                summary.get(
+                    "themes",
+                    [],
+                )
+            ),
+            "Codage assisté": (
+                summary.get(
+                    "assisted_coding",
+                    {},
+                )
+            ),
+        }
+
+    return compact
+
+
 def _compact_ekde_for_report(
     ekde_context,
 ):
@@ -703,6 +1139,7 @@ def generate_report(
     eidpp_context = analyses.get("eidpp")
     elae_context = analyses.get("elae")
     etae_context = analyses.get("etae")
+    eqae_context = analyses.get("eqae")
     ekde_context = analyses.get("ekde")
     eaie_context = analyses.get("eaie")
     exaie_context = analyses.get("exaie")
@@ -1114,6 +1551,67 @@ def generate_report(
                 ],
             )
 
+
+    # ======================================================
+    # EQAE
+    # ======================================================
+
+    if "eqae" in selected_sections:
+
+        if eqae_context is None:
+
+            engine.add_stage(
+                "eqae",
+                _stage_unavailable(
+                    "Analyse qualitative"
+                ),
+                limitations=[
+                    (
+                        "Aucune analyse qualitative EQAE "
+                        "persistée n'est disponible "
+                        "pour ce jeu de données."
+                    )
+                ],
+            )
+
+        else:
+
+            eqae_report_data = (
+                _compact_eqae_for_report(
+                    eqae_context
+                )
+            )
+
+            engine.add_stage(
+                "eqae",
+                eqae_report_data,
+                interpretation=(
+                    "Synthèse descriptive des éléments "
+                    "d'analyse qualitative produits dans "
+                    "EQAE : codebook, affectations de codes, "
+                    "codage assisté validé par le chercheur, "
+                    "structure thématique, verbatims, "
+                    "cooccurrences, mémos et synthèse "
+                    "qualitative lorsque ces éléments sont "
+                    "disponibles."
+                ),
+                limitations=[
+                    (
+                        "Les thèmes et interprétations "
+                        "qualitatives relèvent de la validation "
+                        "du chercheur et ne doivent pas être "
+                        "assimilés automatiquement aux thèmes "
+                        "algorithmiques produits par ETAE."
+                    ),
+                    (
+                        "Les fréquences, cooccurrences et "
+                        "suggestions assistées sont des aides "
+                        "descriptives ; elles ne constituent "
+                        "pas, à elles seules, une preuve "
+                        "d'interprétation qualitative."
+                    ),
+                ],
+            )
 
     # ======================================================
     # EKDE

@@ -28,6 +28,7 @@ class ReportEngine:
         "preprocessing": "Prétraitement des données",
         "elae": "Analyse exploratoire",
         "etae": "Analyse textuelle",
+        "eqae": "Analyse qualitative",
         "ekde": "Découverte de connaissances",
         "eaie": "Modélisation prédictive",
         "exaie": "Explicabilité des modèles",
