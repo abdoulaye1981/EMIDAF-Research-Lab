@@ -1131,6 +1131,30 @@ def get_page_layout(pathname):
             dataset_id=dataset_id,
         )
 
+
+    # ======================================================
+    # EMIX - Mixed Methods Integration Engine
+    # ======================================================
+
+    match = re.fullmatch(
+        r"/projects/(\d+)/datasets/(\d+)/emix",
+        pathname or ""
+    )
+
+    if match:
+
+        project_id = int(match.group(1))
+        dataset_id = int(match.group(2))
+
+        from emidaf_studio.pages.emix.layout import (
+            build_emix_layout
+        )
+
+        return build_emix_layout(
+            project_id=project_id,
+            dataset_id=dataset_id,
+        )
+
     # ======================================================
     # EXAIE - Explicabilité des modèles
     # ======================================================

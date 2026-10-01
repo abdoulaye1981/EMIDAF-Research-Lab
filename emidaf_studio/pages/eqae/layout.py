@@ -177,13 +177,13 @@ def build_eqae_layout(
                     dbc.Col(
                         dcc.Link(
                             dbc.Button(
-                                "Ouvrir EKDE",
+                                "Ouvrir EMIX",
                                 color="success",
                                 className="w-100",
                             ),
                             href=(
                                 f"/projects/{project_id}"
-                                f"/datasets/{dataset_id}/ekde"
+                                f"/datasets/{dataset_id}/emix"
                             ),
                         ),
                         md=4,
