@@ -452,6 +452,8 @@ def sentiment_component(
         ]
     )
 
+    MAX_SENTIMENT_PREVIEW = 50
+
     details = pd.DataFrame(
         [
             {
@@ -471,7 +473,9 @@ def sentiment_component(
                     f"{document.coverage * 100:.1f} %"
                 ),
             }
-            for document in result.documents
+            for document in result.documents[
+                :MAX_SENTIMENT_PREVIEW
+            ]
         ]
     )
 
@@ -496,6 +500,19 @@ def sentiment_component(
             html.H5(
                 "Détail par document",
                 className="mt-4 mb-3",
+            ),
+
+            dbc.Alert(
+                (
+                    f"Aperçu limité aux "
+                    f"{min(result.n_documents, MAX_SENTIMENT_PREVIEW)} "
+                    f"premiers documents sur "
+                    f"{result.n_documents}. "
+                    "Les résultats complets restent disponibles "
+                    "dans l'analyse et la persistance."
+                ),
+                color="info",
+                className="mb-3",
             ),
 
             dbc.Table.from_dataframe(
