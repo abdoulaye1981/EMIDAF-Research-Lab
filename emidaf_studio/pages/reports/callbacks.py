@@ -1034,53 +1034,6 @@ def _compact_ekde_for_report(
     return compact
 
 
-@callback(
-    Output(
-        "reports-status",
-        "children",
-    ),
-    Output(
-        "reports-preview",
-        "children",
-    ),
-    Output(
-        "reports-generated-content",
-        "data",
-    ),
-    Output(
-        "reports-generated-filename",
-        "data",
-    ),
-    Output(
-        "reports-download-button",
-        "disabled",
-    ),
-    Input(
-        "reports-generate",
-        "n_clicks",
-    ),
-    State(
-        "reports-title",
-        "value",
-    ),
-    State(
-        "reports-sections",
-        "value",
-    ),
-    State(
-        "reports-format",
-        "value",
-    ),
-    State(
-        "reports-project-id",
-        "data",
-    ),
-    State(
-        "reports-dataset-id",
-        "data",
-    ),
-    prevent_initial_call=True,
-)
 def _compact_emix_for_report(
     emix_context,
 ):
@@ -1421,6 +1374,53 @@ def _compact_emix_for_report(
     }
 
 
+@callback(
+    Output(
+        "reports-status",
+        "children",
+    ),
+    Output(
+        "reports-preview",
+        "children",
+    ),
+    Output(
+        "reports-generated-content",
+        "data",
+    ),
+    Output(
+        "reports-generated-filename",
+        "data",
+    ),
+    Output(
+        "reports-download-button",
+        "disabled",
+    ),
+    Input(
+        "reports-generate",
+        "n_clicks",
+    ),
+    State(
+        "reports-title",
+        "value",
+    ),
+    State(
+        "reports-sections",
+        "value",
+    ),
+    State(
+        "reports-format",
+        "value",
+    ),
+    State(
+        "reports-project-id",
+        "data",
+    ),
+    State(
+        "reports-dataset-id",
+        "data",
+    ),
+    prevent_initial_call=True,
+)
 def generate_report(
     n_clicks,
     title,
