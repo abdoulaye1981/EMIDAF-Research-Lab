@@ -2014,15 +2014,51 @@ def _joint_display_row_id(
     return f"joint-row-{link_id}"
 
 
+def _source_result_family(
+    source_id,
+):
+    families = {
+        "eaie-source": "quantitative",
+        "elae-source": "quantitative",
+        "ekde-source": "quantitative",
+        "etae-source": "textual",
+        "eqae-source": "qualitative",
+        "edse-source": "decision",
+    }
+
+    return families.get(
+        source_id,
+        "other",
+    )
+
+
+def _source_result_type_label(
+    source_id,
+):
+    labels = {
+        "eaie-source": "Résultat quantitatif",
+        "elae-source": "Résultat quantitatif exploratoire",
+        "ekde-source": "Résultat quantitatif non supervisé",
+        "etae-source": "Résultat textuel computationnel",
+        "eqae-source": "Résultat qualitatif",
+        "edse-source": "Résultat d'aide à la décision",
+    }
+
+    return labels.get(
+        source_id,
+        "Résultat analytique",
+    )
+
+
 def _split_mixed_results(
     link,
 ):
     """
-    Repère le résultat quantitatif et le résultat
-    qualitatif à partir des sources du lien.
+    Décrit génériquement les deux résultats
+    mis en regard dans un lien EMIX.
 
-    Pour EMIX Studio v1, EAIE est quantitatif
-    et EQAE qualitatif.
+    Aucun moteur n'est automatiquement assimilé
+    à un autre type méthodologique.
     """
 
     source_1 = link.get(
@@ -2033,38 +2069,44 @@ def _split_mixed_results(
         "source_id_2"
     )
 
-    element_1 = link.get(
-        "element_1",
-        "",
-    )
-
-    element_2 = link.get(
-        "element_2",
-        "",
-    )
-
-    if (
-        source_1 == "eaie-source"
-        and source_2 == "eqae-source"
-    ):
-        return (
-            element_1,
-            element_2,
-        )
-
-    if (
-        source_1 == "eqae-source"
-        and source_2 == "eaie-source"
-    ):
-        return (
-            element_2,
-            element_1,
-        )
-
-    return (
-        element_1,
-        element_2,
-    )
+    return {
+        "source_1": {
+            "source_id": source_1,
+            "source_label": _source_label(
+                source_1
+            ),
+            "family": _source_result_family(
+                source_1
+            ),
+            "type_label": (
+                _source_result_type_label(
+                    source_1
+                )
+            ),
+            "result": link.get(
+                "element_1",
+                "",
+            ),
+        },
+        "source_2": {
+            "source_id": source_2,
+            "source_label": _source_label(
+                source_2
+            ),
+            "family": _source_result_family(
+                source_2
+            ),
+            "type_label": (
+                _source_result_type_label(
+                    source_2
+                )
+            ),
+            "result": link.get(
+                "element_2",
+                "",
+            ),
+        },
+    }
 
 
 def _existing_joint_row_for_link(
@@ -2142,11 +2184,19 @@ def _create_or_update_joint_display_row(
             )
         )
 
-    quantitative_result, qualitative_result = (
+    mixed_results = (
         _split_mixed_results(
             link
         )
     )
+
+    source_1 = mixed_results[
+        "source_1"
+    ]
+
+    source_2 = mixed_results[
+        "source_2"
+    ]
 
     row = {
         "row_id": (
@@ -2154,12 +2204,50 @@ def _create_or_update_joint_display_row(
                 link_id
             )
         ),
+
+        # Schéma générique v2
+        "source_id_1": (
+            source_1["source_id"]
+        ),
+        "source_label_1": (
+            source_1["source_label"]
+        ),
+        "result_family_1": (
+            source_1["family"]
+        ),
+        "result_type_label_1": (
+            source_1["type_label"]
+        ),
+        "result_1": (
+            source_1["result"]
+        ),
+
+        "source_id_2": (
+            source_2["source_id"]
+        ),
+        "source_label_2": (
+            source_2["source_label"]
+        ),
+        "result_family_2": (
+            source_2["family"]
+        ),
+        "result_type_label_2": (
+            source_2["type_label"]
+        ),
+        "result_2": (
+            source_2["result"]
+        ),
+
+        # Compatibilité avec les lignes EMIX v1.
+        # Ces champs ne doivent plus être utilisés
+        # pour déterminer la nature méthodologique.
         "quantitative_result": (
-            quantitative_result
+            source_1["result"]
         ),
         "qualitative_result": (
-            qualitative_result
+            source_2["result"]
         ),
+
         "relation_type": link.get(
             "relation_type",
             "undetermined",
@@ -2345,14 +2433,59 @@ def _available_meta_links(
         links.append(
             {
                 "link_id": link_id,
-                "quantitative_result": row.get(
-                    "quantitative_result",
+                "result_1": (
+                    _joint_row_result(
+                        row,
+                        1,
+                    )
+                ),
+                "result_2": (
+                    _joint_row_result(
+                        row,
+                        2,
+                    )
+                ),
+                "source_label_1": row.get(
+                    "source_label_1",
                     "",
                 ),
-                "qualitative_result": row.get(
-                    "qualitative_result",
+                "source_label_2": row.get(
+                    "source_label_2",
                     "",
                 ),
+                "result_type_label_1": (
+                    row.get(
+                        "result_type_label_1",
+                        (
+                            "Résultat "
+                            "quantitatif"
+                        ),
+                    )
+                ),
+                "result_type_label_2": (
+                    row.get(
+                        "result_type_label_2",
+                        (
+                            "Résultat "
+                            "qualitatif"
+                        ),
+                    )
+                ),
+
+                # Compatibilité v1
+                "quantitative_result": (
+                    _joint_row_result(
+                        row,
+                        1,
+                    )
+                ),
+                "qualitative_result": (
+                    _joint_row_result(
+                        row,
+                        2,
+                    )
+                ),
+
                 "relation_type": row.get(
                     "relation_type",
                     "undetermined",
@@ -2979,6 +3112,24 @@ def _save_emix_summary(
 
 
 
+def _source_label(
+    source_id,
+):
+    labels = {
+        "eaie-source": "EAIE",
+        "etae-source": "ETAE",
+        "eqae-source": "EQAE",
+        "elae-source": "ELAE",
+        "ekde-source": "EKDE",
+        "edse-source": "EDSE",
+    }
+
+    return labels.get(
+        source_id,
+        source_id or "Source",
+    )
+
+
 def _candidate_card(
     candidate,
 ):
@@ -3006,6 +3157,18 @@ def _candidate_card(
     candidate_id = candidate[
         "candidate_id"
     ]
+
+    source_1_label = _source_label(
+        candidate.get(
+            "source_id_1"
+        )
+    )
+
+    source_2_label = _source_label(
+        candidate.get(
+            "source_id_2"
+        )
+    )
 
     return dbc.Card(
         dbc.CardBody(
@@ -3040,7 +3203,7 @@ def _candidate_card(
                 html.P(
                     [
                         html.Strong(
-                            "EAIE : "
+                            f"{source_1_label} : "
                         ),
                         candidate.get(
                             "element_1",
@@ -3052,7 +3215,7 @@ def _candidate_card(
                 html.P(
                     [
                         html.Strong(
-                            "EQAE : "
+                            f"{source_2_label} : "
                         ),
                         candidate.get(
                             "element_2",
@@ -3143,6 +3306,18 @@ def _integration_candidate_card(
         "candidate_id"
     ]
 
+    source_1_label = _source_label(
+        candidate.get(
+            "source_id_1"
+        )
+    )
+
+    source_2_label = _source_label(
+        candidate.get(
+            "source_id_2"
+        )
+    )
+
     existing = (
         _existing_link_for_candidate(
             project_id,
@@ -3213,7 +3388,7 @@ def _integration_candidate_card(
                 html.P(
                     [
                         html.Strong(
-                            "EAIE : "
+                            f"{source_1_label} : "
                         ),
                         candidate.get(
                             "element_1",
@@ -3225,7 +3400,7 @@ def _integration_candidate_card(
                 html.P(
                     [
                         html.Strong(
-                            "EQAE : "
+                            f"{source_2_label} : "
                         ),
                         candidate.get(
                             "element_2",
@@ -3517,11 +3692,19 @@ def _joint_display_link_card(
         else ""
     )
 
-    quantitative_result, qualitative_result = (
+    mixed_results = (
         _split_mixed_results(
             link
         )
     )
+
+    source_1 = mixed_results[
+        "source_1"
+    ]
+
+    source_2 = mixed_results[
+        "source_2"
+    ]
 
     return dbc.Card(
         dbc.CardBody(
@@ -3562,18 +3745,28 @@ def _joint_display_link_card(
                 html.P(
                     [
                         html.Strong(
-                            "Résultat quantitatif : "
+                            (
+                                f"{source_1['type_label']} "
+                                f"— {source_1['source_label']} : "
+                            )
                         ),
-                        quantitative_result,
+                        source_1[
+                            "result"
+                        ],
                     ]
                 ),
 
                 html.P(
                     [
                         html.Strong(
-                            "Résultat qualitatif : "
+                            (
+                                f"{source_2['type_label']} "
+                                f"— {source_2['source_label']} : "
+                            )
                         ),
-                        qualitative_result,
+                        source_2[
+                            "result"
+                        ],
                     ]
                 ),
 
@@ -3616,9 +3809,10 @@ def _joint_display_link_card(
                     value=comment,
                     placeholder=(
                         "Décrire ce que la mise en regard "
-                        "des résultats quantitatif et "
-                        "qualitatif permet d'observer, "
-                        "sans dépasser les données."
+                        "des deux résultats permet d'observer, "
+                        "sans dépasser les données ni attribuer "
+                        "automatiquement de convergence ou "
+                        "de causalité."
                     ),
                     rows=5,
                     className="mb-3",
@@ -3667,6 +3861,82 @@ def _joint_display_link_card(
     )
 
 
+def _joint_row_result(
+    row,
+    index,
+):
+    """
+    Lit un résultat Joint Display v2 avec
+    compatibilité descendante vers le schéma v1.
+    """
+
+    generic_key = f"result_{index}"
+
+    if generic_key in row:
+        return row.get(
+            generic_key,
+            "",
+        )
+
+    legacy_key = (
+        "quantitative_result"
+        if index == 1
+        else "qualitative_result"
+    )
+
+    return row.get(
+        legacy_key,
+        "",
+    )
+
+
+def _joint_row_result_descriptor(
+    row,
+    index,
+):
+    """
+    Produit un libellé méthodologique lisible
+    pour une source du Joint Display.
+
+    Les anciennes lignes v1 restent affichables.
+    """
+
+    type_key = (
+        f"result_type_label_{index}"
+    )
+
+    source_key = (
+        f"source_label_{index}"
+    )
+
+    if index == 1:
+        legacy_type = (
+            "Résultat quantitatif"
+        )
+    else:
+        legacy_type = (
+            "Résultat qualitatif"
+        )
+
+    type_label = row.get(
+        type_key,
+        legacy_type,
+    )
+
+    source_label = row.get(
+        source_key,
+        "",
+    )
+
+    if source_label:
+        return (
+            f"{type_label} — "
+            f"{source_label}"
+        )
+
+    return type_label
+
+
 def _joint_display_table(
     rows,
 ):
@@ -3683,10 +3953,10 @@ def _joint_display_table(
         html.Tr(
             [
                 html.Th(
-                    "Résultat quantitatif"
+                    "Résultat / source 1"
                 ),
                 html.Th(
-                    "Résultat qualitatif"
+                    "Résultat / source 2"
                 ),
                 html.Th(
                     "Relation"
@@ -3703,16 +3973,44 @@ def _joint_display_table(
             html.Tr(
                 [
                     html.Td(
-                        row.get(
-                            "quantitative_result",
-                            "",
-                        )
+                        [
+                            html.Div(
+                                _joint_row_result_descriptor(
+                                    row,
+                                    1,
+                                ),
+                                className=(
+                                    "fw-semibold "
+                                    "small mb-1"
+                                ),
+                            ),
+                            html.Div(
+                                _joint_row_result(
+                                    row,
+                                    1,
+                                )
+                            ),
+                        ]
                     ),
                     html.Td(
-                        row.get(
-                            "qualitative_result",
-                            "",
-                        )
+                        [
+                            html.Div(
+                                _joint_row_result_descriptor(
+                                    row,
+                                    2,
+                                ),
+                                className=(
+                                    "fw-semibold "
+                                    "small mb-1"
+                                ),
+                            ),
+                            html.Div(
+                                _joint_row_result(
+                                    row,
+                                    2,
+                                )
+                            ),
+                        ]
                     ),
                     html.Td(
                         _relation_label(
@@ -3885,21 +4183,44 @@ def _meta_link_label(
         )
     )
 
-    quantitative = str(
+    result = str(
         link.get(
-            "quantitative_result",
-            "",
+            "result_1",
+            link.get(
+                "quantitative_result",
+                "",
+            ),
         )
     )
 
-    if len(quantitative) > 80:
-        quantitative = (
-            quantitative[:77]
+    source_label = link.get(
+        "source_label_1",
+        "",
+    )
+
+    type_label = link.get(
+        "result_type_label_1",
+        "Résultat analytique",
+    )
+
+    if len(result) > 80:
+        result = (
+            result[:77]
             + "..."
         )
 
+    if source_label:
+        descriptor = (
+            f"{type_label} — "
+            f"{source_label}"
+        )
+    else:
+        descriptor = type_label
+
     return (
-        f"{relation} — {quantitative}"
+        f"{relation} — "
+        f"{descriptor} — "
+        f"{result}"
     )
 
 
