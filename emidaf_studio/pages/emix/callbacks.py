@@ -5228,6 +5228,32 @@ def generate_emix_candidates(
 
     generators_used = []
 
+    print(
+        "[EMIX CANDIDATES DEBUG]",
+        {
+            "selected": selected,
+            "etae_present": (
+                analyses.get("etae")
+                is not None
+            ),
+            "eqae_present": (
+                analyses.get("eqae")
+                is not None
+            ),
+            "etae_elements": len(
+                _extract_etae_topic_elements(
+                    analyses.get("etae")
+                )
+            ),
+            "eqae_elements": len(
+                _extract_eqae_elements(
+                    analyses.get("eqae")
+                )
+            ),
+        },
+        flush=True,
+    )
+
     if (
         "eaie" in selected
         and "eqae" in selected
