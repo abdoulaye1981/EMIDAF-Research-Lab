@@ -1321,6 +1321,31 @@ def _generate_etae_eqae_candidates(
                 & qualitative_tokens
             )
 
+            print(
+                "[EMIX ETAE-EQAE MATCH DEBUG]",
+                {
+                    "topic": topic,
+                    "etae_tokens": sorted(
+                        topic_tokens
+                    ),
+                    "eqae_kind": (
+                        qualitative.get(
+                            "kind"
+                        )
+                    ),
+                    "eqae_name": (
+                        qualitative.get(
+                            "name"
+                        )
+                    ),
+                    "eqae_tokens": sorted(
+                        qualitative_tokens
+                    ),
+                    "overlap": overlap,
+                },
+                flush=True,
+            )
+
             if not overlap:
                 continue
 
