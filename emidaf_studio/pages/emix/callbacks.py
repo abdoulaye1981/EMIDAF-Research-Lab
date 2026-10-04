@@ -96,9 +96,9 @@ _TAB_CONTENT = {
     "emix-tab-joint-display": (
         "Joint Display",
         (
-            "Mettez en regard les résultats "
-            "quantitatifs et qualitatifs dans une "
-            "structure commune d'interprétation."
+            "Mettez en regard les résultats issus "
+            "des différentes composantes analytiques "
+            "dans une structure commune d'interprétation."
         ),
         (
             "Le joint display facilite la lecture "
