@@ -4848,15 +4848,30 @@ def _render_candidates(
     ):
         selected = []
 
-    if (
-        "eaie" not in selected
-        or "eqae" not in selected
+    has_eqae = (
+        "eqae" in selected
+    )
+
+    has_eaie_pair = (
+        has_eqae
+        and "eaie" in selected
+    )
+
+    has_etae_pair = (
+        has_eqae
+        and "etae" in selected
+    )
+
+    if not (
+        has_eaie_pair
+        or has_etae_pair
     ):
         return dbc.Alert(
             (
-                "Sélectionnez EAIE et EQAE dans "
-                "l'onglet Sources avant de générer "
-                "des candidats d'intégration."
+                "Sélectionnez EQAE avec au moins "
+                "une source compatible : EAIE "
+                "ou ETAE, avant de générer des "
+                "candidats d'intégration."
             ),
             color="warning",
         )
@@ -4885,8 +4900,9 @@ def _render_candidates(
         html.P(
             (
                 "EMIX propose des rapprochements "
-                "potentiels entre résultats EAIE et "
-                "éléments qualitatifs EQAE."
+                "potentiels entre résultats analytiques "
+                "sélectionnés et éléments qualitatifs "
+                "EQAE."
             ),
             className="text-muted",
         ),
