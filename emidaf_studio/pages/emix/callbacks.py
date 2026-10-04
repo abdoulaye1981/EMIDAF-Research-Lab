@@ -1108,6 +1108,321 @@ def _generate_eaie_eqae_candidates(
     return candidates
 
 
+
+def _extract_etae_topic_elements(
+    payload,
+):
+    """
+    Extrait les thèmes computationnels ETAE utilisables
+    comme éléments candidats dans EMIX.
+
+    Un thème ETAE reste un résultat computationnel.
+    Il n'est jamais assimilé automatiquement à un
+    thème qualitatif EQAE.
+    """
+
+    if not isinstance(
+        payload,
+        dict,
+    ):
+        return []
+
+    topics_section = payload.get(
+        "topics",
+        {},
+    )
+
+    if not isinstance(
+        topics_section,
+        dict,
+    ):
+        return []
+
+    result = topics_section.get(
+        "result",
+        {},
+    )
+
+    if not isinstance(
+        result,
+        dict,
+    ):
+        return []
+
+    topics = result.get(
+        "topics",
+        [],
+    )
+
+    if not isinstance(
+        topics,
+        list,
+    ):
+        return []
+
+    elements = []
+
+    for item in topics:
+
+        if not isinstance(
+            item,
+            dict,
+        ):
+            continue
+
+        topic = item.get(
+            "topic"
+        )
+
+        top_terms = item.get(
+            "top_terms",
+            [],
+        )
+
+        if not isinstance(
+            top_terms,
+            list,
+        ):
+            top_terms = []
+
+        top_terms = [
+            str(term).strip()
+            for term in top_terms
+            if str(term).strip()
+        ]
+
+        if not top_terms:
+            continue
+
+        document_count = item.get(
+            "document_count",
+            0,
+        )
+
+        percentage = item.get(
+            "percentage",
+            0.0,
+        )
+
+        try:
+            percentage_value = float(
+                percentage
+            )
+        except (
+            TypeError,
+            ValueError,
+        ):
+            percentage_value = 0.0
+
+        terms_text = ", ".join(
+            top_terms
+        )
+
+        elements.append(
+            {
+                "topic": topic,
+                "top_terms": top_terms,
+                "document_count": (
+                    document_count
+                ),
+                "percentage": (
+                    percentage_value
+                ),
+                "element": (
+                    f"Thème computationnel ETAE "
+                    f"{topic} — termes dominants : "
+                    f"{terms_text} "
+                    f"({percentage_value:.2f} % "
+                    f"des documents)"
+                ),
+            }
+        )
+
+    elements.sort(
+        key=lambda item: (
+            item["percentage"]
+        ),
+        reverse=True,
+    )
+
+    return elements
+
+
+def _generate_etae_eqae_candidates(
+    etae_payload,
+    eqae_payload,
+):
+    """
+    Génère des rapprochements potentiels entre
+    thèmes computationnels ETAE et éléments
+    qualitatifs EQAE.
+
+    La présence d'un recouvrement lexical constitue
+    uniquement une suggestion de rapprochement.
+    """
+
+    etae_elements = (
+        _extract_etae_topic_elements(
+            etae_payload
+        )
+    )
+
+    eqae_elements = (
+        _extract_eqae_elements(
+            eqae_payload
+        )
+    )
+
+    candidates = []
+
+    for textual in etae_elements:
+
+        topic = textual[
+            "topic"
+        ]
+
+        topic_text = " ".join(
+            textual[
+                "top_terms"
+            ]
+        )
+
+        topic_tokens = (
+            _normalize_tokens(
+                topic_text
+            )
+        )
+
+        if not topic_tokens:
+            continue
+
+        for qualitative in eqae_elements:
+
+            qualitative_text = " ".join(
+                [
+                    qualitative[
+                        "name"
+                    ],
+                    qualitative.get(
+                        "description",
+                        "",
+                    ),
+                ]
+            )
+
+            qualitative_tokens = (
+                _normalize_tokens(
+                    qualitative_text
+                )
+            )
+
+            overlap = sorted(
+                topic_tokens
+                & qualitative_tokens
+            )
+
+            if not overlap:
+                continue
+
+            candidate_id = (
+                _candidate_id(
+                    (
+                        f"etae-topic-"
+                        f"{topic}"
+                    ),
+                    (
+                        qualitative.get(
+                            "id"
+                        )
+                        or qualitative[
+                            "name"
+                        ]
+                    ),
+                )
+            )
+
+            candidates.append(
+                {
+                    "candidate_id": (
+                        candidate_id
+                    ),
+                    "source_id_1": (
+                        "etae-source"
+                    ),
+                    "source_id_2": (
+                        "eqae-source"
+                    ),
+                    "element_1": (
+                        textual[
+                            "element"
+                        ]
+                    ),
+                    "element_2": (
+                        qualitative[
+                            "element"
+                        ]
+                    ),
+                    "rationale": (
+                        "Rapprochement lexical "
+                        "ETAE–EQAE à examiner : "
+                        + ", ".join(
+                            overlap
+                        )
+                        + "."
+                    ),
+                    "status": "pending",
+                    "metadata": {
+                        "integration_family": (
+                            "etae_eqae"
+                        ),
+                        "etae_topic": topic,
+                        "etae_top_terms": (
+                            textual[
+                                "top_terms"
+                            ]
+                        ),
+                        "etae_document_count": (
+                            textual[
+                                "document_count"
+                            ]
+                        ),
+                        "etae_percentage": (
+                            textual[
+                                "percentage"
+                            ]
+                        ),
+                        "eqae_kind": (
+                            qualitative[
+                                "kind"
+                            ]
+                        ),
+                        "eqae_id": (
+                            qualitative.get(
+                                "id"
+                            )
+                        ),
+                        "matched_tokens": (
+                            overlap
+                        ),
+                    },
+                }
+            )
+
+    candidates.sort(
+        key=lambda item: (
+            item[
+                "metadata"
+            ][
+                "etae_percentage"
+            ]
+        ),
+        reverse=True,
+    )
+
+    return candidates
+
+
+
 # ==========================================================
 # Persistance des candidats EMIX
 # ==========================================================
@@ -4877,11 +5192,71 @@ def generate_emix_candidates(
         dataset_id,
     )
 
-    generated = (
-        _generate_eaie_eqae_candidates(
-            analyses.get("eaie"),
-            analyses.get("eqae"),
+    source_section = _load_emix_sources(
+        project_id,
+        dataset_id,
+    )
+
+    selected = source_section.get(
+        "selected_stages",
+        [],
+    )
+
+    if not isinstance(
+        selected,
+        list,
+    ):
+        selected = []
+
+    generated = []
+
+    generators_used = []
+
+    if (
+        "eaie" in selected
+        and "eqae" in selected
+    ):
+        generated.extend(
+            _generate_eaie_eqae_candidates(
+                analyses.get("eaie"),
+                analyses.get("eqae"),
+            )
         )
+
+        generators_used.append(
+            "eaie_eqae_lexical_v1"
+        )
+
+    if (
+        "etae" in selected
+        and "eqae" in selected
+    ):
+        generated.extend(
+            _generate_etae_eqae_candidates(
+                analyses.get("etae"),
+                analyses.get("eqae"),
+            )
+        )
+
+        generators_used.append(
+            "etae_eqae_topics_lexical_v1"
+        )
+
+    unique_generated = {}
+
+    for candidate in generated:
+
+        candidate_id = candidate.get(
+            "candidate_id"
+        )
+
+        if candidate_id:
+            unique_generated[
+                candidate_id
+            ] = candidate
+
+    generated = list(
+        unique_generated.values()
     )
 
     previous = _load_emix_candidates(
@@ -4926,7 +5301,11 @@ def generate_emix_candidates(
         dataset_id,
         {
             "generator": (
-                "eaie_eqae_lexical_v1"
+                "+".join(
+                    generators_used
+                )
+                if generators_used
+                else "none"
             ),
             "items": generated,
         },
