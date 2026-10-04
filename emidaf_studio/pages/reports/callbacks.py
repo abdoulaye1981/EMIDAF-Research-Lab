@@ -1081,6 +1081,346 @@ def _compact_ekde_for_report(
     ),
     prevent_initial_call=True,
 )
+def _compact_emix_for_report(
+    emix_context,
+):
+    """
+    Prépare une version compacte et lisible
+    des résultats EMIX pour le reporting.
+
+    Aucun nouveau lien, aucune convergence et
+    aucune conclusion scientifique ne sont générés.
+    """
+
+    if not isinstance(
+        emix_context,
+        dict,
+    ):
+        return emix_context
+
+    sources = emix_context.get(
+        "sources",
+        {},
+    )
+
+    candidates = emix_context.get(
+        "candidates",
+        {},
+    )
+
+    integration = emix_context.get(
+        "integration",
+        {},
+    )
+
+    joint_display = emix_context.get(
+        "joint_display",
+        {},
+    )
+
+    meta_inferences = emix_context.get(
+        "meta_inferences",
+        {},
+    )
+
+    summary = emix_context.get(
+        "summary",
+        {},
+    )
+
+    selected_sources = (
+        sources.get(
+            "selected_stages",
+            [],
+        )
+        if isinstance(
+            sources,
+            dict,
+        )
+        else []
+    )
+
+    candidate_items = (
+        candidates.get(
+            "items",
+            [],
+        )
+        if isinstance(
+            candidates,
+            dict,
+        )
+        else []
+    )
+
+    links = (
+        integration.get(
+            "links",
+            [],
+        )
+        if isinstance(
+            integration,
+            dict,
+        )
+        else []
+    )
+
+    joint_rows = (
+        joint_display.get(
+            "rows",
+            [],
+        )
+        if isinstance(
+            joint_display,
+            dict,
+        )
+        else []
+    )
+
+    inference_items = (
+        meta_inferences.get(
+            "items",
+            [],
+        )
+        if isinstance(
+            meta_inferences,
+            dict,
+        )
+        else []
+    )
+
+    candidate_statuses = {
+        "pending": 0,
+        "accepted": 0,
+        "rejected": 0,
+    }
+
+    for candidate in candidate_items:
+        if not isinstance(
+            candidate,
+            dict,
+        ):
+            continue
+
+        status = candidate.get(
+            "status",
+            "pending",
+        )
+
+        if status in candidate_statuses:
+            candidate_statuses[
+                status
+            ] += 1
+
+    relations = {
+        "convergence": 0,
+        "complementarity": 0,
+        "divergence": 0,
+        "undetermined": 0,
+    }
+
+    for link in links:
+        if not isinstance(
+            link,
+            dict,
+        ):
+            continue
+
+        relation = link.get(
+            "relation_type",
+            "undetermined",
+        )
+
+        if relation in relations:
+            relations[
+                relation
+            ] += 1
+
+    compact_joint_rows = []
+
+    for row in joint_rows:
+        if not isinstance(
+            row,
+            dict,
+        ):
+            continue
+
+        compact_joint_rows.append(
+            {
+                "source_1": {
+                    "label": row.get(
+                        "source_label_1",
+                        "",
+                    ),
+                    "type": row.get(
+                        "result_type_label_1",
+                        "",
+                    ),
+                    "result": row.get(
+                        "result_1",
+                        row.get(
+                            "quantitative_result",
+                            "",
+                        ),
+                    ),
+                },
+                "source_2": {
+                    "label": row.get(
+                        "source_label_2",
+                        "",
+                    ),
+                    "type": row.get(
+                        "result_type_label_2",
+                        "",
+                    ),
+                    "result": row.get(
+                        "result_2",
+                        row.get(
+                            "qualitative_result",
+                            "",
+                        ),
+                    ),
+                },
+                "relation_type": row.get(
+                    "relation_type",
+                    "undetermined",
+                ),
+                "integrated_comment": row.get(
+                    "integrated_comment",
+                    "",
+                ),
+                "source_link_id": row.get(
+                    "source_link_id",
+                    "",
+                ),
+            }
+        )
+
+    compact_inferences = []
+
+    for inference in inference_items:
+        if not isinstance(
+            inference,
+            dict,
+        ):
+            continue
+
+        compact_inferences.append(
+            {
+                "statement": inference.get(
+                    "statement",
+                    "",
+                ),
+                "link_ids": inference.get(
+                    "link_ids",
+                    [],
+                ),
+                "limitations": inference.get(
+                    "limitations",
+                    [],
+                ),
+                "researcher_note": inference.get(
+                    "researcher_note",
+                    "",
+                ),
+                "validated": bool(
+                    inference.get(
+                        "validated",
+                        False,
+                    )
+                ),
+            }
+        )
+
+    validation = {}
+
+    if isinstance(
+        summary,
+        dict,
+    ):
+        validation = summary.get(
+            "validation",
+            {},
+        )
+
+    if not isinstance(
+        validation,
+        dict,
+    ):
+        validation = {}
+
+    return {
+        "sources": {
+            "selected_stages": list(
+                selected_sources
+            ),
+            "count": len(
+                selected_sources
+            ),
+        },
+        "candidate_statuses": (
+            candidate_statuses
+        ),
+        "relations": relations,
+        "joint_display": (
+            compact_joint_rows
+        ),
+        "meta_inferences": (
+            compact_inferences
+        ),
+        "validation": {
+            "researcher_validated": bool(
+                validation.get(
+                    "researcher_validated",
+                    False,
+                )
+            ),
+            "researcher_note": validation.get(
+                "researcher_note",
+                "",
+            ),
+            "validated_links": validation.get(
+                "validated_links",
+                0,
+            ),
+            "validated_meta_inferences": (
+                validation.get(
+                    "validated_meta_inferences",
+                    0,
+                )
+            ),
+            "undetermined_links": (
+                validation.get(
+                    "undetermined_links",
+                    0,
+                )
+            ),
+            "principle": validation.get(
+                "principle",
+                (
+                    "EMIX structure l'intégration "
+                    "des résultats sans transformer "
+                    "automatiquement les associations "
+                    "ou rapprochements en conclusions "
+                    "scientifiques ou causales."
+                ),
+            ),
+        },
+        "summary": {
+            "global": (
+                summary.get(
+                    "global",
+                    {},
+                )
+                if isinstance(
+                    summary,
+                    dict,
+                )
+                else {}
+            ),
+        },
+    }
+
+
 def generate_report(
     n_clicks,
     title,
@@ -1144,6 +1484,7 @@ def generate_report(
     eaie_context = analyses.get("eaie")
     exaie_context = analyses.get("exaie")
     edse_context = analyses.get("edse")
+    emix_context = analyses.get("emix")
 
     report_title = (
         title.strip()
@@ -2057,6 +2398,73 @@ def generate_report(
                     ),
                 ],
             )
+
+    # ======================================================
+    # EMIX
+    # ======================================================
+
+    if "emix" in selected_sections:
+
+        if emix_context is None:
+
+            engine.add_stage(
+                "emix",
+                _stage_unavailable(
+                    "Intégration des méthodes mixtes"
+                ),
+                limitations=[
+                    (
+                        "Aucune analyse EMIX persistée "
+                        "n'est disponible pour ce jeu "
+                        "de données."
+                    )
+                ],
+            )
+
+        else:
+
+            emix_report_data = (
+                _compact_emix_for_report(
+                    emix_context
+                )
+            )
+
+            engine.add_stage(
+                "emix",
+                emix_report_data,
+                interpretation=(
+                    "Synthèse de l'intégration des "
+                    "résultats réalisée dans EMIX : "
+                    "sources retenues, candidats, "
+                    "liens validés, Joint Display, "
+                    "méta-inférences et état de "
+                    "validation du chercheur."
+                ),
+                limitations=[
+                    (
+                        "EMIX structure les "
+                        "rapprochements entre résultats "
+                        "issus de différentes composantes "
+                        "analytiques sans produire "
+                        "automatiquement de conclusion "
+                        "scientifique ou causale."
+                    ),
+                    (
+                        "Les thèmes computationnels ETAE "
+                        "ne doivent pas être assimilés "
+                        "automatiquement aux thèmes "
+                        "qualitatifs construits dans EQAE."
+                    ),
+                    (
+                        "Les relations de convergence, "
+                        "complémentarité, divergence ou "
+                        "indétermination résultent d'une "
+                        "qualification explicite du "
+                        "chercheur."
+                    ),
+                ],
+            )
+
 
     report = engine.build()
 

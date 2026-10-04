@@ -48,6 +48,10 @@ REPORT_STAGES = [
         "label": "Aide à la décision",
         "value": "edse",
     },
+    {
+        "label": "Intégration des méthodes mixtes",
+        "value": "emix",
+    },
 ]
 
 
@@ -202,6 +206,11 @@ def reports_layout(project_id, dataset_id):
             project_id,
             dataset_id,
             "edse",
+        ),
+        "emix": has_analysis(
+            project_id,
+            dataset_id,
+            "emix",
         ),
     }
 

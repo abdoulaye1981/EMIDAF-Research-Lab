@@ -33,6 +33,7 @@ class ReportEngine:
         "eaie": "Modélisation prédictive",
         "exaie": "Explicabilité des modèles",
         "edse": "Aide à la décision",
+        "emix": "Intégration des méthodes mixtes",
         "limitations": "Limites méthodologiques générales",
         "conclusion": "Conclusion",
     }
