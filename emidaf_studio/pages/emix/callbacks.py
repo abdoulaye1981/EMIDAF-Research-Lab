@@ -560,6 +560,17 @@ def _normalize_tokens(
         value or ""
     ).lower()
 
+    # Sépare les élisions avant translittération ASCII.
+    # Cela couvre notamment les apostrophes droites
+    # et typographiques :
+    # d'apprendre / d’apprendre -> d apprendre
+    # l'intérêt / l’intérêt -> l intérêt
+    text = re.sub(
+        r"['’‘]",
+        " ",
+        text,
+    )
+
     text = (
         unicodedata.normalize(
             "NFKD",
