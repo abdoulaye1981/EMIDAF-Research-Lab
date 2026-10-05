@@ -26,6 +26,10 @@ from emidaf_studio.services.model_registry import (
     register_eaie_run,
 )
 
+from emidaf_core.eaie.roles import (
+    FeatureRoles,
+)
+
 
 def _load_eaie_dataframe(
     project_id,
@@ -69,6 +73,186 @@ def _table(dataframe):
     )
 
 
+# ============================================================
+# FEATURE ROLES
+# ============================================================
+
+@callback(
+    Output(
+        "eaie-role-summary",
+        "children",
+    ),
+    Output(
+        "eaie-feature-roles",
+        "data",
+    ),
+    Input(
+        "eaie-target",
+        "value",
+    ),
+    Input(
+        "eaie-manual-exclusions",
+        "value",
+    ),
+    State(
+        "eaie-project-id",
+        "data",
+    ),
+    State(
+        "eaie-dataset-id",
+        "data",
+    ),
+)
+def update_eaie_feature_roles(
+    target,
+    manual_exclusions,
+    project_id,
+    dataset_id,
+):
+
+    if not target:
+        return (
+            dbc.Alert(
+                (
+                    "Sélectionnez une variable cible "
+                    "pour déterminer les rôles."
+                ),
+                color="secondary",
+            ),
+            None,
+        )
+
+    try:
+        dataframe = _load_eaie_dataframe(
+            project_id,
+            dataset_id,
+        )
+
+        roles = FeatureRoles.resolve(
+            dataframe,
+            target=target,
+            excluded=list(
+                manual_exclusions or []
+            ),
+        )
+
+    except Exception as exc:
+        logger.exception(
+            "EAIE feature role resolution failed "
+            "(target=%s)",
+            target,
+        )
+
+        return (
+            dbc.Alert(
+                (
+                    "Impossible de déterminer les "
+                    "rôles de modélisation."
+                ),
+                color="danger",
+            ),
+            None,
+        )
+
+    payload = roles.to_dict()
+
+    if not roles.valid:
+        return (
+            dbc.Alert(
+                [
+                    html.Strong(
+                        "Configuration des rôles invalide."
+                    ),
+                    html.Ul(
+                        [
+                            html.Li(message)
+                            for message
+                            in roles.conflicts
+                        ],
+                        className="mb-0 mt-2",
+                    ),
+                ],
+                color="danger",
+            ),
+            payload,
+        )
+
+    summary = dbc.Alert(
+        [
+            html.Strong(
+                "Configuration des rôles valide."
+            ),
+
+            html.Div(
+                [
+                    html.Span(
+                        (
+                            f"Prédicteurs : "
+                            f"{len(roles.predictors)}"
+                        ),
+                        className="me-3",
+                    ),
+                    html.Span(
+                        (
+                            f"Identifiants exclus : "
+                            f"{len(roles.identifiers)}"
+                        ),
+                        className="me-3",
+                    ),
+                    html.Span(
+                        (
+                            f"Qualité exclue : "
+                            f"{len(roles.quality)}"
+                        ),
+                        className="me-3",
+                    ),
+                    html.Span(
+                        (
+                            f"Texte libre exclu : "
+                            f"{len(roles.text)}"
+                        ),
+                        className="me-3",
+                    ),
+                    html.Span(
+                        (
+                            f"Exclusions manuelles : "
+                            f"{len(roles.excluded)}"
+                        ),
+                    ),
+                ],
+                className="mt-2",
+            ),
+
+            html.Div(
+                [
+                    html.Strong(
+                        "Prédicteurs retenus : "
+                    ),
+                    ", ".join(
+                        roles.predictors
+                    ),
+                ],
+                className="small mt-2",
+            ),
+
+            html.Div(
+                [
+                    html.Strong(
+                        "Variables protégées : "
+                    ),
+                    ", ".join(
+                        roles.protected
+                    ),
+                ],
+                className="small mt-1",
+            ),
+        ],
+        color="success",
+    )
+
+    return summary, payload
+
+
 @callback(
     Output("eaie-status", "children"),
     Output("eaie-summary", "children"),
@@ -79,6 +263,7 @@ def _table(dataframe):
     State("eaie-target", "value"),
     State("eaie-task", "value"),
     State("eaie-models", "value"),
+    State("eaie-manual-exclusions", "value"),
     State("eaie-test-size", "value"),
     State("eaie-cv", "value"),
     State("eaie-project-id", "data"),
@@ -91,6 +276,7 @@ def run_eaie(
     target,
     task,
     models,
+    manual_exclusions,
     test_size,
     cv,
     project_id,
@@ -164,6 +350,40 @@ def run_eaie(
 
     try:
 
+        roles = FeatureRoles.resolve(
+            dataframe,
+            target=target,
+            excluded=list(
+                manual_exclusions or []
+            ),
+        )
+
+        if not roles.valid:
+            message = dbc.Alert(
+                [
+                    html.Strong(
+                        "Configuration des rôles invalide."
+                    ),
+                    html.Ul(
+                        [
+                            html.Li(message)
+                            for message
+                            in roles.conflicts
+                        ],
+                        className="mb-0 mt-2",
+                    ),
+                ],
+                color="danger",
+            )
+
+            return (
+                message,
+                "",
+                "",
+                "",
+                "",
+            )
+
         engine = EAIEEngine(
             test_size=float(test_size),
             random_state=42,
@@ -173,6 +393,7 @@ def run_eaie(
         engine.run(
             dataframe,
             target=target,
+            features=roles.predictors,
             task=task_value,
             models=(
                 models

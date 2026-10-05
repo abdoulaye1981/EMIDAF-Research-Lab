@@ -251,6 +251,58 @@ def eaie_layout(project_id, dataset_id):
                             className="g-3",
                         ),
 
+                        dbc.Card(
+                            dbc.CardBody(
+                                [
+                                    html.H5(
+                                        "Rôles de modélisation"
+                                    ),
+
+                                    html.P(
+                                        (
+                                            "EAIE protège automatiquement "
+                                            "la cible, les identifiants, "
+                                            "les variables techniques de "
+                                            "qualité et le texte libre."
+                                        ),
+                                        className="text-muted",
+                                    ),
+
+                                    dbc.Label(
+                                        "Exclusions supplémentaires"
+                                    ),
+
+                                    dcc.Dropdown(
+                                        id="eaie-manual-exclusions",
+                                        options=options,
+                                        value=[],
+                                        multi=True,
+                                        placeholder=(
+                                            "Sélectionner les variables "
+                                            "à exclure de la modélisation"
+                                        ),
+                                    ),
+
+                                    html.Small(
+                                        (
+                                            "Utilisez cette zone pour les "
+                                            "variables qui ne doivent pas "
+                                            "être utilisées comme "
+                                            "prédicteurs pour des raisons "
+                                            "scientifiques ou métier."
+                                        ),
+                                        className="text-muted",
+                                    ),
+
+                                    html.Div(
+                                        id="eaie-role-summary",
+                                        className="mt-3",
+                                    ),
+                                ]
+                            ),
+                            className="mt-3 mb-3",
+                        ),
+
                         dbc.Row(
                             [
                                 dbc.Col(
@@ -727,6 +779,10 @@ def eaie_layout(project_id, dataset_id):
                 className="g-3 mt-3",
             ),
 
+            dcc.Store(
+                id="eaie-feature-roles",
+                data=None,
+            ),
             dcc.Store(
                 id="eaie-project-id",
                 data=project_id,
