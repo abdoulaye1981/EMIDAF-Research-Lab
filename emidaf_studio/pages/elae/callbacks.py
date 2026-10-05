@@ -2085,7 +2085,6 @@ def grouped_analysis(
                             ),
                         ],
                         className="notranslate",
-                        translate="no",
                     )
                 )
 
@@ -2546,7 +2545,6 @@ def grouped_analysis(
             inference_component,
         ],
         className="notranslate",
-        translate="no",
     )
 
     return (
