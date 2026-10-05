@@ -1506,11 +1506,79 @@ def grouped_analysis(
         .reset_index()
     )
 
+    # --------------------------------------------------------
+    # Ordre sémantique des niveaux scolaires
+    # --------------------------------------------------------
+
+    level_order = [
+        "6e",
+        "5e",
+        "4e",
+        "3e",
+        "2nde",
+        "1ere",
+        "Terminale",
+    ]
+
+    category_orders = None
+
+    if group_variable in {
+        "niveau",
+        "niveau_etude",
+    }:
+        present_levels = [
+            level
+            for level in level_order
+            if level
+            in set(
+                temp[group_variable]
+                .dropna()
+                .astype(str)
+            )
+        ]
+
+        if present_levels:
+            category_orders = {
+                group_variable: present_levels,
+            }
+
+            grouped[group_variable] = pd.Categorical(
+                grouped[group_variable],
+                categories=present_levels,
+                ordered=True,
+            )
+
+            grouped = (
+                grouped
+                .sort_values(
+                    group_variable
+                )
+                .reset_index(
+                    drop=True
+                )
+            )
+
+    # --------------------------------------------------------
+    # Libellés scientifiques francophones
+    # --------------------------------------------------------
+
+    display_grouped = grouped.rename(
+        columns={
+            "count": "Effectif",
+            "mean": "Moyenne",
+            "median": "Médiane",
+            "std": "Écart-type",
+            "min": "Minimum",
+            "max": "Maximum",
+        }
+    )
+
     figure = px.box(
         temp,
         x=group_variable,
         y=value_variable,
         points="outliers",
+        category_orders=category_orders,
         title=(
             f"{value_variable} selon "
             f"{group_variable}"
@@ -1518,7 +1586,9 @@ def grouped_analysis(
     )
 
     return (
-        _table(grouped.round(4)),
+        _table(
+            display_grouped.round(4)
+        ),
         figure,
     )
 
