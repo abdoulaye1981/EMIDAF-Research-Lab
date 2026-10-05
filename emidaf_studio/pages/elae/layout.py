@@ -4,6 +4,9 @@ import dash_bootstrap_components as dbc
 
 from emidaf_studio.pages.inspection.layout import load_dataset
 from emidaf_core.dataset.profiler import DatasetProfiler
+from emidaf_studio.pages.elae.labels import (
+    variable_label,
+)
 
 
 def _card(title, value):

@@ -21,6 +21,12 @@ from emidaf_studio.services.model_registry import (
 
 from emidaf_core.dataset.profiler import DatasetProfiler
 
+from emidaf_studio.pages.elae.labels import (
+    variable_label,
+    category_label,
+)
+
+
 from emidaf_core.statistics.inferential.group_selector import (
     GroupTestSelector,
 )
@@ -1522,8 +1528,30 @@ def grouped_analysis(
                 )
             )
 
-    display_grouped = grouped.rename(
+    display_grouped = grouped.copy()
+
+    display_grouped[
+        group_variable
+    ] = (
+        display_grouped[
+            group_variable
+        ]
+        .astype(str)
+        .map(
+            lambda value:
+                category_label(
+                    group_variable,
+                    value,
+                )
+        )
+    )
+
+    display_grouped = display_grouped.rename(
         columns={
+            group_variable:
+                variable_label(
+                    group_variable
+                ),
             "count": "Effectif",
             "mean": "Moyenne",
             "median": "Médiane",
@@ -1882,9 +1910,9 @@ def grouped_analysis(
 
                     row = {
                         "Comparaison": (
-                            f"{comparison.get('group_1')} "
+                            f"{category_label(group_variable, comparison.get('group_1'))} "
                             f"vs "
-                            f"{comparison.get('group_2')}"
+                            f"{category_label(group_variable, comparison.get('group_2'))}"
                         ),
                         "p-ajustée": (
                             "< 0,0001"
@@ -1893,8 +1921,7 @@ def grouped_analysis(
                                     p_adjusted
                                 )
                                 and
-                                p_adjusted
-                                < 0.0001
+                                p_adjusted < 0.0001
                             )
                             else (
                                 f"{p_adjusted:.4f}"
@@ -1949,6 +1976,50 @@ def grouped_analysis(
                     )
                 )
 
+                significant_rows = [
+                    row
+                    for row in posthoc_rows
+                    if (
+                        row[
+                            "Conclusion"
+                        ]
+                        == "Significative"
+                    )
+                ]
+
+                significant_frame = (
+                    pd.DataFrame(
+                        significant_rows
+                    )
+                )
+
+                total_comparisons = len(
+                    posthoc_rows
+                )
+
+                significant_count = len(
+                    significant_rows
+                )
+
+                if significant_count:
+                    significant_component = (
+                        _table(
+                            significant_frame
+                        )
+                    )
+                else:
+                    significant_component = (
+                        dbc.Alert(
+                            (
+                                "Aucune comparaison post-hoc "
+                                "n'est significative au seuil "
+                                "retenu."
+                            ),
+                            color="secondary",
+                            className="mb-0",
+                        )
+                    )
+
                 posthoc_component = (
                     html.Div(
                         [
@@ -1956,6 +2027,7 @@ def grouped_analysis(
                                 "Comparaisons post-hoc",
                                 className="mt-4",
                             ),
+
                             html.P(
                                 [
                                     html.Strong(
@@ -1966,12 +2038,54 @@ def grouped_analysis(
                                         "—",
                                     ),
                                 ],
+                                className="mb-1",
+                            ),
+
+                            html.P(
+                                [
+                                    html.Strong(
+                                        "Comparaisons significatives : "
+                                    ),
+                                    (
+                                        f"{significant_count} "
+                                        f"/ {total_comparisons}"
+                                    ),
+                                ],
+                                className="mb-3",
+                            ),
+
+                            html.H6(
+                                "Comparaisons significatives",
                                 className="mb-2",
                             ),
-                            _table(
-                                posthoc_frame
+
+                            significant_component,
+
+                            html.Details(
+                                [
+                                    html.Summary(
+                                        (
+                                            "Afficher toutes les "
+                                            "comparaisons"
+                                        ),
+                                        style={
+                                            "cursor": "pointer",
+                                            "fontWeight": "600",
+                                        },
+                                    ),
+
+                                    html.Div(
+                                        _table(
+                                            posthoc_frame
+                                        ),
+                                        className="mt-3",
+                                    ),
+                                ],
+                                className="mt-3",
                             ),
-                        ]
+                        ],
+                        className="notranslate",
+                        translate="no",
                     )
                 )
 
@@ -2013,7 +2127,9 @@ def grouped_analysis(
                     dbc.Alert(
                         posthoc_text,
                         color="light",
-                        className="mt-3",
+                        className=(
+                            "mt-3 notranslate"
+                        ),
                     )
                 )
 
@@ -2378,10 +2494,41 @@ def grouped_analysis(
         points="outliers",
         category_orders=category_orders,
         title=(
-            f"{value_variable} selon "
-            f"{group_variable}"
+            f"{variable_label(value_variable)} selon "
+            f"{variable_label(group_variable)}"
         ),
+        labels={
+            group_variable:
+                variable_label(
+                    group_variable
+                ),
+            value_variable:
+                variable_label(
+                    value_variable
+                ),
+        },
     )
+
+    if category_orders:
+        internal_categories = (
+            category_orders[
+                group_variable
+            ]
+        )
+
+        figure.update_xaxes(
+            tickmode="array",
+            tickvals=
+                internal_categories,
+            ticktext=[
+                category_label(
+                    group_variable,
+                    value,
+                )
+                for value
+                in internal_categories
+            ],
+        )
 
     # ======================================================
     # SORTIE
@@ -2397,7 +2544,9 @@ def grouped_analysis(
                 display_grouped.round(4)
             ),
             inference_component,
-        ]
+        ],
+        className="notranslate",
+        translate="no",
     )
 
     return (
