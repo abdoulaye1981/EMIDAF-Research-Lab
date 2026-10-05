@@ -195,8 +195,8 @@ class EAIEEngine:
             baseline_validation = (
                 ModelComparison.cross_validate(
                     baseline_pipeline,
-                    prepared.X,
-                    prepared.y,
+                    X_train,
+                    y_train,
                     task=detected_task,
                     cv=self.cv,
                 )
@@ -272,8 +272,8 @@ class EAIEEngine:
                 cv_result = (
                     ModelComparison.cross_validate(
                         pipeline,
-                        prepared.X,
-                        prepared.y,
+                        X_train,
+                        y_train,
                         task=detected_task,
                         cv=self.cv,
                     )

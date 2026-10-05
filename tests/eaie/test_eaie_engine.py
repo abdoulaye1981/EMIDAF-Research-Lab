@@ -253,3 +253,115 @@ def test_mixed_data_and_missing_values():
 
     assert result.fitted is True
     assert result.estimator is not None
+
+
+def test_cross_validation_uses_training_set_only(
+    monkeypatch,
+):
+
+    from emidaf_core.eaie.comparison import (
+        ModelComparison,
+    )
+
+    X, y = make_regression(
+        n_samples=120,
+        n_features=4,
+        noise=5,
+        random_state=42,
+    )
+
+    df = pd.DataFrame(
+        X,
+        columns=[
+            "x1",
+            "x2",
+            "x3",
+            "x4",
+        ],
+    )
+
+    df["target"] = y
+
+    observed_sizes = []
+
+    original_cross_validate = (
+        ModelComparison.cross_validate
+    )
+
+    def spy_cross_validate(
+        estimator,
+        X,
+        y,
+        task,
+        cv=5,
+    ):
+        observed_sizes.append(
+            (
+                len(X),
+                len(y),
+            )
+        )
+
+        return original_cross_validate(
+            estimator,
+            X,
+            y,
+            task=task,
+            cv=cv,
+        )
+
+    monkeypatch.setattr(
+        ModelComparison,
+        "cross_validate",
+        staticmethod(
+            spy_cross_validate
+        ),
+    )
+
+    engine = EAIEEngine(
+        test_size=0.20,
+        random_state=42,
+        cv=3,
+    )
+
+    engine.run(
+        df,
+        target="target",
+        task="regression",
+        models=[
+            "linear_regression",
+            "random_forest",
+        ],
+    )
+
+    # 120 observations avec 20 % réservées au test :
+    # 96 train / 24 test.
+    assert len(
+        engine.X_train_
+    ) == 96
+
+    assert len(
+        engine.X_test_
+    ) == 24
+
+    # Une CV baseline + une CV par modèle.
+    assert len(
+        observed_sizes
+    ) == 3
+
+    # Toutes les validations croisées doivent être
+    # réalisées exclusivement sur le train.
+    assert all(
+        x_size == 96
+        and y_size == 96
+        for x_size, y_size
+        in observed_sizes
+    )
+
+    # Protection explicite contre une régression future :
+    # aucune CV ne doit revoir les 120 observations.
+    assert all(
+        x_size != 120
+        for x_size, _
+        in observed_sizes
+    )
