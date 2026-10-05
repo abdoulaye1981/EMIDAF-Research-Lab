@@ -1613,6 +1613,7 @@ def build_profile_summary(profile):
     datetime_columns = datatypes.get("datetime", [])
     boolean_columns = datatypes.get("boolean", [])
     text_columns = datatypes.get("text", [])
+    identifier_columns = datatypes.get("identifier", [])
     unknown_columns = datatypes.get("unknown", [])
 
     # Mémoire
@@ -1830,6 +1831,19 @@ def build_profile_summary(profile):
                         dbc.Card(
                             dbc.CardBody(
                                 [
+                                    html.H6("Identifiants"),
+                                    html.H4(
+                                        len(identifier_columns)
+                                    )
+                                ]
+                            )
+                        ),
+                        width=2
+                    ),
+                    dbc.Col(
+                        dbc.Card(
+                            dbc.CardBody(
+                                [
                                     html.H6("Inconnues"),
                                     html.H4(
                                         len(unknown_columns)
@@ -1906,6 +1920,17 @@ def build_profile_summary(profile):
                             )
                         ],
                         title="Variables texte"
+                    ),
+
+                    dbc.AccordionItem(
+                        [
+                            html.P(
+                                ", ".join(identifier_columns)
+                                if identifier_columns
+                                else "Aucune"
+                            )
+                        ],
+                        title="🆔 Variables identifiantes"
                     ),
 
                     dbc.AccordionItem(

@@ -89,6 +89,7 @@ print(
 )
 
 assert "Nom" not in correlation_result["columns"]
+assert "ID" not in correlation_result["columns"]
 
 print("✓ Variable textuelle 'Nom' ignorée.")
 
@@ -97,9 +98,9 @@ print("✓ Variable textuelle 'Nom' ignorée.")
 # 5. NOMBRE DE VARIABLES
 # ============================================================
 
-assert correlation_result["count"] == 6
+assert correlation_result["count"] == 5
 
-print("✓ Nombre de variables numériques correct : 6")
+print("✓ Nombre de variables numériques correct : 5")
 
 
 # ============================================================

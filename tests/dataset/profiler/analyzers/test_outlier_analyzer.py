@@ -235,7 +235,9 @@ print("✅ Les valeurs infinies sont correctement exclues.")
 
 print("\n--- 11. VÉRIFICATION GLOBALE ---")
 
-assert outliers["count"] == 6
+assert "ID" not in outliers["columns"]
+
+assert outliers["count"] == 5
 
 for statistics in outliers["columns"].values():
 

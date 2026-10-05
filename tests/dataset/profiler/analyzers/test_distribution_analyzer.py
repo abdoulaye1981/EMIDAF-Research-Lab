@@ -110,7 +110,7 @@ for column, statistics in distribution["columns"].items():
 
 print("\n--- 6. VÉRIFICATIONS ---")
 
-assert "ID" in distribution["columns"]
+assert "ID" not in distribution["columns"]
 assert "Age" in distribution["columns"]
 assert "Note" in distribution["columns"]
 assert "Salaire" in distribution["columns"]
