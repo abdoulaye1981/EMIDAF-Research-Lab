@@ -211,7 +211,53 @@ def _coerce_numeric_like_columns(
     return result, converted_columns
 
 
-def _impute_dataframe(dataframe, strategy):
+def _protected_columns_from_roles(
+    roles,
+):
+    roles = roles or {}
+
+    protected = set(
+        roles.get(
+            "protected",
+            [],
+        )
+        or []
+    )
+
+    target = roles.get(
+        "target"
+    )
+
+    if target:
+        protected.add(
+            target
+        )
+
+    return protected
+
+
+def _predictor_columns_from_roles(
+    dataframe,
+    roles,
+):
+    protected = (
+        _protected_columns_from_roles(
+            roles
+        )
+    )
+
+    return [
+        column
+        for column in dataframe.columns
+        if column not in protected
+    ]
+
+
+def _impute_dataframe(
+    dataframe,
+    strategy,
+    columns=None,
+):
 
     if strategy == "none":
         return dataframe.copy()
@@ -222,21 +268,32 @@ def _impute_dataframe(dataframe, strategy):
 
     result = dataframe.copy()
 
+    if columns is None:
+        eligible_columns = list(
+            result.columns
+        )
+    else:
+        eligible_columns = [
+            column
+            for column in columns
+            if column in result.columns
+        ]
+
     numeric_columns = list(
-        result.select_dtypes(
+        result[
+            eligible_columns
+        ]
+        .select_dtypes(
             include="number"
-        ).columns
+        )
+        .columns
     )
 
     other_columns = [
         column
-        for column in result.columns
+        for column in eligible_columns
         if column not in numeric_columns
     ]
-
-    # ----------------------------------------------
-    # Variables numériques
-    # ----------------------------------------------
 
     numeric_missing = [
         column
@@ -267,12 +324,6 @@ def _impute_dataframe(dataframe, strategy):
             numeric_missing
         ].to_numpy()
 
-    # ----------------------------------------------
-    # Variables non numériques
-    # Mode uniquement : statistiquement cohérent
-    # pour les catégories.
-    # ----------------------------------------------
-
     categorical_missing = [
         column
         for column in other_columns
@@ -300,7 +351,11 @@ def _impute_dataframe(dataframe, strategy):
     return result
 
 
-def _encode_dataframe(dataframe, method):
+def _encode_dataframe(
+    dataframe,
+    method,
+    columns=None,
+):
 
     if method == "none":
         return dataframe.copy()
@@ -309,21 +364,71 @@ def _encode_dataframe(dataframe, method):
         Encoding,
     )
 
-    transformer = Encoding(
-        method=method
+    result = dataframe.copy()
+
+    if columns is None:
+        eligible_columns = list(
+            result.columns
+        )
+    else:
+        eligible_columns = [
+            column
+            for column in columns
+            if column in result.columns
+        ]
+
+    categorical_columns = list(
+        result[
+            eligible_columns
+        ]
+        .select_dtypes(
+            include=[
+                "object",
+                "string",
+                "category",
+            ]
+        )
+        .columns
     )
 
-    result = transformer.fit_transform(
-        dataframe
+    if not categorical_columns:
+        return result
+
+    if method == "onehot":
+
+        transformed, _ = (
+            Encoding.onehot_encode(
+                result,
+                columns=categorical_columns,
+            )
+        )
+
+        return transformed
+
+    if method == "ordinal":
+
+        transformed, _ = (
+            Encoding.ordinal_encode(
+                result,
+                columns=categorical_columns,
+            )
+        )
+
+        return transformed
+
+    raise ValueError(
+        "Méthode d'encodage inconnue : "
+        f"{method}"
     )
 
-    return _unwrap_dataframe(result)
 
-
-def _scale_dataframe(dataframe, method):
+def _scale_dataframe(
+    dataframe,
+    method,
+    columns=None,
+):
 
     if method == "none":
-
         return dataframe.copy()
 
     from emidaf_core.preprocessing.scaling import (
@@ -332,72 +437,215 @@ def _scale_dataframe(dataframe, method):
 
     result = dataframe.copy()
 
+    if columns is None:
+        eligible_columns = list(
+            result.columns
+        )
+    else:
+        eligible_columns = [
+            column
+            for column in columns
+            if column in result.columns
+        ]
+
     numeric_columns = list(
-
-        result.select_dtypes(
-
+        result[
+            eligible_columns
+        ]
+        .select_dtypes(
             include="number"
-
-        ).columns
-
+        )
+        .columns
     )
 
     if not numeric_columns:
-
         return result
 
     scaler = Scaling(
-
         method=method
-
     )
 
     transformed = scaler.fit_transform(
-
         result[numeric_columns]
-
     )
 
     transformed = _unwrap_dataframe(
-
         transformed
-
     )
 
-    # Les méthodes de mise à l'échelle produisent
-    # généralement des valeurs flottantes, même lorsque
-    # les variables sources sont de type entier.
-    #
-    # La conversion explicite évite une affectation de
-    # float64 dans des colonnes int64 avec les versions
-    # récentes de pandas.
     scaled_values = (
-
         transformed[
-
             numeric_columns
-
         ]
-
         .astype("float64")
-
         .to_numpy()
-
     )
 
     for position, column in enumerate(
-
         numeric_columns
-
     ):
-
         result[column] = (
-
             scaled_values[:, position]
-
         )
 
     return result
+
+
+@callback(
+    Output(
+        "eidpp-variable-roles",
+        "data",
+    ),
+    Output(
+        "eidpp-role-summary",
+        "children",
+    ),
+    Input(
+        "eidpp-target",
+        "value",
+    ),
+    Input(
+        "eidpp-identifiers",
+        "value",
+    ),
+    Input(
+        "eidpp-quality-columns",
+        "value",
+    ),
+    Input(
+        "eidpp-text-columns",
+        "value",
+    ),
+    Input(
+        "eidpp-excluded-columns",
+        "value",
+    ),
+)
+def build_variable_roles(
+    target,
+    identifiers,
+    quality_columns,
+    text_columns,
+    excluded_columns,
+):
+
+    identifiers = list(
+        identifiers or []
+    )
+
+    quality_columns = list(
+        quality_columns or []
+    )
+
+    text_columns = list(
+        text_columns or []
+    )
+
+    excluded_columns = list(
+        excluded_columns or []
+    )
+
+    role_groups = {
+        "identifier": identifiers,
+        "quality": quality_columns,
+        "text": text_columns,
+        "excluded": excluded_columns,
+    }
+
+    conflicts = []
+
+    if target:
+        for role, columns in role_groups.items():
+            if target in columns:
+                conflicts.append(
+                    (
+                        f"La cible '{target}' est aussi "
+                        f"déclarée comme {role}."
+                    )
+                )
+
+    all_role_columns = {}
+
+    for role, columns in role_groups.items():
+        for column in columns:
+            previous = all_role_columns.get(
+                column
+            )
+
+            if (
+                previous is not None
+                and previous != role
+            ):
+                conflicts.append(
+                    (
+                        f"'{column}' apparaît dans les rôles "
+                        f"{previous} et {role}."
+                    )
+                )
+
+            all_role_columns[column] = role
+
+    protected = set(
+        identifiers
+        + quality_columns
+        + text_columns
+        + excluded_columns
+    )
+
+    if target:
+        protected.add(target)
+
+    roles = {
+        "target": target,
+        "identifiers": identifiers,
+        "quality": quality_columns,
+        "text": text_columns,
+        "excluded": excluded_columns,
+        "protected": sorted(
+            protected
+        ),
+        "valid": not conflicts,
+        "conflicts": conflicts,
+    }
+
+    if conflicts:
+        summary = dbc.Alert(
+            [
+                html.Strong(
+                    "Configuration des rôles invalide."
+                ),
+                html.Ul(
+                    [
+                        html.Li(message)
+                        for message in conflicts
+                    ],
+                    className="mb-0 mt-2",
+                ),
+            ],
+            color="danger",
+        )
+
+    else:
+        summary = dbc.Alert(
+            [
+                html.Strong(
+                    "Configuration des rôles valide."
+                ),
+                html.Div(
+                    (
+                        f"Cible : {target or 'non définie'} | "
+                        f"Identifiants : {len(identifiers)} | "
+                        f"Qualité : {len(quality_columns)} | "
+                        f"Texte : {len(text_columns)} | "
+                        f"Exclues : {len(excluded_columns)}"
+                    ),
+                    className="mt-2",
+                ),
+            ],
+            color="success",
+        )
+
+    return roles, summary
 
 
 @callback(
@@ -441,6 +689,10 @@ def _scale_dataframe(dataframe, method):
         "value",
     ),
     State(
+        "eidpp-variable-roles",
+        "data",
+    ),
+    State(
         "eidpp-project-id",
         "data",
     ),
@@ -457,6 +709,7 @@ def apply_preprocessing(
     outliers,
     encoding,
     scaling,
+    variable_roles,
     project_id,
     dataset_id,
 ):
@@ -485,6 +738,36 @@ def apply_preprocessing(
 
         original = result
 
+        variable_roles = (
+            variable_roles
+            or {}
+        )
+
+        if not variable_roles.get(
+            "valid",
+            True,
+        ):
+            return (
+                no_update,
+                no_update,
+                dbc.Alert(
+                    (
+                        "La configuration des rôles "
+                        "des variables contient des conflits. "
+                        "Corrigez-les avant d'appliquer "
+                        "le prétraitement."
+                    ),
+                    color="danger",
+                ),
+            )
+
+        predictor_columns = (
+            _predictor_columns_from_roles(
+                original,
+                variable_roles,
+            )
+        )
+
         # Chaque exécution repart du dataset source.
         # Cela évite de cumuler silencieusement les
         # transformations lors de plusieurs clics.
@@ -496,11 +779,20 @@ def apply_preprocessing(
         # 0. CORRECTION DES TYPES
         # ==========================================
 
-        dataframe, converted_columns = (
+        predictor_frame = dataframe[
+            predictor_columns
+        ].copy()
+
+        predictor_frame, converted_columns = (
             _coerce_numeric_like_columns(
-                dataframe
+                predictor_frame
             )
         )
+
+        for column in predictor_columns:
+            dataframe[column] = (
+                predictor_frame[column]
+            )
 
         # ==========================================
         # 1. IMPUTATION
@@ -509,6 +801,7 @@ def apply_preprocessing(
         dataframe = _impute_dataframe(
             dataframe,
             imputation,
+            columns=predictor_columns,
         )
 
         # ==========================================
@@ -532,29 +825,67 @@ def apply_preprocessing(
         # 3. OUTLIERS
         # ==========================================
 
-        if outliers == "remove_iqr":
+        if outliers in {
+            "remove_iqr",
+            "winsorize",
+        }:
 
             from emidaf_core.preprocessing.outliers import (
                 OutlierDetection,
             )
 
-            dataframe = (
-                OutlierDetection.remove_iqr(
-                    dataframe
+            available_predictors = [
+                column
+                for column in predictor_columns
+                if column in dataframe.columns
+            ]
+
+            numeric_predictors = list(
+                dataframe[
+                    available_predictors
+                ]
+                .select_dtypes(
+                    include="number"
                 )
+                .columns
             )
 
-        elif outliers == "winsorize":
+            if numeric_predictors:
 
-            from emidaf_core.preprocessing.outliers import (
-                OutlierDetection,
-            )
-
-            dataframe = (
-                OutlierDetection.winsorize(
-                    dataframe
+                predictor_numeric = (
+                    dataframe[
+                        numeric_predictors
+                    ].copy()
                 )
-            )
+
+                if outliers == "remove_iqr":
+
+                    filtered = (
+                        OutlierDetection.remove_iqr(
+                            predictor_numeric
+                        )
+                    )
+
+                    dataframe = (
+                        dataframe.loc[
+                            filtered.index
+                        ].copy()
+                    )
+
+                elif outliers == "winsorize":
+
+                    transformed = (
+                        OutlierDetection.winsorize(
+                            predictor_numeric
+                        )
+                    )
+
+                    dataframe.loc[
+                        :,
+                        numeric_predictors,
+                    ] = transformed[
+                        numeric_predictors
+                    ]
 
         # ==========================================
         # 4. ENCODING
@@ -563,6 +894,7 @@ def apply_preprocessing(
         dataframe = _encode_dataframe(
             dataframe,
             encoding,
+            columns=predictor_columns,
         )
 
         # ==========================================
@@ -572,6 +904,7 @@ def apply_preprocessing(
         dataframe = _scale_dataframe(
             dataframe,
             scaling,
+            columns=predictor_columns,
         )
 
         dataframe = dataframe.reset_index(
@@ -600,6 +933,12 @@ def apply_preprocessing(
                     "encoding": encoding,
                     "scaling": scaling,
                 },
+                "variable_roles": (
+                    variable_roles
+                ),
+                "predictor_columns": list(
+                    predictor_columns
+                ),
                 "converted_columns": list(
                     converted_columns
                 ),

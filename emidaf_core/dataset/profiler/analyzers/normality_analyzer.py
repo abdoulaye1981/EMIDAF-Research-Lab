@@ -72,10 +72,17 @@ class NormalityAnalyzer(BaseAnalyzer):
             )
         )
 
+        skipped_ordinal_columns = (
+            ordinal_columns
+            .intersection(
+                numeric_columns
+            )
+        )
+
         analyzed_columns = [
             column
             for column in numeric_columns
-            if column not in ordinal_columns
+            if column not in skipped_ordinal_columns
         ]
 
         results = {}
@@ -169,7 +176,7 @@ class NormalityAnalyzer(BaseAnalyzer):
             "alpha": 0.05,
             "skipped": {
                 "ordinal": sorted(
-                    ordinal_columns
+                    skipped_ordinal_columns
                 )
             }
         }

@@ -49,6 +49,53 @@ def eidpp_layout(project_id, dataset_id):
     dataframe = result
     metrics = _initial_metrics(dataframe)
 
+    columns = list(dataframe.columns)
+
+    column_options = [
+        {
+            "label": column,
+            "value": column,
+        }
+        for column in columns
+    ]
+
+    identifier_defaults = [
+        column
+        for column in columns
+        if (
+            column.lower() == "id"
+            or column.lower().startswith("id_")
+            or column.lower().endswith("_id")
+        )
+    ]
+
+    quality_defaults = [
+        column
+        for column in columns
+        if column.lower().startswith(
+            ("statut_", "status_", "quality_", "flag_")
+        )
+    ]
+
+    text_name_hints = (
+        "text",
+        "texte",
+        "review",
+        "comment",
+        "verbatim",
+        "reponse_libre",
+        "response_text",
+    )
+
+    text_defaults = [
+        column
+        for column in columns
+        if any(
+            hint in column.lower()
+            for hint in text_name_hints
+        )
+    ]
+
     return dbc.Container(
         [
             html.H2(
@@ -144,6 +191,93 @@ def eidpp_layout(project_id, dataset_id):
 
             dbc.Accordion(
                 [
+                    # ------------------------------------------
+                    # Variable roles
+                    # ------------------------------------------
+
+                    dbc.AccordionItem(
+                        [
+                            dbc.Alert(
+                                (
+                                    "Définissez le rôle analytique des "
+                                    "variables avant toute transformation. "
+                                    "Les rôles serviront ensuite à protéger "
+                                    "les cibles, identifiants et variables "
+                                    "non prédictives pendant le prétraitement."
+                                ),
+                                color="info",
+                            ),
+
+                            dbc.Label(
+                                "Variable cible"
+                            ),
+
+                            dcc.Dropdown(
+                                id="eidpp-target",
+                                options=column_options,
+                                value=None,
+                                placeholder=(
+                                    "Sélectionner la variable cible"
+                                ),
+                                clearable=True,
+                                className="mb-3",
+                            ),
+
+                            dbc.Label(
+                                "Variables identifiantes"
+                            ),
+
+                            dcc.Dropdown(
+                                id="eidpp-identifiers",
+                                options=column_options,
+                                value=identifier_defaults,
+                                multi=True,
+                                className="mb-3",
+                            ),
+
+                            dbc.Label(
+                                "Variables de qualité / audit"
+                            ),
+
+                            dcc.Dropdown(
+                                id="eidpp-quality-columns",
+                                options=column_options,
+                                value=quality_defaults,
+                                multi=True,
+                                className="mb-3",
+                            ),
+
+                            dbc.Label(
+                                "Variables texte libre"
+                            ),
+
+                            dcc.Dropdown(
+                                id="eidpp-text-columns",
+                                options=column_options,
+                                value=text_defaults,
+                                multi=True,
+                                className="mb-3",
+                            ),
+
+                            dbc.Label(
+                                "Variables exclues manuellement"
+                            ),
+
+                            dcc.Dropdown(
+                                id="eidpp-excluded-columns",
+                                options=column_options,
+                                value=[],
+                                multi=True,
+                                className="mb-3",
+                            ),
+
+                            html.Div(
+                                id="eidpp-role-summary"
+                            ),
+                        ],
+                        title="Rôles des variables",
+                    ),
+
                     # ------------------------------------------
                     # Missing
                     # ------------------------------------------
@@ -483,6 +617,11 @@ def eidpp_layout(project_id, dataset_id):
             dcc.Store(
                 id="eidpp-dataset-id",
                 data=dataset_id,
+            ),
+
+            dcc.Store(
+                id="eidpp-variable-roles",
+                data={},
             ),
 
             dcc.Download(
