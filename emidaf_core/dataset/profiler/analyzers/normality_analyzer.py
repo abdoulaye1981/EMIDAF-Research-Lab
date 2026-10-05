@@ -24,7 +24,7 @@ class NormalityAnalyzer(BaseAnalyzer):
     """
 
     name = "NormalityAnalyzer"
-    version = "1.0.0"
+    version = "1.1.0"
     description = "Analyse de la normalité des variables numériques"
 
     def analyze(
@@ -43,7 +43,10 @@ class NormalityAnalyzer(BaseAnalyzer):
                 "count": 0,
                 "columns": {},
                 "test": "Shapiro-Wilk",
-                "alpha": 0.05
+                "alpha": 0.05,
+                "skipped": {
+                    "ordinal": []
+                }
             }
 
             context.add_result(self.name, result)
@@ -57,9 +60,27 @@ class NormalityAnalyzer(BaseAnalyzer):
               []
         )
 
+        semantic = datatype.get(
+            "semantic",
+            {},
+        )
+
+        ordinal_columns = set(
+            semantic.get(
+                "ordinal",
+                [],
+            )
+        )
+
+        analyzed_columns = [
+            column
+            for column in numeric_columns
+            if column not in ordinal_columns
+        ]
+
         results = {}
 
-        for column in numeric_columns:
+        for column in analyzed_columns:
             series = dataframe[column].dropna()
 
             series = series[
@@ -145,7 +166,12 @@ class NormalityAnalyzer(BaseAnalyzer):
             "count": len(results),
             "columns": results,
             "test": "Shapiro-Wilk",
-            "alpha": 0.05
+            "alpha": 0.05,
+            "skipped": {
+                "ordinal": sorted(
+                    ordinal_columns
+                )
+            }
         }
 
         context.add_result(self.name, result)

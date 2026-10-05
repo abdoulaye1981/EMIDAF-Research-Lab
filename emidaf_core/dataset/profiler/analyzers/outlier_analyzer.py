@@ -21,7 +21,7 @@ class OutlierAnalyzer(BaseAnalyzer):
     Analyse des valeurs aberrantes avec la méthode IQR.
     """
     name = "OutlierAnalyzer"
-    version = "1.0.0"
+    version = "1.1.0"
     def analyze(
             self,
             context: ProfileContext
@@ -39,7 +39,10 @@ class OutlierAnalyzer(BaseAnalyzer):
                 "count": 0,
                 "method": "IQR",
                 "warnings": [],
-                "recommendations": []
+                "recommendations": [],
+                "skipped": {
+                    "ordinal": []
+                }
             }
 
             context.add_result(self.name, result)
@@ -54,9 +57,27 @@ class OutlierAnalyzer(BaseAnalyzer):
            []
         )
 
+        semantic = datatype.get(
+            "semantic",
+            {},
+        )
+
+        ordinal_columns = set(
+            semantic.get(
+                "ordinal",
+                [],
+            )
+        )
+
+        analyzed_columns = [
+            column
+            for column in numeric_columns
+            if column not in ordinal_columns
+        ]
+
         results = {}
 
-        for column in numeric_columns:
+        for column in analyzed_columns:
             series = dataframe[column].dropna()
 
             series = series[
@@ -117,7 +138,12 @@ class OutlierAnalyzer(BaseAnalyzer):
             "count": len(results),
             "method": "IQR",
             "warnings": [],
-            "recommendations": []
+            "recommendations": [],
+            "skipped": {
+                "ordinal": sorted(
+                    ordinal_columns
+                )
+            }
         }
 
         outlier_columns = [

@@ -1134,6 +1134,16 @@ def _build_normality_view(data):
     test = data.get("test", "—")
     alpha = data.get("alpha")
 
+    skipped = data.get(
+        "skipped",
+        {},
+    ) or {}
+
+    skipped_ordinal = skipped.get(
+        "ordinal",
+        [],
+    ) or []
+
     if not columns:
         return dbc.Alert(
             "Aucun test de normalité disponible.",
@@ -1200,6 +1210,34 @@ def _build_normality_view(data):
                 className="mb-3",
             ),
 
+            (
+                dbc.Alert(
+                    [
+                        html.Strong(
+                            "Variables ordinales non soumises "
+                            "au test de normalité"
+                        ),
+                        html.P(
+                            ", ".join(skipped_ordinal),
+                            className="mb-1 mt-2",
+                        ),
+                        html.Small(
+                            (
+                                "Ces variables représentent des "
+                                "échelles ordinales discrètes. "
+                                "Le test de Shapiro-Wilk n'est "
+                                "donc pas appliqué automatiquement "
+                                "à ces variables."
+                            )
+                        ),
+                    ],
+                    color="info",
+                    className="mb-3",
+                )
+                if skipped_ordinal
+                else html.Div()
+            ),
+
             dbc.Table(
                 [
                     html.Thead(
@@ -1240,6 +1278,16 @@ def _build_outlier_view(data):
     method = data.get("method", "—")
     warnings = data.get("warnings", []) or []
     recommendations = data.get("recommendations", []) or []
+
+    skipped = data.get(
+        "skipped",
+        {},
+    ) or {}
+
+    skipped_ordinal = skipped.get(
+        "ordinal",
+        [],
+    ) or []
 
     if not columns:
         return dbc.Alert(
@@ -1334,6 +1382,33 @@ def _build_outlier_view(data):
         ),
     ]
 
+    if skipped_ordinal:
+        components.append(
+            dbc.Alert(
+                [
+                    html.Strong(
+                        "Variables ordinales non soumises "
+                        "au diagnostic IQR"
+                    ),
+                    html.P(
+                        ", ".join(skipped_ordinal),
+                        className="mb-1 mt-2",
+                    ),
+                    html.Small(
+                        (
+                            "Ces variables représentent des "
+                            "échelles ordinales discrètes. "
+                            "La règle IQR n'est donc pas utilisée "
+                            "automatiquement pour les qualifier "
+                            "de valeurs aberrantes."
+                        )
+                    ),
+                ],
+                color="info",
+                className="mb-3",
+            )
+        )
+
     if warnings:
         components.append(
             dbc.Alert(
@@ -1418,42 +1493,195 @@ def _matrix_table(matrix):
 def _build_correlation_view(data):
     data = _result_payload(data)
 
-    matrix = (
-        data.get("correlation_matrix")
+    default_method = data.get(
+        "default_method",
+        "spearman",
+    )
+
+    spearman_matrix = (
+        data.get("spearman_matrix")
+        or data.get("correlation_matrix")
         or data.get("matrix")
         or {}
     )
 
-    pairs = data.get("pairs", []) or []
+    adaptive_pairs = (
+        data.get("adaptive_pairs")
+        or data.get("pairs")
+        or []
+    )
+
+    ordinal_columns = (
+        data.get("ordinal_columns")
+        or []
+    )
+
+    method_notes = (
+        data.get("method_notes")
+        or []
+    )
 
     components = [
+        dbc.Row(
+            [
+                dbc.Col(
+                    dbc.Card(
+                        dbc.CardBody(
+                            [
+                                html.H6(
+                                    "Méthode par défaut"
+                                ),
+                                html.H5(
+                                    str(
+                                        default_method
+                                    ).capitalize()
+                                ),
+                            ]
+                        )
+                    ),
+                    width=6,
+                ),
+                dbc.Col(
+                    dbc.Card(
+                        dbc.CardBody(
+                            [
+                                html.H6(
+                                    "Variables ordinales"
+                                ),
+                                html.H5(
+                                    str(
+                                        len(
+                                            ordinal_columns
+                                        )
+                                    )
+                                ),
+                            ]
+                        )
+                    ),
+                    width=6,
+                ),
+            ],
+            className="mb-3",
+        ),
+
+        dbc.Alert(
+            (
+                "Spearman est utilisé comme méthode "
+                "de corrélation par défaut. "
+                "Toute paire impliquant une variable "
+                "ordinale est analysée avec Spearman. "
+                "Pearson est retenu dans l'analyse "
+                "adaptative uniquement lorsque les "
+                "deux variables sont quantitatives "
+                "non ordinales et compatibles avec "
+                "la normalité."
+            ),
+            color="info",
+            className="mb-3",
+        ),
+
         html.H6(
-            "Matrice de corrélation",
+            "Matrice de corrélation de Spearman",
             className="mb-2",
         ),
-        _matrix_table(matrix),
+
+        _matrix_table(
+            spearman_matrix
+        ),
     ]
 
-    if pairs:
+    if ordinal_columns:
+        components.append(
+            dbc.Alert(
+                [
+                    html.Strong(
+                        "Variables ordinales interprétées "
+                        "prioritairement avec Spearman"
+                    ),
+                    html.P(
+                        ", ".join(
+                            ordinal_columns
+                        ),
+                        className="mb-0 mt-2",
+                    ),
+                ],
+                color="light",
+                className="mt-3",
+            )
+        )
+
+    if adaptive_pairs:
         pair_rows = []
 
-        for item in pairs:
-            if not isinstance(item, dict):
+        reason_labels = {
+            "ordinal_variable": (
+                "Variable ordinale"
+            ),
+            "both_variables_compatible_with_normality": (
+                "Deux variables non ordinales "
+                "compatibles avec la normalité"
+            ),
+            "normality_not_confirmed": (
+                "Normalité non confirmée"
+            ),
+            "normality_unavailable": (
+                "Diagnostic de normalité indisponible"
+            ),
+        }
+
+        for item in adaptive_pairs:
+            if not isinstance(
+                item,
+                dict,
+            ):
                 continue
+
+            method = str(
+                item.get(
+                    "method",
+                    default_method,
+                )
+            )
+
+            reason = item.get(
+                "reason",
+                "—",
+            )
+
+            reason_display = (
+                reason_labels.get(
+                    reason,
+                    str(reason),
+                )
+            )
 
             pair_rows.append(
                 html.Tr(
                     [
                         html.Td(
-                            item.get("variable_1", "—")
+                            item.get(
+                                "variable_1",
+                                "—",
+                            )
                         ),
                         html.Td(
-                            item.get("variable_2", "—")
+                            item.get(
+                                "variable_2",
+                                "—",
+                            )
                         ),
                         html.Td(
                             _display_value(
-                                item.get("correlation")
+                                item.get(
+                                    "correlation"
+                                )
                             )
+                        ),
+                        html.Td(
+                            method.capitalize()
+                        ),
+                        html.Td(
+                            reason_display
                         ),
                     ]
                 )
@@ -1462,21 +1690,46 @@ def _build_correlation_view(data):
         components.extend(
             [
                 html.H6(
-                    "Paires de variables",
-                    className="mt-3",
+                    "Analyse adaptative des paires",
+                    className="mt-4",
                 ),
+
+                html.P(
+                    (
+                        "La méthode est choisie paire "
+                        "par paire selon le type "
+                        "sémantique des variables et "
+                        "le diagnostic de normalité."
+                    ),
+                    className="text-muted",
+                ),
+
                 dbc.Table(
                     [
                         html.Thead(
                             html.Tr(
                                 [
-                                    html.Th("Variable 1"),
-                                    html.Th("Variable 2"),
-                                    html.Th("Corrélation"),
+                                    html.Th(
+                                        "Variable 1"
+                                    ),
+                                    html.Th(
+                                        "Variable 2"
+                                    ),
+                                    html.Th(
+                                        "Corrélation"
+                                    ),
+                                    html.Th(
+                                        "Méthode"
+                                    ),
+                                    html.Th(
+                                        "Justification"
+                                    ),
                                 ]
                             )
                         ),
-                        html.Tbody(pair_rows),
+                        html.Tbody(
+                            pair_rows
+                        ),
                     ],
                     bordered=True,
                     striped=True,
@@ -1484,18 +1737,48 @@ def _build_correlation_view(data):
                     responsive=True,
                     size="sm",
                 ),
-                dbc.Alert(
-                    (
-                        "La corrélation mesure une association "
-                        "linéaire ; elle n'implique pas une "
-                        "relation de causalité."
-                    ),
-                    color="secondary",
-                ),
             ]
         )
 
-    return html.Div(components)
+    if method_notes:
+        components.append(
+            dbc.Alert(
+                [
+                    html.Strong(
+                        "Notes méthodologiques"
+                    ),
+                    html.Ul(
+                        [
+                            html.Li(
+                                str(item)
+                            )
+                            for item
+                            in method_notes
+                        ],
+                        className="mb-0 mt-2",
+                    ),
+                ],
+                color="secondary",
+                className="mt-3",
+            )
+        )
+    else:
+        components.append(
+            dbc.Alert(
+                (
+                    "La corrélation mesure une "
+                    "association statistique entre "
+                    "variables ; elle n'implique pas "
+                    "une relation de causalité."
+                ),
+                color="secondary",
+                className="mt-3",
+            )
+        )
+
+    return html.Div(
+        components
+    )
 
 
 def _build_multicollinearity_view(data):
