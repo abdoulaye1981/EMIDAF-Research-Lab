@@ -21,6 +21,16 @@ from emidaf_studio.services.model_registry import (
 
 from emidaf_core.dataset.profiler import DatasetProfiler
 
+from emidaf_core.statistics.inferential.group_selector import (
+    GroupTestSelector,
+)
+from emidaf_core.statistics.inferential.group_effect_size import (
+    GroupEffectSize,
+)
+from emidaf_core.statistics.inferential.posthoc import (
+    AdaptivePostHoc,
+)
+
 from dash.exceptions import PreventUpdate
 
 from emidaf_studio.pages.inspection.layout import (
@@ -1360,7 +1370,6 @@ def grouped_analysis(
     if active_tab != "grouped":
         return no_update, no_update
 
-
     dataframe = _load_elae_dataframe(
         project_id,
         dataset_id,
@@ -1419,62 +1428,6 @@ def grouped_analysis(
             {},
         )
 
-    persisted_values = pd.to_numeric(
-        dataframe[value_variable],
-        errors="coerce",
-    )
-
-    persisted_frame = pd.DataFrame(
-        {
-            group_variable: (
-                dataframe[group_variable]
-            ),
-            value_variable: (
-                persisted_values
-            ),
-        }
-    )
-
-    persisted_summary = (
-        persisted_frame
-        .groupby(
-            group_variable,
-            dropna=False,
-        )[value_variable]
-        .agg(
-            [
-                "count",
-                "mean",
-                "median",
-                "std",
-                "min",
-                "max",
-            ]
-        )
-        .reset_index()
-    )
-
-    _persist_elae(
-        project_id,
-        dataset_id,
-        "grouped",
-        {
-            "group_variable": (
-                group_variable
-            ),
-            "value_variable": (
-                value_variable
-            ),
-            "summary": (
-                persisted_summary
-                .round(6)
-                .to_dict(
-                    orient="records"
-                )
-            ),
-        },
-    )
-
     temp = dataframe[
         [
             group_variable,
@@ -1486,6 +1439,10 @@ def grouped_analysis(
         temp[value_variable],
         errors="coerce",
     )
+
+    # ======================================================
+    # DESCRIPTIF
+    # ======================================================
 
     grouped = (
         temp
@@ -1506,9 +1463,9 @@ def grouped_analysis(
         .reset_index()
     )
 
-    # --------------------------------------------------------
+    # ------------------------------------------------------
     # Ordre sémantique des niveaux scolaires
-    # --------------------------------------------------------
+    # ------------------------------------------------------
 
     level_order = [
         "6e",
@@ -1526,26 +1483,33 @@ def grouped_analysis(
         "niveau",
         "niveau_etude",
     }:
+        observed = set(
+            temp[group_variable]
+            .dropna()
+            .astype(str)
+        )
+
         present_levels = [
             level
             for level in level_order
-            if level
-            in set(
-                temp[group_variable]
-                .dropna()
-                .astype(str)
-            )
+            if level in observed
         ]
 
         if present_levels:
             category_orders = {
-                group_variable: present_levels,
+                group_variable:
+                    present_levels,
             }
 
-            grouped[group_variable] = pd.Categorical(
-                grouped[group_variable],
-                categories=present_levels,
-                ordered=True,
+            grouped[group_variable] = (
+                pd.Categorical(
+                    grouped[
+                        group_variable
+                    ],
+                    categories=
+                        present_levels,
+                    ordered=True,
+                )
             )
 
             grouped = (
@@ -1558,10 +1522,6 @@ def grouped_analysis(
                 )
             )
 
-    # --------------------------------------------------------
-    # Libellés scientifiques francophones
-    # --------------------------------------------------------
-
     display_grouped = grouped.rename(
         columns={
             "count": "Effectif",
@@ -1572,6 +1532,844 @@ def grouped_analysis(
             "max": "Maximum",
         }
     )
+
+    # ======================================================
+    # GROUPES NUMÉRIQUES POUR L'INFÉRENCE
+    # ======================================================
+
+    analysis_frame = (
+        temp
+        .dropna(
+            subset=[
+                group_variable,
+                value_variable,
+            ]
+        )
+        .copy()
+    )
+
+    if category_orders:
+        labels = [
+            label
+            for label in (
+                category_orders[
+                    group_variable
+                ]
+            )
+            if (
+                analysis_frame[
+                    group_variable
+                ]
+                .astype(str)
+                == str(label)
+            ).any()
+        ]
+    else:
+        labels = [
+            value
+            for value in (
+                grouped[
+                    group_variable
+                ]
+                .dropna()
+                .tolist()
+            )
+        ]
+
+    groups = []
+
+    valid_labels = []
+
+    for label in labels:
+        mask = (
+            analysis_frame[
+                group_variable
+            ]
+            .astype(str)
+            == str(label)
+        )
+
+        values = (
+            analysis_frame.loc[
+                mask,
+                value_variable,
+            ]
+            .dropna()
+            .to_numpy(
+                dtype=float
+            )
+        )
+
+        if len(values) >= 3:
+            groups.append(
+                values
+            )
+            valid_labels.append(
+                str(label)
+            )
+
+    # ======================================================
+    # INFÉRENCE ADAPTATIVE
+    # ======================================================
+
+    inference_component = None
+    persistence_inference = None
+
+    if len(groups) >= 2:
+        try:
+            selector = (
+                GroupTestSelector(
+                    alpha=0.05
+                )
+            )
+
+            selection = (
+                selector.select(
+                    *groups
+                )
+            )
+
+            test_result = (
+                selection[
+                    "result"
+                ]
+            )
+
+            effect = (
+                GroupEffectSize.compute(
+                    selection,
+                    *groups,
+                )
+            )
+
+            posthoc = (
+                AdaptivePostHoc.compute(
+                    selection,
+                    *groups,
+                    labels=valid_labels,
+                )
+            )
+
+            # ----------------------------------------------
+            # Traduction de la justification
+            # ----------------------------------------------
+
+            reason_labels = {
+                (
+                    "parametric_compatible_"
+                    "two_groups"
+                ): (
+                    "Approche paramétrique compatible "
+                    "pour deux groupes ; le test de "
+                    "Welch est retenu."
+                ),
+                (
+                    "parametric_incompatible_"
+                    "two_groups"
+                ): (
+                    "Compatibilité paramétrique "
+                    "insuffisante ; le test de "
+                    "Mann–Whitney est retenu."
+                ),
+                (
+                    "parametric_compatible_"
+                    "equal_variances"
+                ): (
+                    "Approche paramétrique compatible "
+                    "et homogénéité des variances ; "
+                    "l'ANOVA à un facteur est retenue."
+                ),
+                (
+                    "parametric_compatible_"
+                    "unequal_variances"
+                ): (
+                    "Approche paramétrique compatible, "
+                    "mais variances hétérogènes ; "
+                    "l'ANOVA de Welch est retenue."
+                ),
+                (
+                    "parametric_incompatible_"
+                    "k_groups"
+                ): (
+                    "Compatibilité paramétrique "
+                    "insuffisante ; le test de "
+                    "Kruskal–Wallis est retenu."
+                ),
+            }
+
+            reason = reason_labels.get(
+                selection.get(
+                    "reason"
+                ),
+                (
+                    "Sélection adaptative réalisée "
+                    "par EMIDAF."
+                ),
+            )
+
+            statistic = float(
+                test_result.statistic
+            )
+
+            p_value = float(
+                test_result.p_value
+            )
+
+            significant = bool(
+                test_result.reject_null
+            )
+
+            if significant:
+                decision = (
+                    "Une différence statistiquement "
+                    "significative est détectée entre "
+                    "les groupes au seuil de 5 %."
+                )
+                decision_color = "success"
+            else:
+                decision = (
+                    "Aucune différence statistiquement "
+                    "significative n'est détectée "
+                    "entre les groupes au seuil de 5 %."
+                )
+                decision_color = "secondary"
+
+            p_display = (
+                "< 0,0001"
+                if p_value < 0.0001
+                else f"{p_value:.4f}"
+            )
+
+            # ----------------------------------------------
+            # Degrés de liberté si disponibles
+            # ----------------------------------------------
+
+            metadata = (
+                test_result.metadata
+                or {}
+            )
+
+            df_text = None
+
+            if (
+                "df_num" in metadata
+                and
+                "df_denom" in metadata
+            ):
+                df_text = (
+                    f"{metadata['df_num']:.3f} ; "
+                    f"{metadata['df_denom']:.3f}"
+                )
+
+            # ----------------------------------------------
+            # Taille d'effet
+            # ----------------------------------------------
+
+            effect_name = (
+                effect.get(
+                    "name",
+                    "Taille d'effet",
+                )
+            )
+
+            effect_value = float(
+                effect.get(
+                    "value",
+                    0.0,
+                )
+            )
+
+            effect_magnitude = (
+                effect.get(
+                    "magnitude",
+                    "non déterminée",
+                )
+            )
+
+            effect_note = (
+                effect.get(
+                    "note"
+                )
+            )
+
+            effect_rows = [
+                html.Tr(
+                    [
+                        html.Th(
+                            "Mesure"
+                        ),
+                        html.Td(
+                            effect_name
+                        ),
+                    ]
+                ),
+                html.Tr(
+                    [
+                        html.Th(
+                            "Valeur"
+                        ),
+                        html.Td(
+                            f"{effect_value:.4f}"
+                        ),
+                    ]
+                ),
+                html.Tr(
+                    [
+                        html.Th(
+                            "Importance"
+                        ),
+                        html.Td(
+                            effect_magnitude
+                        ),
+                    ]
+                ),
+            ]
+
+            secondary_effect = (
+                effect.get(
+                    "secondary"
+                )
+            )
+
+            if secondary_effect:
+                effect_rows.append(
+                    html.Tr(
+                        [
+                            html.Th(
+                                secondary_effect[
+                                    "name"
+                                ]
+                            ),
+                            html.Td(
+                                f"{float(secondary_effect['value']):.4f}"
+                            ),
+                        ]
+                    )
+                )
+
+            # ----------------------------------------------
+            # Post-hoc
+            # ----------------------------------------------
+
+            posthoc_component = None
+
+            if posthoc.get(
+                "performed"
+            ):
+                comparisons = (
+                    posthoc.get(
+                        "comparisons",
+                        [],
+                    )
+                )
+
+                posthoc_rows = []
+
+                for comparison in comparisons:
+                    p_adjusted = float(
+                        comparison.get(
+                            "p_value_adjusted",
+                            np.nan,
+                        )
+                    )
+
+                    significant_pair = bool(
+                        comparison.get(
+                            "reject",
+                            False,
+                        )
+                    )
+
+                    row = {
+                        "Comparaison": (
+                            f"{comparison.get('group_1')} "
+                            f"vs "
+                            f"{comparison.get('group_2')}"
+                        ),
+                        "p-ajustée": (
+                            "< 0,0001"
+                            if (
+                                np.isfinite(
+                                    p_adjusted
+                                )
+                                and
+                                p_adjusted
+                                < 0.0001
+                            )
+                            else (
+                                f"{p_adjusted:.4f}"
+                                if np.isfinite(
+                                    p_adjusted
+                                )
+                                else "—"
+                            )
+                        ),
+                        "Conclusion": (
+                            "Significative"
+                            if significant_pair
+                            else
+                            "Non significative"
+                        ),
+                    }
+
+                    if (
+                        "mean_difference"
+                        in comparison
+                    ):
+                        row[
+                            "Différence"
+                        ] = round(
+                            float(
+                                comparison[
+                                    "mean_difference"
+                                ]
+                            ),
+                            4,
+                        )
+
+                    elif "z" in comparison:
+                        row[
+                            "Statistique z"
+                        ] = round(
+                            float(
+                                comparison[
+                                    "z"
+                                ]
+                            ),
+                            4,
+                        )
+
+                    posthoc_rows.append(
+                        row
+                    )
+
+                posthoc_frame = (
+                    pd.DataFrame(
+                        posthoc_rows
+                    )
+                )
+
+                posthoc_component = (
+                    html.Div(
+                        [
+                            html.H6(
+                                "Comparaisons post-hoc",
+                                className="mt-4",
+                            ),
+                            html.P(
+                                [
+                                    html.Strong(
+                                        "Méthode : "
+                                    ),
+                                    posthoc.get(
+                                        "method",
+                                        "—",
+                                    ),
+                                ],
+                                className="mb-2",
+                            ),
+                            _table(
+                                posthoc_frame
+                            ),
+                        ]
+                    )
+                )
+
+            else:
+                posthoc_reason = (
+                    posthoc.get(
+                        "reason"
+                    )
+                )
+
+                if (
+                    posthoc_reason
+                    ==
+                    "two_groups_no_posthoc"
+                ):
+                    posthoc_text = (
+                        "Aucun post-hoc nécessaire : "
+                        "la comparaison concerne "
+                        "uniquement deux groupes."
+                    )
+
+                elif (
+                    posthoc_reason
+                    ==
+                    "global_test_not_significant"
+                ):
+                    posthoc_text = (
+                        "Post-hoc non exécuté : "
+                        "le test global n'est pas "
+                        "statistiquement significatif."
+                    )
+
+                else:
+                    posthoc_text = (
+                        "Aucun post-hoc applicable."
+                    )
+
+                posthoc_component = (
+                    dbc.Alert(
+                        posthoc_text,
+                        color="light",
+                        className="mt-3",
+                    )
+                )
+
+            # ----------------------------------------------
+            # Règle décisionnelle
+            # ----------------------------------------------
+
+            parametric_text = (
+                "Oui"
+                if selection.get(
+                    "parametric_compatible"
+                )
+                else "Non"
+            )
+
+            variance_homogeneous = (
+                selection.get(
+                    "variance_homogeneous"
+                )
+            )
+
+            if variance_homogeneous is None:
+                variance_text = (
+                    "Non applicable"
+                )
+            else:
+                variance_text = (
+                    "Oui"
+                    if variance_homogeneous
+                    else "Non"
+                )
+
+            test_rows = [
+                html.Tr(
+                    [
+                        html.Th(
+                            "Test retenu"
+                        ),
+                        html.Td(
+                            test_result.test
+                        ),
+                    ]
+                ),
+                html.Tr(
+                    [
+                        html.Th(
+                            "Statistique"
+                        ),
+                        html.Td(
+                            f"{statistic:.4f}"
+                        ),
+                    ]
+                ),
+                html.Tr(
+                    [
+                        html.Th(
+                            "p-value"
+                        ),
+                        html.Td(
+                            p_display
+                        ),
+                    ]
+                ),
+            ]
+
+            if df_text is not None:
+                test_rows.append(
+                    html.Tr(
+                        [
+                            html.Th(
+                                "Degrés de liberté"
+                            ),
+                            html.Td(
+                                df_text
+                            ),
+                        ]
+                    )
+                )
+
+            inference_component = (
+                dbc.Card(
+                    dbc.CardBody(
+                        [
+                            html.H5(
+                                "Analyse inférentielle",
+                                className="card-title",
+                            ),
+
+                            html.H6(
+                                "Règle décisionnelle EMIDAF",
+                                className="mt-3",
+                            ),
+
+                            dbc.Table(
+                                [
+                                    html.Tbody(
+                                        [
+                                            html.Tr(
+                                                [
+                                                    html.Th(
+                                                        "Approche paramétrique compatible"
+                                                    ),
+                                                    html.Td(
+                                                        parametric_text
+                                                    ),
+                                                ]
+                                            ),
+                                            html.Tr(
+                                                [
+                                                    html.Th(
+                                                        "Homogénéité des variances"
+                                                    ),
+                                                    html.Td(
+                                                        variance_text
+                                                    ),
+                                                ]
+                                            ),
+                                        ]
+                                    )
+                                ],
+                                bordered=True,
+                                size="sm",
+                                responsive=True,
+                            ),
+
+                            html.P(
+                                [
+                                    html.Strong(
+                                        "Justification : "
+                                    ),
+                                    reason,
+                                ],
+                                className="mt-3",
+                            ),
+
+                            html.H6(
+                                "Résultat du test global",
+                                className="mt-4",
+                            ),
+
+                            dbc.Table(
+                                [
+                                    html.Tbody(
+                                        test_rows
+                                    )
+                                ],
+                                bordered=True,
+                                size="sm",
+                                responsive=True,
+                            ),
+
+                            dbc.Alert(
+                                decision,
+                                color=decision_color,
+                                className="mt-3",
+                            ),
+
+                            html.H6(
+                                "Taille d'effet",
+                                className="mt-4",
+                            ),
+
+                            dbc.Table(
+                                [
+                                    html.Tbody(
+                                        effect_rows
+                                    )
+                                ],
+                                bordered=True,
+                                size="sm",
+                                responsive=True,
+                            ),
+
+                            (
+                                dbc.Alert(
+                                    effect_note,
+                                    color="info",
+                                    className="mt-2",
+                                )
+                                if effect_note
+                                else html.Div()
+                            ),
+
+                            posthoc_component,
+
+                            dbc.Alert(
+                                (
+                                    "Interprétation : une association "
+                                    "ou une différence statistique "
+                                    "n'établit pas à elle seule une "
+                                    "relation causale. Avec de grands "
+                                    "effectifs, une différence peut être "
+                                    "statistiquement significative tout "
+                                    "en restant faible en pratique."
+                                ),
+                                color="warning",
+                                className="mt-4 mb-0",
+                            ),
+                        ]
+                    ),
+                    className="mt-4",
+                )
+            )
+
+            # ----------------------------------------------
+            # Persistance sérialisable
+            # ----------------------------------------------
+
+            persistence_inference = {
+                "selected_test":
+                    selection.get(
+                        "selected_test"
+                    ),
+                "test_name":
+                    test_result.test,
+                "reason":
+                    selection.get(
+                        "reason"
+                    ),
+                "alpha":
+                    float(
+                        selection.get(
+                            "alpha",
+                            0.05,
+                        )
+                    ),
+                "number_of_groups":
+                    int(
+                        selection.get(
+                            "number_of_groups",
+                            len(groups),
+                        )
+                    ),
+                "parametric_compatible":
+                    bool(
+                        selection.get(
+                            "parametric_compatible"
+                        )
+                    ),
+                "variance_test":
+                    selection.get(
+                        "variance_test"
+                    ),
+                "variance_p_value": (
+                    None
+                    if selection.get(
+                        "variance_p_value"
+                    ) is None
+                    else float(
+                        selection[
+                            "variance_p_value"
+                        ]
+                    )
+                ),
+                "variance_homogeneous":
+                    selection.get(
+                        "variance_homogeneous"
+                    ),
+                "statistic":
+                    statistic,
+                "p_value":
+                    p_value,
+                "reject_null":
+                    significant,
+                "effect_size":
+                    effect,
+                "posthoc":
+                    posthoc,
+                "group_labels":
+                    valid_labels,
+                "group_diagnostics":
+                    selection.get(
+                        "group_diagnostics",
+                        [],
+                    ),
+            }
+
+        except Exception as error:
+            inference_component = (
+                dbc.Alert(
+                    [
+                        html.Strong(
+                            "Analyse inférentielle indisponible. "
+                        ),
+                        str(error),
+                    ],
+                    color="warning",
+                    className="mt-4",
+                )
+            )
+
+            persistence_inference = {
+                "error": str(error),
+            }
+
+    else:
+        inference_component = (
+            dbc.Alert(
+                (
+                    "Analyse inférentielle impossible : "
+                    "au moins deux groupes contenant "
+                    "suffisamment d'observations sont nécessaires."
+                ),
+                color="warning",
+                className="mt-4",
+            )
+        )
+
+    # ======================================================
+    # PERSISTANCE
+    # ======================================================
+
+    persisted_summary = (
+        grouped
+        .copy()
+    )
+
+    # Éviter de persister un dtype Categorical.
+    if pd.api.types.is_categorical_dtype(
+        persisted_summary[
+            group_variable
+        ]
+    ):
+        persisted_summary[
+            group_variable
+        ] = (
+            persisted_summary[
+                group_variable
+            ]
+            .astype(str)
+        )
+
+    _persist_elae(
+        project_id,
+        dataset_id,
+        "grouped",
+        {
+            "group_variable":
+                group_variable,
+            "value_variable":
+                value_variable,
+            "summary": (
+                persisted_summary
+                .round(6)
+                .to_dict(
+                    orient="records"
+                )
+            ),
+            "inference":
+                persistence_inference,
+        },
+    )
+
+    # ======================================================
+    # GRAPHIQUE
+    # ======================================================
 
     figure = px.box(
         temp,
@@ -1585,10 +2383,25 @@ def grouped_analysis(
         ),
     )
 
+    # ======================================================
+    # SORTIE
+    # ======================================================
+
+    content = html.Div(
+        [
+            html.H6(
+                "Statistiques descriptives",
+                className="mb-3",
+            ),
+            _table(
+                display_grouped.round(4)
+            ),
+            inference_component,
+        ]
+    )
+
     return (
-        _table(
-            display_grouped.round(4)
-        ),
+        content,
         figure,
     )
 
