@@ -410,6 +410,8 @@ def test_univariate_boolean_is_not_treated_as_numeric(
 def test_bivariate_rejects_identifier(
     monkeypatch,
 ):
+    from types import SimpleNamespace
+
     dataframe = pd.DataFrame(
         {
             "id_student": ["A", "B", "C"],
@@ -423,16 +425,29 @@ def test_bivariate_rejects_identifier(
         lambda project_id, dataset_id: dataframe,
     )
 
+    class FakeProfiler:
+        def profile(self, data):
+            return SimpleNamespace(
+                datatypes={
+                    "numeric": ["score"],
+                    "categorical": [],
+                    "boolean": [],
+                    "text": [],
+                    "identifier": ["id_student"],
+                    "datetime": [],
+                    "semantic": {
+                        "ordinal": [],
+                    },
+                },
+                correlations={
+                    "adaptive_pairs": [],
+                },
+            )
+
     monkeypatch.setattr(
         callbacks,
-        "_semantic_datatypes",
-        lambda df: {
-            "numeric": ["score"],
-            "categorical": [],
-            "boolean": [],
-            "identifier": ["id_student"],
-            "text": [],
-        },
+        "DatasetProfiler",
+        FakeProfiler,
     )
 
     summary, figure = callbacks.bivariate(
@@ -525,3 +540,289 @@ def test_grouped_analysis_rejects_boolean_as_numeric_value(
 
     assert summary is not None
     assert figure == {}
+
+
+
+def test_bivariate_ordinal_numeric_uses_spearman_and_boxplot(
+    monkeypatch,
+):
+    from types import SimpleNamespace
+
+    dataframe = pd.DataFrame(
+        {
+            "motivation": [1, 2, 3, 4, 5],
+            "note_maths": [6.0, 8.0, 10.0, 13.0, 16.0],
+        }
+    )
+
+    monkeypatch.setattr(
+        callbacks,
+        "_load_elae_dataframe",
+        lambda project_id, dataset_id: dataframe,
+    )
+
+    class FakeProfiler:
+        def profile(self, data):
+            return SimpleNamespace(
+                datatypes={
+                    "numeric": [
+                        "motivation",
+                        "note_maths",
+                    ],
+                    "categorical": [],
+                    "boolean": [],
+                    "text": [],
+                    "identifier": [],
+                    "datetime": [],
+                    "semantic": {
+                        "ordinal": [
+                            "motivation",
+                        ],
+                    },
+                },
+                correlations={
+                    "adaptive_pairs": [
+                        {
+                            "variable_1": "motivation",
+                            "variable_2": "note_maths",
+                            "correlation": 0.3141,
+                            "method": "spearman",
+                            "reason": "ordinal_variable",
+                        }
+                    ],
+                },
+            )
+
+    monkeypatch.setattr(
+        callbacks,
+        "DatasetProfiler",
+        FakeProfiler,
+    )
+
+    persisted = []
+
+    monkeypatch.setattr(
+        callbacks,
+        "_persist_elae",
+        lambda *args: persisted.append(args),
+    )
+
+    summary, figure = callbacks.bivariate(
+        "bivariate",
+        "motivation",
+        "note_maths",
+        10,
+        20,
+    )
+
+    assert summary is not None
+    assert figure is not None
+    assert figure.data
+    assert figure.data[0].type == "box"
+
+    assert persisted
+
+    payload = persisted[0][3]
+
+    assert (
+        payload["relationship_type"]
+        == "ordinal_numeric"
+    )
+    assert payload["correlation"] == 0.3141
+    assert (
+        payload["correlation_method"]
+        == "spearman"
+    )
+    assert (
+        payload["correlation_reason"]
+        == "ordinal_variable"
+    )
+    assert "pearson_correlation" not in payload
+
+
+def test_bivariate_non_normal_numeric_pair_uses_spearman(
+    monkeypatch,
+):
+    from types import SimpleNamespace
+
+    dataframe = pd.DataFrame(
+        {
+            "exercices_semaine": [0, 1, 3, 7, 12],
+            "note_maths": [7.0, 9.0, 11.0, 13.0, 15.0],
+        }
+    )
+
+    monkeypatch.setattr(
+        callbacks,
+        "_load_elae_dataframe",
+        lambda project_id, dataset_id: dataframe,
+    )
+
+    class FakeProfiler:
+        def profile(self, data):
+            return SimpleNamespace(
+                datatypes={
+                    "numeric": [
+                        "exercices_semaine",
+                        "note_maths",
+                    ],
+                    "categorical": [],
+                    "boolean": [],
+                    "text": [],
+                    "identifier": [],
+                    "datetime": [],
+                    "semantic": {
+                        "ordinal": [],
+                    },
+                },
+                correlations={
+                    "adaptive_pairs": [
+                        {
+                            "variable_1": "exercices_semaine",
+                            "variable_2": "note_maths",
+                            "correlation": 0.1029,
+                            "method": "spearman",
+                            "reason": "normality_not_confirmed",
+                        }
+                    ],
+                },
+            )
+
+    monkeypatch.setattr(
+        callbacks,
+        "DatasetProfiler",
+        FakeProfiler,
+    )
+
+    persisted = []
+
+    monkeypatch.setattr(
+        callbacks,
+        "_persist_elae",
+        lambda *args: persisted.append(args),
+    )
+
+    summary, figure = callbacks.bivariate(
+        "bivariate",
+        "exercices_semaine",
+        "note_maths",
+        10,
+        20,
+    )
+
+    assert summary is not None
+    assert figure is not None
+    assert figure.data
+    assert figure.data[0].type == "scatter"
+
+    payload = persisted[0][3]
+
+    assert (
+        payload["relationship_type"]
+        == "numeric_numeric"
+    )
+    assert payload["correlation"] == 0.1029
+    assert (
+        payload["correlation_method"]
+        == "spearman"
+    )
+    assert (
+        payload["correlation_reason"]
+        == "normality_not_confirmed"
+    )
+
+
+def test_bivariate_normal_numeric_pair_uses_pearson(
+    monkeypatch,
+):
+    from types import SimpleNamespace
+
+    dataframe = pd.DataFrame(
+        {
+            "x": [1.0, 2.0, 3.0, 4.0, 5.0],
+            "y": [2.0, 4.0, 5.0, 8.0, 10.0],
+        }
+    )
+
+    monkeypatch.setattr(
+        callbacks,
+        "_load_elae_dataframe",
+        lambda project_id, dataset_id: dataframe,
+    )
+
+    class FakeProfiler:
+        def profile(self, data):
+            return SimpleNamespace(
+                datatypes={
+                    "numeric": ["x", "y"],
+                    "categorical": [],
+                    "boolean": [],
+                    "text": [],
+                    "identifier": [],
+                    "datetime": [],
+                    "semantic": {
+                        "ordinal": [],
+                    },
+                },
+                correlations={
+                    "adaptive_pairs": [
+                        {
+                            "variable_1": "x",
+                            "variable_2": "y",
+                            "correlation": 0.9876,
+                            "method": "pearson",
+                            "reason": (
+                                "both_variables_compatible_"
+                                "with_normality"
+                            ),
+                        }
+                    ],
+                },
+            )
+
+    monkeypatch.setattr(
+        callbacks,
+        "DatasetProfiler",
+        FakeProfiler,
+    )
+
+    persisted = []
+
+    monkeypatch.setattr(
+        callbacks,
+        "_persist_elae",
+        lambda *args: persisted.append(args),
+    )
+
+    summary, figure = callbacks.bivariate(
+        "bivariate",
+        "x",
+        "y",
+        10,
+        20,
+    )
+
+    assert summary is not None
+    assert figure is not None
+    assert figure.data
+    assert figure.data[0].type == "scatter"
+
+    payload = persisted[0][3]
+
+    assert (
+        payload["relationship_type"]
+        == "numeric_numeric"
+    )
+    assert payload["correlation"] == 0.9876
+    assert (
+        payload["correlation_method"]
+        == "pearson"
+    )
+    assert (
+        payload["correlation_reason"]
+        == (
+            "both_variables_compatible_"
+            "with_normality"
+        )
+    )
+    assert "pearson_correlation" not in payload

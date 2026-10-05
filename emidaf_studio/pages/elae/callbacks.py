@@ -599,13 +599,44 @@ def bivariate(
             {},
         )
 
-    datatypes = _semantic_datatypes(
+    profiler = DatasetProfiler()
+    profile = profiler.profile(
         dataframe
+    )
+
+    datatypes = (
+        profile.datatypes
+        or {}
+    )
+
+    correlation_result = (
+        getattr(
+            profile,
+            "correlations",
+            {},
+        )
+        or {}
+    )
+
+    semantic = (
+        datatypes.get(
+            "semantic",
+            {},
+        )
+        or {}
     )
 
     semantic_numeric = set(
         datatypes.get(
             "numeric",
+            [],
+        )
+        or []
+    )
+
+    ordinal_columns = set(
+        semantic.get(
+            "ordinal",
             [],
         )
         or []
@@ -659,6 +690,71 @@ def bivariate(
             }
         ).dropna()
 
+        adaptive_pairs = (
+            correlation_result.get(
+                "adaptive_pairs",
+                [],
+            )
+            or []
+        )
+
+        adaptive_pair = next(
+            (
+                pair
+                for pair in adaptive_pairs
+                if {
+                    pair.get("variable_1"),
+                    pair.get("variable_2"),
+                }
+                == {x, y}
+            ),
+            None,
+        )
+
+        correlation = (
+            adaptive_pair.get(
+                "correlation"
+            )
+            if adaptive_pair
+            else None
+        )
+
+        correlation_method = (
+            adaptive_pair.get(
+                "method"
+            )
+            if adaptive_pair
+            else None
+        )
+
+        correlation_reason = (
+            adaptive_pair.get(
+                "reason"
+            )
+            if adaptive_pair
+            else None
+        )
+
+        x_ordinal = x in ordinal_columns
+        y_ordinal = y in ordinal_columns
+
+        if x_ordinal and not y_ordinal:
+            relationship_type = (
+                "ordinal_numeric"
+            )
+        elif y_ordinal and not x_ordinal:
+            relationship_type = (
+                "numeric_ordinal"
+            )
+        elif x_ordinal and y_ordinal:
+            relationship_type = (
+                "ordinal_ordinal"
+            )
+        else:
+            relationship_type = (
+                "numeric_numeric"
+            )
+
         _persist_elae(
             project_id,
             dataset_id,
@@ -667,17 +763,15 @@ def bivariate(
                 "x": x,
                 "y": y,
                 "relationship_type": (
-                    "numeric_numeric"
+                    relationship_type
                 ),
                 "n": int(len(persisted)),
-                "pearson_correlation": (
-                    float(
-                        persisted[x].corr(
-                            persisted[y]
-                        )
-                    )
-                    if len(persisted) >= 2
-                    else None
+                "correlation": correlation,
+                "correlation_method": (
+                    correlation_method
+                ),
+                "correlation_reason": (
+                    correlation_reason
                 ),
             },
         )
@@ -827,22 +921,145 @@ def bivariate(
             }
         ).dropna()
 
-        corr = temp[x].corr(
-            temp[y]
+        adaptive_pairs = (
+            correlation_result.get(
+                "adaptive_pairs",
+                [],
+            )
+            or []
+        )
+
+        adaptive_pair = next(
+            (
+                pair
+                for pair in adaptive_pairs
+                if {
+                    pair.get("variable_1"),
+                    pair.get("variable_2"),
+                }
+                == {x, y}
+            ),
+            None,
+        )
+
+        if adaptive_pair is None:
+            summary = dbc.Alert(
+                (
+                    "Corrélation adaptative indisponible "
+                    "pour cette paire."
+                ),
+                color="warning",
+            )
+
+            figure = px.scatter(
+                temp,
+                x=x,
+                y=y,
+                trendline=None,
+                title=f"{y} en fonction de {x}",
+            )
+
+            return summary, figure
+
+        corr = adaptive_pair[
+            "correlation"
+        ]
+
+        method = adaptive_pair[
+            "method"
+        ]
+
+        reason = adaptive_pair.get(
+            "reason"
+        )
+
+        method_label = (
+            "Pearson"
+            if method == "pearson"
+            else "Spearman"
+        )
+
+        reason_labels = {
+            "ordinal_variable": (
+                "présence d'une variable ordinale"
+            ),
+            "both_variables_compatible_with_normality": (
+                "deux variables non ordinales "
+                "compatibles avec la normalité"
+            ),
+            "normality_not_confirmed": (
+                "normalité non confirmée"
+            ),
+            "normality_unavailable": (
+                "diagnostic de normalité indisponible"
+            ),
+        }
+
+        reason_label = (
+            reason_labels.get(
+                reason,
+                reason,
+            )
         )
 
         summary = dbc.Alert(
-            f"Corrélation de Pearson : {corr:.4f}",
+            [
+                html.Strong(
+                    (
+                        f"Corrélation de {method_label} : "
+                        f"{corr:.4f}"
+                    )
+                ),
+                html.Br(),
+                html.Small(
+                    (
+                        "Méthode adaptative EMIDAF"
+                        + (
+                            f" — {reason_label}."
+                            if reason_label
+                            else "."
+                        )
+                        + " Une corrélation décrit une "
+                        "association et non une causalité."
+                    )
+                ),
+            ],
             color="info",
         )
 
-        figure = px.scatter(
-            temp,
-            x=x,
-            y=y,
-            trendline=None,
-            title=f"{y} en fonction de {x}",
-        )
+        x_ordinal = x in ordinal_columns
+        y_ordinal = y in ordinal_columns
+
+        if x_ordinal and not y_ordinal:
+            figure = px.box(
+                temp,
+                x=x,
+                y=y,
+                points=False,
+                title=(
+                    f"{y} selon les niveaux de {x}"
+                ),
+            )
+
+        elif y_ordinal and not x_ordinal:
+            figure = px.box(
+                temp,
+                x=y,
+                y=x,
+                points=False,
+                title=(
+                    f"{x} selon les niveaux de {y}"
+                ),
+            )
+
+        else:
+            figure = px.scatter(
+                temp,
+                x=x,
+                y=y,
+                trendline=None,
+                title=f"{y} en fonction de {x}",
+            )
 
         return summary, figure
 
