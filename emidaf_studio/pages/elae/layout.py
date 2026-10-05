@@ -394,7 +394,7 @@ def elae_layout(project_id, dataset_id):
                                                 id="elae-group-variable",
                                                 options=[
                                                     {
-                                                        "label": c,
+                                                        "label": variable_label(c),
                                                         "value": c,
                                                     }
                                                     for c in group_columns
@@ -420,7 +420,7 @@ def elae_layout(project_id, dataset_id):
                                                 id="elae-value-variable",
                                                 options=[
                                                     {
-                                                        "label": c,
+                                                        "label": variable_label(c),
                                                         "value": c,
                                                     }
                                                     for c in value_columns
