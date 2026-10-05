@@ -20,6 +20,66 @@ class WelchTTest(BaseInferentialTest):
         statistic, p = stats.ttest_ind(x, y, equal_var=False, nan_policy='omit')
         return InferentialResult(test=self.name, statistic=float(statistic), p_value=float(p), alpha=alpha, reject_null=p < alpha)
 
+class MannWhitneyTest(BaseInferentialTest):
+    name = 'Mann-Whitney U'
+
+    def compute(
+        self,
+        x,
+        y,
+        alpha=0.05,
+        alternative="two-sided",
+    ):
+        x = np.asarray(
+            x,
+            dtype=float,
+        )
+
+        y = np.asarray(
+            y,
+            dtype=float,
+        )
+
+        x = x[
+            np.isfinite(x)
+        ]
+
+        y = y[
+            np.isfinite(y)
+        ]
+
+        if len(x) < 2 or len(y) < 2:
+            raise ValueError(
+                "Chaque groupe doit contenir au moins "
+                "deux observations valides."
+            )
+
+        statistic, p = stats.mannwhitneyu(
+            x,
+            y,
+            alternative=alternative,
+        )
+
+        return InferentialResult(
+            test=self.name,
+            statistic=float(
+                statistic
+            ),
+            p_value=float(
+                p
+            ),
+            alpha=alpha,
+            reject_null=(
+                p < alpha
+            ),
+            metadata={
+                "n_group1": len(x),
+                "n_group2": len(y),
+                "alternative": alternative,
+            },
+        )
+
+
 class KolmogorovSmirnovTest(BaseInferentialTest):
     name = 'Kolmogorov-Smirnov'
 
@@ -48,7 +108,13 @@ class FlignerPolicelloTest(BaseInferentialTest):
         raise NotImplementedError('À implémenter dans EMIDAF.')
 
 class TwoSamples:
-    registry = {'welch': WelchTTest, 'kolmogorov': KolmogorovSmirnovTest, 'brunner_munzel': BrunnerMunzelTest, 'mood': MoodMedianTest}
+    registry = {
+        'welch': WelchTTest,
+        'mann_whitney': MannWhitneyTest,
+        'kolmogorov': KolmogorovSmirnovTest,
+        'brunner_munzel': BrunnerMunzelTest,
+        'mood': MoodMedianTest,
+    }
 
     @classmethod
     def compute(cls, method, **kwargs):

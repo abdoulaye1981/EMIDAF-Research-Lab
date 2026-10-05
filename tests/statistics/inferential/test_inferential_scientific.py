@@ -509,3 +509,86 @@ def test_paired_permutation_is_exposed():
     assert "permutation" in (
         Paired.registry
     )
+
+
+# ==========================================================
+# MANN-WHITNEY
+# ==========================================================
+
+def test_mann_whitney_matches_scipy():
+    from emidaf_core.statistics.inferential.two_samples import (
+        MannWhitneyTest,
+    )
+
+    x = np.array(
+        [1, 2, 3, 4, 5],
+        dtype=float,
+    )
+
+    y = np.array(
+        [4, 5, 6, 7, 8],
+        dtype=float,
+    )
+
+    expected = stats.mannwhitneyu(
+        x,
+        y,
+        alternative="two-sided",
+    )
+
+    result = MannWhitneyTest().compute(
+        x=x,
+        y=y,
+        alternative="two-sided",
+    )
+
+    assert stat_value(
+        result
+    ) == pytest.approx(
+        expected.statistic
+    )
+
+    assert p_value(
+        result
+    ) == pytest.approx(
+        expected.pvalue
+    )
+
+
+def test_mann_whitney_ignores_nan():
+    from emidaf_core.statistics.inferential.two_samples import (
+        MannWhitneyTest,
+    )
+
+    x = np.array(
+        [1, 2, np.nan, 3, 4],
+        dtype=float,
+    )
+
+    y = np.array(
+        [4, 5, 6, np.nan, 7],
+        dtype=float,
+    )
+
+    result = MannWhitneyTest().compute(
+        x=x,
+        y=y,
+    )
+
+    assert np.isfinite(
+        result.statistic
+    )
+
+    assert (
+        result.metadata[
+            "n_group1"
+        ]
+        == 4
+    )
+
+    assert (
+        result.metadata[
+            "n_group2"
+        ]
+        == 4
+    )
