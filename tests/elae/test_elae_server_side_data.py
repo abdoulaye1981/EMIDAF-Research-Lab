@@ -165,11 +165,19 @@ def test_correlations_accepts_dataframe_matrix(
     class FakeProfiler:
         def profile(self, data):
             return SimpleNamespace(
+                datatypes={
+                    "numeric": ["x", "y"],
+                    "categorical": [],
+                    "boolean": [],
+                    "text": [],
+                    "identifier": [],
+                    "datetime": [],
+                },
                 correlations={
                     "correlation_matrix": (
                         correlation_matrix
                     )
-                }
+                },
             )
 
     monkeypatch.setattr(
@@ -202,3 +210,318 @@ def test_correlations_accepts_dataframe_matrix(
         persisted[0][2]
         == "correlations"
     )
+
+
+def test_semantic_numeric_columns_excludes_boolean_and_identifier(
+    monkeypatch,
+):
+    dataframe = pd.DataFrame(
+        {
+            "score": [10.0, 12.0, 14.0],
+            "binary_flag": [0, 1, 0],
+            "id_student": ["A", "B", "C"],
+        }
+    )
+
+    monkeypatch.setattr(
+        callbacks,
+        "_semantic_datatypes",
+        lambda df: {
+            "numeric": ["score"],
+            "boolean": ["binary_flag"],
+            "identifier": ["id_student"],
+            "categorical": [],
+            "text": [],
+        },
+    )
+
+    result = callbacks._semantic_numeric_columns(
+        dataframe
+    )
+
+    assert result == ["score"]
+
+
+def test_semantic_group_columns_accepts_categorical_and_boolean(
+    monkeypatch,
+):
+    dataframe = pd.DataFrame(
+        {
+            "cycle": ["Moyen", "Secondaire", "Moyen"],
+            "binary_flag": [0, 1, 0],
+            "score": [10.0, 12.0, 14.0],
+        }
+    )
+
+    monkeypatch.setattr(
+        callbacks,
+        "_semantic_datatypes",
+        lambda df: {
+            "numeric": ["score"],
+            "categorical": ["cycle"],
+            "boolean": ["binary_flag"],
+            "identifier": [],
+            "text": [],
+        },
+    )
+
+    result = callbacks._semantic_group_columns(
+        dataframe
+    )
+
+    assert result == [
+        "cycle",
+        "binary_flag",
+    ]
+
+
+def test_univariate_rejects_identifier(
+    monkeypatch,
+):
+    dataframe = pd.DataFrame(
+        {
+            "id_student": ["A", "B", "C"],
+            "score": [10.0, 12.0, 14.0],
+        }
+    )
+
+    monkeypatch.setattr(
+        callbacks,
+        "_load_elae_dataframe",
+        lambda project_id, dataset_id: dataframe,
+    )
+
+    monkeypatch.setattr(
+        callbacks,
+        "_semantic_datatypes",
+        lambda df: {
+            "numeric": ["score"],
+            "categorical": [],
+            "boolean": [],
+            "identifier": ["id_student"],
+            "text": [],
+        },
+    )
+
+    summary, figure = callbacks.univariate(
+        "univariate",
+        "id_student",
+        10,
+        20,
+    )
+
+    assert summary is not None
+    assert figure == {}
+
+
+def test_univariate_rejects_free_text(
+    monkeypatch,
+):
+    dataframe = pd.DataFrame(
+        {
+            "review_text": [
+                "texte un",
+                "texte deux",
+                "texte trois",
+            ],
+            "score": [10.0, 12.0, 14.0],
+        }
+    )
+
+    monkeypatch.setattr(
+        callbacks,
+        "_load_elae_dataframe",
+        lambda project_id, dataset_id: dataframe,
+    )
+
+    monkeypatch.setattr(
+        callbacks,
+        "_semantic_datatypes",
+        lambda df: {
+            "numeric": ["score"],
+            "categorical": [],
+            "boolean": [],
+            "identifier": [],
+            "text": ["review_text"],
+        },
+    )
+
+    summary, figure = callbacks.univariate(
+        "univariate",
+        "review_text",
+        10,
+        20,
+    )
+
+    assert summary is not None
+    assert figure == {}
+
+
+def test_univariate_boolean_is_not_treated_as_numeric(
+    monkeypatch,
+):
+    dataframe = pd.DataFrame(
+        {
+            "binary_flag": [0, 1, 1, 0],
+        }
+    )
+
+    monkeypatch.setattr(
+        callbacks,
+        "_load_elae_dataframe",
+        lambda project_id, dataset_id: dataframe,
+    )
+
+    monkeypatch.setattr(
+        callbacks,
+        "_semantic_datatypes",
+        lambda df: {
+            "numeric": [],
+            "categorical": [],
+            "boolean": ["binary_flag"],
+            "identifier": [],
+            "text": [],
+        },
+    )
+
+    persisted = []
+
+    monkeypatch.setattr(
+        callbacks,
+        "_persist_elae",
+        lambda *args: persisted.append(args),
+    )
+
+    callbacks.univariate(
+        "univariate",
+        "binary_flag",
+        10,
+        20,
+    )
+
+    assert persisted
+
+    payload = persisted[0][3]
+
+    assert payload["type"] == "categorical"
+    assert payload["unique"] == 2
+
+
+def test_bivariate_rejects_identifier(
+    monkeypatch,
+):
+    dataframe = pd.DataFrame(
+        {
+            "id_student": ["A", "B", "C"],
+            "score": [10.0, 12.0, 14.0],
+        }
+    )
+
+    monkeypatch.setattr(
+        callbacks,
+        "_load_elae_dataframe",
+        lambda project_id, dataset_id: dataframe,
+    )
+
+    monkeypatch.setattr(
+        callbacks,
+        "_semantic_datatypes",
+        lambda df: {
+            "numeric": ["score"],
+            "categorical": [],
+            "boolean": [],
+            "identifier": ["id_student"],
+            "text": [],
+        },
+    )
+
+    summary, figure = callbacks.bivariate(
+        "bivariate",
+        "id_student",
+        "score",
+        10,
+        20,
+    )
+
+    assert summary is not None
+    assert figure == {}
+
+
+def test_grouped_analysis_rejects_identifier_as_group(
+    monkeypatch,
+):
+    dataframe = pd.DataFrame(
+        {
+            "id_student": ["A", "B", "C"],
+            "score": [10.0, 12.0, 14.0],
+        }
+    )
+
+    monkeypatch.setattr(
+        callbacks,
+        "_load_elae_dataframe",
+        lambda project_id, dataset_id: dataframe,
+    )
+
+    monkeypatch.setattr(
+        callbacks,
+        "_semantic_group_columns",
+        lambda df: [],
+    )
+
+    monkeypatch.setattr(
+        callbacks,
+        "_semantic_numeric_columns",
+        lambda df: ["score"],
+    )
+
+    summary, figure = callbacks.grouped_analysis(
+        "grouped",
+        "id_student",
+        "score",
+        10,
+        20,
+    )
+
+    assert summary is not None
+    assert figure == {}
+
+
+def test_grouped_analysis_rejects_boolean_as_numeric_value(
+    monkeypatch,
+):
+    dataframe = pd.DataFrame(
+        {
+            "cycle": ["Moyen", "Secondaire", "Moyen"],
+            "binary_flag": [0, 1, 0],
+        }
+    )
+
+    monkeypatch.setattr(
+        callbacks,
+        "_load_elae_dataframe",
+        lambda project_id, dataset_id: dataframe,
+    )
+
+    monkeypatch.setattr(
+        callbacks,
+        "_semantic_group_columns",
+        lambda df: ["cycle", "binary_flag"],
+    )
+
+    monkeypatch.setattr(
+        callbacks,
+        "_semantic_numeric_columns",
+        lambda df: [],
+    )
+
+    summary, figure = callbacks.grouped_analysis(
+        "grouped",
+        "cycle",
+        "binary_flag",
+        10,
+        20,
+    )
+
+    assert summary is not None
+    assert figure == {}

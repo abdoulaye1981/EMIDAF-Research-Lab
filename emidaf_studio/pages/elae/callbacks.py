@@ -82,6 +82,69 @@ def _numeric_like(series):
     )
 
 
+def _semantic_datatypes(dataframe):
+    """
+    Retourne le typage sémantique produit par DatasetProfiler.
+
+    ELAE utilise ainsi la même source de vérité que
+    l'Inspection des données.
+    """
+
+    profiler = DatasetProfiler()
+    profile = profiler.profile(
+        dataframe
+    )
+
+    return (
+        profile.datatypes
+        or {}
+    )
+
+
+def _semantic_numeric_columns(dataframe):
+    datatypes = _semantic_datatypes(
+        dataframe
+    )
+
+    return [
+        column
+        for column in datatypes.get(
+            "numeric",
+            [],
+        )
+        if column in dataframe.columns
+    ]
+
+
+def _semantic_group_columns(dataframe):
+    datatypes = _semantic_datatypes(
+        dataframe
+    )
+
+    columns = (
+        list(
+            datatypes.get(
+                "categorical",
+                [],
+            )
+            or []
+        )
+        + list(
+            datatypes.get(
+                "boolean",
+                [],
+            )
+            or []
+        )
+    )
+
+    return [
+        column
+        for column in columns
+        if column in dataframe.columns
+    ]
+
+
 def _persist_elae(
     project_id,
     dataset_id,
@@ -140,13 +203,35 @@ def descriptive_analysis(
         dataset_id,
     )
 
-    numeric = dataframe.select_dtypes(
-        include="number"
+    profiler = DatasetProfiler()
+    profile = profiler.profile(
+        dataframe
     )
+
+    datatypes = (
+        profile.datatypes
+        or {}
+    )
+
+    numeric_columns = (
+        datatypes.get(
+            "numeric",
+            [],
+        )
+        or []
+    )
+
+    numeric = dataframe[
+        [
+            column
+            for column in numeric_columns
+            if column in dataframe.columns
+        ]
+    ].copy()
 
     if numeric.empty:
         return dbc.Alert(
-            "Aucune variable numérique.",
+            "Aucune variable numérique sémantique.",
             color="warning",
         )
 
@@ -264,7 +349,50 @@ def univariate(
 
     series = dataframe[variable]
 
-    if _numeric_like(series):
+    datatypes = _semantic_datatypes(
+        dataframe
+    )
+
+    semantic_numeric = set(
+        datatypes.get(
+            "numeric",
+            [],
+        )
+        or []
+    )
+
+    semantic_identifiers = set(
+        datatypes.get(
+            "identifier",
+            [],
+        )
+        or []
+    )
+
+    semantic_text = set(
+        datatypes.get(
+            "text",
+            [],
+        )
+        or []
+    )
+
+    if (
+        variable in semantic_identifiers
+        or variable in semantic_text
+    ):
+        return (
+            dbc.Alert(
+                (
+                    "Cette variable n'est pas destinée "
+                    "à l'analyse exploratoire ELAE."
+                ),
+                color="warning",
+            ),
+            {},
+        )
+
+    if variable in semantic_numeric:
 
         persisted_numeric = pd.to_numeric(
             series,
@@ -471,13 +599,49 @@ def bivariate(
             {},
         )
 
-    x_num = _numeric_like(
-        dataframe[x]
+    datatypes = _semantic_datatypes(
+        dataframe
     )
 
-    y_num = _numeric_like(
-        dataframe[y]
+    semantic_numeric = set(
+        datatypes.get(
+            "numeric",
+            [],
+        )
+        or []
     )
+
+    forbidden_columns = set(
+        datatypes.get(
+            "identifier",
+            [],
+        )
+        or []
+    ) | set(
+        datatypes.get(
+            "text",
+            [],
+        )
+        or []
+    )
+
+    if (
+        x in forbidden_columns
+        or y in forbidden_columns
+    ):
+        return (
+            dbc.Alert(
+                (
+                    "Les identifiants et variables texte libre "
+                    "ne sont pas analysés dans cet onglet."
+                ),
+                color="warning",
+            ),
+            {},
+        )
+
+    x_num = x in semantic_numeric
+    y_num = y in semantic_numeric
 
 
     if x_num and y_num:
@@ -838,26 +1002,35 @@ def correlations(
         dataset_id,
     )
 
-    numeric = dataframe.select_dtypes(
-        include="number"
+    profiler = DatasetProfiler()
+    profile = profiler.profile(
+        dataframe
     )
 
-    if numeric.shape[1] < 2:
+    datatypes = (
+        profile.datatypes
+        or {}
+    )
+
+    numeric_columns = (
+        datatypes.get(
+            "numeric",
+            [],
+        )
+        or []
+    )
+
+    if len(numeric_columns) < 2:
         return (
             dbc.Alert(
                 (
                     "Au moins deux variables numériques "
-                    "sont nécessaires."
+                    "sémantiques sont nécessaires."
                 ),
                 color="warning",
             ),
             {},
         )
-
-    profiler = DatasetProfiler()
-    profile = profiler.profile(
-        dataframe
-    )
 
     correlation_result = (
         getattr(
@@ -987,6 +1160,42 @@ def grouped_analysis(
                 (
                     "Sélectionnez une variable de groupe "
                     "et une variable numérique."
+                ),
+                color="warning",
+            ),
+            {},
+        )
+
+    allowed_groups = set(
+        _semantic_group_columns(
+            dataframe
+        )
+    )
+
+    allowed_numeric = set(
+        _semantic_numeric_columns(
+            dataframe
+        )
+    )
+
+    if group_variable not in allowed_groups:
+        return (
+            dbc.Alert(
+                (
+                    "La variable de groupe doit être "
+                    "catégorielle ou booléenne."
+                ),
+                color="warning",
+            ),
+            {},
+        )
+
+    if value_variable not in allowed_numeric:
+        return (
+            dbc.Alert(
+                (
+                    "La variable étudiée doit être "
+                    "numérique au sens sémantique."
                 ),
                 color="warning",
             ),

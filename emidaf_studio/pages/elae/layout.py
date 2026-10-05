@@ -3,6 +3,7 @@ from dash import html, dcc
 import dash_bootstrap_components as dbc
 
 from emidaf_studio.pages.inspection.layout import load_dataset
+from emidaf_core.dataset.profiler import DatasetProfiler
 
 
 def _card(title, value):
@@ -35,17 +36,70 @@ def elae_layout(project_id, dataset_id):
 
     df = result
 
-    numeric = list(
-        df.select_dtypes(
-            include="number"
-        ).columns
+    profiler = DatasetProfiler()
+    profile = profiler.profile(df)
+
+    datatypes = profile.datatypes or {}
+
+    numeric = datatypes.get(
+        "numeric",
+        [],
     )
 
-    non_numeric = [
-        column
-        for column in df.columns
-        if column not in numeric
-    ]
+    categorical = datatypes.get(
+        "categorical",
+        [],
+    )
+
+    boolean = datatypes.get(
+        "boolean",
+        [],
+    )
+
+    text_columns = datatypes.get(
+        "text",
+        [],
+    )
+
+    identifiers = datatypes.get(
+        "identifier",
+        [],
+    )
+
+    datetime_columns = datatypes.get(
+        "datetime",
+        [],
+    )
+
+    # --------------------------------------------------------
+    # Colonnes autorisées dans les analyses ELAE
+    # --------------------------------------------------------
+    # Les identifiants et le texte libre sont volontairement
+    # exclus des sélecteurs analytiques.
+    #
+    # Les booléennes restent analysables comme variables
+    # binaires/catégorielles et non comme quantitatives.
+    # --------------------------------------------------------
+
+    univariate_columns = (
+        list(numeric)
+        + list(categorical)
+        + list(boolean)
+        + list(datetime_columns)
+    )
+
+    bivariate_columns = list(
+        univariate_columns
+    )
+
+    group_columns = (
+        list(categorical)
+        + list(boolean)
+    )
+
+    value_columns = list(
+        numeric
+    )
 
     return dbc.Container(
         [
@@ -99,28 +153,49 @@ def elae_layout(project_id, dataset_id):
                             "Lignes",
                             df.shape[0],
                         ),
-                        md=3,
+                        md=2,
                     ),
                     dbc.Col(
                         _card(
                             "Colonnes",
                             df.shape[1],
                         ),
-                        md=3,
+                        md=2,
                     ),
                     dbc.Col(
                         _card(
-                            "Variables numériques",
+                            "Numériques",
                             len(numeric),
                         ),
-                        md=3,
+                        md=2,
                     ),
                     dbc.Col(
                         _card(
-                            "Variables non numériques",
-                            len(non_numeric),
+                            "Catégorielles",
+                            len(categorical),
                         ),
-                        md=3,
+                        md=2,
+                    ),
+                    dbc.Col(
+                        _card(
+                            "Booléennes",
+                            len(boolean),
+                        ),
+                        md=2,
+                    ),
+                    dbc.Col(
+                        _card(
+                            "Texte",
+                            len(text_columns),
+                        ),
+                        md=2,
+                    ),
+                    dbc.Col(
+                        _card(
+                            "Identifiants",
+                            len(identifiers),
+                        ),
+                        md=2,
                     ),
                 ],
                 className="g-3 mb-4",
@@ -169,11 +244,11 @@ def elae_layout(project_id, dataset_id):
                                         "label": column,
                                         "value": column,
                                     }
-                                    for column in df.columns
+                                    for column in univariate_columns
                                 ],
                                 value=(
-                                    df.columns[0]
-                                    if len(df.columns)
+                                    univariate_columns[0]
+                                    if univariate_columns
                                     else None
                                 ),
                                 clearable=False,
@@ -217,11 +292,11 @@ def elae_layout(project_id, dataset_id):
                                                         "label": c,
                                                         "value": c,
                                                     }
-                                                    for c in df.columns
+                                                    for c in bivariate_columns
                                                 ],
                                                 value=(
-                                                    df.columns[0]
-                                                    if len(df.columns)
+                                                    bivariate_columns[0]
+                                                    if bivariate_columns
                                                     else None
                                                 ),
                                                 clearable=False,
@@ -242,11 +317,11 @@ def elae_layout(project_id, dataset_id):
                                                         "label": c,
                                                         "value": c,
                                                     }
-                                                    for c in df.columns
+                                                    for c in bivariate_columns
                                                 ],
                                                 value=(
-                                                    df.columns[1]
-                                                    if len(df.columns) > 1
+                                                    bivariate_columns[1]
+                                                    if len(bivariate_columns) > 1
                                                     else None
                                                 ),
                                                 clearable=False,
@@ -319,11 +394,11 @@ def elae_layout(project_id, dataset_id):
                                                         "label": c,
                                                         "value": c,
                                                     }
-                                                    for c in non_numeric
+                                                    for c in group_columns
                                                 ],
                                                 value=(
-                                                    non_numeric[0]
-                                                    if non_numeric
+                                                    group_columns[0]
+                                                    if group_columns
                                                     else None
                                                 ),
                                                 clearable=True,
@@ -345,11 +420,11 @@ def elae_layout(project_id, dataset_id):
                                                         "label": c,
                                                         "value": c,
                                                     }
-                                                    for c in numeric
+                                                    for c in value_columns
                                                 ],
                                                 value=(
-                                                    numeric[0]
-                                                    if numeric
+                                                    value_columns[0]
+                                                    if value_columns
                                                     else None
                                                 ),
                                                 clearable=True,
