@@ -1188,6 +1188,41 @@ def _compact_emix_for_report(
                 relation
             ] += 1
 
+    link_by_id = {
+        link.get("link_id"): link
+        for link in links
+        if (
+            isinstance(link, dict)
+            and link.get("link_id")
+        )
+    }
+
+    source_labels = {
+        "eaie-source": "EAIE",
+        "etae-source": "ETAE",
+        "eqae-source": "EQAE",
+        "elae-source": "ELAE",
+        "ekde-source": "EKDE",
+        "edse-source": "EDSE",
+    }
+
+    source_types = {
+        "eaie-source": "Résultat quantitatif",
+        "etae-source": (
+            "Résultat textuel computationnel"
+        ),
+        "eqae-source": "Résultat qualitatif",
+        "elae-source": (
+            "Résultat quantitatif exploratoire"
+        ),
+        "ekde-source": (
+            "Résultat quantitatif non supervisé"
+        ),
+        "edse-source": (
+            "Résultat d'aide à la décision"
+        ),
+    }
+
     compact_joint_rows = []
 
     for row in joint_rows:
@@ -1197,16 +1232,54 @@ def _compact_emix_for_report(
         ):
             continue
 
+        source_link_id = row.get(
+            "source_link_id",
+            "",
+        )
+
+        link = link_by_id.get(
+            source_link_id,
+            {},
+        )
+
+        source_id_1 = row.get(
+            "source_id_1",
+            link.get(
+                "source_id_1",
+                "",
+            ),
+        )
+
+        source_id_2 = row.get(
+            "source_id_2",
+            link.get(
+                "source_id_2",
+                "",
+            ),
+        )
+
         compact_joint_rows.append(
             {
                 "source_1": {
-                    "label": row.get(
-                        "source_label_1",
-                        "",
+                    "label": (
+                        row.get(
+                            "source_label_1",
+                            "",
+                        )
+                        or source_labels.get(
+                            source_id_1,
+                            "",
+                        )
                     ),
-                    "type": row.get(
-                        "result_type_label_1",
-                        "",
+                    "type": (
+                        row.get(
+                            "result_type_label_1",
+                            "",
+                        )
+                        or source_types.get(
+                            source_id_1,
+                            "",
+                        )
                     ),
                     "result": row.get(
                         "result_1",
@@ -1217,13 +1290,25 @@ def _compact_emix_for_report(
                     ),
                 },
                 "source_2": {
-                    "label": row.get(
-                        "source_label_2",
-                        "",
+                    "label": (
+                        row.get(
+                            "source_label_2",
+                            "",
+                        )
+                        or source_labels.get(
+                            source_id_2,
+                            "",
+                        )
                     ),
-                    "type": row.get(
-                        "result_type_label_2",
-                        "",
+                    "type": (
+                        row.get(
+                            "result_type_label_2",
+                            "",
+                        )
+                        or source_types.get(
+                            source_id_2,
+                            "",
+                        )
                     ),
                     "result": row.get(
                         "result_2",

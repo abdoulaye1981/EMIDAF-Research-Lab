@@ -143,3 +143,50 @@ def test_compact_emix_does_not_invent_relations():
         "divergence": 0,
         "undetermined": 0,
     }
+
+
+def test_compact_emix_recovers_legacy_source_metadata_from_link():
+    payload = {
+        "integration": {
+            "links": [
+                {
+                    "link_id": "link-1",
+                    "source_id_1": "etae-source",
+                    "source_id_2": "eqae-source",
+                    "relation_type": "complementarity",
+                }
+            ]
+        },
+        "joint_display": {
+            "rows": [
+                {
+                    "source_link_id": "link-1",
+                    "quantitative_result": (
+                        "Thème computationnel ETAE"
+                    ),
+                    "qualitative_result": (
+                        "Code EQAE Motivation"
+                    ),
+                    "relation_type": "complementarity",
+                }
+            ]
+        },
+    }
+
+    result = _compact_emix_for_report(
+        payload
+    )
+
+    row = result["joint_display"][0]
+
+    assert row["source_1"]["label"] == "ETAE"
+    assert (
+        row["source_1"]["type"]
+        == "Résultat textuel computationnel"
+    )
+
+    assert row["source_2"]["label"] == "EQAE"
+    assert (
+        row["source_2"]["type"]
+        == "Résultat qualitatif"
+    )
