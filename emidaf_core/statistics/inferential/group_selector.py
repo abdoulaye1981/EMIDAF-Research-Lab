@@ -170,6 +170,7 @@ class GroupTestSelector:
     def select(
         self,
         *groups,
+        outcome_semantic=None,
     ):
         if len(groups) < 2:
             raise ValueError(
@@ -207,6 +208,82 @@ class GroupTestSelector:
         variance_test = None
         variance_p_value = None
         variance_homogeneous = None
+
+        # ==================================================
+        # PRIORITÉ AU TYPE SÉMANTIQUE
+        # ==================================================
+        #
+        # Une variable ordinale doit être analysée avec
+        # des méthodes fondées sur les rangs, même si sa
+        # distribution numérique paraît compatible avec
+        # une approche paramétrique.
+        #
+        # Cette règle évite de traiter automatiquement
+        # une échelle ordinale (par exemple Likert 1–5)
+        # comme une variable quantitative continue.
+        # ==================================================
+
+        if outcome_semantic == "ordinal":
+
+            if number_of_groups == 2:
+                selected_test = (
+                    "mann_whitney"
+                )
+
+                reason = (
+                    "ordinal_outcome_two_groups"
+                )
+
+                result = (
+                    MannWhitneyTest()
+                    .compute(
+                        x=clean_groups[0],
+                        y=clean_groups[1],
+                        alpha=self.alpha,
+                    )
+                )
+
+            else:
+                selected_test = "kruskal"
+
+                reason = (
+                    "ordinal_outcome_k_groups"
+                )
+
+                result = (
+                    KruskalWallisTest()
+                    .compute(
+                        *clean_groups,
+                        alpha=self.alpha,
+                    )
+                )
+
+            return {
+                "selected_test":
+                    selected_test,
+                "test_name":
+                    result.test,
+                "number_of_groups":
+                    number_of_groups,
+                "alpha":
+                    self.alpha,
+                "outcome_semantic":
+                    outcome_semantic,
+                "parametric_compatible":
+                    False,
+                "variance_test":
+                    None,
+                "variance_p_value":
+                    None,
+                "variance_homogeneous":
+                    None,
+                "reason":
+                    reason,
+                "group_diagnostics":
+                    diagnostics,
+                "result":
+                    result,
+            }
 
         if number_of_groups == 2:
 
@@ -319,6 +396,8 @@ class GroupTestSelector:
                 number_of_groups,
             "alpha":
                 self.alpha,
+            "outcome_semantic":
+                outcome_semantic,
             "parametric_compatible":
                 parametric_compatible,
             "variance_test":

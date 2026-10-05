@@ -294,3 +294,90 @@ def test_selector_requires_two_groups():
         raise AssertionError(
             "ValueError attendu."
         )
+
+
+def test_ordinal_two_groups_force_mann_whitney():
+    rng = np.random.default_rng(2026)
+
+    g1 = rng.normal(
+        3,
+        0.4,
+        150,
+    )
+
+    g2 = rng.normal(
+        3.2,
+        0.4,
+        150,
+    )
+
+    selection = (
+        GroupTestSelector()
+        .select(
+            g1,
+            g2,
+            outcome_semantic="ordinal",
+        )
+    )
+
+    assert (
+        selection["selected_test"]
+        == "mann_whitney"
+    )
+
+    assert (
+        selection["reason"]
+        == "ordinal_outcome_two_groups"
+    )
+
+    assert (
+        selection["outcome_semantic"]
+        == "ordinal"
+    )
+
+
+def test_ordinal_k_groups_force_kruskal():
+    rng = np.random.default_rng(2027)
+
+    g1 = rng.normal(
+        3,
+        0.3,
+        150,
+    )
+
+    g2 = rng.normal(
+        3.1,
+        0.3,
+        150,
+    )
+
+    g3 = rng.normal(
+        3.2,
+        0.3,
+        150,
+    )
+
+    selection = (
+        GroupTestSelector()
+        .select(
+            g1,
+            g2,
+            g3,
+            outcome_semantic="ordinal",
+        )
+    )
+
+    assert (
+        selection["selected_test"]
+        == "kruskal"
+    )
+
+    assert (
+        selection["reason"]
+        == "ordinal_outcome_k_groups"
+    )
+
+    assert (
+        selection["outcome_semantic"]
+        == "ordinal"
+    )
