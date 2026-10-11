@@ -1013,6 +1013,399 @@ def run_eaie(
 
 
 # ============================================================
+# SCIENTIFIC BLOCK COMPARISON
+# ============================================================
+
+@callback(
+    Output(
+        "eaie-block-status",
+        "children",
+    ),
+    Output(
+        "eaie-block-results",
+        "children",
+    ),
+    Input(
+        "eaie-block-run",
+        "n_clicks",
+    ),
+    State(
+        "eaie-feature-blocks",
+        "data",
+    ),
+    State(
+        "eaie-target",
+        "value",
+    ),
+    State(
+        "eaie-task",
+        "value",
+    ),
+    State(
+        "eaie-models",
+        "value",
+    ),
+    State(
+        "eaie-test-size",
+        "value",
+    ),
+    State(
+        "eaie-cv",
+        "value",
+    ),
+    State(
+        "eaie-project-id",
+        "data",
+    ),
+    State(
+        "eaie-dataset-id",
+        "data",
+    ),
+    prevent_initial_call=True,
+)
+def run_eaie_block_comparison(
+    n_clicks,
+    feature_blocks,
+    target,
+    task,
+    models,
+    test_size,
+    cv,
+    project_id,
+    dataset_id,
+):
+
+    if not n_clicks:
+        return no_update, no_update
+
+    if (
+        not feature_blocks
+        or not feature_blocks.get(
+            "valid"
+        )
+    ):
+        return (
+            dbc.Alert(
+                (
+                    "La configuration des blocs "
+                    "scientifiques doit être valide."
+                ),
+                color="warning",
+            ),
+            "",
+        )
+
+    if not target:
+        return (
+            dbc.Alert(
+                "Sélectionnez une variable cible.",
+                color="warning",
+            ),
+            "",
+        )
+
+    try:
+
+        from emidaf_core.eaie.block_comparison import (
+            BlockComparisonEngine,
+        )
+
+        dataframe = _load_eaie_dataframe(
+            project_id,
+            dataset_id,
+        )
+
+        # Revalidation côté serveur.
+        block_result = FeatureBlocks.resolve(
+            predictors=feature_blocks.get(
+                "predictors",
+                [],
+            ),
+            blocks=feature_blocks.get(
+                "blocks",
+                {},
+            ),
+            target=target,
+            protected=feature_blocks.get(
+                "protected",
+                [],
+            ),
+            require_all=True,
+        )
+
+        if not block_result.valid:
+
+            return (
+                dbc.Alert(
+                    (
+                        "La configuration des blocs "
+                        "n'est plus valide."
+                    ),
+                    color="danger",
+                ),
+                "",
+            )
+
+        task_value = (
+            None
+            if task == "auto"
+            else task
+        )
+
+        engine = BlockComparisonEngine(
+            test_size=float(
+                test_size
+            ),
+            random_state=42,
+            cv=int(
+                cv
+            ),
+        )
+
+        result = engine.run(
+            dataframe,
+            target=target,
+            blocks=block_result,
+            task=task_value,
+            models=(
+                models
+                if models
+                else None
+            ),
+        )
+
+    except Exception:
+
+        logger.exception(
+            "EAIE scientific block comparison failed "
+            "(target=%s, task=%s)",
+            target,
+            task,
+        )
+
+        return (
+            dbc.Alert(
+                (
+                    "La comparaison des blocs "
+                    "scientifiques a échoué. "
+                    "Consultez les journaux du serveur "
+                    "pour le détail."
+                ),
+                color="danger",
+            ),
+            "",
+        )
+
+    # ======================================================
+    # TABLEAU DES PERFORMANCES CUMULATIVES
+    # ======================================================
+
+    rows = []
+
+    cumulative_names = []
+
+    for performance in result.performances:
+
+        cumulative_names.append(
+            performance.block
+        )
+
+        cumulative_label = (
+            " + ".join(
+                cumulative_names
+            )
+        )
+
+        rows.append(
+            {
+                "Bloc cumulatif":
+                    cumulative_label,
+                "Nb variables":
+                    performance.n_features,
+                "Meilleur modèle":
+                    performance.best_model,
+                "Métrique CV":
+                    performance.cv_metric,
+                "CV moyenne":
+                    performance.cv_mean,
+                "CV écart-type":
+                    performance.cv_std,
+                "ΔCV":
+                    performance.delta_cv,
+            }
+        )
+
+    comparison_table = pd.DataFrame(
+        rows
+    )
+
+    final = result.final_result
+
+    # ======================================================
+    # EVALUATION FINALE HOLD-OUT
+    # ======================================================
+
+    if result.task == "classification":
+
+        final_metrics = pd.DataFrame(
+            {
+                "Métrique": [
+                    "Accuracy",
+                    "Precision",
+                    "Recall",
+                    "F1-score",
+                    "ROC-AUC",
+                    "Log-loss",
+                ],
+                "Valeur": [
+                    final.accuracy,
+                    final.precision,
+                    final.recall,
+                    final.f1_score,
+                    final.roc_auc,
+                    final.log_loss,
+                ],
+            }
+        )
+
+    else:
+
+        final_metrics = pd.DataFrame(
+            {
+                "Métrique": [
+                    "MAE",
+                    "MSE",
+                    "RMSE",
+                    "R²",
+                ],
+                "Valeur": [
+                    final.mae,
+                    final.mse,
+                    final.rmse,
+                    final.r2,
+                ],
+            }
+        )
+
+    selected_names = []
+
+    for performance in result.performances:
+
+        selected_names.append(
+            performance.block
+        )
+
+        if (
+            performance.block
+            == result.selected_block
+        ):
+            break
+
+    selected_block_label = (
+        " + ".join(
+            selected_names
+        )
+    )
+
+    status = dbc.Alert(
+        (
+            f"Comparaison terminée : "
+            f"{len(result.performances)} "
+            "configurations cumulatives évaluées."
+        ),
+        color="success",
+    )
+
+    results_view = [
+        html.H5(
+            "Comparaison scientifique des blocs"
+        ),
+
+        html.P(
+            (
+                "Les blocs sont comparés uniquement "
+                "sur la validation croisée. "
+                "Le jeu de test est utilisé une seule "
+                "fois après la sélection finale."
+            ),
+            className="text-muted",
+        ),
+
+        _table(
+            comparison_table
+        ),
+
+        dbc.Card(
+            dbc.CardBody(
+                [
+                    html.H5(
+                        "Configuration sélectionnée"
+                    ),
+
+                    html.P(
+                        [
+                            html.Strong(
+                                "Bloc cumulatif : "
+                            ),
+                            selected_block_label,
+                        ]
+                    ),
+
+                    html.P(
+                        [
+                            html.Strong(
+                                "Modèle : "
+                            ),
+                            result.selected_model,
+                        ]
+                    ),
+
+                    html.P(
+                        [
+                            html.Strong(
+                                "Nombre de variables : "
+                            ),
+                            str(
+                                len(
+                                    final.features
+                                )
+                            ),
+                        ]
+                    ),
+                ]
+            ),
+            className="mt-4",
+        ),
+
+        html.H5(
+            "Évaluation finale sur le jeu test",
+            className="mt-4",
+        ),
+
+        _table(
+            final_metrics
+        ),
+
+        dbc.Alert(
+            (
+                "ΔCV mesure le gain prédictif "
+                "incrémental entre deux ensembles "
+                "cumulatifs successifs. "
+                "Il ne doit pas être interprété "
+                "comme un effet causal."
+            ),
+            color="info",
+            className="mt-3",
+        ),
+    ]
+
+    return (
+        status,
+        results_view,
+    )
+
+
+# ============================================================
 # MODEL SELECTION
 # ============================================================
 
