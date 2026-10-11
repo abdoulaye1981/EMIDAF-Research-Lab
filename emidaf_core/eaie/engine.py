@@ -213,7 +213,16 @@ class EAIEEngine:
         except Exception:
             self.baseline_cv_mean_ = None
 
+        # ==================================================
+        # CANDIDATS : VALIDATION CROISEE SUR TRAIN UNIQUEMENT
+        # ==================================================
+
+        from emidaf_core.common.results import (
+            ModelResult,
+        )
+
         results = []
+        candidate_pipelines = {}
 
         for name, estimator in registry.items():
 
@@ -230,42 +239,37 @@ class EAIEEngine:
                 ]
             )
 
-            pipeline.fit(
-                X_train,
-                y_train,
+            candidate_pipelines[
+                name
+            ] = pipeline
+
+            candidate = ModelResult(
+                name=name,
+                model_name=name,
+                algorithm=type(
+                    estimator
+                ).__name__,
+                model_type=(
+                    "classifier"
+                    if detected_task
+                    == "classification"
+                    else "regressor"
+                ),
+                task=detected_task,
+                library="scikit-learn",
+                fitted=False,
+                train_size=len(
+                    X_train
+                ),
+                test_size=len(
+                    X_test
+                ),
+                features=list(
+                    prepared.X.columns
+                ),
+                target=target,
+                estimator=None,
             )
-
-            if detected_task == "classification":
-
-                result = (
-                    ModelEvaluator.classification(
-                        estimator=pipeline,
-                        X_test=X_test,
-                        y_test=y_test,
-                        model_name=name,
-                        features=list(
-                            prepared.X.columns
-                        ),
-                        target=target,
-                        train_size=len(X_train),
-                    )
-                )
-
-            else:
-
-                result = (
-                    ModelEvaluator.regression(
-                        estimator=pipeline,
-                        X_test=X_test,
-                        y_test=y_test,
-                        model_name=name,
-                        features=list(
-                            prepared.X.columns
-                        ),
-                        target=target,
-                        train_size=len(X_train),
-                    )
-                )
 
             try:
 
@@ -279,65 +283,123 @@ class EAIEEngine:
                     )
                 )
 
-                result.metadata.update(
+                candidate.metadata.update(
                     cv_result
                 )
 
             except Exception as exc:
 
-                result.metadata[
+                candidate.metadata[
                     "cv_error"
                 ] = str(exc)
 
-            results.append(result)
+            results.append(
+                candidate
+            )
 
         self.results_ = results
 
+        # Le tableau des candidats contient uniquement
+        # des informations de sélection/validation.
         self.comparison_ = (
             ModelComparison.table(
                 results
             )
         )
 
-        if results:
+        # ==================================================
+        # SELECTION STRICTE PAR VALIDATION CROISEE
+        # ==================================================
 
-            # Sélection du modèle uniquement sur la
-            # validation croisée.
-            valid_cv = [
-                result
-                for result in results
-                if result.metadata.get(
+        valid_cv = [
+            result
+            for result in results
+            if result.metadata.get(
+                "cv_mean"
+            ) is not None
+        ]
+
+        if not valid_cv:
+            raise RuntimeError(
+                "Aucun modèle n'a pu être évalué "
+                "correctement en validation croisée. "
+                "Le jeu de test n'est pas utilisé "
+                "comme solution de repli."
+            )
+
+        selected_candidate = max(
+            valid_cv,
+            key=lambda item: (
+                item.metadata[
                     "cv_mean"
-                ) is not None
+                ]
+            ),
+        )
+
+        selected_name = (
+            selected_candidate.model_name
+        )
+
+        # ==================================================
+        # EVALUATION FINALE : TEST UTILISE UNE SEULE FOIS
+        # ==================================================
+
+        final_pipeline = clone(
+            candidate_pipelines[
+                selected_name
             ]
+        )
 
-            if valid_cv:
+        final_pipeline.fit(
+            X_train,
+            y_train,
+        )
 
-                self.best_result_ = max(
-                    valid_cv,
-                    key=lambda item: (
-                        item.metadata["cv_mean"]
+        if detected_task == "classification":
+
+            final_result = (
+                ModelEvaluator.classification(
+                    estimator=final_pipeline,
+                    X_test=X_test,
+                    y_test=y_test,
+                    model_name=selected_name,
+                    features=list(
+                        prepared.X.columns
+                    ),
+                    target=target,
+                    train_size=len(
+                        X_train
                     ),
                 )
+            )
 
-            else:
+        else:
 
-                # Repli uniquement si la CV n'est
-                # techniquement pas disponible.
-                valid_score = [
-                    result
-                    for result in results
-                    if result.score is not None
-                ]
+            final_result = (
+                ModelEvaluator.regression(
+                    estimator=final_pipeline,
+                    X_test=X_test,
+                    y_test=y_test,
+                    model_name=selected_name,
+                    features=list(
+                        prepared.X.columns
+                    ),
+                    target=target,
+                    train_size=len(
+                        X_train
+                    ),
+                )
+            )
 
-                if valid_score:
+        # Les informations de CV du candidat sélectionné
+        # sont conservées dans le résultat final.
+        final_result.metadata.update(
+            selected_candidate.metadata
+        )
 
-                    self.best_result_ = max(
-                        valid_score,
-                        key=lambda item: (
-                            item.score
-                        ),
-                    )
+        self.best_result_ = (
+            final_result
+        )
 
         return self.results_
 

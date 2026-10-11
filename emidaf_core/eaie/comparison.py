@@ -106,7 +106,7 @@ class ModelComparison:
         if not table.empty:
 
             table = table.sort_values(
-                by="score",
+                by="cv_mean",
                 ascending=False,
                 na_position="last",
             ).reset_index(drop=True)

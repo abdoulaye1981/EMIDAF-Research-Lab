@@ -365,3 +365,185 @@ def test_cross_validation_uses_training_set_only(
         for x_size, _
         in observed_sizes
     )
+
+
+def test_only_selected_model_uses_final_test_set(
+    monkeypatch,
+):
+
+    from emidaf_core.eaie.evaluation import (
+        ModelEvaluator,
+    )
+
+    X, y = make_regression(
+        n_samples=120,
+        n_features=4,
+        noise=5,
+        random_state=42,
+    )
+
+    df = pd.DataFrame(
+        X,
+        columns=[
+            "x1",
+            "x2",
+            "x3",
+            "x4",
+        ],
+    )
+
+    df["target"] = y
+
+    evaluation_calls = []
+
+    original_regression = (
+        ModelEvaluator.regression
+    )
+
+    def spy_regression(**kwargs):
+
+        evaluation_calls.append(
+            {
+                "model_name":
+                    kwargs["model_name"],
+                "test_size":
+                    len(kwargs["y_test"]),
+            }
+        )
+
+        return original_regression(
+            **kwargs
+        )
+
+    monkeypatch.setattr(
+        ModelEvaluator,
+        "regression",
+        staticmethod(
+            spy_regression
+        ),
+    )
+
+    engine = EAIEEngine(
+        test_size=0.20,
+        random_state=42,
+        cv=3,
+    )
+
+    candidates = engine.run(
+        df,
+        target="target",
+        task="regression",
+        models=[
+            "linear_regression",
+            "random_forest",
+        ],
+    )
+
+    # Deux candidats sont comparés.
+    assert len(candidates) == 2
+
+    # Aucun candidat non sélectionné ne possède
+    # une métrique provenant du test.
+    assert all(
+        result.score is None
+        for result in candidates
+    )
+
+    assert all(
+        result.r2 is None
+        for result in candidates
+    )
+
+    # Le jeu de test ne doit être évalué
+    # qu'une seule fois.
+    assert len(
+        evaluation_calls
+    ) == 1
+
+    assert (
+        evaluation_calls[0][
+            "test_size"
+        ]
+        == 24
+    )
+
+    best = engine.best()
+
+    # Le résultat final possède bien
+    # les métriques hold-out.
+    assert best.fitted is True
+    assert best.score is not None
+    assert best.r2 is not None
+
+    # Et conserve les informations
+    # utilisées lors de la sélection CV.
+    assert (
+        best.metadata.get(
+            "cv_mean"
+        )
+        is not None
+    )
+
+
+def test_model_comparison_is_ranked_by_cv():
+
+    X, y = make_regression(
+        n_samples=140,
+        n_features=5,
+        noise=10,
+        random_state=42,
+    )
+
+    df = pd.DataFrame(
+        X,
+        columns=[
+            "x1",
+            "x2",
+            "x3",
+            "x4",
+            "x5",
+        ],
+    )
+
+    df["target"] = y
+
+    engine = EAIEEngine(
+        test_size=0.20,
+        random_state=42,
+        cv=3,
+    )
+
+    engine.run(
+        df,
+        target="target",
+        task="regression",
+        models=[
+            "linear_regression",
+            "random_forest",
+            "decision_tree",
+        ],
+    )
+
+    comparison = engine.compare()
+
+    cv_values = (
+        comparison[
+            "cv_mean"
+        ]
+        .dropna()
+        .tolist()
+    )
+
+    assert cv_values == sorted(
+        cv_values,
+        reverse=True,
+    )
+
+    # Le meilleur modèle affiché dans
+    # le classement est celui sélectionné.
+    assert (
+        comparison.iloc[0][
+            "model"
+        ]
+        == engine.best().model_name
+    )
