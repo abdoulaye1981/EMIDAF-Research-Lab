@@ -1174,6 +1174,137 @@ def run_eaie_block_comparison(
             ),
         )
 
+        # --------------------------------------------------
+        # Transmission EAIE blocs -> EXAIE / EDSE
+        # --------------------------------------------------
+        #
+        # Aucun nouvel entraînement ici :
+        # on réutilise le pipeline final déjà ajusté
+        # et le split commun produit par
+        # BlockComparisonEngine.
+        # --------------------------------------------------
+
+        from emidaf_core.eaie.preparation import (
+            DataPreparation,
+        )
+
+        final = result.final_result
+
+        if final is None:
+            raise RuntimeError(
+                "Le modèle final de la comparaison "
+                "par blocs est indisponible."
+            )
+
+        selected_features = list(
+            final.features
+        )
+
+        prepared_final = (
+            DataPreparation.prepare(
+                dataframe,
+                target,
+                features=selected_features,
+            )
+        )
+
+        X_train_exaie = (
+            prepared_final.X.iloc[
+                result.train_indices
+            ]
+            .reset_index(
+                drop=True
+            )
+        )
+
+        X_test_exaie = (
+            prepared_final.X.iloc[
+                result.test_indices
+            ]
+            .reset_index(
+                drop=True
+            )
+        )
+
+        y_train_exaie = (
+            prepared_final.y.iloc[
+                result.train_indices
+            ]
+            .reset_index(
+                drop=True
+            )
+        )
+
+        y_test_exaie = (
+            prepared_final.y.iloc[
+                result.test_indices
+            ]
+            .reset_index(
+                drop=True
+            )
+        )
+
+        selected_performance = next(
+            (
+                performance
+                for performance
+                in result.performances
+                if performance.block
+                == result.selected_block
+            ),
+            None,
+        )
+
+        if selected_performance is None:
+            raise RuntimeError(
+                "La performance CV du bloc "
+                "sélectionné est indisponible."
+            )
+
+        register_eaie_run(
+            project_id,
+            dataset_id,
+            {
+                "estimator":
+                    final.estimator,
+                "model_name":
+                    final.model_name,
+                "task":
+                    result.task,
+                "target":
+                    target,
+                "features":
+                    selected_features,
+                "X_train":
+                    X_train_exaie,
+                "X_test":
+                    X_test_exaie,
+                "y_train":
+                    y_train_exaie,
+                "y_test":
+                    y_test_exaie,
+                "cv_mean":
+                    selected_performance.cv_mean,
+                "cv_std":
+                    selected_performance.cv_std,
+                "test_score":
+                    final.score,
+                "baseline_cv_mean":
+                    None,
+                "better_than_baseline":
+                    None,
+
+                # Traçabilité spécifique
+                # à la comparaison scientifique.
+                "source":
+                    "block_comparison",
+                "selected_block":
+                    result.selected_block,
+                "n_features":
+                    len(selected_features),
+            },
+        )
+
     except Exception:
 
         logger.exception(
