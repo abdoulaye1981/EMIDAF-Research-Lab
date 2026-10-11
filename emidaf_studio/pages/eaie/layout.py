@@ -251,6 +251,41 @@ def eaie_layout(project_id, dataset_id):
                             className="g-3",
                         ),
 
+                        dbc.Row(
+                            [
+                                dbc.Col(
+                                    [
+                                        dbc.Label(
+                                            "Mode de modélisation"
+                                        ),
+                                        dbc.RadioItems(
+                                            id="eaie-analysis-mode",
+                                            options=[
+                                                {
+                                                    "label": (
+                                                        "Modélisation "
+                                                        "standard"
+                                                    ),
+                                                    "value": "standard",
+                                                },
+                                                {
+                                                    "label": (
+                                                        "Comparaison par "
+                                                        "blocs scientifiques"
+                                                    ),
+                                                    "value": "blocks",
+                                                },
+                                            ],
+                                            value="standard",
+                                            inline=True,
+                                        ),
+                                    ],
+                                    md=12,
+                                ),
+                            ],
+                            className="g-3 mt-3",
+                        ),
+
                         dbc.Card(
                             dbc.CardBody(
                                 [
@@ -301,6 +336,173 @@ def eaie_layout(project_id, dataset_id):
                                 ]
                             ),
                             className="mt-3 mb-3",
+                        ),
+
+                        html.Div(
+                            dbc.Card(
+                                dbc.CardBody(
+                                    [
+                                        html.H5(
+                                            "Blocs scientifiques"
+                                        ),
+
+                                        html.P(
+                                            (
+                                                "Définissez des familles "
+                                                "conceptuelles de variables. "
+                                                "EAIE construira ensuite "
+                                                "les ensembles cumulatifs "
+                                                "A, A+B, A+B+C et A+B+C+D."
+                                            ),
+                                            className="text-muted",
+                                        ),
+
+                                        dbc.Row(
+                                            [
+                                                dbc.Col(
+                                                    [
+                                                        dbc.Label(
+                                                            "Nom du bloc A"
+                                                        ),
+                                                        dbc.Input(
+                                                            id=(
+                                                                "eaie-block-a-name"
+                                                            ),
+                                                            value="Bloc A",
+                                                        ),
+                                                        dbc.Label(
+                                                            "Variables",
+                                                            className="mt-2",
+                                                        ),
+                                                        dcc.Dropdown(
+                                                            id=(
+                                                                "eaie-block-a"
+                                                            ),
+                                                            options=[],
+                                                            value=[],
+                                                            multi=True,
+                                                        ),
+                                                    ],
+                                                    md=6,
+                                                ),
+                                                dbc.Col(
+                                                    [
+                                                        dbc.Label(
+                                                            "Nom du bloc B"
+                                                        ),
+                                                        dbc.Input(
+                                                            id=(
+                                                                "eaie-block-b-name"
+                                                            ),
+                                                            value="Bloc B",
+                                                        ),
+                                                        dbc.Label(
+                                                            "Variables",
+                                                            className="mt-2",
+                                                        ),
+                                                        dcc.Dropdown(
+                                                            id=(
+                                                                "eaie-block-b"
+                                                            ),
+                                                            options=[],
+                                                            value=[],
+                                                            multi=True,
+                                                        ),
+                                                    ],
+                                                    md=6,
+                                                ),
+                                            ],
+                                            className="g-3",
+                                        ),
+
+                                        dbc.Row(
+                                            [
+                                                dbc.Col(
+                                                    [
+                                                        dbc.Label(
+                                                            "Nom du bloc C"
+                                                        ),
+                                                        dbc.Input(
+                                                            id=(
+                                                                "eaie-block-c-name"
+                                                            ),
+                                                            value="Bloc C",
+                                                        ),
+                                                        dbc.Label(
+                                                            "Variables",
+                                                            className="mt-2",
+                                                        ),
+                                                        dcc.Dropdown(
+                                                            id=(
+                                                                "eaie-block-c"
+                                                            ),
+                                                            options=[],
+                                                            value=[],
+                                                            multi=True,
+                                                        ),
+                                                    ],
+                                                    md=6,
+                                                ),
+                                                dbc.Col(
+                                                    [
+                                                        dbc.Label(
+                                                            "Nom du bloc D"
+                                                        ),
+                                                        dbc.Input(
+                                                            id=(
+                                                                "eaie-block-d-name"
+                                                            ),
+                                                            value="Bloc D",
+                                                        ),
+                                                        dbc.Label(
+                                                            "Variables",
+                                                            className="mt-2",
+                                                        ),
+                                                        dcc.Dropdown(
+                                                            id=(
+                                                                "eaie-block-d"
+                                                            ),
+                                                            options=[],
+                                                            value=[],
+                                                            multi=True,
+                                                        ),
+                                                    ],
+                                                    md=6,
+                                                ),
+                                            ],
+                                            className="g-3 mt-2",
+                                        ),
+
+                                        html.Div(
+                                            id="eaie-block-summary",
+                                            className="mt-3",
+                                        ),
+
+                                        dbc.Button(
+                                            "Comparer les blocs",
+                                            id="eaie-block-run",
+                                            color="primary",
+                                            className="mt-2",
+                                            disabled=True,
+                                        ),
+
+                                        dbc.Spinner(
+                                            html.Div(
+                                                id="eaie-block-status",
+                                                className="mt-3",
+                                            )
+                                        ),
+
+                                        html.Div(
+                                            id="eaie-block-results",
+                                            className="mt-3",
+                                        ),
+                                    ]
+                                ),
+                                className="mb-3",
+                            ),
+                            id="eaie-block-card",
+                            style={"display": "none"},
                         ),
 
                         dbc.Row(
@@ -781,6 +983,11 @@ def eaie_layout(project_id, dataset_id):
 
             dcc.Store(
                 id="eaie-feature-roles",
+                data=None,
+            ),
+
+            dcc.Store(
+                id="eaie-feature-blocks",
                 data=None,
             ),
             dcc.Store(

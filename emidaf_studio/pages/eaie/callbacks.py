@@ -30,6 +30,10 @@ from emidaf_core.eaie.roles import (
     FeatureRoles,
 )
 
+from emidaf_core.eaie.blocks import (
+    FeatureBlocks,
+)
+
 
 def _load_eaie_dataframe(
     project_id,
@@ -251,6 +255,279 @@ def update_eaie_feature_roles(
     )
 
     return summary, payload
+
+
+# ============================================================
+# SCIENTIFIC FEATURE BLOCKS
+# ============================================================
+
+@callback(
+    Output(
+        "eaie-block-card",
+        "style",
+    ),
+    Input(
+        "eaie-analysis-mode",
+        "value",
+    ),
+)
+def toggle_eaie_block_card(
+    analysis_mode,
+):
+
+    if analysis_mode == "blocks":
+        return {
+            "display": "block"
+        }
+
+    return {
+        "display": "none"
+    }
+
+
+@callback(
+    Output(
+        "eaie-block-a",
+        "options",
+    ),
+    Output(
+        "eaie-block-b",
+        "options",
+    ),
+    Output(
+        "eaie-block-c",
+        "options",
+    ),
+    Output(
+        "eaie-block-d",
+        "options",
+    ),
+    Input(
+        "eaie-feature-roles",
+        "data",
+    ),
+)
+def update_eaie_block_options(
+    feature_roles,
+):
+
+    if (
+        not feature_roles
+        or not feature_roles.get(
+            "valid"
+        )
+    ):
+        return [], [], [], []
+
+    predictors = (
+        feature_roles.get(
+            "predictors",
+            [],
+        )
+    )
+
+    options = [
+        {
+            "label": variable,
+            "value": variable,
+        }
+        for variable
+        in predictors
+    ]
+
+    return (
+        options,
+        options,
+        options,
+        options,
+    )
+
+
+@callback(
+    Output(
+        "eaie-block-summary",
+        "children",
+    ),
+    Output(
+        "eaie-feature-blocks",
+        "data",
+    ),
+    Output(
+        "eaie-block-run",
+        "disabled",
+    ),
+    Input(
+        "eaie-feature-roles",
+        "data",
+    ),
+    Input(
+        "eaie-block-a-name",
+        "value",
+    ),
+    Input(
+        "eaie-block-a",
+        "value",
+    ),
+    Input(
+        "eaie-block-b-name",
+        "value",
+    ),
+    Input(
+        "eaie-block-b",
+        "value",
+    ),
+    Input(
+        "eaie-block-c-name",
+        "value",
+    ),
+    Input(
+        "eaie-block-c",
+        "value",
+    ),
+    Input(
+        "eaie-block-d-name",
+        "value",
+    ),
+    Input(
+        "eaie-block-d",
+        "value",
+    ),
+)
+def validate_eaie_feature_blocks(
+    feature_roles,
+    block_a_name,
+    block_a,
+    block_b_name,
+    block_b,
+    block_c_name,
+    block_c,
+    block_d_name,
+    block_d,
+):
+
+    if (
+        not feature_roles
+        or not feature_roles.get(
+            "valid"
+        )
+    ):
+
+        return (
+            dbc.Alert(
+                (
+                    "Définissez d'abord une cible "
+                    "et une configuration de rôles "
+                    "valide."
+                ),
+                color="secondary",
+            ),
+            None,
+            True,
+        )
+
+    blocks = {
+        (block_a_name or "Bloc A").strip():
+            list(block_a or []),
+        (block_b_name or "Bloc B").strip():
+            list(block_b or []),
+        (block_c_name or "Bloc C").strip():
+            list(block_c or []),
+        (block_d_name or "Bloc D").strip():
+            list(block_d or []),
+    }
+
+    result = FeatureBlocks.resolve(
+        predictors=feature_roles.get(
+            "predictors",
+            [],
+        ),
+        blocks=blocks,
+        target=feature_roles.get(
+            "target"
+        ),
+        protected=feature_roles.get(
+            "protected",
+            [],
+        ),
+        require_all=True,
+    )
+
+    payload = result.to_dict()
+
+    if not result.valid:
+
+        return (
+            dbc.Alert(
+                [
+                    html.Strong(
+                        "Configuration des blocs invalide."
+                    ),
+                    html.Ul(
+                        [
+                            html.Li(conflict)
+                            for conflict
+                            in result.conflicts
+                        ],
+                        className="mb-0 mt-2",
+                    ),
+                ],
+                color="danger",
+            ),
+            payload,
+            True,
+        )
+
+    cumulative_rows = []
+
+    for (
+        block_name,
+        variables,
+    ) in result.cumulative.items():
+
+        cumulative_rows.append(
+            html.Li(
+                (
+                    f"{block_name} : "
+                    f"{len(variables)} variable(s)"
+                )
+            )
+        )
+
+    summary = dbc.Alert(
+        [
+            html.Strong(
+                "Configuration des blocs valide."
+            ),
+            html.Div(
+                (
+                    f"{len(result.assigned)} "
+                    "prédicteurs affectés, "
+                    f"{len(result.unassigned)} "
+                    "non affecté(s)."
+                ),
+                className="mt-2",
+            ),
+            html.Div(
+                [
+                    html.Strong(
+                        "Construction cumulative :"
+                    ),
+                    html.Ul(
+                        cumulative_rows,
+                        className="mb-0 mt-2",
+                    ),
+                ],
+                className="mt-2",
+            ),
+        ],
+        color="success",
+    )
+
+    return (
+        summary,
+        payload,
+        False,
+    )
 
 
 @callback(
