@@ -59,6 +59,24 @@ from .engine import (
     EAIEEngine,
 )
 
+from .roles import (
+    FeatureRoleResult,
+    FeatureRoles,
+    resolve_feature_roles,
+)
+
+from .blocks import (
+    FeatureBlockResult,
+    FeatureBlocks,
+    resolve_feature_blocks,
+)
+
+from .block_comparison import (
+    BlockComparisonEngine,
+    BlockComparisonResult,
+    BlockPerformance,
+)
+
 
 __all__ = [
     "ProblemDetector",
@@ -77,4 +95,13 @@ __all__ = [
     "ModelComparison",
     "EAIEEngine",
     "EAIE",
+    "FeatureRoleResult",
+    "FeatureRoles",
+    "resolve_feature_roles",
+    "FeatureBlockResult",
+    "FeatureBlocks",
+    "resolve_feature_blocks",
+    "BlockComparisonEngine",
+    "BlockComparisonResult",
+    "BlockPerformance",
 ]

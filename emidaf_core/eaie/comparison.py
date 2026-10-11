@@ -18,7 +18,7 @@ class ModelComparison:
         X,
         y,
         task: str,
-        cv: int = 5,
+        cv=5,
     ) -> dict:
 
         scoring = (
