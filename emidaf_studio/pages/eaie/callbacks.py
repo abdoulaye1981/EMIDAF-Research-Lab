@@ -558,6 +558,35 @@ def run_eaie(
     # COMPARISON
     # ======================================================
 
+    comparison_display = (
+        comparison[
+            [
+                "model",
+                "task",
+                "cv_mean",
+                "cv_std",
+            ]
+        ]
+        .copy()
+    )
+
+    comparison_display = (
+        comparison_display.rename(
+            columns={
+                "model": "Modèle",
+                "task": "Tâche",
+                "cv_mean": "CV moyenne",
+                "cv_std": "CV écart-type",
+            }
+        )
+    )
+
+    comparison_display.insert(
+        2,
+        "Métrique CV",
+        summary["selection_metric"],
+    )
+
     comparison_view = [
         html.H5(
             "Comparaison des modèles"
@@ -570,7 +599,9 @@ def run_eaie(
             ),
             className="text-muted",
         ),
-        _table(comparison),
+        _table(
+            comparison_display
+        ),
     ]
 
     # ======================================================
