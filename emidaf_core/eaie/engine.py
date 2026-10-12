@@ -449,6 +449,14 @@ class EAIEEngine:
 
         scientific_summary = self.summary()
 
+        (
+            test_metric_label,
+            test_metric_value,
+        ) = ModelEvaluator.selection_aligned_metric(
+            self.best_result_,
+            self.selection_metric_,
+        )
+
         return {
             "estimator": self.best_result_.estimator,
             "model_name": self.best_result_.model_name,
@@ -480,7 +488,13 @@ class EAIEEngine:
                 .metadata
                 .get("cv_std")
             ),
-            "test_score": self.best_result_.score,
+            "test_score": test_metric_value,
+            "test_metric_label": (
+                test_metric_label
+            ),
+            "test_metric_value": (
+                test_metric_value
+            ),
             "baseline_cv_mean": (
                 scientific_summary.get(
                     "baseline_cv_mean"

@@ -28,6 +28,58 @@ from emidaf_core.common.results import ModelResult
 class ModelEvaluator:
 
     @staticmethod
+    def selection_aligned_metric(
+        result,
+        selection_metric: str | None,
+    ) -> tuple[str, float | None]:
+        """
+        Retourne la métrique hold-out correspondant
+        exactement au critère utilisé pour la sélection CV.
+
+        EAIE reste la source de vérité scientifique ;
+        EXAIE ne doit pas recalculer ces performances.
+        """
+
+        metric_map = {
+            "f1_weighted": (
+                "F1 pondéré",
+                result.f1_score,
+            ),
+            "f1": (
+                "F1 classe positive",
+                result.f1_positive,
+            ),
+            "precision": (
+                "Précision classe positive",
+                result.precision_positive,
+            ),
+            "recall": (
+                "Rappel classe positive",
+                result.recall_positive,
+            ),
+            "roc_auc": (
+                "ROC-AUC",
+                result.roc_auc,
+            ),
+            "average_precision": (
+                "PR-AUC",
+                result.pr_auc,
+            ),
+            "r2": (
+                "R²",
+                result.r2,
+            ),
+        }
+
+        return metric_map.get(
+            selection_metric,
+            (
+                "Score",
+                result.score,
+            ),
+        )
+
+    @staticmethod
     def classification(
         *,
         estimator,

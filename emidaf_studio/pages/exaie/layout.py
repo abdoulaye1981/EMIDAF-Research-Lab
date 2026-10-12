@@ -238,8 +238,21 @@ def exaie_layout(project_id, dataset_id):
         "Non disponible",
     )
 
-    cv_mean = context.get("cv_mean")
-    test_score = context.get("test_score")
+    cv_mean = context.get(
+        "cv_mean"
+    )
+
+    test_score = context.get(
+        "test_metric_value",
+        context.get(
+            "test_score"
+        ),
+    )
+
+    test_metric_label = context.get(
+        "test_metric_label",
+        "Score test final",
+    )
 
     cv_text = (
         "Non disponible"
@@ -557,7 +570,10 @@ def exaie_layout(project_id, dataset_id):
                             html.Div(
                                 [
                                     html.Div(
-                                        "Score test final",
+                                        (
+                                            "Test final — "
+                                            f"{test_metric_label}"
+                                        ),
                                         className=(
                                             "exaie-v2-score-label"
                                         ),
@@ -710,6 +726,52 @@ def exaie_layout(project_id, dataset_id):
                                         [
                                             html.Div(
                                                 [
+                                                    dbc.Label(
+                                                        "Type de décision",
+                                                        className=(
+                                                            "exaie-v2-label"
+                                                        ),
+                                                    ),
+
+                                                    dcc.Dropdown(
+                                                        id="exaie-error-filter",
+                                                        options=[
+                                                            {
+                                                                "label": "Toutes",
+                                                                "value": "all",
+                                                            },
+                                                            {
+                                                                "label": (
+                                                                    "Vrai positif (VP)"
+                                                                ),
+                                                                "value": "tp",
+                                                            },
+                                                            {
+                                                                "label": (
+                                                                    "Faux négatif (FN)"
+                                                                ),
+                                                                "value": "fn",
+                                                            },
+                                                            {
+                                                                "label": (
+                                                                    "Faux positif (FP)"
+                                                                ),
+                                                                "value": "fp",
+                                                            },
+                                                            {
+                                                                "label": (
+                                                                    "Vrai négatif (VN)"
+                                                                ),
+                                                                "value": "tn",
+                                                            },
+                                                        ],
+                                                        value="all",
+                                                        clearable=False,
+                                                        className=(
+                                                            "exaie-v2-dropdown mb-3"
+                                                        ),
+                                                    ),
+
                                                     dbc.Label(
                                                         (
                                                             "Observation "

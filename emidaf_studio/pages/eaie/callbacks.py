@@ -1482,6 +1482,22 @@ def run_eaie_block_comparison(
                 "sélectionné est indisponible."
             )
 
+        from emidaf_core.eaie.evaluation import (
+            ModelEvaluator,
+        )
+
+        selection_metric = (
+            selected_performance.cv_metric
+        )
+
+        (
+            test_metric_label,
+            test_metric_value,
+        ) = ModelEvaluator.selection_aligned_metric(
+            final,
+            selection_metric,
+        )
+
         register_eaie_run(
             project_id,
             dataset_id,
@@ -1508,8 +1524,18 @@ def run_eaie_block_comparison(
                     selected_performance.cv_mean,
                 "cv_std":
                     selected_performance.cv_std,
+                "selection_metric":
+                    selection_metric,
+                "positive_label":
+                    final.metadata.get(
+                        "positive_label"
+                    ),
                 "test_score":
-                    final.score,
+                    test_metric_value,
+                "test_metric_label":
+                    test_metric_label,
+                "test_metric_value":
+                    test_metric_value,
                 "baseline_cv_mean":
                     None,
                 "better_than_baseline":

@@ -24,6 +24,45 @@ from emidaf_studio.services.model_registry import (
 logger = logging.getLogger(__name__)
 
 
+def _classification_decision(
+    true_label,
+    predicted_label,
+    positive_label=1,
+):
+    """
+    Classe une prédiction binaire en
+    VP, FN, FP ou VN.
+    """
+
+    true_positive = (
+        true_label == positive_label
+    )
+
+    predicted_positive = (
+        predicted_label == positive_label
+    )
+
+    if (
+        true_positive
+        and predicted_positive
+    ):
+        return "tp"
+
+    if (
+        true_positive
+        and not predicted_positive
+    ):
+        return "fn"
+
+    if (
+        not true_positive
+        and predicted_positive
+    ):
+        return "fp"
+
+    return "tn"
+
+
 def _table(dataframe):
 
     if (
@@ -42,6 +81,177 @@ def _table(dataframe):
         hover=True,
         responsive=True,
         size="sm",
+    )
+
+
+@callback(
+    Output("exaie-row", "options"),
+    Output("exaie-row", "value"),
+
+    Input(
+        "exaie-error-filter",
+        "value",
+    ),
+
+    State(
+        "exaie-project-id",
+        "data",
+    ),
+    State(
+        "exaie-dataset-id",
+        "data",
+    ),
+)
+def filter_local_observations(
+    decision_filter,
+    project_id,
+    dataset_id,
+):
+
+    context = get_eaie_run(
+        project_id,
+        dataset_id,
+    )
+
+    if context is None:
+        return [], None
+
+    X_test = context.get(
+        "X_test"
+    )
+
+    y_test = context.get(
+        "y_test"
+    )
+
+    estimator = context.get(
+        "estimator"
+    )
+
+    if (
+        X_test is None
+        or y_test is None
+        or estimator is None
+    ):
+        return [], None
+
+    n_observations = len(
+        X_test
+    )
+
+    if (
+        context.get("task")
+        != "classification"
+    ):
+
+        options = [
+            {
+                "label": (
+                    f"Observation {i}"
+                ),
+                "value": i,
+            }
+            for i in range(
+                n_observations
+            )
+        ]
+
+        return (
+            options,
+            (
+                options[0]["value"]
+                if options
+                else None
+            ),
+        )
+
+    predictions = estimator.predict(
+        X_test
+    )
+
+    positive_label = context.get(
+        "positive_label",
+        1,
+    )
+
+    selected_rows = []
+
+    for i in range(
+        n_observations
+    ):
+
+        true_label = (
+            y_test.iloc[i]
+            if hasattr(
+                y_test,
+                "iloc",
+            )
+            else y_test[i]
+        )
+
+        predicted_label = (
+            predictions[i]
+        )
+
+        decision = (
+            _classification_decision(
+                true_label,
+                predicted_label,
+                positive_label,
+            )
+        )
+
+        if (
+            decision_filter in {
+                None,
+                "all",
+            }
+            or decision
+            == decision_filter
+        ):
+
+            selected_rows.append(
+                (
+                    i,
+                    decision,
+                    true_label,
+                    predicted_label,
+                )
+            )
+
+    labels = {
+        "tp": "VP",
+        "fn": "FN",
+        "fp": "FP",
+        "tn": "VN",
+    }
+
+    options = [
+        {
+            "label": (
+                f"Observation {i} "
+                f"— {labels[decision]} "
+                f"(réel={true_label}, "
+                f"prédit={predicted_label})"
+            ),
+            "value": i,
+        }
+        for (
+            i,
+            decision,
+            true_label,
+            predicted_label,
+        )
+        in selected_rows
+    ]
+
+    return (
+        options,
+        (
+            options[0]["value"]
+            if options
+            else None
+        ),
     )
 
 
@@ -126,9 +336,198 @@ def run_exaie(
             )
         )
 
-        local = engine.local_explanation(
-            row=int(row or 0),
+        selected_row = int(
+            row or 0
         )
+
+        local = engine.local_explanation(
+            row=selected_row,
+        )
+
+        # ==================================================
+        # DIAGNOSTIC LOCAL DE CLASSIFICATION
+        # ==================================================
+
+        if (
+            local.get("available")
+            and context.get("task")
+            == "classification"
+        ):
+
+            estimator = context[
+                "estimator"
+            ]
+
+            X_test = context[
+                "X_test"
+            ]
+
+            y_test = context[
+                "y_test"
+            ]
+
+            if (
+                selected_row < 0
+                or selected_row >= len(
+                    X_test
+                )
+            ):
+                selected_row = 0
+
+            X_row = X_test.iloc[
+                [selected_row]
+            ]
+
+            true_label = (
+                y_test.iloc[
+                    selected_row
+                ]
+                if hasattr(
+                    y_test,
+                    "iloc",
+                )
+                else y_test[
+                    selected_row
+                ]
+            )
+
+            predicted_label = (
+                estimator.predict(
+                    X_row
+                )[0]
+            )
+
+            positive_label = context.get(
+                "positive_label",
+                1,
+            )
+
+            probability_positive = None
+
+            if hasattr(
+                estimator,
+                "predict_proba",
+            ):
+
+                probabilities = (
+                    estimator.predict_proba(
+                        X_row
+                    )
+                )
+
+                classes = list(
+                    estimator.classes_
+                )
+
+                if (
+                    positive_label
+                    in classes
+                ):
+
+                    positive_index = (
+                        classes.index(
+                            positive_label
+                        )
+                    )
+
+                    probability_positive = float(
+                        probabilities[
+                            0,
+                            positive_index
+                        ]
+                    )
+
+            true_positive = (
+                true_label
+                == positive_label
+            )
+
+            predicted_positive = (
+                predicted_label
+                == positive_label
+            )
+
+            if (
+                true_positive
+                and predicted_positive
+            ):
+
+                decision_type = (
+                    "Vrai positif (VP)"
+                )
+
+                decision_interpretation = (
+                    "Observation réellement positive "
+                    "et correctement détectée par "
+                    "le modèle."
+                )
+
+            elif (
+                true_positive
+                and not predicted_positive
+            ):
+
+                decision_type = (
+                    "Faux négatif (FN)"
+                )
+
+                decision_interpretation = (
+                    "Observation réellement positive "
+                    "mais non détectée par le modèle."
+                )
+
+            elif (
+                not true_positive
+                and predicted_positive
+            ):
+
+                decision_type = (
+                    "Faux positif (FP)"
+                )
+
+                decision_interpretation = (
+                    "Observation réellement négative "
+                    "mais signalée comme positive "
+                    "par le modèle."
+                )
+
+            else:
+
+                decision_type = (
+                    "Vrai négatif (VN)"
+                )
+
+                decision_interpretation = (
+                    "Observation réellement négative "
+                    "et correctement classée par "
+                    "le modèle."
+                )
+
+            local[
+                "true_label"
+            ] = true_label
+
+            local[
+                "predicted_label"
+            ] = predicted_label
+
+            local[
+                "positive_label"
+            ] = positive_label
+
+            local[
+                "probability_positive"
+            ] = probability_positive
+
+            local[
+                "decision_type"
+            ] = decision_type
+
+            local[
+                "decision_interpretation"
+            ] = (
+                decision_interpretation
+            )
 
         summary = engine.summary()
 
@@ -647,12 +1046,90 @@ def run_exaie(
             html.P(
                 [
                     html.Strong(
-                        "Prédiction : "
+                        "Classe réelle : "
                     ),
                     str(
-                        local["prediction"]
+                        local.get(
+                            "true_label",
+                            "Non disponible",
+                        )
                     ),
                 ]
+            ),
+
+            html.P(
+                [
+                    html.Strong(
+                        "Classe prédite : "
+                    ),
+                    str(
+                        local.get(
+                            "predicted_label",
+                            local.get(
+                                "prediction",
+                                "Non disponible",
+                            ),
+                        )
+                    ),
+                ]
+            ),
+
+            (
+                html.P(
+                    [
+                        html.Strong(
+                            "Probabilité classe positive : "
+                        ),
+                        (
+                            f"{local['probability_positive']:.4f}"
+                        ),
+                    ]
+                )
+                if local.get(
+                    "probability_positive"
+                ) is not None
+                else html.Div()
+            ),
+
+            (
+                dbc.Alert(
+                    [
+                        html.Strong(
+                            local.get(
+                                "decision_type",
+                                "",
+                            )
+                        ),
+                        html.Br(),
+                        local.get(
+                            "decision_interpretation",
+                            "",
+                        ),
+                    ],
+                    color=(
+                        "warning"
+                        if local.get(
+                            "decision_type",
+                            ""
+                        ).startswith(
+                            "Faux négatif"
+                        )
+                        else (
+                            "danger"
+                            if local.get(
+                                "decision_type",
+                                ""
+                            ).startswith(
+                                "Faux positif"
+                            )
+                            else "info"
+                        )
+                    ),
+                )
+                if local.get(
+                    "decision_type"
+                )
+                else html.Div()
             ),
 
             html.P(
