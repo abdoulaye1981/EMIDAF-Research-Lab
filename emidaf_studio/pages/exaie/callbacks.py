@@ -314,8 +314,11 @@ def run_exaie(
         ):
             shap_scientific = (
                 FeatureImportanceAggregator
-                .shap_importance(
-                    shap_result.feature_importance,
+                .shap_global_from_values(
+                    shap_result.shap_values,
+                    transformed_features=(
+                        shap_result.features
+                    ),
                     original_features=(
                         original_features
                     ),

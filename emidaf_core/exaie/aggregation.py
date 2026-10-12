@@ -253,6 +253,179 @@ class FeatureImportanceAggregator:
         )
 
     @classmethod
+    def shap_global_from_values(
+        cls,
+        shap_values,
+        *,
+        transformed_features: Iterable[str],
+        original_features: Iterable[str],
+    ) -> pd.DataFrame:
+        """
+        Agrège correctement les valeurs SHAP au niveau
+        des variables originales.
+
+        Principe :
+        1. sommer les contributions SHAP signées des
+           variables transformées issues d'une même
+           variable originale ;
+        2. calculer ensuite la moyenne des valeurs
+           absolues des contributions agrégées.
+
+        Formats pris en charge :
+        - (n_observations, n_features)
+        - (n_observations, n_features, n_outputs)
+        """
+
+        values = np.asarray(
+            shap_values,
+            dtype=float,
+        )
+
+        transformed = [
+            str(feature)
+            for feature
+            in transformed_features
+        ]
+
+        originals = [
+            str(feature)
+            for feature
+            in original_features
+        ]
+
+        if values.ndim not in {
+            2,
+            3,
+        }:
+            raise ValueError(
+                "Les valeurs SHAP doivent avoir "
+                "2 ou 3 dimensions."
+            )
+
+        if values.shape[1] != len(
+            transformed
+        ):
+            raise ValueError(
+                "Le nombre de variables SHAP ne "
+                "correspond pas aux noms transformés."
+            )
+
+        mapping = cls.mapping(
+            transformed,
+            originals,
+        )
+
+        ordered_originals = []
+
+        for feature in transformed:
+
+            original = mapping[
+                feature
+            ]
+
+            if original not in ordered_originals:
+                ordered_originals.append(
+                    original
+                )
+
+        aggregated_values = []
+
+        for original in ordered_originals:
+
+            indices = [
+                index
+                for index, feature
+                in enumerate(
+                    transformed
+                )
+                if mapping[feature]
+                == original
+            ]
+
+            if values.ndim == 2:
+
+                signed = values[
+                    :,
+                    indices,
+                ].sum(
+                    axis=1
+                )
+
+                importance = float(
+                    np.mean(
+                        np.abs(
+                            signed
+                        )
+                    )
+                )
+
+            else:
+
+                signed = values[
+                    :,
+                    indices,
+                    :,
+                ].sum(
+                    axis=1
+                )
+
+                importance = float(
+                    np.mean(
+                        np.abs(
+                            signed
+                        )
+                    )
+                )
+
+            aggregated_values.append(
+                {
+                    "feature":
+                        original,
+                    "importance":
+                        importance,
+                }
+            )
+
+        result = pd.DataFrame(
+            aggregated_values
+        )
+
+        if result.empty:
+            return result
+
+        total = result[
+            "importance"
+        ].sum()
+
+        if (
+            np.isfinite(total)
+            and total > 0
+        ):
+            result[
+                "importance_share"
+            ] = (
+                result[
+                    "importance"
+                ]
+                / total
+            )
+        else:
+            result[
+                "importance_share"
+            ] = np.nan
+
+        return (
+            result
+            .sort_values(
+                "importance",
+                ascending=False,
+            )
+            .reset_index(
+                drop=True
+            )
+        )
+
+    @classmethod
     def shap_importance(
         cls,
         feature_importance: dict,

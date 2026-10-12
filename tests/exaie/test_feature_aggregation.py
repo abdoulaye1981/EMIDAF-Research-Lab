@@ -264,3 +264,143 @@ def test_unknown_transformed_feature_is_not_invented():
     )
 
     assert result == name
+
+
+def test_shap_global_aggregates_signed_values_before_absolute_mean():
+
+    # Deux modalités provenant de la même variable.
+    #
+    # Observation 1 :
+    # +1.0 + (-1.0) = 0
+    #
+    # Observation 2 :
+    # +2.0 + (-1.0) = 1
+    #
+    # Importance correcte :
+    # mean(|0|, |1|) = 0.5
+    #
+    # Une somme naïve des mean(abs(.))
+    # donnerait 2.5 et serait incorrecte.
+
+    shap_values = np.array(
+        [
+            [1.0, -1.0],
+            [2.0, -1.0],
+        ]
+    )
+
+    result = (
+        FeatureImportanceAggregator
+        .shap_global_from_values(
+            shap_values,
+            transformed_features=[
+                "categorical__region_Dakar",
+                "categorical__region_Thies",
+            ],
+            original_features=[
+                "region",
+            ],
+        )
+    )
+
+    assert len(result) == 1
+
+    assert (
+        result.iloc[0]["feature"]
+        == "region"
+    )
+
+    assert np.isclose(
+        result.iloc[0]["importance"],
+        0.5,
+    )
+
+    assert np.isclose(
+        result.iloc[0]["importance_share"],
+        1.0,
+    )
+
+
+def test_shap_global_numeric_feature_is_preserved():
+
+    shap_values = np.array(
+        [
+            [1.0, -2.0],
+            [-1.0, 4.0],
+        ]
+    )
+
+    result = (
+        FeatureImportanceAggregator
+        .shap_global_from_values(
+            shap_values,
+            transformed_features=[
+                "numeric__motivation",
+                "numeric__stress",
+            ],
+            original_features=[
+                "motivation",
+                "stress",
+            ],
+        )
+    )
+
+    values = dict(
+        zip(
+            result["feature"],
+            result["importance"],
+        )
+    )
+
+    assert np.isclose(
+        values["motivation"],
+        1.0,
+    )
+
+    assert np.isclose(
+        values["stress"],
+        3.0,
+    )
+
+
+def test_shap_global_multiclass_signed_aggregation():
+
+    shap_values = np.array(
+        [
+            [
+                [1.0, -1.0],
+                [-1.0, 1.0],
+            ],
+            [
+                [2.0, -2.0],
+                [-1.0, 1.0],
+            ],
+        ]
+    )
+
+    result = (
+        FeatureImportanceAggregator
+        .shap_global_from_values(
+            shap_values,
+            transformed_features=[
+                "categorical__region_Dakar",
+                "categorical__region_Thies",
+            ],
+            original_features=[
+                "region",
+            ],
+        )
+    )
+
+    # Observation 1 :
+    # [0, 0]
+    #
+    # Observation 2 :
+    # [1, -1]
+    #
+    # mean(abs(.)) = 0.5
+
+    assert np.isclose(
+        result.iloc[0]["importance"],
+        0.5,
+    )
