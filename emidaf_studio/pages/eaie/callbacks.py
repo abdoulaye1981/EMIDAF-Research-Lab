@@ -144,6 +144,55 @@ def _classification_protocol(
     }
 
 
+def _final_test_metric(
+    result,
+    selection_metric,
+):
+    """
+    Retourne la métrique hold-out cohérente avec
+    la métrique utilisée pour la sélection CV.
+    """
+
+    metric_map = {
+        "f1_weighted": (
+            "F1 pondéré",
+            result.f1_score,
+        ),
+        "f1": (
+            "F1 classe positive",
+            result.f1_positive,
+        ),
+        "precision": (
+            "Précision classe positive",
+            result.precision_positive,
+        ),
+        "recall": (
+            "Rappel classe positive",
+            result.recall_positive,
+        ),
+        "roc_auc": (
+            "ROC-AUC",
+            result.roc_auc,
+        ),
+        "average_precision": (
+            "PR-AUC",
+            result.pr_auc,
+        ),
+        "r2": (
+            "R²",
+            result.r2,
+        ),
+    }
+
+    return metric_map.get(
+        selection_metric,
+        (
+            "Score",
+            result.score,
+        ),
+    )
+
+
 # ============================================================
 # FEATURE ROLES
 # ============================================================
@@ -845,10 +894,18 @@ def run_eaie(
         else f"{summary['cv_mean']:.4f}"
     )
 
+    (
+        test_metric_label,
+        test_metric_value,
+    ) = _final_test_metric(
+        best,
+        summary["selection_metric"],
+    )
+
     test_text = (
         "Non disponible"
-        if summary["test_score"] is None
-        else f"{summary['test_score']:.4f}"
+        if test_metric_value is None
+        else f"{test_metric_value:.4f}"
     )
 
     summary_view = dbc.Card(
@@ -906,7 +963,10 @@ def run_eaie(
                 html.P(
                     [
                         html.Strong(
-                            "Score test final : "
+                            (
+                                "Score test final - "
+                                f"{test_metric_label} : "
+                            )
                         ),
                         test_text,
                     ]
@@ -1039,10 +1099,14 @@ def run_eaie(
             {
                 "Métrique": [
                     "Accuracy",
-                    "Precision",
-                    "Recall",
-                    "F1-score",
+                    "Précision pondérée",
+                    "Rappel pondéré",
+                    "F1 pondéré",
+                    "Précision classe 1",
+                    "Rappel classe 1",
+                    "F1 classe 1",
                     "ROC-AUC",
+                    "PR-AUC",
                     "Log-loss",
                 ],
                 "Valeur": [
@@ -1050,7 +1114,11 @@ def run_eaie(
                     best.precision,
                     best.recall,
                     best.f1_score,
+                    best.precision_positive,
+                    best.recall_positive,
+                    best.f1_positive,
                     best.roc_auc,
+                    best.pr_auc,
                     best.log_loss,
                 ],
             }
@@ -1535,10 +1603,14 @@ def run_eaie_block_comparison(
             {
                 "Métrique": [
                     "Accuracy",
-                    "Precision",
-                    "Recall",
-                    "F1-score",
+                    "Précision pondérée",
+                    "Rappel pondéré",
+                    "F1 pondéré",
+                    "Précision classe 1",
+                    "Rappel classe 1",
+                    "F1 classe 1",
                     "ROC-AUC",
+                    "PR-AUC",
                     "Log-loss",
                 ],
                 "Valeur": [
@@ -1546,7 +1618,11 @@ def run_eaie_block_comparison(
                     final.precision,
                     final.recall,
                     final.f1_score,
+                    final.precision_positive,
+                    final.recall_positive,
+                    final.f1_positive,
                     final.roc_auc,
+                    final.pr_auc,
                     final.log_loss,
                 ],
             }
