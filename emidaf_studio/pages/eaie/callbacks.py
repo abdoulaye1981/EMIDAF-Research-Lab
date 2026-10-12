@@ -78,6 +78,45 @@ def _table(dataframe):
 
 
 # ============================================================
+# TARGET-RELATED FEATURES
+# ============================================================
+
+def _target_related_features(
+    dataframe,
+    target,
+) -> list[str]:
+    """
+    Retourne les variables directement liées à la
+    construction de la cible et qui doivent donc être
+    protégées contre toute fuite d'information.
+
+    Les relations sont déclarées explicitement :
+    aucune relation n'est inférée automatiquement.
+    """
+
+    relationships = {
+        "difficulte_maths": [
+            "note_maths",
+        ],
+        "note_maths": [
+            "difficulte_maths",
+        ],
+    }
+
+    related = relationships.get(
+        str(target),
+        [],
+    )
+
+    return [
+        column
+        for column in related
+        if column in dataframe.columns
+        and column != target
+    ]
+
+
+# ============================================================
 # FEATURE ROLES
 # ============================================================
 
@@ -137,6 +176,12 @@ def update_eaie_feature_roles(
             target=target,
             excluded=list(
                 manual_exclusions or []
+            ),
+            target_related=(
+                _target_related_features(
+                    dataframe,
+                    target,
+                )
             ),
         )
 
@@ -633,6 +678,12 @@ def run_eaie(
             excluded=list(
                 manual_exclusions or []
             ),
+            target_related=(
+                _target_related_features(
+                    dataframe,
+                    target,
+                )
+            ),
         )
 
         if not roles.valid:
@@ -1038,6 +1089,10 @@ def run_eaie(
         "value",
     ),
     State(
+        "eaie-manual-exclusions",
+        "value",
+    ),
+    State(
         "eaie-task",
         "value",
     ),
@@ -1067,6 +1122,7 @@ def run_eaie_block_comparison(
     n_clicks,
     feature_blocks,
     target,
+    manual_exclusions,
     task,
     models,
     test_size,
@@ -1115,21 +1171,58 @@ def run_eaie_block_comparison(
             dataset_id,
         )
 
-        # Revalidation côté serveur.
-        block_result = FeatureBlocks.resolve(
-            predictors=feature_blocks.get(
-                "predictors",
-                [],
+        # --------------------------------------------------
+        # Revalidation scientifique côté serveur.
+        #
+        # Ne jamais faire confiance aux prédicteurs ou aux
+        # variables protégées provenant du navigateur.
+        # Les rôles sont recalculés depuis le DataFrame réel.
+        # --------------------------------------------------
+
+        server_roles = FeatureRoles.resolve(
+            dataframe,
+            target=target,
+            excluded=list(
+                manual_exclusions or []
             ),
+            target_related=(
+                _target_related_features(
+                    dataframe,
+                    target,
+                )
+            ),
+        )
+
+        if not server_roles.valid:
+
+            return (
+                dbc.Alert(
+                    [
+                        html.Strong(
+                            "Configuration des rôles invalide."
+                        ),
+                        html.Ul(
+                            [
+                                html.Li(message)
+                                for message
+                                in server_roles.conflicts
+                            ],
+                            className="mb-0 mt-2",
+                        ),
+                    ],
+                    color="danger",
+                ),
+                "",
+            )
+
+        block_result = FeatureBlocks.resolve(
+            predictors=server_roles.predictors,
             blocks=feature_blocks.get(
                 "blocks",
                 {},
             ),
             target=target,
-            protected=feature_blocks.get(
-                "protected",
-                [],
-            ),
+            protected=server_roles.protected,
             require_all=True,
         )
 

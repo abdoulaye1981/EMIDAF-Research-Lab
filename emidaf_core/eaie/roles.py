@@ -41,6 +41,7 @@ class FeatureRoleResult:
     quality: list[str]
     text: list[str]
     excluded: list[str]
+    target_related: list[str]
     protected: list[str]
     valid: bool
     conflicts: list[str]
@@ -53,6 +54,9 @@ class FeatureRoleResult:
             "quality": list(self.quality),
             "text": list(self.text),
             "excluded": list(self.excluded),
+            "target_related": list(
+                self.target_related
+            ),
             "protected": list(self.protected),
             "valid": self.valid,
             "conflicts": list(self.conflicts),
@@ -74,6 +78,7 @@ class FeatureRoles:
         target: str,
         *,
         excluded: list[str] | None = None,
+        target_related: list[str] | None = None,
     ) -> FeatureRoleResult:
 
         if not isinstance(
@@ -95,6 +100,13 @@ class FeatureRoles:
             )
         )
 
+
+        target_related = list(
+            dict.fromkeys(
+                target_related or []
+            )
+        )
+
         missing_excluded = [
             column
             for column in excluded
@@ -105,6 +117,28 @@ class FeatureRoles:
             raise ValueError(
                 "Variables exclues introuvables : "
                 + ", ".join(missing_excluded)
+            )
+
+
+        missing_target_related = [
+            column
+            for column in target_related
+            if column not in dataframe.columns
+        ]
+
+        if missing_target_related:
+            raise ValueError(
+                "Variables liées à la cible "
+                "introuvables : "
+                + ", ".join(
+                    missing_target_related
+                )
+            )
+
+        if target in target_related:
+            raise ValueError(
+                "La cible ne peut pas être déclarée "
+                "comme variable liée à elle-même."
             )
 
         profiler = DatasetProfiler()
@@ -192,6 +226,7 @@ class FeatureRoles:
             + quality_columns
             + text_columns
             + excluded
+            + target_related
         )
 
         protected.add(
@@ -216,6 +251,7 @@ class FeatureRoles:
             quality=quality_columns,
             text=text_columns,
             excluded=excluded,
+            target_related=target_related,
             protected=sorted(
                 protected
             ),
@@ -229,9 +265,12 @@ def resolve_feature_roles(
     target: str,
     *,
     excluded: list[str] | None = None,
+    target_related: list[str] | None = None,
 ) -> FeatureRoleResult:
+
     return FeatureRoles.resolve(
         dataframe,
         target,
         excluded=excluded,
+        target_related=target_related,
     )

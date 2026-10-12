@@ -220,3 +220,151 @@ def test_feature_roles_to_dict():
     )
 
     assert payload["valid"] is True
+
+
+def test_target_related_variable_is_protected():
+
+    import pandas as pd
+
+    from emidaf_core.eaie.roles import (
+        FeatureRoles,
+    )
+
+    dataframe = pd.DataFrame(
+        {
+            "note_maths": [
+                8.0,
+                12.0,
+                15.0,
+                7.0,
+            ],
+            "difficulte_maths": [
+                1,
+                0,
+                0,
+                1,
+            ],
+            "motivation": [
+                2,
+                4,
+                5,
+                1,
+            ],
+        }
+    )
+
+    result = FeatureRoles.resolve(
+        dataframe,
+        target="difficulte_maths",
+        target_related=[
+            "note_maths",
+        ],
+    )
+
+    assert result.valid
+
+    assert (
+        "note_maths"
+        in result.target_related
+    )
+
+    assert (
+        "note_maths"
+        in result.protected
+    )
+
+    assert (
+        "note_maths"
+        not in result.predictors
+    )
+
+    assert result.predictors == [
+        "motivation",
+    ]
+
+
+def test_derived_target_is_protected_when_modelling_source():
+
+    import pandas as pd
+
+    from emidaf_core.eaie.roles import (
+        FeatureRoles,
+    )
+
+    dataframe = pd.DataFrame(
+        {
+            "note_maths": [
+                8.0,
+                12.0,
+                15.0,
+                7.0,
+            ],
+            "difficulte_maths": [
+                1,
+                0,
+                0,
+                1,
+            ],
+            "motivation": [
+                2,
+                4,
+                5,
+                1,
+            ],
+        }
+    )
+
+    result = FeatureRoles.resolve(
+        dataframe,
+        target="note_maths",
+        target_related=[
+            "difficulte_maths",
+        ],
+    )
+
+    assert result.valid
+
+    assert (
+        "difficulte_maths"
+        in result.protected
+    )
+
+    assert (
+        "difficulte_maths"
+        not in result.predictors
+    )
+
+
+def test_target_cannot_be_related_to_itself():
+
+    import pandas as pd
+    import pytest
+
+    from emidaf_core.eaie.roles import (
+        FeatureRoles,
+    )
+
+    dataframe = pd.DataFrame(
+        {
+            "note_maths": [
+                8.0,
+                12.0,
+            ],
+            "motivation": [
+                2,
+                4,
+            ],
+        }
+    )
+
+    with pytest.raises(
+        ValueError,
+        match="liée à elle-même",
+    ):
+        FeatureRoles.resolve(
+            dataframe,
+            target="note_maths",
+            target_related=[
+                "note_maths",
+            ],
+        )
