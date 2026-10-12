@@ -19,13 +19,15 @@ class ModelComparison:
         y,
         task: str,
         cv=5,
+        scoring: str | None = None,
     ) -> dict:
 
-        scoring = (
-            "f1_weighted"
-            if task == "classification"
-            else "r2"
-        )
+        if scoring is None:
+            scoring = (
+                "f1_weighted"
+                if task == "classification"
+                else "r2"
+            )
 
         scores = cross_val_score(
             estimator,
@@ -72,7 +74,17 @@ class ModelComparison:
                         "precision": result.precision,
                         "recall": result.recall,
                         "f1": result.f1_score,
+                        "precision_positive": (
+                            result.precision_positive
+                        ),
+                        "recall_positive": (
+                            result.recall_positive
+                        ),
+                        "f1_positive": (
+                            result.f1_positive
+                        ),
                         "roc_auc": result.roc_auc,
+                        "pr_auc": result.pr_auc,
                     }
                 )
 

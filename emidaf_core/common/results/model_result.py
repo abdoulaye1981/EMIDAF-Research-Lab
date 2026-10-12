@@ -100,6 +100,14 @@ class ModelResult(BaseResult):
 
     roc_auc: float | None = None
 
+    # Métriques spécifiques à la classe positive
+    # pour les problèmes de classification binaire.
+    precision_positive: float | None = None
+    recall_positive: float | None = None
+    f1_positive: float | None = None
+    pr_auc: float | None = None
+    positive_label: object | None = None
+
     mae: float | None = None
 
     mse: float | None = None

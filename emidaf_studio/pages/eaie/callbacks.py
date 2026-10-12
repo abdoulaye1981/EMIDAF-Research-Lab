@@ -117,6 +117,34 @@ def _target_related_features(
 
 
 # ============================================================
+# CLASSIFICATION PROTOCOL
+# ============================================================
+
+def _classification_protocol(
+    target,
+) -> dict:
+    """
+    Configuration scientifique spécifique aux cibles
+    de classification connues de l'étude.
+
+    Le cœur EAIE reste générique. Les choix propres à
+    l'étude sont déclarés explicitement dans Studio.
+    """
+
+    if str(target) == "difficulte_maths":
+
+        return {
+            "selection_metric": "f1",
+            "positive_label": 1,
+        }
+
+    return {
+        "selection_metric": None,
+        "positive_label": 1,
+    }
+
+
+# ============================================================
 # FEATURE ROLES
 # ============================================================
 
@@ -712,10 +740,26 @@ def run_eaie(
                 "",
             )
 
+        protocol = (
+            _classification_protocol(
+                target
+            )
+        )
+
         engine = EAIEEngine(
             test_size=float(test_size),
             random_state=42,
             cv=int(cv),
+            selection_metric=(
+                protocol[
+                    "selection_metric"
+                ]
+            ),
+            positive_label=(
+                protocol[
+                    "positive_label"
+                ]
+            ),
         )
 
         engine.run(
@@ -1245,6 +1289,12 @@ def run_eaie_block_comparison(
             else task
         )
 
+        protocol = (
+            _classification_protocol(
+                target
+            )
+        )
+
         engine = BlockComparisonEngine(
             test_size=float(
                 test_size
@@ -1252,6 +1302,16 @@ def run_eaie_block_comparison(
             random_state=42,
             cv=int(
                 cv
+            ),
+            selection_metric=(
+                protocol[
+                    "selection_metric"
+                ]
+            ),
+            positive_label=(
+                protocol[
+                    "positive_label"
+                ]
             ),
         )
 

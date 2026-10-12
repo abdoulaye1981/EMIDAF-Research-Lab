@@ -628,3 +628,168 @@ def test_block_comparison_classification_stratified_and_test_once(
         ]
         is True
     )
+
+
+def _classification_block_dataset():
+
+    from sklearn.datasets import (
+        make_classification,
+    )
+
+    X, y = make_classification(
+        n_samples=200,
+        n_features=8,
+        n_informative=6,
+        n_redundant=0,
+        weights=[
+            0.60,
+            0.40,
+        ],
+        random_state=42,
+    )
+
+    df = pd.DataFrame(
+        X,
+        columns=[
+            "x1",
+            "x2",
+            "x3",
+            "x4",
+            "x5",
+            "x6",
+            "x7",
+            "x8",
+        ],
+    )
+
+    df["target"] = y
+
+    blocks = FeatureBlocks.resolve(
+        predictors=[
+            "x1",
+            "x2",
+            "x3",
+            "x4",
+            "x5",
+            "x6",
+            "x7",
+            "x8",
+        ],
+        blocks={
+            "A": ["x1", "x2"],
+            "B": ["x3", "x4"],
+            "C": ["x5", "x6"],
+            "D": ["x7", "x8"],
+        },
+        target="target",
+        require_all=True,
+    )
+
+    return df, blocks
+
+
+def test_block_comparison_keeps_default_classification_metric():
+
+    df, blocks = (
+        _classification_block_dataset()
+    )
+
+    engine = BlockComparisonEngine(
+        test_size=0.20,
+        random_state=42,
+        cv=3,
+    )
+
+    result = engine.run(
+        df,
+        target="target",
+        blocks=blocks,
+        task="classification",
+        models=[
+            "logistic_regression",
+        ],
+    )
+
+    assert all(
+        item.cv_metric
+        == "f1_weighted"
+        for item
+        in result.performances
+    )
+
+    assert (
+        result.final_result
+        .metadata[
+            "selection_metric"
+        ]
+        == "f1_weighted"
+    )
+
+
+def test_block_comparison_uses_requested_f1_metric():
+
+    df, blocks = (
+        _classification_block_dataset()
+    )
+
+    engine = BlockComparisonEngine(
+        test_size=0.20,
+        random_state=42,
+        cv=3,
+        selection_metric="f1",
+        positive_label=1,
+    )
+
+    result = engine.run(
+        df,
+        target="target",
+        blocks=blocks,
+        task="classification",
+        models=[
+            "logistic_regression",
+        ],
+    )
+
+    assert all(
+        item.cv_metric == "f1"
+        for item
+        in result.performances
+    )
+
+    final = result.final_result
+
+    assert final is not None
+
+    assert (
+        final.metadata[
+            "selection_metric"
+        ]
+        == "f1"
+    )
+
+    assert (
+        final.metadata[
+            "positive_label"
+        ]
+        == 1
+    )
+
+    assert final.positive_label == 1
+
+    assert (
+        final.precision_positive
+        is not None
+    )
+
+    assert (
+        final.recall_positive
+        is not None
+    )
+
+    assert (
+        final.f1_positive
+        is not None
+    )
+
+    assert final.pr_auc is not None
+    assert final.roc_auc is not None

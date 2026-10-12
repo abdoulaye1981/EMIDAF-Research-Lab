@@ -294,6 +294,7 @@ def test_cross_validation_uses_training_set_only(
         y,
         task,
         cv=5,
+        scoring=None,
     ):
         observed_sizes.append(
             (
@@ -308,6 +309,7 @@ def test_cross_validation_uses_training_set_only(
             y,
             task=task,
             cv=cv,
+            scoring=scoring,
         )
 
     monkeypatch.setattr(

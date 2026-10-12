@@ -38,11 +38,15 @@ class EAIEEngine:
         test_size: float = 0.20,
         random_state: int = 42,
         cv: int = 5,
+        selection_metric: str | None = None,
+        positive_label=1,
     ):
 
         self.test_size = test_size
         self.random_state = random_state
         self.cv = cv
+        self.selection_metric = selection_metric
+        self.positive_label = positive_label
 
         self.task_ = None
         self.results_ = []
@@ -199,6 +203,7 @@ class EAIEEngine:
                     y_train,
                     task=detected_task,
                     cv=self.cv,
+                    scoring=self.selection_metric,
                 )
             )
 
@@ -280,6 +285,7 @@ class EAIEEngine:
                         y_train,
                         task=detected_task,
                         cv=self.cv,
+                        scoring=self.selection_metric,
                     )
                 )
 
@@ -370,6 +376,9 @@ class EAIEEngine:
                     train_size=len(
                         X_train
                     ),
+                    positive_label=(
+                        self.positive_label
+                    ),
                 )
             )
 
@@ -395,6 +404,21 @@ class EAIEEngine:
         # sont conservées dans le résultat final.
         final_result.metadata.update(
             selected_candidate.metadata
+        )
+
+
+        final_result.metadata.update(
+            {
+                "selection_metric": (
+                    self.selection_metric_
+                ),
+                "positive_label": (
+                    self.positive_label
+                    if detected_task
+                    == "classification"
+                    else None
+                ),
+            }
         )
 
         self.best_result_ = (
@@ -430,6 +454,15 @@ class EAIEEngine:
             "model_name": self.best_result_.model_name,
             "task": self.task_,
             "target": self.target_,
+            "selection_metric": (
+                self.selection_metric_
+            ),
+            "positive_label": (
+                self.positive_label
+                if self.task_
+                == "classification"
+                else None
+            ),
             "features": list(
                 self.feature_names_
             ),
@@ -627,6 +660,8 @@ class EAIE:
             "test_size",
             "random_state",
             "cv",
+            "selection_metric",
+            "positive_label",
         ):
             if key in kwargs:
                 engine_parameters[key] = (

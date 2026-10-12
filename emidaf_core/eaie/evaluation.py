@@ -9,6 +9,7 @@ import numpy as np
 
 from sklearn.metrics import (
     accuracy_score,
+    average_precision_score,
     classification_report,
     confusion_matrix,
     f1_score,
@@ -36,6 +37,7 @@ class ModelEvaluator:
         features: list[str],
         target: str,
         train_size: int,
+        positive_label=1,
     ) -> ModelResult:
 
         predictions = estimator.predict(
@@ -98,6 +100,54 @@ class ModelEvaluator:
         # seule en cas de classes déséquilibrées.
         result.score = result.f1_score
 
+
+        # -------------------------------------------------
+        # Métriques de la classe positive
+        # -------------------------------------------------
+
+        observed_classes = np.unique(
+            y_test
+        )
+
+        if (
+            len(observed_classes) == 2
+            and positive_label in observed_classes
+        ):
+
+            result.positive_label = (
+                positive_label
+            )
+
+            result.precision_positive = float(
+                precision_score(
+                    y_test,
+                    predictions,
+                    pos_label=positive_label,
+                    average="binary",
+                    zero_division=0,
+                )
+            )
+
+            result.recall_positive = float(
+                recall_score(
+                    y_test,
+                    predictions,
+                    pos_label=positive_label,
+                    average="binary",
+                    zero_division=0,
+                )
+            )
+
+            result.f1_positive = float(
+                f1_score(
+                    y_test,
+                    predictions,
+                    pos_label=positive_label,
+                    average="binary",
+                    zero_division=0,
+                )
+            )
+
         result.predictions = (
             np.asarray(predictions)
             .tolist()
@@ -144,12 +194,50 @@ class ModelEvaluator:
 
                 if len(classes) == 2:
 
-                    result.roc_auc = float(
-                        roc_auc_score(
-                            y_test,
-                            probabilities[:, 1],
+                    estimator_classes = list(
+                        getattr(
+                            estimator,
+                            "classes_",
+                            classes,
                         )
                     )
+
+                    if (
+                        positive_label
+                        in estimator_classes
+                    ):
+
+                        positive_index = (
+                            estimator_classes.index(
+                                positive_label
+                            )
+                        )
+
+                        positive_probabilities = (
+                            probabilities[
+                                :,
+                                positive_index
+                            ]
+                        )
+
+                        binary_target = (
+                            np.asarray(y_test)
+                            == positive_label
+                        ).astype(int)
+
+                        result.roc_auc = float(
+                            roc_auc_score(
+                                binary_target,
+                                positive_probabilities,
+                            )
+                        )
+
+                        result.pr_auc = float(
+                            average_precision_score(
+                                binary_target,
+                                positive_probabilities,
+                            )
+                        )
 
                 elif len(classes) > 2:
 
@@ -163,15 +251,49 @@ class ModelEvaluator:
                     )
 
                 try:
+                    estimator_classes = list(
+                        getattr(
+                            estimator,
+                            "classes_",
+                            np.unique(y_test),
+                        )
+                    )
+
+                    ordered_classes = sorted(
+                        estimator_classes
+                    )
+
+                    if (
+                        estimator_classes
+                        != ordered_classes
+                    ):
+
+                        column_order = [
+                            estimator_classes.index(
+                                label
+                            )
+                            for label
+                            in ordered_classes
+                        ]
+
+                        log_loss_probabilities = (
+                            probabilities[
+                                :,
+                                column_order
+                            ]
+                        )
+
+                    else:
+
+                        log_loss_probabilities = (
+                            probabilities
+                        )
+
                     result.log_loss = float(
                         log_loss(
                             y_test,
-                            probabilities,
-                            labels=getattr(
-                                estimator,
-                                "classes_",
-                                None,
-                            ),
+                            log_loss_probabilities,
+                            labels=ordered_classes,
                         )
                     )
                 except Exception:
