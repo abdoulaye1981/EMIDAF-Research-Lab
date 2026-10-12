@@ -107,6 +107,7 @@ def run_exaie(
 
         from emidaf_core.exaie import (
             EXAIEEngine,
+            FeatureImportanceAggregator,
             ShapExplainer,
         )
 
@@ -260,6 +261,122 @@ def run_exaie(
                 "tirer des conclusions métier fortes."
             )
 
+
+        # ==================================================
+        # VUES SCIENTIFIQUES AGREGEES
+        # ==================================================
+
+        original_features = list(
+            context.get(
+                "features",
+                [],
+            )
+        )
+
+        native_scientific = None
+
+        if (
+            native is not None
+            and not native.empty
+            and original_features
+        ):
+            native_scientific = (
+                FeatureImportanceAggregator
+                .global_importance(
+                    native,
+                    original_features=(
+                        original_features
+                    ),
+                )
+            )
+
+        local_scientific = None
+
+        if (
+            local.get("available")
+            and original_features
+        ):
+            local_scientific = (
+                FeatureImportanceAggregator
+                .local_contributions(
+                    local["contributions"],
+                    original_features=(
+                        original_features
+                    ),
+                )
+            )
+
+        shap_scientific = None
+
+        if (
+            shap_result is not None
+            and original_features
+        ):
+            shap_scientific = (
+                FeatureImportanceAggregator
+                .shap_importance(
+                    shap_result.feature_importance,
+                    original_features=(
+                        original_features
+                    ),
+                )
+            )
+
+        shap_local_scientific = None
+
+        if (
+            shap_selected_local is not None
+            and original_features
+        ):
+
+            raw_shap_local = (
+                shap_selected_local.get(
+                    "contributions",
+                    {},
+                )
+            )
+
+            scalar_shap_local = {
+                feature: value
+                for feature, value
+                in raw_shap_local.items()
+                if isinstance(
+                    value,
+                    (int, float),
+                )
+            }
+
+            # Régression et classification binaire :
+            # les contributions sont scalaires.
+            # En multiclasse, la vue technique est
+            # conservée tant qu'une classe explicative
+            # explicite n'a pas été sélectionnée.
+            if (
+                scalar_shap_local
+                and len(scalar_shap_local)
+                == len(raw_shap_local)
+            ):
+
+                shap_local_table = pd.DataFrame(
+                    {
+                        "feature": list(
+                            scalar_shap_local.keys()
+                        ),
+                        "contribution": list(
+                            scalar_shap_local.values()
+                        ),
+                    }
+                )
+
+                shap_local_scientific = (
+                    FeatureImportanceAggregator
+                    .local_contributions(
+                        shap_local_table,
+                        original_features=(
+                            original_features
+                        ),
+                    )
+                )
 
         # ==================================================
         # Persistance de session EXAIE
@@ -447,14 +564,43 @@ def run_exaie(
 
     native_view = [
         html.H5(
-            "Importance globale native"
+            "Importance globale — vue scientifique"
         ),
 
         html.P(
             (
-                "Importance extraite directement "
-                "du modèle lorsque cette information "
-                "est disponible."
+                "Les colonnes issues du prétraitement "
+                "sont regroupées selon leur variable "
+                "d'origine afin de faciliter "
+                "l'interprétation scientifique."
+            ),
+            className="text-muted",
+        ),
+
+        (
+            _table(
+                native_scientific
+            )
+            if native_scientific is not None
+            else dbc.Alert(
+                (
+                    "Vue scientifique agrégée "
+                    "non disponible."
+                ),
+                color="secondary",
+            )
+        ),
+
+        html.H5(
+            "Détail technique après prétraitement",
+            className="mt-4",
+        ),
+
+        html.P(
+            (
+                "Cette vue conserve les variables "
+                "transformées produites par le pipeline "
+                "et sert à l'audit technique."
             ),
             className="text-muted",
         ),
@@ -514,6 +660,30 @@ def run_exaie(
                     "du modèle linéaire."
                 ),
                 className="text-muted",
+            ),
+
+            html.H6(
+                "Vue scientifique agrégée",
+                className="mt-3",
+            ),
+
+            (
+                _table(
+                    local_scientific.head(20)
+                )
+                if local_scientific is not None
+                else dbc.Alert(
+                    (
+                        "Vue locale agrégée "
+                        "non disponible."
+                    ),
+                    color="secondary",
+                )
+            ),
+
+            html.H6(
+                "Détail technique après prétraitement",
+                className="mt-4",
             ),
 
             _table(
@@ -700,6 +870,29 @@ def run_exaie(
                 className="text-muted",
             ),
 
+            html.H6(
+                "Vue scientifique agrégée"
+            ),
+
+            (
+                _table(
+                    shap_scientific.head(30)
+                )
+                if shap_scientific is not None
+                else dbc.Alert(
+                    (
+                        "Vue SHAP agrégée "
+                        "non disponible."
+                    ),
+                    color="secondary",
+                )
+            ),
+
+            html.H6(
+                "Détail technique après prétraitement",
+                className="mt-4",
+            ),
+
             _table(
                 importance_df.head(30)
             ),
@@ -721,6 +914,34 @@ def run_exaie(
                     "négative agit dans le sens opposé."
                 ),
                 className="text-muted",
+            ),
+
+            html.H6(
+                "Vue scientifique agrégée",
+                className="mt-3",
+            ),
+
+            (
+                _table(
+                    shap_local_scientific.head(30)
+                )
+                if (
+                    shap_local_scientific
+                    is not None
+                )
+                else dbc.Alert(
+                    (
+                        "Vue SHAP locale agrégée "
+                        "non disponible pour cette "
+                        "configuration."
+                    ),
+                    color="secondary",
+                )
+            ),
+
+            html.H6(
+                "Détail technique après prétraitement",
+                className="mt-4",
             ),
 
             (

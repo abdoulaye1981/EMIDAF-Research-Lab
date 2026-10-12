@@ -16,6 +16,12 @@ from .engine import (
     EXAIE,
 )
 
+from .aggregation import (
+    FeatureImportanceAggregator,
+    aggregate_global_importance,
+    aggregate_local_contributions,
+)
+
 
 __all__ = [
     "GlobalImportance",
@@ -25,4 +31,7 @@ __all__ = [
     "Interpretation",
     "EXAIEEngine",
     "EXAIE",
+    "FeatureImportanceAggregator",
+    "aggregate_global_importance",
+    "aggregate_local_contributions",
 ]
