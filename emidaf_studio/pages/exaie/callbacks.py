@@ -265,7 +265,7 @@ def filter_local_observations(
 
     Input("exaie-run", "n_clicks"),
 
-    State("exaie-row", "value"),
+    Input("exaie-row", "value"),
     State("exaie-project-id", "data"),
     State("exaie-dataset-id", "data"),
 
