@@ -35,6 +35,8 @@ class EDSEEngine:
         cv_mean: float | None = None,
         test_score: float | None = None,
         better_than_baseline: bool | None = None,
+        observation_ids: list | None = None,
+        student_ids: list | None = None,
     ):
 
         if task not in {
@@ -49,6 +51,40 @@ class EDSEEngine:
         self.estimator = estimator
         self.X = X.copy()
         self.task = task
+
+        # --------------------------------------------------
+        # Traçabilité des observations
+        # --------------------------------------------------
+
+        self.observation_ids = (
+            list(observation_ids)
+            if observation_ids is not None
+            else list(self.X.index)
+        )
+
+        self.student_ids = (
+            list(student_ids)
+            if student_ids is not None
+            else None
+        )
+
+        if len(self.observation_ids) != len(self.X):
+            raise ValueError(
+                "Le nombre d'observation_ids doit "
+                "correspondre au nombre "
+                "d'observations."
+            )
+
+        if (
+            self.student_ids is not None
+            and len(self.student_ids)
+            != len(self.X)
+        ):
+            raise ValueError(
+                "Le nombre de student_ids doit "
+                "correspondre au nombre "
+                "d'observations."
+            )
 
         self.cv_mean = cv_mean
         self.test_score = test_score
@@ -150,12 +186,24 @@ class EDSEEngine:
                     self.X,
                     self.probabilities_,
                     self.predictions_,
+                    observation_ids=(
+                        self.observation_ids
+                    ),
+                    student_ids=(
+                        self.student_ids
+                    ),
                 )
             )
 
         return DecisionProfiles.regression(
             self.X,
             self.predictions_,
+            observation_ids=(
+                self.observation_ids
+            ),
+            student_ids=(
+                self.student_ids
+            ),
         )
 
     def scenario(
@@ -189,8 +237,15 @@ class EDSEEngine:
             table.insert(
                 0,
                 "observation",
-                list(self.X.index),
+                self.observation_ids,
             )
+
+            if self.student_ids is not None:
+                table.insert(
+                    1,
+                    "id_eleve",
+                    self.student_ids,
+                )
 
             summary = (
                 DecisionScenarios
@@ -222,8 +277,15 @@ class EDSEEngine:
             table.insert(
                 0,
                 "observation",
-                list(self.X.index),
+                self.observation_ids,
             )
+
+            if self.student_ids is not None:
+                table.insert(
+                    1,
+                    "id_eleve",
+                    self.student_ids,
+                )
 
             summary = (
                 DecisionScenarios

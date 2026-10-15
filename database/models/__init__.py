@@ -10,6 +10,8 @@ from .analysis_result_model import AnalysisResultModel
 from .project_model import ProjectModel
 from .workspace_model import WorkspaceModel
 from .user_model import UserModel
+from .teacher_validation_model import TeacherValidationModel
+
 
 __all__ = [
     "AnalysisResultModel",
@@ -17,4 +19,5 @@ __all__ = [
     "ProjectModel",
     "WorkspaceModel",
     "UserModel",
+    "TeacherValidationModel",
 ]

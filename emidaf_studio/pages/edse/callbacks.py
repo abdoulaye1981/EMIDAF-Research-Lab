@@ -2,6 +2,8 @@ from __future__ import annotations
 
 import logging
 
+from flask import session
+
 from dash import (
     Input,
     Output,
@@ -14,12 +16,33 @@ from dash import (
 import dash_bootstrap_components as dbc
 
 from emidaf_studio.services.model_registry import (
+    get_all_analyses,
     get_eaie_run,
     register_analysis,
 )
 
 
+from emidaf_core.assistant import (
+    AssistantService,
+    GeminiProvider,
+)
+
+
 logger = logging.getLogger(__name__)
+
+
+def _current_user_id() -> int | None:
+    # Utilisateur EMIDAF connecté.
+    value = session.get("user_id")
+
+    if value is None:
+        return None
+
+    try:
+        return int(value)
+
+    except (TypeError, ValueError):
+        return None
 
 
 def _table(dataframe):
@@ -128,6 +151,12 @@ def run_edse(
             better_than_baseline=context.get(
                 "better_than_baseline"
             ),
+            observation_ids=context.get(
+                "test_observation_ids"
+            ),
+            student_ids=context.get(
+                "test_student_ids"
+            ),
         )
 
         scenario = engine.scenario(
@@ -166,6 +195,12 @@ def run_edse(
                 "summary": summary,
                 "scenario": scenario,
                 "profiles": profiles,
+                "observation_ids": context.get(
+                    "test_observation_ids"
+                ),
+                "student_ids": context.get(
+                    "test_student_ids"
+                ),
             },
         )
 
@@ -469,4 +504,1920 @@ def run_edse(
         summary_view,
         scenario_view,
         profiles_view,
+    )
+
+
+
+# =========================================================
+# VALIDATION ENSEIGNANT
+# =========================================================
+
+
+@callback(
+    Output(
+        "edse-validation-observation",
+        "options",
+    ),
+    Output(
+        "edse-validation-observation",
+        "value",
+    ),
+
+    Input(
+        "edse-profiles",
+        "children",
+    ),
+
+    State(
+        "edse-project-id",
+        "data",
+    ),
+    State(
+        "edse-dataset-id",
+        "data",
+    ),
+
+    prevent_initial_call=True,
+)
+def load_teacher_validation_observations(
+    _profiles_children,
+    project_id,
+    dataset_id,
+):
+    """
+    Prépare la liste des observations pouvant être
+    validées par l'enseignant.
+    """
+
+    context = get_eaie_run(
+        project_id,
+        dataset_id,
+    )
+
+    if context is None:
+        return [], None
+
+    X_test = context.get(
+        "X_test"
+    )
+
+    if X_test is None:
+        return [], None
+
+    observation_ids = context.get(
+        "test_observation_ids"
+    )
+
+    student_ids = context.get(
+        "test_student_ids"
+    )
+
+    if observation_ids is None:
+        observation_ids = list(
+            X_test.index
+        )
+
+    if len(observation_ids) != len(X_test):
+        logger.error(
+            "EDSE validation : incohérence "
+            "observation_ids / X_test."
+        )
+        return [], None
+
+    options = []
+
+    for position, observation_id in enumerate(
+        observation_ids
+    ):
+
+        student_id = None
+
+        if (
+            student_ids is not None
+            and position < len(student_ids)
+        ):
+            student_id = student_ids[
+                position
+            ]
+
+        if student_id is not None:
+
+            label = (
+                f"Élève {student_id} "
+                f"— observation {observation_id}"
+            )
+
+        else:
+
+            label = (
+                f"Observation {observation_id}"
+            )
+
+        options.append(
+            {
+                "label": label,
+                "value": str(
+                    observation_id
+                ),
+            }
+        )
+
+    default_value = (
+        options[0]["value"]
+        if options
+        else None
+    )
+
+    return options, default_value
+
+
+@callback(
+    Output(
+        "edse-validation-algorithmic-result",
+        "children",
+    ),
+    Output(
+        "edse-validation-history",
+        "children",
+    ),
+
+    Input(
+        "edse-validation-observation",
+        "value",
+    ),
+
+    State(
+        "edse-project-id",
+        "data",
+    ),
+    State(
+        "edse-dataset-id",
+        "data",
+    ),
+)
+def show_teacher_validation_context(
+    observation_id,
+    project_id,
+    dataset_id,
+):
+
+    if observation_id is None:
+        return (
+            dbc.Alert(
+                "Sélectionnez une observation.",
+                color="secondary",
+            ),
+            "",
+        )
+
+    context = get_eaie_run(
+        project_id,
+        dataset_id,
+    )
+
+    if context is None:
+        return (
+            dbc.Alert(
+                "Contexte EAIE indisponible.",
+                color="warning",
+            ),
+            "",
+        )
+
+    X_test = context.get(
+        "X_test"
+    )
+
+    observation_ids = context.get(
+        "test_observation_ids"
+    )
+
+    student_ids = context.get(
+        "test_student_ids"
+    )
+
+    if X_test is None:
+        return (
+            dbc.Alert(
+                "Jeu de test indisponible.",
+                color="warning",
+            ),
+            "",
+        )
+
+    if observation_ids is None:
+        observation_ids = list(
+            X_test.index
+        )
+
+    observation_ids_str = [
+        str(value)
+        for value in observation_ids
+    ]
+
+    try:
+        position = (
+            observation_ids_str.index(
+                str(observation_id)
+            )
+        )
+    except ValueError:
+        return (
+            dbc.Alert(
+                "Observation introuvable.",
+                color="danger",
+            ),
+            "",
+        )
+
+    estimator = context.get(
+        "estimator"
+    )
+
+    if estimator is None:
+        return (
+            dbc.Alert(
+                "Modèle EAIE indisponible.",
+                color="warning",
+            ),
+            "",
+        )
+
+    row = X_test.iloc[
+        [position]
+    ]
+
+    try:
+        prediction = estimator.predict(
+            row
+        )[0]
+    except Exception:
+        logger.exception(
+            "Impossible de prédire l'observation "
+            "sélectionnée."
+        )
+
+        return (
+            dbc.Alert(
+                "Impossible de calculer la prédiction.",
+                color="danger",
+            ),
+            "",
+        )
+
+    probability = None
+
+    if hasattr(
+        estimator,
+        "predict_proba",
+    ):
+        try:
+            probabilities = (
+                estimator.predict_proba(
+                    row
+                )
+            )
+
+            if (
+                len(probabilities.shape) == 2
+                and probabilities.shape[1] >= 2
+            ):
+                probability = float(
+                    probabilities[0, 1]
+                )
+
+        except Exception:
+            logger.exception(
+                "Probabilité non disponible."
+            )
+
+    student_id = None
+
+    if (
+        student_ids is not None
+        and position < len(student_ids)
+    ):
+        student_id = student_ids[
+            position
+        ]
+
+    threshold = 0.50
+
+    edse_result = None
+
+    try:
+        from emidaf_studio.services.model_registry import (
+            get_analysis,
+        )
+
+        edse_result = get_analysis(
+            project_id,
+            dataset_id,
+            "edse",
+        )
+    except Exception:
+        edse_result = None
+
+    if isinstance(
+        edse_result,
+        dict,
+    ):
+        threshold = float(
+            edse_result.get(
+                "threshold",
+                0.50,
+            )
+        )
+
+    probability_text = (
+        f"{probability:.4f}"
+        if probability is not None
+        else "Non disponible"
+    )
+
+    card = dbc.Card(
+        dbc.CardBody(
+            [
+                html.H5(
+                    "Résultat algorithmique"
+                ),
+
+                html.P(
+                    [
+                        html.Strong(
+                            "Observation : "
+                        ),
+                        str(
+                            observation_id
+                        ),
+                    ]
+                ),
+
+                html.P(
+                    [
+                        html.Strong(
+                            "Élève : "
+                        ),
+                        (
+                            str(student_id)
+                            if student_id
+                            is not None
+                            else (
+                                "Non disponible"
+                            )
+                        ),
+                    ]
+                ),
+
+                html.P(
+                    [
+                        html.Strong(
+                            "Modèle : "
+                        ),
+                        str(
+                            context.get(
+                                "model_name",
+                                "Non disponible",
+                            )
+                        ),
+                    ]
+                ),
+
+                html.P(
+                    [
+                        html.Strong(
+                            "Cible : "
+                        ),
+                        str(
+                            context.get(
+                                "target",
+                                "Non disponible",
+                            )
+                        ),
+                    ]
+                ),
+
+                html.P(
+                    [
+                        html.Strong(
+                            "Prédiction : "
+                        ),
+                        str(
+                            prediction
+                        ),
+                    ]
+                ),
+
+                html.P(
+                    [
+                        html.Strong(
+                            "Probabilité : "
+                        ),
+                        probability_text,
+                    ]
+                ),
+
+                html.P(
+                    [
+                        html.Strong(
+                            "Seuil EDSE : "
+                        ),
+                        f"{threshold:.2f}",
+                    ]
+                ),
+
+                dbc.Alert(
+                    (
+                        "Cette sortie constitue une "
+                        "proposition algorithmique. "
+                        "La validation humaine est "
+                        "enregistrée séparément."
+                    ),
+                    color="info",
+                ),
+            ]
+        )
+    )
+
+    # ---------------------------------------------
+    # Historique
+    # ---------------------------------------------
+
+    try:
+        from emidaf_core.bootstrap.bootstrap import (
+            Bootstrap,
+        )
+
+        bootstrap = Bootstrap()
+        bootstrap.initialize()
+
+        validations = (
+            bootstrap
+            .teacher_validation_controller
+            .get_for_observation(
+                int(project_id),
+                int(dataset_id),
+                str(observation_id),
+            )
+        )
+
+    except Exception:
+        logger.exception(
+            "Lecture historique validation impossible."
+        )
+        validations = []
+
+    if not validations:
+
+        history = dbc.Alert(
+            (
+                "Aucune validation humaine "
+                "enregistrée pour cette observation."
+            ),
+            color="secondary",
+        )
+
+    else:
+
+        rows = []
+
+        for validation in validations:
+
+            rows.append(
+                {
+                    "Date": str(
+                        validation.created_at
+                    ),
+                    "Classe enseignant": (
+                        validation
+                        .teacher_detected_class
+                        or ""
+                    ),
+                    "Classe enseignant": (
+                        validation
+                        .teacher_detected_class
+                        or ""
+                    ),
+                    "Classe enseignant": (
+                        validation
+                        .teacher_detected_class
+                        or ""
+                    ),
+                    "Détection": (
+                        validation
+                        .detection_validation
+                    ),
+                    "Diagnostic": (
+                        validation
+                        .diagnosis_validation
+                    ),
+                    "Niveau": (
+                        validation
+                        .difficulty_level
+                        or ""
+                    ),
+                    "Commentaire": (
+                        validation
+                        .teacher_comment
+                        or ""
+                    ),
+                }
+            )
+
+        import pandas as pd
+
+        history = _table(
+            pd.DataFrame(
+                rows
+            )
+        )
+
+    return card, history
+
+
+@callback(
+    Output(
+        "edse-validation-status",
+        "children",
+    ),
+    Output(
+        "edse-validation-history",
+        "children",
+        allow_duplicate=True,
+    ),
+
+    Input(
+        "edse-validation-save",
+        "n_clicks",
+    ),
+
+    State(
+        "edse-validation-observation",
+        "value",
+    ),
+    State(
+        "edse-validation-detection",
+        "value",
+    ),
+    State(
+        "edse-validation-diagnosis",
+        "value",
+    ),
+    State(
+        "edse-validation-teacher-class",
+        "value",
+    ),
+    State(
+        "edse-validation-difficulty",
+        "value",
+    ),
+    State(
+        "edse-validation-factors",
+        "value",
+    ),
+    State(
+        "edse-validation-comment",
+        "value",
+    ),
+    State(
+        "edse-project-id",
+        "data",
+    ),
+    State(
+        "edse-dataset-id",
+        "data",
+    ),
+
+    prevent_initial_call=True,
+)
+def save_teacher_validation(
+    n_clicks,
+    observation_id,
+    detection_validation,
+    diagnosis_validation,
+    teacher_detected_class,
+    difficulty_level,
+    factors,
+    comment,
+    project_id,
+    dataset_id,
+):
+
+    if not n_clicks:
+        return no_update, no_update
+
+    if observation_id is None:
+
+        return (
+            dbc.Alert(
+                "Sélectionnez une observation.",
+                color="warning",
+            ),
+            no_update,
+        )
+
+    if detection_validation is None:
+
+        return (
+            dbc.Alert(
+                (
+                    "La validation de la détection "
+                    "est obligatoire."
+                ),
+                color="warning",
+            ),
+            no_update,
+        )
+
+    if diagnosis_validation is None:
+
+        return (
+            dbc.Alert(
+                (
+                    "La validation du diagnostic "
+                    "est obligatoire."
+                ),
+                color="warning",
+            ),
+            no_update,
+        )
+
+
+    if teacher_detected_class is None:
+
+        return (
+            dbc.Alert(
+                (
+                    "Le jugement indépendant de l'enseignant "
+                    "sur la présence ou non d'une difficulté "
+                    "est obligatoire."
+                ),
+                color="warning",
+            ),
+            no_update,
+        )
+
+    validator_user_id = (
+        _current_user_id()
+    )
+
+    if validator_user_id is None:
+
+        return (
+            dbc.Alert(
+                (
+                    "Aucun utilisateur connecté. "
+                    "La validation ne peut pas "
+                    "être enregistrée."
+                ),
+                color="danger",
+            ),
+            no_update,
+        )
+
+    context = get_eaie_run(
+        project_id,
+        dataset_id,
+    )
+
+    if context is None:
+
+        return (
+            dbc.Alert(
+                "Contexte EAIE indisponible.",
+                color="danger",
+            ),
+            no_update,
+        )
+
+    X_test = context.get(
+        "X_test"
+    )
+
+    observation_ids = context.get(
+        "test_observation_ids"
+    )
+
+    student_ids = context.get(
+        "test_student_ids"
+    )
+
+    if X_test is None:
+
+        return (
+            dbc.Alert(
+                "Jeu de test indisponible.",
+                color="danger",
+            ),
+            no_update,
+        )
+
+    if observation_ids is None:
+        observation_ids = list(
+            X_test.index
+        )
+
+    observation_ids_str = [
+        str(value)
+        for value in observation_ids
+    ]
+
+    try:
+        position = (
+            observation_ids_str.index(
+                str(observation_id)
+            )
+        )
+    except ValueError:
+
+        return (
+            dbc.Alert(
+                "Observation introuvable.",
+                color="danger",
+            ),
+            no_update,
+        )
+
+    row = X_test.iloc[
+        [position]
+    ]
+
+    estimator = context.get(
+        "estimator"
+    )
+
+    try:
+        prediction = estimator.predict(
+            row
+        )[0]
+
+    except Exception:
+
+        logger.exception(
+            "Prédiction impossible lors "
+            "de la validation enseignant."
+        )
+
+        return (
+            dbc.Alert(
+                "Impossible de récupérer "
+                "la prédiction.",
+                color="danger",
+            ),
+            no_update,
+        )
+
+    probability = None
+
+    if hasattr(
+        estimator,
+        "predict_proba",
+    ):
+
+        try:
+            probabilities = (
+                estimator.predict_proba(
+                    row
+                )
+            )
+
+            if (
+                len(probabilities.shape) == 2
+                and probabilities.shape[1] >= 2
+            ):
+                probability = float(
+                    probabilities[0, 1]
+                )
+
+        except Exception:
+            logger.exception(
+                "Probabilité non disponible "
+                "pendant la validation."
+            )
+
+    student_id = None
+
+    if (
+        student_ids is not None
+        and position < len(student_ids)
+    ):
+        student_id = student_ids[
+            position
+        ]
+
+    threshold = 0.50
+
+    try:
+        from emidaf_studio.services.model_registry import (
+            get_analysis,
+        )
+
+        edse_result = get_analysis(
+            project_id,
+            dataset_id,
+            "edse",
+        )
+
+        if isinstance(
+            edse_result,
+            dict,
+        ):
+            threshold = float(
+                edse_result.get(
+                    "threshold",
+                    0.50,
+                )
+            )
+
+    except Exception:
+        pass
+
+    algorithmic_diagnosis = {
+        "observation_id": str(
+            observation_id
+        ),
+        "student_id": (
+            str(student_id)
+            if student_id is not None
+            else None
+        ),
+        "prediction": str(
+            prediction
+        ),
+        "probability": probability,
+        "threshold": threshold,
+        "model_name": context.get(
+            "model_name"
+        ),
+        "target": context.get(
+            "target"
+        ),
+        "positive_label": context.get(
+            "positive_label"
+        ),
+    }
+
+    try:
+        from emidaf_core.bootstrap.bootstrap import (
+            Bootstrap,
+        )
+
+        bootstrap = Bootstrap()
+        bootstrap.initialize()
+
+        validation = (
+            bootstrap
+            .teacher_validation_controller
+            .create(
+                project_id=int(
+                    project_id
+                ),
+                dataset_id=int(
+                    dataset_id
+                ),
+                observation_id=str(
+                    observation_id
+                ),
+                student_id=(
+                    str(student_id)
+                    if student_id is not None
+                    else None
+                ),
+                validator_user_id=(
+                    validator_user_id
+                ),
+                model_name=str(
+                    context.get(
+                        "model_name",
+                        "unknown",
+                    )
+                ),
+                task=str(
+                    context.get(
+                        "task",
+                        "classification",
+                    )
+                ),
+                target=context.get(
+                    "target"
+                ),
+                threshold=threshold,
+                predicted_class=str(
+                    prediction
+                ),
+                predicted_probability=(
+                    probability
+                ),
+                teacher_detected_class=(
+                    teacher_detected_class
+                ),
+                detection_validation=(
+                    detection_validation
+                ),
+                diagnosis_validation=(
+                    diagnosis_validation
+                ),
+                difficulty_level=(
+                    difficulty_level
+                ),
+                teacher_factors=(
+                    factors or []
+                ),
+                teacher_comment=(
+                    comment
+                ),
+                algorithmic_diagnosis=(
+                    algorithmic_diagnosis
+                ),
+            )
+        )
+
+        validations = (
+            bootstrap
+            .teacher_validation_controller
+            .get_for_observation(
+                int(project_id),
+                int(dataset_id),
+                str(observation_id),
+            )
+        )
+
+    except Exception as exc:
+
+        logger.exception(
+            "Enregistrement validation "
+            "enseignant impossible."
+        )
+
+        return (
+            dbc.Alert(
+                (
+                    "La validation n'a pas pu "
+                    f"être enregistrée : {exc}"
+                ),
+                color="danger",
+            ),
+            no_update,
+        )
+
+    rows = []
+
+    for item in validations:
+
+        rows.append(
+            {
+                "Date": str(
+                    item.created_at
+                ),
+                "Classe enseignant": (
+                    item.teacher_detected_class
+                    or ""
+                ),
+                "Classe enseignant": (
+                    item.teacher_detected_class
+                    or ""
+                ),
+                "Classe enseignant": (
+                    item.teacher_detected_class
+                    or ""
+                ),
+                "Détection": (
+                    item.detection_validation
+                ),
+                "Diagnostic": (
+                    item.diagnosis_validation
+                ),
+                "Niveau": (
+                    item.difficulty_level
+                    or ""
+                ),
+                "Commentaire": (
+                    item.teacher_comment
+                    or ""
+                ),
+            }
+        )
+
+    import pandas as pd
+
+    history = _table(
+        pd.DataFrame(
+            rows
+        )
+    )
+
+    return (
+        dbc.Alert(
+            (
+                "Validation enregistrée avec "
+                f"succès — identifiant "
+                f"{validation.id}."
+            ),
+            color="success",
+        ),
+        history,
+    )
+
+
+
+# =========================================================
+# TABLEAU DE BORD D'ACCORD ENSEIGNANT - EMIDAF
+# =========================================================
+
+
+def _algorithmic_detection_class(validation):
+    """
+    Convertit la prédiction persistée en classe métier
+    difficulty / no_difficulty.
+
+    La positive_label sauvegardée lors de la validation
+    est prioritaire.
+    """
+
+    predicted = validation.predicted_class
+
+    if predicted is None:
+        return None
+
+    predicted_str = str(
+        predicted
+    ).strip()
+
+    diagnosis = (
+        validation.algorithmic_diagnosis
+        if isinstance(
+            validation.algorithmic_diagnosis,
+            dict,
+        )
+        else {}
+    )
+
+    positive_label = diagnosis.get(
+        "positive_label"
+    )
+
+    if positive_label is not None:
+
+        return (
+            "difficulty"
+            if predicted_str
+            == str(positive_label).strip()
+            else "no_difficulty"
+        )
+
+    # Compatibilité avec les validations créées
+    # avant l'enregistrement de positive_label.
+    if predicted_str in {
+        "1",
+        "1.0",
+        "True",
+        "true",
+        "difficulty",
+    }:
+        return "difficulty"
+
+    if predicted_str in {
+        "0",
+        "0.0",
+        "False",
+        "false",
+        "no_difficulty",
+    }:
+        return "no_difficulty"
+
+    return None
+
+
+@callback(
+    Output(
+        "edse-validation-metrics",
+        "children",
+    ),
+
+    Input(
+        "edse-validation-observation",
+        "value",
+    ),
+    Input(
+        "edse-validation-save",
+        "n_clicks",
+    ),
+
+    State(
+        "edse-project-id",
+        "data",
+    ),
+    State(
+        "edse-dataset-id",
+        "data",
+    ),
+)
+def update_teacher_agreement_dashboard(
+    _observation_id,
+    _n_clicks,
+    project_id,
+    dataset_id,
+):
+    """
+    Calcule l'accord entre la détection EMIDAF
+    et le jugement indépendant de l'enseignant.
+
+    Une seule validation est retenue par observation :
+    la validation la plus récente.
+    """
+
+    if (
+        project_id is None
+        or dataset_id is None
+    ):
+
+        return dbc.Alert(
+            "Projet ou jeu de données indisponible.",
+            color="secondary",
+        )
+
+    try:
+        from emidaf_core.bootstrap.bootstrap import (
+            Bootstrap,
+        )
+
+        bootstrap = Bootstrap()
+        bootstrap.initialize()
+
+        validations = (
+            bootstrap
+            .teacher_validation_controller
+            .get_for_dataset(
+                int(project_id),
+                int(dataset_id),
+            )
+        )
+
+    except Exception:
+
+        logger.exception(
+            "Impossible de charger les validations "
+            "pour les indicateurs d'accord."
+        )
+
+        return dbc.Alert(
+            "Indicateurs d'accord indisponibles.",
+            color="warning",
+        )
+
+    if not validations:
+
+        return dbc.Alert(
+            (
+                "Aucune validation humaine disponible. "
+                "Les indicateurs d'accord apparaîtront "
+                "après les premières validations."
+            ),
+            color="secondary",
+        )
+
+    # -----------------------------------------------------
+    # Une validation la plus récente par observation
+    # -----------------------------------------------------
+
+    latest = {}
+
+    for validation in validations:
+
+        key = str(
+            validation.observation_id
+        )
+
+        current = latest.get(
+            key
+        )
+
+        if (
+            current is None
+            or validation.created_at
+            > current.created_at
+        ):
+            latest[key] = validation
+
+    latest_values = list(
+        latest.values()
+    )
+
+    # -----------------------------------------------------
+    # Statistiques de validation déclarée
+    # -----------------------------------------------------
+
+    total = len(
+        latest_values
+    )
+
+    confirmed = sum(
+        1
+        for value in latest_values
+        if value.detection_validation
+        == "confirmed"
+    )
+
+    partially_confirmed = sum(
+        1
+        for value in latest_values
+        if value.detection_validation
+        == "partially_confirmed"
+    )
+
+    declared_disagreement = sum(
+        1
+        for value in latest_values
+        if value.detection_validation
+        == "not_confirmed"
+    )
+
+    # -----------------------------------------------------
+    # Paires indépendantes humain / machine
+    # -----------------------------------------------------
+
+    machine_labels = []
+    human_labels = []
+
+    for validation in latest_values:
+
+        human = (
+            validation.teacher_detected_class
+        )
+
+        if human not in {
+            "difficulty",
+            "no_difficulty",
+        }:
+            continue
+
+        machine = (
+            _algorithmic_detection_class(
+                validation
+            )
+        )
+
+        if machine not in {
+            "difficulty",
+            "no_difficulty",
+        }:
+            continue
+
+        human_labels.append(
+            human
+        )
+
+        machine_labels.append(
+            machine
+        )
+
+    n_evaluable = len(
+        human_labels
+    )
+
+    n_not_evaluable = (
+        total - n_evaluable
+    )
+
+    agreement_rate = None
+    kappa = None
+
+    tn = fp = fn = tp = 0
+
+    if n_evaluable > 0:
+
+        agreements = sum(
+            machine == human
+            for machine, human in zip(
+                machine_labels,
+                human_labels,
+            )
+        )
+
+        agreement_rate = (
+            agreements
+            / n_evaluable
+        )
+
+        try:
+            from sklearn.metrics import (
+                cohen_kappa_score,
+                confusion_matrix,
+            )
+
+            matrix = confusion_matrix(
+                human_labels,
+                machine_labels,
+                labels=[
+                    "no_difficulty",
+                    "difficulty",
+                ],
+            )
+
+            (
+                (
+                    tn,
+                    fp,
+                ),
+                (
+                    fn,
+                    tp,
+                ),
+            ) = matrix.tolist()
+
+            kappa_value = (
+                cohen_kappa_score(
+                    human_labels,
+                    machine_labels,
+                )
+            )
+
+            if (
+                kappa_value
+                == kappa_value
+            ):
+                kappa = float(
+                    kappa_value
+                )
+
+        except Exception:
+
+            logger.exception(
+                "Calcul des métriques d'accord "
+                "impossible."
+            )
+
+    # -----------------------------------------------------
+    # Présentation
+    # -----------------------------------------------------
+
+    agreement_text = (
+        f"{agreement_rate * 100:.1f} %"
+        if agreement_rate is not None
+        else "Non calculable"
+    )
+
+    kappa_text = (
+        f"{kappa:.3f}"
+        if kappa is not None
+        else "Non calculable"
+    )
+
+    confirmation_rate = (
+        confirmed / total
+        if total
+        else 0.0
+    )
+
+    partial_rate = (
+        partially_confirmed / total
+        if total
+        else 0.0
+    )
+
+    disagreement_rate = (
+        declared_disagreement / total
+        if total
+        else 0.0
+    )
+
+    cards = dbc.Row(
+        [
+            dbc.Col(
+                dbc.Card(
+                    dbc.CardBody(
+                        [
+                            html.Small(
+                                "Validations"
+                            ),
+                            html.H4(
+                                str(total)
+                            ),
+                        ]
+                    )
+                ),
+                md=3,
+            ),
+
+            dbc.Col(
+                dbc.Card(
+                    dbc.CardBody(
+                        [
+                            html.Small(
+                                "Accord humain-machine"
+                            ),
+                            html.H4(
+                                agreement_text
+                            ),
+                        ]
+                    )
+                ),
+                md=3,
+            ),
+
+            dbc.Col(
+                dbc.Card(
+                    dbc.CardBody(
+                        [
+                            html.Small(
+                                "Cohen κ"
+                            ),
+                            html.H4(
+                                kappa_text
+                            ),
+                        ]
+                    )
+                ),
+                md=3,
+            ),
+
+            dbc.Col(
+                dbc.Card(
+                    dbc.CardBody(
+                        [
+                            html.Small(
+                                "Paires évaluables"
+                            ),
+                            html.H4(
+                                str(
+                                    n_evaluable
+                                )
+                            ),
+                        ]
+                    )
+                ),
+                md=3,
+            ),
+        ],
+        className="g-3 mb-3",
+    )
+
+    declared_table = dbc.Table(
+        [
+            html.Thead(
+                html.Tr(
+                    [
+                        html.Th(
+                            "Appréciation"
+                        ),
+                        html.Th(
+                            "Nombre"
+                        ),
+                        html.Th(
+                            "Taux"
+                        ),
+                    ]
+                )
+            ),
+
+            html.Tbody(
+                [
+                    html.Tr(
+                        [
+                            html.Td(
+                                "Confirmée"
+                            ),
+                            html.Td(
+                                confirmed
+                            ),
+                            html.Td(
+                                f"{confirmation_rate * 100:.1f} %"
+                            ),
+                        ]
+                    ),
+
+                    html.Tr(
+                        [
+                            html.Td(
+                                "Partiellement confirmée"
+                            ),
+                            html.Td(
+                                partially_confirmed
+                            ),
+                            html.Td(
+                                f"{partial_rate * 100:.1f} %"
+                            ),
+                        ]
+                    ),
+
+                    html.Tr(
+                        [
+                            html.Td(
+                                "Non confirmée"
+                            ),
+                            html.Td(
+                                declared_disagreement
+                            ),
+                            html.Td(
+                                f"{disagreement_rate * 100:.1f} %"
+                            ),
+                        ]
+                    ),
+
+                    html.Tr(
+                        [
+                            html.Td(
+                                "Non évaluables pour "
+                                "l'accord binaire"
+                            ),
+                            html.Td(
+                                n_not_evaluable
+                            ),
+                            html.Td(
+                                (
+                                    f"{n_not_evaluable / total * 100:.1f} %"
+                                    if total
+                                    else "0.0 %"
+                                )
+                            ),
+                        ]
+                    ),
+                ]
+            ),
+        ],
+        bordered=True,
+        striped=True,
+        hover=True,
+        responsive=True,
+        size="sm",
+    )
+
+    confusion = dbc.Table(
+        [
+            html.Thead(
+                [
+                    html.Tr(
+                        [
+                            html.Th(
+                                ""
+                            ),
+                            html.Th(
+                                "EMIDAF : "
+                                "pas de difficulté"
+                            ),
+                            html.Th(
+                                "EMIDAF : "
+                                "difficulté"
+                            ),
+                        ]
+                    )
+                ]
+            ),
+
+            html.Tbody(
+                [
+                    html.Tr(
+                        [
+                            html.Th(
+                                "Enseignant : "
+                                "pas de difficulté"
+                            ),
+                            html.Td(
+                                tn
+                            ),
+                            html.Td(
+                                fp
+                            ),
+                        ]
+                    ),
+
+                    html.Tr(
+                        [
+                            html.Th(
+                                "Enseignant : "
+                                "difficulté"
+                            ),
+                            html.Td(
+                                fn
+                            ),
+                            html.Td(
+                                tp
+                            ),
+                        ]
+                    ),
+                ]
+            ),
+        ],
+        bordered=True,
+        responsive=True,
+        size="sm",
+    )
+
+    methodological_note = dbc.Alert(
+        (
+            "Les indicateurs sont calculés uniquement "
+            "sur les observations pour lesquelles "
+            "l'enseignant fournit un jugement binaire "
+            "indépendant. Pour chaque observation, "
+            "seule la validation la plus récente est "
+            "retenue. Le κ de Cohen n'est pas interprété "
+            "comme une mesure de causalité."
+        ),
+        color="light",
+    )
+
+    return html.Div(
+        [
+            html.H5(
+                "Accord enseignant – EMIDAF"
+            ),
+            cards,
+
+            dbc.Row(
+                [
+                    dbc.Col(
+                        [
+                            html.H6(
+                                "Validation déclarée"
+                            ),
+                            declared_table,
+                        ],
+                        md=6,
+                    ),
+
+                    dbc.Col(
+                        [
+                            html.H6(
+                                "Matrice de confusion"
+                            ),
+                            confusion,
+                        ],
+                        md=6,
+                    ),
+                ],
+                className="g-3",
+            ),
+
+            methodological_note,
+        ]
+    )
+
+
+# ==========================================================
+# ASSISTANT CONTEXTUEL EMIDAF
+# ==========================================================
+
+@callback(
+    Output(
+        "edse-assistant-status",
+        "children",
+    ),
+    Output(
+        "edse-assistant-response",
+        "children",
+    ),
+    Input(
+        "edse-assistant-run",
+        "n_clicks",
+    ),
+    State(
+        "edse-assistant-question",
+        "value",
+    ),
+    State(
+        "edse-assistant-level",
+        "value",
+    ),
+    State(
+        "edse-assistant-scope",
+        "value",
+    ),
+    State(
+        "edse-project-id",
+        "data",
+    ),
+    State(
+        "edse-dataset-id",
+        "data",
+    ),
+    prevent_initial_call=True,
+)
+def run_contextual_assistant(
+    n_clicks,
+    question,
+    level,
+    scope,
+    project_id,
+    dataset_id,
+):
+
+    if not n_clicks:
+        return (
+            no_update,
+            no_update,
+        )
+
+    if (
+        not question
+        or not str(question).strip()
+    ):
+        return (
+            dbc.Alert(
+                "Veuillez saisir une question.",
+                color="warning",
+            ),
+            no_update,
+        )
+
+    try:
+        analyses = get_all_analyses(
+            project_id,
+            dataset_id,
+        )
+
+    except Exception as exc:
+        logger.exception(
+            "Impossible de charger les analyses "
+            "pour l'assistant contextuel."
+        )
+
+        return (
+            dbc.Alert(
+                (
+                    "Impossible de charger les "
+                    f"résultats EMIDAF : {exc}"
+                ),
+                color="danger",
+            ),
+            no_update,
+        )
+
+    if not analyses:
+        return (
+            dbc.Alert(
+                (
+                    "Aucun résultat analytique "
+                    "persisté n'est disponible."
+                ),
+                color="warning",
+            ),
+            no_update,
+        )
+
+    scope = (
+        scope
+        or "all"
+    )
+
+    if scope == "all":
+        selected_analyses = analyses
+
+    elif scope == "teacher_validation":
+
+        selected_analyses = {
+            key: value
+            for key, value in analyses.items()
+            if key in {
+                "edse",
+                "teacher_validation",
+                "teacher_validations",
+            }
+        }
+
+        if not selected_analyses:
+            selected_analyses = {
+                "edse": analyses.get(
+                    "edse"
+                )
+            }
+
+    else:
+        selected_analyses = {
+            scope: analyses.get(
+                scope
+            )
+        }
+
+    selected_analyses = {
+        key: value
+        for key, value
+        in selected_analyses.items()
+        if value is not None
+    }
+
+    if not selected_analyses:
+        return (
+            dbc.Alert(
+                (
+                    "Aucun résultat n'est disponible "
+                    "pour le périmètre sélectionné."
+                ),
+                color="warning",
+            ),
+            no_update,
+        )
+
+    provider = GeminiProvider()
+
+    if not provider.available():
+        return (
+            dbc.Alert(
+                (
+                    "Gemini n'est pas configuré. "
+                    "Les résultats EMIDAF restent "
+                    "disponibles normalement."
+                ),
+                color="secondary",
+            ),
+            no_update,
+        )
+
+    service = AssistantService(
+        provider
+    )
+
+    contextual_question = (
+        "PÉRIMÈTRE DEMANDÉ : "
+        f"{scope}\n\n"
+        "RÈGLES DE RÉPONSE :\n"
+        "- Observe les résultats présents.\n"
+        "- Explique leur signification.\n"
+        "- Interprète uniquement ce qui est "
+        "soutenu par les résultats.\n"
+        "- Mets en relation les résultats "
+        "disponibles lorsque c'est pertinent.\n"
+        "- Formule une conclusion prudente.\n"
+        "- Présente les limites et précautions.\n"
+        "- Ne calcule aucune nouvelle valeur.\n"
+        "- N'invente aucun résultat.\n"
+        "- Ne modifie aucune valeur.\n"
+        "- Ne déduis aucune causalité non démontrée.\n"
+        "- Distingue résultat algorithmique, "
+        "explicabilité, aide à la décision et "
+        "validation humaine.\n\n"
+        "QUESTION :\n"
+        + str(question).strip()
+    )
+
+    try:
+        response = service.explain(
+            analyses=selected_analyses,
+            question=contextual_question,
+            level=(
+                level
+                or "intermediate"
+            ),
+        )
+
+    except Exception as exc:
+
+        logger.exception(
+            "Erreur Assistant contextuel EMIDAF."
+        )
+
+        error_text = str(exc)
+
+        if (
+            "PERMISSION_DENIED"
+            in error_text
+            or "403"
+            in error_text
+        ):
+            message = (
+                "Gemini est actuellement inaccessible "
+                "pour ce projet Google. "
+                "EMIDAF et ses résultats ne sont "
+                "pas affectés."
+            )
+
+        elif (
+            "API_KEY_INVALID"
+            in error_text
+            or "API key not valid"
+            in error_text
+        ):
+            message = (
+                "La clé Gemini configurée n'est "
+                "pas acceptée par Google. "
+                "EMIDAF continue de fonctionner "
+                "sans l'assistant."
+            )
+
+        else:
+            message = (
+                "L'assistant contextuel est "
+                "temporairement indisponible. "
+                "Les résultats EMIDAF restent "
+                "inchangés."
+            )
+
+        return (
+            dbc.Alert(
+                message,
+                color="warning",
+            ),
+            no_update,
+        )
+
+    return (
+        dbc.Alert(
+            (
+                "Interprétation générée à partir "
+                "des résultats EMIDAF disponibles. "
+                "Aucun recalcul scientifique "
+                "n'a été demandé au modèle."
+            ),
+            color="success",
+        ),
+        response,
     )

@@ -739,6 +739,593 @@ def edse_layout(project_id, dataset_id):
                                 label="Profils",
                                 tab_id="edse-tab-profiles",
                             ),
+
+                            dbc.Tab(
+                                html.Div(
+                                    [
+                                        html.Div(
+                                            [
+                                                html.Div(
+                                                    "VALIDATION HUMAINE",
+                                                    className=(
+                                                        "edse-v2-section-kicker"
+                                                    ),
+                                                ),
+
+                                                html.H4(
+                                                    (
+                                                        "Validation "
+                                                        "enseignant"
+                                                    ),
+                                                    className=(
+                                                        "edse-v2-section-title"
+                                                    ),
+                                                ),
+
+                                                html.P(
+                                                    (
+                                                        "Cette étape permet "
+                                                        "de confronter le "
+                                                        "résultat produit "
+                                                        "par EMIDAF à "
+                                                        "l'expertise de "
+                                                        "l'enseignant. "
+                                                        "Elle ne modifie "
+                                                        "jamais la "
+                                                        "prédiction "
+                                                        "algorithmique."
+                                                    ),
+                                                    className=(
+                                                        "edse-v2-section-subtitle"
+                                                    ),
+                                                ),
+                                            ],
+                                            className=(
+                                                "edse-v2-section-heading"
+                                            ),
+                                        ),
+
+                                        dbc.Alert(
+                                            (
+                                                "Sélectionnez d'abord "
+                                                "un élève parmi les "
+                                                "profils calculés."
+                                            ),
+                                            color="info",
+                                            id=(
+                                                "edse-validation-help"
+                                            ),
+                                        ),
+
+                                        html.Div(
+                                            id=(
+                                                "edse-validation-metrics"
+                                            ),
+                                            className="mb-4",
+                                        ),
+
+                                        html.Div(
+                                            [
+                                                dbc.Label(
+                                                    "Élève / observation",
+                                                    html_for=(
+                                                        "edse-validation-"
+                                                        "observation"
+                                                    ),
+                                                    className=(
+                                                        "edse-v2-label"
+                                                    ),
+                                                ),
+
+                                                dcc.Dropdown(
+                                                    id=(
+                                                        "edse-validation-"
+                                                        "observation"
+                                                    ),
+                                                    options=[],
+                                                    value=None,
+                                                    clearable=True,
+                                                    placeholder=(
+                                                        "Sélectionner "
+                                                        "un élève"
+                                                    ),
+                                                    className=(
+                                                        "edse-v2-dropdown"
+                                                    ),
+                                                ),
+                                            ],
+                                            className=(
+                                                "edse-v2-field mb-4"
+                                            ),
+                                        ),
+
+                                        html.Div(
+                                            id=(
+                                                "edse-validation-"
+                                                "algorithmic-result"
+                                            ),
+                                            className="mb-4",
+                                        ),
+
+                                        dbc.Row(
+                                            [
+                                                dbc.Col(
+                                                    [
+                                                        dbc.Label(
+                                                            (
+                                                                "Validation "
+                                                                "de la "
+                                                                "détection"
+                                                            ),
+                                                            className=(
+                                                                "edse-v2-label"
+                                                            ),
+                                                        ),
+
+                                                        dcc.Dropdown(
+                                                            id=(
+                                                                "edse-"
+                                                                "validation-"
+                                                                "detection"
+                                                            ),
+                                                            options=[
+                                                                {
+                                                                    "label": (
+                                                                        "Confirmée"
+                                                                    ),
+                                                                    "value": (
+                                                                        "confirmed"
+                                                                    ),
+                                                                },
+                                                                {
+                                                                    "label": (
+                                                                        "Partiellement "
+                                                                        "confirmée"
+                                                                    ),
+                                                                    "value": (
+                                                                        "partially_"
+                                                                        "confirmed"
+                                                                    ),
+                                                                },
+                                                                {
+                                                                    "label": (
+                                                                        "Non "
+                                                                        "confirmée"
+                                                                    ),
+                                                                    "value": (
+                                                                        "not_"
+                                                                        "confirmed"
+                                                                    ),
+                                                                },
+                                                                {
+                                                                    "label": (
+                                                                        "Non "
+                                                                        "évaluable"
+                                                                    ),
+                                                                    "value": (
+                                                                        "not_"
+                                                                        "evaluable"
+                                                                    ),
+                                                                },
+                                                            ],
+                                                            placeholder=(
+                                                                "Choisir"
+                                                            ),
+                                                            clearable=True,
+                                                        ),
+                                                    ],
+                                                    md=6,
+                                                ),
+
+                                                dbc.Col(
+                                                    [
+                                                        dbc.Label(
+                                                            (
+                                                                "Validation "
+                                                                "du "
+                                                                "diagnostic"
+                                                            ),
+                                                            className=(
+                                                                "edse-v2-label"
+                                                            ),
+                                                        ),
+
+                                                        dcc.Dropdown(
+                                                            id=(
+                                                                "edse-"
+                                                                "validation-"
+                                                                "diagnosis"
+                                                            ),
+                                                            options=[
+                                                                {
+                                                                    "label": (
+                                                                        "Confirmé"
+                                                                    ),
+                                                                    "value": (
+                                                                        "confirmed"
+                                                                    ),
+                                                                },
+                                                                {
+                                                                    "label": (
+                                                                        "Partiellement "
+                                                                        "confirmé"
+                                                                    ),
+                                                                    "value": (
+                                                                        "partially_"
+                                                                        "confirmed"
+                                                                    ),
+                                                                },
+                                                                {
+                                                                    "label": (
+                                                                        "Non "
+                                                                        "confirmé"
+                                                                    ),
+                                                                    "value": (
+                                                                        "not_"
+                                                                        "confirmed"
+                                                                    ),
+                                                                },
+                                                                {
+                                                                    "label": (
+                                                                        "Non "
+                                                                        "évaluable"
+                                                                    ),
+                                                                    "value": (
+                                                                        "not_"
+                                                                        "evaluable"
+                                                                    ),
+                                                                },
+                                                            ],
+                                                            placeholder=(
+                                                                "Choisir"
+                                                            ),
+                                                            clearable=True,
+                                                        ),
+                                                    ],
+                                                    md=6,
+                                                ),
+                                            ],
+                                            className="g-3 mb-4",
+                                        ),
+
+                                        html.Div(
+                                            [
+                                                dbc.Label(
+                                                    (
+                                                        "Selon votre propre "
+                                                        "appréciation, cet "
+                                                        "élève présente-t-il "
+                                                        "une difficulté en "
+                                                        "mathématiques ?"
+                                                    ),
+                                                    className=(
+                                                        "edse-v2-label"
+                                                    ),
+                                                ),
+
+                                                dcc.Dropdown(
+                                                    id=(
+                                                        "edse-validation-"
+                                                        "teacher-class"
+                                                    ),
+                                                    options=[
+                                                        {
+                                                            "label": (
+                                                                "Oui — difficulté "
+                                                                "observée"
+                                                            ),
+                                                            "value": (
+                                                                "difficulty"
+                                                            ),
+                                                        },
+                                                        {
+                                                            "label": (
+                                                                "Non — aucune "
+                                                                "difficulté "
+                                                                "observée"
+                                                            ),
+                                                            "value": (
+                                                                "no_difficulty"
+                                                            ),
+                                                        },
+                                                        {
+                                                            "label": (
+                                                                "Non évaluable"
+                                                            ),
+                                                            "value": (
+                                                                "not_evaluable"
+                                                            ),
+                                                        },
+                                                    ],
+                                                    placeholder=(
+                                                        "Choisir le jugement "
+                                                        "de l'enseignant"
+                                                    ),
+                                                    clearable=True,
+                                                ),
+
+                                                dbc.FormText(
+                                                    (
+                                                        "Répondez selon votre "
+                                                        "propre observation, "
+                                                        "indépendamment de la "
+                                                        "prédiction EMIDAF."
+                                                    )
+                                                ),
+                                            ],
+                                            className=(
+                                                "edse-v2-field mb-4"
+                                            ),
+                                        ),
+
+                                        html.Div(
+                                            [
+                                                dbc.Label(
+                                                    (
+                                                        "Niveau de "
+                                                        "difficulté "
+                                                        "observé"
+                                                    ),
+                                                    className=(
+                                                        "edse-v2-label"
+                                                    ),
+                                                ),
+
+                                                dcc.Dropdown(
+                                                    id=(
+                                                        "edse-validation-"
+                                                        "difficulty"
+                                                    ),
+                                                    options=[
+                                                        {
+                                                            "label": (
+                                                                "Aucune"
+                                                            ),
+                                                            "value": "none",
+                                                        },
+                                                        {
+                                                            "label": (
+                                                                "Légère"
+                                                            ),
+                                                            "value": "mild",
+                                                        },
+                                                        {
+                                                            "label": (
+                                                                "Modérée"
+                                                            ),
+                                                            "value": (
+                                                                "moderate"
+                                                            ),
+                                                        },
+                                                        {
+                                                            "label": (
+                                                                "Importante"
+                                                            ),
+                                                            "value": (
+                                                                "severe"
+                                                            ),
+                                                        },
+                                                    ],
+                                                    placeholder=(
+                                                        "Choisir"
+                                                    ),
+                                                    clearable=True,
+                                                ),
+                                            ],
+                                            className=(
+                                                "edse-v2-field mb-4"
+                                            ),
+                                        ),
+
+                                        html.Div(
+                                            [
+                                                dbc.Label(
+                                                    (
+                                                        "Facteurs observés "
+                                                        "par l'enseignant"
+                                                    ),
+                                                    className=(
+                                                        "edse-v2-label"
+                                                    ),
+                                                ),
+
+                                                dcc.Checklist(
+                                                    id=(
+                                                        "edse-validation-"
+                                                        "factors"
+                                                    ),
+                                                    options=[
+                                                        {
+                                                            "label": (
+                                                                " Difficultés de "
+                                                                "compréhension "
+                                                                "des concepts"
+                                                            ),
+                                                            "value": (
+                                                                "concepts"
+                                                            ),
+                                                        },
+                                                        {
+                                                            "label": (
+                                                                " Difficultés de "
+                                                                "raisonnement"
+                                                            ),
+                                                            "value": (
+                                                                "reasoning"
+                                                            ),
+                                                        },
+                                                        {
+                                                            "label": (
+                                                                " Difficultés "
+                                                                "de calcul"
+                                                            ),
+                                                            "value": (
+                                                                "calculation"
+                                                            ),
+                                                        },
+                                                        {
+                                                            "label": (
+                                                                " Faible "
+                                                                "motivation"
+                                                            ),
+                                                            "value": (
+                                                                "low_"
+                                                                "motivation"
+                                                            ),
+                                                        },
+                                                        {
+                                                            "label": (
+                                                                " Faible intérêt "
+                                                                "pour les "
+                                                                "mathématiques"
+                                                            ),
+                                                            "value": (
+                                                                "low_interest"
+                                                            ),
+                                                        },
+                                                        {
+                                                            "label": (
+                                                                " Stress / "
+                                                                "anxiété"
+                                                            ),
+                                                            "value": (
+                                                                "stress"
+                                                            ),
+                                                        },
+                                                        {
+                                                            "label": (
+                                                                " Travail "
+                                                                "personnel "
+                                                                "insuffisant"
+                                                            ),
+                                                            "value": (
+                                                                "low_personal_"
+                                                                "work"
+                                                            ),
+                                                        },
+                                                        {
+                                                            "label": (
+                                                                " Manque de "
+                                                                "pratique"
+                                                            ),
+                                                            "value": (
+                                                                "low_practice"
+                                                            ),
+                                                        },
+                                                        {
+                                                            "label": (
+                                                                " Absences / "
+                                                                "irrégularité"
+                                                            ),
+                                                            "value": (
+                                                                "attendance"
+                                                            ),
+                                                        },
+                                                        {
+                                                            "label": (
+                                                                " Difficultés "
+                                                                "méthodologiques"
+                                                            ),
+                                                            "value": (
+                                                                "methodology"
+                                                            ),
+                                                        },
+                                                        {
+                                                            "label": " Autre",
+                                                            "value": "other",
+                                                        },
+                                                    ],
+                                                    value=[],
+                                                    className="mb-3",
+                                                ),
+                                            ]
+                                        ),
+
+                                        html.Div(
+                                            [
+                                                dbc.Label(
+                                                    (
+                                                        "Commentaire "
+                                                        "de l'enseignant"
+                                                    ),
+                                                    html_for=(
+                                                        "edse-validation-"
+                                                        "comment"
+                                                    ),
+                                                    className=(
+                                                        "edse-v2-label"
+                                                    ),
+                                                ),
+
+                                                dbc.Textarea(
+                                                    id=(
+                                                        "edse-validation-"
+                                                        "comment"
+                                                    ),
+                                                    placeholder=(
+                                                        "Précisez votre "
+                                                        "appréciation, "
+                                                        "les éléments "
+                                                        "observés ou les "
+                                                        "réserves..."
+                                                    ),
+                                                    rows=4,
+                                                ),
+                                            ],
+                                            className="mb-4",
+                                        ),
+
+                                        html.Div(
+                                            [
+                                                dbc.Button(
+                                                    [
+                                                        html.I(
+                                                            className=(
+                                                                "bi bi-check2-"
+                                                                "circle me-2"
+                                                            )
+                                                        ),
+                                                        (
+                                                            "Enregistrer "
+                                                            "la validation"
+                                                        ),
+                                                    ],
+                                                    id=(
+                                                        "edse-validation-"
+                                                        "save"
+                                                    ),
+                                                    color="primary",
+                                                ),
+                                            ],
+                                            className="mb-3",
+                                        ),
+
+                                        html.Div(
+                                            id=(
+                                                "edse-validation-status"
+                                            ),
+                                            className="mb-4",
+                                        ),
+
+                                        html.H5(
+                                            (
+                                                "Historique des "
+                                                "validations"
+                                            ),
+                                            className="mt-4",
+                                        ),
+
+                                        html.Div(
+                                            id=(
+                                                "edse-validation-history"
+                                            ),
+                                        ),
+                                    ],
+                                    className="edse-v2-tab-content",
+                                ),
+                                label="Validation enseignant",
+                                tab_id="edse-tab-validation",
+                            ),
                         ],
                         active_tab="edse-tab-summary",
                         className="edse-v2-tabs",
@@ -828,6 +1415,263 @@ def edse_layout(project_id, dataset_id):
             dcc.Store(
                 id="edse-project-id",
                 data=int(project_id),
+            ),
+
+            # --------------------------------------------------
+            # ASSISTANT CONTEXTUEL EMIDAF
+            # --------------------------------------------------
+
+            html.Section(
+                [
+                    html.Div(
+                        [
+                            html.Div(
+                                [
+                                    html.Span(
+                                        "ASSISTANT EMIDAF",
+                                        className=(
+                                            "edse-v2-kicker"
+                                        ),
+                                    ),
+
+                                    html.H2(
+                                        (
+                                            "Comprendre et interpréter "
+                                            "les résultats"
+                                        ),
+                                        className=(
+                                            "edse-v2-section-title"
+                                        ),
+                                    ),
+
+                                    html.P(
+                                        (
+                                            "L'assistant explique les "
+                                            "résultats déjà produits par "
+                                            "EMIDAF. Il ne recalcule, "
+                                            "n'invente et ne modifie "
+                                            "aucun résultat."
+                                        ),
+                                        className=(
+                                            "edse-v2-section-subtitle"
+                                        ),
+                                    ),
+                                ]
+                            ),
+
+                            html.Div(
+                                html.I(
+                                    className=(
+                                        "bi bi-stars"
+                                    )
+                                ),
+                                className=(
+                                    "edse-v2-section-icon"
+                                ),
+                            ),
+                        ],
+                        className=(
+                            "d-flex justify-content-between "
+                            "align-items-start gap-3"
+                        ),
+                    ),
+
+                    dbc.Alert(
+                        (
+                            "EMIDAF produit les résultats. "
+                            "L'assistant les observe, les explique, "
+                            "les interprète et peut en proposer une "
+                            "conclusion prudente dans les limites "
+                            "du contexte disponible."
+                        ),
+                        color="info",
+                        className="mt-3",
+                    ),
+
+                    dbc.Row(
+                        [
+                            dbc.Col(
+                                [
+                                    dbc.Label(
+                                        "Niveau d'explication",
+                                        html_for=(
+                                            "edse-assistant-level"
+                                        ),
+                                    ),
+
+                                    dcc.Dropdown(
+                                        id=(
+                                            "edse-assistant-level"
+                                        ),
+                                        options=[
+                                            {
+                                                "label": "Débutant",
+                                                "value": "beginner",
+                                            },
+                                            {
+                                                "label": (
+                                                    "Intermédiaire"
+                                                ),
+                                                "value": (
+                                                    "intermediate"
+                                                ),
+                                            },
+                                            {
+                                                "label": "Expert",
+                                                "value": "expert",
+                                            },
+                                        ],
+                                        value="intermediate",
+                                        clearable=False,
+                                    ),
+                                ],
+                                md=4,
+                            ),
+
+                            dbc.Col(
+                                [
+                                    dbc.Label(
+                                        "Type de lecture",
+                                        html_for=(
+                                            "edse-assistant-scope"
+                                        ),
+                                    ),
+
+                                    dcc.Dropdown(
+                                        id=(
+                                            "edse-assistant-scope"
+                                        ),
+                                        options=[
+                                            {
+                                                "label": (
+                                                    "Tous les résultats "
+                                                    "disponibles"
+                                                ),
+                                                "value": "all",
+                                            },
+                                            {
+                                                "label": (
+                                                    "EAIE — Modélisation"
+                                                ),
+                                                "value": "eaie",
+                                            },
+                                            {
+                                                "label": (
+                                                    "EXAIE — Explicabilité"
+                                                ),
+                                                "value": "exaie",
+                                            },
+                                            {
+                                                "label": (
+                                                    "EDSE — Aide à la "
+                                                    "décision"
+                                                ),
+                                                "value": "edse",
+                                            },
+                                            {
+                                                "label": (
+                                                    "Validation enseignant"
+                                                ),
+                                                "value": (
+                                                    "teacher_validation"
+                                                ),
+                                            },
+                                        ],
+                                        value="all",
+                                        clearable=False,
+                                    ),
+                                ],
+                                md=8,
+                            ),
+                        ],
+                        className="g-3 mt-1",
+                    ),
+
+                    html.Div(
+                        [
+                            dbc.Label(
+                                (
+                                    "Question ou demande "
+                                    "d'interprétation"
+                                ),
+                                html_for=(
+                                    "edse-assistant-question"
+                                ),
+                            ),
+
+                            dbc.Textarea(
+                                id="edse-assistant-question",
+                                value=(
+                                    "Explique tous les résultats "
+                                    "disponibles. Présente les "
+                                    "observations, leur interprétation, "
+                                    "une conclusion prudente et les "
+                                    "limites."
+                                ),
+                                rows=5,
+                                placeholder=(
+                                    "Ex. : Que peut-on conclure de "
+                                    "ces résultats ? Quelles sont "
+                                    "les principales observations ?"
+                                ),
+                            ),
+                        ],
+                        className="mt-4",
+                    ),
+
+                    html.Div(
+                        [
+                            dbc.Button(
+                                [
+                                    html.I(
+                                        className=(
+                                            "bi bi-stars me-2"
+                                        )
+                                    ),
+                                    (
+                                        "Observer, expliquer "
+                                        "et interpréter"
+                                    ),
+                                ],
+                                id="edse-assistant-run",
+                                color="primary",
+                            ),
+                        ],
+                        className="mt-3",
+                    ),
+
+                    html.Div(
+                        id="edse-assistant-status",
+                        className="mt-3",
+                    ),
+
+                    dbc.Card(
+                        dbc.CardBody(
+                            dcc.Markdown(
+                                id="edse-assistant-response",
+                                children=(
+                                    "La réponse de l'assistant "
+                                    "apparaîtra ici."
+                                ),
+                            )
+                        ),
+                        className=(
+                            "border-0 shadow-sm mt-3"
+                        ),
+                    ),
+
+                    html.Small(
+                        (
+                            "L'assistant ne remplace ni "
+                            "l'analyse scientifique EMIDAF, "
+                            "ni le jugement de l'enseignant."
+                        ),
+                        className=(
+                            "text-muted d-block mt-3"
+                        ),
+                    ),
+                ],
+                className="edse-v2-section mt-4",
             ),
 
             dcc.Store(

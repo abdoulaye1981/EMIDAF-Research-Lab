@@ -219,6 +219,56 @@ def filter_local_observations(
                 )
             )
 
+    all_counts = {
+        "tp": 0,
+        "fn": 0,
+        "fp": 0,
+        "tn": 0,
+    }
+
+    for i in range(
+        n_observations
+    ):
+
+        true_label = (
+            y_test.iloc[i]
+            if hasattr(
+                y_test,
+                "iloc",
+            )
+            else y_test[i]
+        )
+
+        predicted_label = (
+            predictions[i]
+        )
+
+        decision = (
+            _classification_decision(
+                true_label,
+                predicted_label,
+                positive_label,
+            )
+        )
+
+        all_counts[
+            decision
+        ] += 1
+
+    logger.info(
+        (
+            "EXAIE classification decisions "
+            "VP=%s FN=%s FP=%s VN=%s TOTAL=%s"
+        ),
+        all_counts["tp"],
+        all_counts["fn"],
+        all_counts["fp"],
+        all_counts["tn"],
+        sum(
+            all_counts.values()
+        ),
+    )
+
     labels = {
         "tp": "VP",
         "fn": "FN",

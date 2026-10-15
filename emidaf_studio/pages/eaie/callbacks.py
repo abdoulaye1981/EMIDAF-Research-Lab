@@ -1429,19 +1429,48 @@ def run_eaie_block_comparison(
             )
         )
 
+        # --------------------------------------------------
+        # Traçabilité des observations originales
+        # --------------------------------------------------
+        #
+        # Le pipeline analytique peut réinitialiser l'index
+        # pour les besoins de calcul. Nous conservons donc
+        # explicitement l'index source avant reset_index().
+        #
+        # Important :
+        # - observation_id = index original de la ligne
+        # - student_id = id_eleve si cette colonne existe
+        # - id_eleve n'est jamais réintroduit comme prédicteur
+        # --------------------------------------------------
+
+        train_source = prepared_final.X.iloc[
+            result.train_indices
+        ]
+
+        test_source = prepared_final.X.iloc[
+            result.test_indices
+        ]
+
+        train_observation_ids = list(
+            train_source.index
+        )
+
+        test_observation_ids = list(
+            test_source.index
+        )
+
+        # Jeux analytiques transmis à EXAIE / EDSE.
+        # Le reset d'index est conservé pour ne pas modifier
+        # le comportement historique des moteurs.
         X_train_exaie = (
-            prepared_final.X.iloc[
-                result.train_indices
-            ]
+            train_source
             .reset_index(
                 drop=True
             )
         )
 
         X_test_exaie = (
-            prepared_final.X.iloc[
-                result.test_indices
-            ]
+            test_source
             .reset_index(
                 drop=True
             )
@@ -1464,6 +1493,44 @@ def run_eaie_block_comparison(
                 drop=True
             )
         )
+
+        # --------------------------------------------------
+        # Correspondance métier avec id_eleve
+        # --------------------------------------------------
+
+        train_student_ids = None
+        test_student_ids = None
+
+        if "id_eleve" in dataframe.columns:
+
+            try:
+                train_student_ids = (
+                    dataframe.loc[
+                        train_observation_ids,
+                        "id_eleve",
+                    ]
+                    .astype(str)
+                    .tolist()
+                )
+
+                test_student_ids = (
+                    dataframe.loc[
+                        test_observation_ids,
+                        "id_eleve",
+                    ]
+                    .astype(str)
+                    .tolist()
+                )
+
+            except Exception:
+                logger.exception(
+                    "Impossible de reconstruire "
+                    "la correspondance "
+                    "observation -> id_eleve."
+                )
+
+                train_student_ids = None
+                test_student_ids = None
 
         selected_performance = next(
             (
@@ -1520,6 +1587,19 @@ def run_eaie_block_comparison(
                     y_train_exaie,
                 "y_test":
                     y_test_exaie,
+
+                # ------------------------------------------
+                # Traçabilité des observations
+                # ------------------------------------------
+                "train_observation_ids":
+                    train_observation_ids,
+                "test_observation_ids":
+                    test_observation_ids,
+                "train_student_ids":
+                    train_student_ids,
+                "test_student_ids":
+                    test_student_ids,
+
                 "cv_mean":
                     selected_performance.cv_mean,
                 "cv_std":

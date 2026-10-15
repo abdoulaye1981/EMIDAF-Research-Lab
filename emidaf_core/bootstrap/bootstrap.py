@@ -47,6 +47,8 @@ class Bootstrap:
 
         self._create_services()
 
+        self._create_assistant()
+
         self._create_controllers()
 
         self._register_components()
@@ -134,6 +136,9 @@ class Bootstrap:
         from emidaf_core.repositories.dataset_repository import DatasetRepository
         from emidaf_core.repositories.analysis_result_repository import AnalysisResultRepository
         from emidaf_core.repositories.user_repository import UserRepository
+        from emidaf_core.repositories.teacher_validation_repository import (
+            TeacherValidationRepository,
+        )
 
         self.workspace_repository = WorkspaceRepository(
              self.database_manager
@@ -154,12 +159,21 @@ class Bootstrap:
             self.database_manager
         )
 
+        self.teacher_validation_repository = (
+            TeacherValidationRepository(
+                self.database_manager
+            )
+        )
+
     def _create_services(self):
         from emidaf_core.services.workspace_service import WorkspaceService
         from emidaf_core.services.project_service import ProjectService
         from emidaf_core.services.dataset_service import DatasetService
         from emidaf_core.services.auth_service import AuthService
         from emidaf_core.services.user_service import UserService
+        from emidaf_core.services.teacher_validation_service import (
+            TeacherValidationService,
+        )
 
         self.workspace_service = WorkspaceService(
              self.workspace_repository
@@ -181,6 +195,12 @@ class Bootstrap:
             self.user_repository
         )
 
+        self.teacher_validation_service = (
+            TeacherValidationService(
+                self.teacher_validation_repository
+            )
+        )
+
         from emidaf_core.managers.project_manager import ProjectManager
         from emidaf_core.managers.dataset_manager import DatasetManager
 
@@ -192,10 +212,36 @@ class Bootstrap:
              self.dataset_service
         )
 
+    def _create_assistant(self):
+        """
+        Crée la couche d'assistance IA.
+
+        Gemini reste optionnel : l'initialisation
+        du Framework ne réalise aucun appel réseau.
+        """
+        from emidaf_core.assistant import (
+            AssistantService,
+            GeminiProvider,
+            ReportWriter,
+        )
+
+        self.gemini_provider = GeminiProvider()
+
+        self.assistant_service = AssistantService(
+            self.gemini_provider
+        )
+
+        self.report_writer = ReportWriter(
+            self.gemini_provider
+        )
+
     def _create_controllers(self):
         from emidaf_core.controllers.workspace_controller import WorkspaceController
         from emidaf_core.controllers.project_controller import ProjectController
         from emidaf_core.controllers.dataset_controller import DatasetController
+        from emidaf_core.controllers.teacher_validation_controller import (
+            TeacherValidationController,
+        )
 
         self.workspace_controller = WorkspaceController(
              self.workspace_service
@@ -207,6 +253,12 @@ class Bootstrap:
 
         self.dataset_controller = DatasetController(
              self.dataset_service
+        )
+
+        self.teacher_validation_controller = (
+            TeacherValidationController(
+                self.teacher_validation_service
+            )
         )
 
     def _register_components(self):
@@ -224,12 +276,18 @@ class Bootstrap:
         self.dataset_repository,
         self.analysis_result_repository,
             self.user_repository,
+        self.teacher_validation_repository,
 
         self.workspace_service,
         self.project_service,
         self.dataset_service,
             self.auth_service,
             self.user_service,
+        self.teacher_validation_service,
+
+        self.gemini_provider,
+        self.assistant_service,
+        self.report_writer,
 
         self.project_manager,
         self.dataset_manager,
@@ -237,6 +295,7 @@ class Bootstrap:
         self.workspace_controller,
         self.project_controller,
         self.dataset_controller,
+        self.teacher_validation_controller,
       ]
 
       for component in components:

@@ -916,6 +916,176 @@ def reports_layout(project_id, dataset_id):
             ),
 
             # --------------------------------------------------
+            # REPORT WRITER IA
+            # --------------------------------------------------
+
+            html.Section(
+                [
+                    html.Div(
+                        "ASSISTANCE RÉDACTIONNELLE",
+                        className="reports-v2-section-kicker",
+                    ),
+
+                    html.H2(
+                        "Rapport enrichi avec Gemini",
+                        className="reports-v2-section-title",
+                    ),
+
+                    html.P(
+                        (
+                            "Gemini améliore la rédaction du rapport "
+                            "EMIDAF déjà généré. Il ne remplace pas "
+                            "les calculs, les résultats scientifiques "
+                            "ni la validation humaine."
+                        ),
+                        className="reports-v2-section-subtitle",
+                    ),
+
+                    dbc.Alert(
+                        (
+                            "Le rapport EMIDAF standard reste la "
+                            "source scientifique de référence. "
+                            "La version IA est conservée séparément."
+                        ),
+                        color="info",
+                        className="mb-4",
+                    ),
+
+                    dbc.Row(
+                        [
+                            dbc.Col(
+                                [
+                                    dbc.Label(
+                                        "Type de rapport enrichi",
+                                        html_for="reports-ai-mode",
+                                        className="reports-v2-label",
+                                    ),
+
+                                    dcc.Dropdown(
+                                        id="reports-ai-mode",
+                                        options=[
+                                            {
+                                                "label": (
+                                                    "Scientifique"
+                                                ),
+                                                "value": "scientific",
+                                            },
+                                            {
+                                                "label": (
+                                                    "Pédagogique"
+                                                ),
+                                                "value": "pedagogical",
+                                            },
+                                            {
+                                                "label": (
+                                                    "Technique"
+                                                ),
+                                                "value": "technical",
+                                            },
+                                            {
+                                                "label": (
+                                                    "Exécutif"
+                                                ),
+                                                "value": "executive",
+                                            },
+                                            {
+                                                "label": (
+                                                    "Complet"
+                                                ),
+                                                "value": "complete",
+                                            },
+                                        ],
+                                        value="scientific",
+                                        clearable=False,
+                                        className=(
+                                            "reports-v2-dropdown"
+                                        ),
+                                    ),
+                                ],
+                                md=6,
+                            ),
+
+                            dbc.Col(
+                                [
+                                    dbc.Label(
+                                        "Génération assistée",
+                                        className="reports-v2-label",
+                                    ),
+
+                                    html.Div(
+                                        [
+                                            dbc.Button(
+                                                [
+                                                    html.I(
+                                                        className=(
+                                                            "bi bi-stars me-2"
+                                                        )
+                                                    ),
+                                                    (
+                                                        "Générer le rapport "
+                                                        "enrichi"
+                                                    ),
+                                                ],
+                                                id="reports-ai-generate",
+                                                color="primary",
+                                                className="me-2",
+                                            ),
+
+                                            dbc.Button(
+                                                [
+                                                    html.I(
+                                                        className=(
+                                                            "bi bi-download "
+                                                            "me-2"
+                                                        )
+                                                    ),
+                                                    "Télécharger",
+                                                ],
+                                                id=(
+                                                    "reports-ai-download-button"
+                                                ),
+                                                outline=True,
+                                                color="secondary",
+                                                disabled=True,
+                                            ),
+                                        ],
+                                        className="d-flex flex-wrap gap-2",
+                                    ),
+                                ],
+                                md=6,
+                            ),
+                        ],
+                        className="g-3 mb-4",
+                    ),
+
+                    html.Div(
+                        id="reports-ai-status",
+                        className="mb-3",
+                    ),
+
+                    html.Div(
+                        id="reports-ai-consistency",
+                        className="mb-3",
+                    ),
+
+                    dbc.Card(
+                        dbc.CardBody(
+                            dcc.Markdown(
+                                id="reports-ai-preview",
+                                children=(
+                                    "Générez d'abord le rapport "
+                                    "EMIDAF standard, puis lancez "
+                                    "l'enrichissement rédactionnel."
+                                ),
+                            )
+                        ),
+                        className="border-0 shadow-sm",
+                    ),
+                ],
+                className="reports-v2-builder-section",
+            ),
+
+            # --------------------------------------------------
             # APERÇU
             # --------------------------------------------------
 
@@ -1059,6 +1229,18 @@ def reports_layout(project_id, dataset_id):
 
             dcc.Download(
                 id="reports-download",
+            ),
+
+            dcc.Store(
+                id="reports-ai-generated-content",
+            ),
+
+            dcc.Store(
+                id="reports-ai-generated-filename",
+            ),
+
+            dcc.Download(
+                id="reports-ai-download",
             ),
         ],
         fluid=True,

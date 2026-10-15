@@ -19,6 +19,15 @@ from emidaf_core.reporting import (
     ReportRenderer,
 )
 
+from emidaf_core.assistant import (
+    GeminiProvider,
+    ReportWriter,
+)
+
+from emidaf_core.common.results.report_result import (
+    ReportResult,
+)
+
 from emidaf_studio.pages.inspection.layout import (
     load_dataset,
 )
@@ -2947,4 +2956,318 @@ def download_report(
         content,
         filename,
         type=content_type,
+    )
+
+
+# ==========================================================
+# RAPPORT ENRICHI GEMINI
+# ==========================================================
+
+@callback(
+    Output(
+        "reports-ai-status",
+        "children",
+    ),
+    Output(
+        "reports-ai-consistency",
+        "children",
+    ),
+    Output(
+        "reports-ai-preview",
+        "children",
+    ),
+    Output(
+        "reports-ai-generated-content",
+        "data",
+    ),
+    Output(
+        "reports-ai-generated-filename",
+        "data",
+    ),
+    Output(
+        "reports-ai-download-button",
+        "disabled",
+    ),
+    Input(
+        "reports-ai-generate",
+        "n_clicks",
+    ),
+    State(
+        "reports-ai-mode",
+        "value",
+    ),
+    State(
+        "reports-generated-content",
+        "data",
+    ),
+    State(
+        "reports-generated-filename",
+        "data",
+    ),
+    State(
+        "reports-title",
+        "value",
+    ),
+    State(
+        "reports-project-id",
+        "data",
+    ),
+    State(
+        "reports-dataset-id",
+        "data",
+    ),
+    prevent_initial_call=True,
+)
+def generate_ai_enriched_report(
+    n_clicks,
+    mode,
+    source_content,
+    source_filename,
+    title,
+    project_id,
+    dataset_id,
+):
+
+    if not n_clicks:
+        return (
+            no_update,
+            no_update,
+            no_update,
+            no_update,
+            no_update,
+            no_update,
+        )
+
+    if not source_content:
+        return (
+            dbc.Alert(
+                (
+                    "Générez d'abord le rapport "
+                    "EMIDAF standard."
+                ),
+                color="warning",
+            ),
+            "",
+            no_update,
+            None,
+            None,
+            True,
+        )
+
+    analyses = get_all_analyses(
+        project_id,
+        dataset_id,
+    )
+
+    report_title = (
+        title.strip()
+        if title and title.strip()
+        else "Rapport d'analyse EMIDAF"
+    )
+
+    source_report = ReportResult(
+        report_name=report_title,
+        report_type=(
+            "EMIDAF Global Analysis"
+        ),
+        title=report_title,
+        language="fr",
+        summary=(
+            "Rapport scientifique source "
+            "généré par EMIDAF."
+        ),
+    )
+
+    source_report.metadata[
+        "source_filename"
+    ] = source_filename
+
+    provider = GeminiProvider()
+
+    if not provider.available():
+        return (
+            dbc.Alert(
+                (
+                    "Gemini n'est pas configuré. "
+                    "Le rapport EMIDAF standard "
+                    "reste disponible."
+                ),
+                color="secondary",
+            ),
+            "",
+            no_update,
+            None,
+            None,
+            True,
+        )
+
+    writer = ReportWriter(
+        provider
+    )
+
+    try:
+        result = writer.write(
+            report=source_report,
+            analyses=analyses,
+            mode=mode or "scientific",
+            source_text=source_content,
+        )
+
+    except Exception as exc:
+
+        return (
+            dbc.Alert(
+                [
+                    html.Strong(
+                        "Gemini indisponible : "
+                    ),
+                    str(exc),
+                    html.Br(),
+                    html.Small(
+                        (
+                            "Le rapport EMIDAF standard "
+                            "n'est pas affecté."
+                        )
+                    ),
+                ],
+                color="danger",
+            ),
+            "",
+            no_update,
+            None,
+            None,
+            True,
+        )
+
+    generated_text = result[
+        "text"
+    ]
+
+    consistency = result.get(
+        "consistency",
+        {},
+    )
+
+    suspicious = consistency.get(
+        "suspicious_numbers",
+        [],
+    )
+
+    if consistency.get(
+        "valid",
+        False,
+    ):
+        consistency_view = dbc.Alert(
+            (
+                "Contrôle numérique : aucune "
+                "valeur numérique nouvelle "
+                "suspecte détectée."
+            ),
+            color="success",
+        )
+
+    else:
+        consistency_view = dbc.Alert(
+            [
+                html.Strong(
+                    (
+                        "Contrôle numérique à "
+                        "examiner : "
+                    )
+                ),
+                (
+                    ", ".join(
+                        suspicious[:20]
+                    )
+                    if suspicious
+                    else "écart détecté"
+                ),
+                html.Br(),
+                html.Small(
+                    (
+                        "Ce contrôle est un signal "
+                        "de vigilance, pas une "
+                        "validation scientifique "
+                        "automatique."
+                    )
+                ),
+            ],
+            color="warning",
+        )
+
+    if result.get(
+        "source_truncated",
+        False,
+    ):
+        truncation_note = (
+            " Le rapport source a été tronqué "
+            "pour respecter la limite de contexte."
+        )
+    else:
+        truncation_note = ""
+
+    filename = (
+        "rapport_emidaf_enrichi_"
+        f"projet_{project_id}_"
+        f"dataset_{dataset_id}.md"
+    )
+
+    status = dbc.Alert(
+        (
+            "Rapport enrichi généré avec succès. "
+            "Le rapport EMIDAF original demeure "
+            "la source scientifique de référence."
+            + truncation_note
+        ),
+        color="success",
+    )
+
+    return (
+        status,
+        consistency_view,
+        generated_text,
+        generated_text,
+        filename,
+        False,
+    )
+
+
+@callback(
+    Output(
+        "reports-ai-download",
+        "data",
+    ),
+    Input(
+        "reports-ai-download-button",
+        "n_clicks",
+    ),
+    State(
+        "reports-ai-generated-content",
+        "data",
+    ),
+    State(
+        "reports-ai-generated-filename",
+        "data",
+    ),
+    prevent_initial_call=True,
+)
+def download_ai_enriched_report(
+    n_clicks,
+    content,
+    filename,
+):
+
+    if (
+        not n_clicks
+        or not content
+        or not filename
+    ):
+        return no_update
+
+    return dcc.send_string(
+        content,
+        filename,
+        type=(
+            "text/markdown; charset=utf-8"
+        ),
     )
