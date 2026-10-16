@@ -3082,7 +3082,11 @@ def generate_ai_enriched_report(
         "source_filename"
     ] = source_filename
 
-    provider = OpenRouterProvider()
+    provider = OpenRouterProvider(
+        models=[
+            "google/gemini-2.5-flash",
+        ]
+    )
 
     if not provider.available():
         return (
