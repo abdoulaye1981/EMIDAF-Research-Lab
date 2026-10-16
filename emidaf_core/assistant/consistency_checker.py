@@ -276,6 +276,13 @@ class ConsistencyChecker:
                 re.IGNORECASE,
             ),
         ),
+        (
+            "invented_eidpp_expansion",
+            re.compile(
+                r"\bEIDPP\s*\([^)]{2,120}\)",
+                re.IGNORECASE,
+            ),
+        ),
     )
 
 

@@ -29,7 +29,9 @@ class ContextBuilder:
 
         # Sorties individuelles
         "labels",
+        "prediction",
         "predictions",
+        "probability",
         "probabilities",
         "observation_ids",
         "student_ids",
