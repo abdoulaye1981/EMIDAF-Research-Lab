@@ -31,6 +31,8 @@ class AssistantService:
         analyses: dict[str, Any],
         question: str,
         level: str = "intermediate",
+        max_output_tokens: int = 1200,
+        regenerate_on_inconsistency: bool = True,
     ) -> str:
 
         level = str(level).strip().lower()
@@ -61,7 +63,7 @@ class AssistantService:
             prompt,
             system_instruction=ASSISTANT_SYSTEM_PROMPT,
             temperature=0.1,
-            max_output_tokens=1200,
+            max_output_tokens=int(max_output_tokens),
         )
 
         consistency = ConsistencyChecker.check(
@@ -71,7 +73,10 @@ class AssistantService:
 
         self.last_regenerated = False
 
-        if not consistency["valid"]:
+        if (
+            not consistency["valid"]
+            and regenerate_on_inconsistency
+        ):
 
             correction_prompt = (
                 "La réponse précédente contient des éléments "
@@ -119,7 +124,7 @@ class AssistantService:
                 correction_prompt,
                 system_instruction=ASSISTANT_SYSTEM_PROMPT,
                 temperature=0.0,
-                max_output_tokens=1200,
+                max_output_tokens=int(max_output_tokens),
             )
 
             consistency = ConsistencyChecker.check(

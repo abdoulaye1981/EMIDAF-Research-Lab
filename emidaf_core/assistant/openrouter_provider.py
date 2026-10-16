@@ -87,7 +87,7 @@ class OpenRouterProvider(AIProvider):
         client = OpenAI(
             base_url="https://openrouter.ai/api/v1",
             api_key=self.api_key,
-            timeout=25.0,
+            timeout=20.0,
             max_retries=0,
         )
 

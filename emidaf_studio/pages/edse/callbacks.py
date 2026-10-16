@@ -2325,7 +2325,11 @@ def run_contextual_assistant(
             no_update,
         )
 
-    provider = OpenRouterProvider()
+    provider = OpenRouterProvider(
+        models=[
+            "nvidia/nemotron-3-nano-omni-30b-a3b-reasoning:free",
+        ]
+    )
 
     if not provider.available():
         return (
@@ -2375,6 +2379,8 @@ def run_contextual_assistant(
                 level
                 or "intermediate"
             ),
+            max_output_tokens=800,
+            regenerate_on_inconsistency=False,
         )
 
     except Exception as exc:
