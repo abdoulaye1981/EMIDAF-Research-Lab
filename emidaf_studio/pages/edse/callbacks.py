@@ -24,7 +24,7 @@ from emidaf_studio.services.model_registry import (
 
 from emidaf_core.assistant import (
     AssistantService,
-    GeminiProvider,
+    OpenRouterProvider,
 )
 
 
@@ -2307,7 +2307,7 @@ def run_contextual_assistant(
             no_update,
         )
 
-    provider = GeminiProvider()
+    provider = OpenRouterProvider()
 
     if not provider.available():
         return (

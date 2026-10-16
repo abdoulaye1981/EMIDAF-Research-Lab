@@ -222,17 +222,19 @@ class Bootstrap:
         from emidaf_core.assistant import (
             AssistantService,
             GeminiProvider,
+            OpenRouterProvider,
             ReportWriter,
         )
 
+        self.openrouter_provider = OpenRouterProvider()
         self.gemini_provider = GeminiProvider()
 
         self.assistant_service = AssistantService(
-            self.gemini_provider
+            self.openrouter_provider
         )
 
         self.report_writer = ReportWriter(
-            self.gemini_provider
+            self.openrouter_provider
         )
 
     def _create_controllers(self):

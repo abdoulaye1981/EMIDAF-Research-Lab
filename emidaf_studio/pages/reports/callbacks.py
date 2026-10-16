@@ -20,7 +20,7 @@ from emidaf_core.reporting import (
 )
 
 from emidaf_core.assistant import (
-    GeminiProvider,
+    OpenRouterProvider,
     ReportWriter,
 )
 
@@ -3082,7 +3082,7 @@ def generate_ai_enriched_report(
         "source_filename"
     ] = source_filename
 
-    provider = GeminiProvider()
+    provider = OpenRouterProvider()
 
     if not provider.available():
         return (

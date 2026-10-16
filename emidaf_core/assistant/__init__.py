@@ -1,5 +1,6 @@
 from .provider import AIProvider
 from .gemini_provider import GeminiProvider
+from .openrouter_provider import OpenRouterProvider
 from .fake_provider import FakeProvider
 from .context_builder import ContextBuilder
 from .report_context_builder import ReportContextBuilder
@@ -10,6 +11,7 @@ from .consistency_checker import ConsistencyChecker
 __all__ = [
     "AIProvider",
     "GeminiProvider",
+    "OpenRouterProvider",
     "FakeProvider",
     "ContextBuilder",
     "ReportContextBuilder",
