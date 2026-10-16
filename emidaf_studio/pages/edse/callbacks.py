@@ -2313,7 +2313,7 @@ def run_contextual_assistant(
         return (
             dbc.Alert(
                 (
-                    "Gemini n'est pas configuré. "
+                    "Le service d'IA générative n'est pas configuré. "
                     "Les résultats EMIDAF restent "
                     "disponibles normalement."
                 ),
@@ -2374,7 +2374,7 @@ def run_contextual_assistant(
             in error_text
         ):
             message = (
-                "Gemini est actuellement inaccessible "
+                "Le service d'IA générative est actuellement inaccessible "
                 "pour ce projet Google. "
                 "EMIDAF et ses résultats ne sont "
                 "pas affectés."
@@ -2387,7 +2387,7 @@ def run_contextual_assistant(
             in error_text
         ):
             message = (
-                "La clé Gemini configurée n'est "
+                "La clé API configurée n'est "
                 "pas acceptée par Google. "
                 "EMIDAF continue de fonctionner "
                 "sans l'assistant."

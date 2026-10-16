@@ -927,13 +927,13 @@ def reports_layout(project_id, dataset_id):
                     ),
 
                     html.H2(
-                        "Rapport enrichi avec Gemini",
+                        "Rapport enrichi par IA générative",
                         className="reports-v2-section-title",
                     ),
 
                     html.P(
                         (
-                            "Gemini améliore la rédaction du rapport "
+                            "L'IA générative améliore la rédaction du rapport "
                             "EMIDAF déjà généré. Il ne remplace pas "
                             "les calculs, les résultats scientifiques "
                             "ni la validation humaine."

@@ -2960,7 +2960,7 @@ def download_report(
 
 
 # ==========================================================
-# RAPPORT ENRICHI GEMINI
+# RAPPORT ENRICHI IA GENERATIVE
 # ==========================================================
 
 @callback(
@@ -3088,7 +3088,7 @@ def generate_ai_enriched_report(
         return (
             dbc.Alert(
                 (
-                    "Gemini n'est pas configuré. "
+                    "Le service d'IA générative n'est pas configuré. "
                     "Le rapport EMIDAF standard "
                     "reste disponible."
                 ),
@@ -3119,7 +3119,7 @@ def generate_ai_enriched_report(
             dbc.Alert(
                 [
                     html.Strong(
-                        "Gemini indisponible : "
+                        "Service d'IA générative indisponible : "
                     ),
                     str(exc),
                     html.Br(),
