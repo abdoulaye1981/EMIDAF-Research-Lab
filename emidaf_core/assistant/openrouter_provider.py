@@ -147,6 +147,6 @@ class OpenRouterProvider(AIProvider):
                 )
 
         raise RuntimeError(
-            "Aucun modèle OpenRouter gratuit n'a pu répondre. "
+            "Aucun modèle OpenRouter n'a pu répondre. "
             + " | ".join(errors)
         )

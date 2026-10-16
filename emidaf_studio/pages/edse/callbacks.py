@@ -2327,8 +2327,7 @@ def run_contextual_assistant(
 
     provider = OpenRouterProvider(
         models=[
-            "nvidia/nemotron-3-nano-omni-30b-a3b-reasoning:free",
-            "openrouter/free",
+            "google/gemini-2.5-flash",
         ]
     )
 
@@ -2381,7 +2380,7 @@ def run_contextual_assistant(
                 or "intermediate"
             ),
             max_output_tokens=800,
-            regenerate_on_inconsistency=False,
+            regenerate_on_inconsistency=True,
         )
 
     except Exception as exc:

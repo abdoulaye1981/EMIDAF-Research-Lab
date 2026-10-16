@@ -17,9 +17,13 @@ class ConsistencyChecker:
       non soutenues ;
     - certaines recommandations non présentes dans la source.
 
-    Les représentations équivalentes telles que :
-        0.74 <-> 74 %
-    sont considérées comme cohérentes.
+    Seules les représentations numériques strictement
+    équivalentes sont considérées comme cohérentes
+    (virgule/point, séparateurs de milliers,
+    zéros décimaux non significatifs).
+
+    Les conversions décimal <-> pourcentage,
+    les arrondis et les approximations sont interdites.
     """
 
     NUMBER_PATTERN = re.compile(
@@ -169,6 +173,34 @@ class ConsistencyChecker:
                 re.IGNORECASE,
             ),
         ),
+        (
+            "qualification_dataset_quality",
+            re.compile(
+                r"\b(?:données|jeu\s+de\s+données|dataset)"
+                r".{0,35}\b(?:bonne\s+qualité|"
+                r"très\s+bonne\s+qualité|"
+                r"qualité\s+satisfaisante|"
+                r"qualité\s+élevée)\b"
+                r"|"
+                r"\b(?:bonne|très\s+bonne)"
+                r"\s+qualité\s+(?:des\s+)?données\b",
+                re.IGNORECASE,
+            ),
+        ),
+        (
+            "dataset_ready_for_use",
+            re.compile(
+                r"\b(?:données|jeu\s+de\s+données|dataset)"
+                r".{0,40}\b(?:prêt|prête|prêts|prêtes)"
+                r"\s+(?:à|a)\s+(?:être\s+)?"
+                r"(?:utilisé|utilisée|utilisés|utilisées|analysé|analysée|"
+                r"analysés|analysées)\b"
+                r"|"
+                r"\b(?:prêt|prête|prêts|prêtes)"
+                r"\s+pour\s+(?:l['’])?analyse\b",
+                re.IGNORECASE,
+            ),
+        ),
 
     )
 
@@ -209,6 +241,41 @@ class ConsistencyChecker:
                 re.IGNORECASE,
             ),
         ),
+        (
+            "invented_elae_expansion_statistique",
+            re.compile(
+                r"\banalyse\s+exploratoire\s+et\s+statistique\b",
+                re.IGNORECASE,
+            ),
+        ),
+        (
+            "invented_ekde_expansion_structure",
+            re.compile(
+                r"\banalyse\s+de\s+structure\s+et\s+de\s+dépendance\b",
+                re.IGNORECASE,
+            ),
+        ),
+        (
+            "invented_edse_expansion_threshold",
+            re.compile(
+                r"\bévaluation\s+de\s+la\s+décision\s+et\s+du\s+seuil\b",
+                re.IGNORECASE,
+            ),
+        ),
+        (
+            "invented_eaie_expansion_engine",
+            re.compile(
+                r"\bmoteur\s+d['’]intelligence\s+artificielle\s+EMIDAF\b",
+                re.IGNORECASE,
+            ),
+        ),
+        (
+            "invented_exaie_expansion",
+            re.compile(
+                r"\bexplicabilité\s+de\s+l['’]IA\s+EMIDAF\b",
+                re.IGNORECASE,
+            ),
+        ),
     )
 
 
@@ -242,6 +309,24 @@ class ConsistencyChecker:
 
         generated_for_numbers = cls._clean_text_for_numbers(
             generated_text
+        )
+
+        # --------------------------------------------------
+        # Ignorer uniquement les numéros structurels
+        # des titres Markdown :
+        #   ## 2.1 Préparation
+        #   ### 3.2 Résultats
+        #
+        # Une valeur "2.1" utilisée dans une phrase
+        # scientifique reste contrôlée normalement.
+        # --------------------------------------------------
+        generated_for_numbers = re.sub(
+            r"(?m)^(\s{0,3}#{1,6}\s+)"
+            r"\d+(?:[.,]\d+)+"
+            r"(?:[.)])?"
+            r"(?=\s)",
+            r"\1",
+            generated_for_numbers,
         )
 
         source_for_numbers = cls._clean_text_for_numbers(
