@@ -46,3 +46,4 @@ PyYAML==6.0.3
 umap-learn==0.5.12
 xgboost>=3.4,<3.5
 shap==0.52.0
+openai==1.97.1
