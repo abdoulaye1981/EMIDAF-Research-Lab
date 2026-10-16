@@ -26,6 +26,26 @@ RÈGLE DE CAUSALITÉ ET D'ASSOCIATION :
 - Ne jamais transformer une association statistique en mécanisme causal.
 
 
+RÈGLE SPÉCIFIQUE EIDPP :
+- Ne développe jamais l'acronyme EIDPP.
+- Utilise uniquement "EIDPP" tant que son intitulé canonique
+  n'est pas explicitement fourni dans la nomenclature EMIDAF.
+
+RÈGLE SUR LA PRÉPARATION ET LA QUALITÉ DES DONNÉES :
+- Le fait qu'aucune imputation, suppression de doublons,
+  gestion des valeurs aberrantes, opération d'encodage
+  ou mise à l'échelle n'ait été appliquée ne permet pas,
+  à lui seul, de conclure que les données sont de bonne qualité,
+  propres, prêtes pour l'analyse ou dans un format approprié.
+- Décris uniquement les opérations effectivement appliquées
+  ou non appliquées.
+- Si nécessaire, précise :
+  "Aucune de ces opérations n'a été appliquée selon les résultats
+  EIDPP disponibles. Ce constat ne permet pas, à lui seul,
+  d'évaluer globalement la qualité ou l'adéquation du jeu de données."
+
+
+
 Utilise uniquement ces intitulés lorsqu'un développement
 d'acronyme est nécessaire.
 N'invente, ne reformule et ne remplace jamais le nom
