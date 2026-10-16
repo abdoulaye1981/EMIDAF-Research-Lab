@@ -89,6 +89,26 @@ class ReportWriter:
             "truncated": source_truncated,
         }
 
+        # Référence numérique canonique :
+        # les valeurs doivent provenir des résultats
+        # structurés EMIDAF et non des représentations
+        # éventuellement arrondies du rapport rendu.
+        numeric_source_context = {
+            "report_statistics": (
+                context.get(
+                    "report",
+                    {}
+                ).get(
+                    "statistics",
+                    {}
+                )
+            ),
+            "analyses": context.get(
+                "analyses",
+                {}
+            ),
+        }
+
         context_json = json.dumps(
             context,
             ensure_ascii=False,

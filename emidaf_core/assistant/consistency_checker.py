@@ -306,10 +306,21 @@ class ConsistencyChecker:
         cls,
         generated_text: str,
         source_context: dict[str, Any],
+        numeric_source_context: dict[str, Any] | None = None,
     ) -> dict[str, Any]:
 
         source_text = json.dumps(
             source_context,
+            ensure_ascii=False,
+            default=str,
+        )
+
+        numeric_source_text = json.dumps(
+            (
+                numeric_source_context
+                if numeric_source_context is not None
+                else source_context
+            ),
             ensure_ascii=False,
             default=str,
         )
@@ -337,7 +348,7 @@ class ConsistencyChecker:
         )
 
         source_for_numbers = cls._clean_text_for_numbers(
-            source_text
+            numeric_source_text
         )
 
         generated_numbers = {

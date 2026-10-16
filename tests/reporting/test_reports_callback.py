@@ -204,6 +204,7 @@ def test_generate_report_uses_persisted_analyses(
         preview,
         content,
         filename,
+        ai_source_content,
         disabled,
     ) = callbacks.generate_report(
         1,
@@ -222,6 +223,13 @@ def test_generate_report_uses_persisted_analyses(
     assert filename.endswith(".json")
     assert disabled is False
     assert preview
+
+    # La source destinée à l'IA doit exister
+    # mais ne doit pas exposer les blocs individuels
+    # supprimés avant envoi au fournisseur externe.
+    assert ai_source_content
+    assert "Local explanation" not in ai_source_content
+    assert "Profiles" not in ai_source_content
 
     payload = json.loads(content)
 
