@@ -471,6 +471,35 @@ QUALIFICATIONS :
   disponibles ou prétraitées ne doit jamais être présentée
   comme la liste des prédicteurs du modèle.
 
+RÈGLES DE SYNTHÈSE SCIENTIFIQUE :
+- Ne jamais transformer une valeur exacte en intervalle,
+  approximation ou valeur arrondie.
+- Ne jamais calculer une valeur dérivée absente de la source,
+  même si le calcul est trivial.
+- Ne pas qualifier une corrélation de "significative" sans
+  test de significativité explicitement fourni.
+- Ne jamais qualifier globalement un jeu de données de
+  "complet" sur la seule base de l'absence de valeurs
+  manquantes ou de doublons.
+- Employer "variable contributive à la prédiction",
+  "importance prédictive" ou "association observée".
+  Éviter "levier", "influence" ou toute formulation pouvant
+  suggérer une intervention ou une causalité.
+- Ne pas qualifier une métrique de PCA ou de clustering de
+  faible, élevée, proche de zéro, petite ou équivalent sans
+  critère d'interprétation explicitement fourni par EMIDAF.
+- Une variable protégée, identifiante ou exclue de la
+  modélisation prédictive peut néanmoins être utilisée par
+  un autre module EMIDAF si les résultats fournis le montrent.
+  Ne jamais affirmer qu'elle n'a été utilisée dans aucune
+  analyse sans preuve explicite.
+- L'absence de corrélation paire-à-paire supérieure à un
+  seuil ne permet pas de conclure à l'absence de
+  multicolinéarité. Rapporter uniquement le constat fourni.
+- Lorsqu'une valeur exacte est disponible, ne jamais employer
+  "environ", "approximativement", une plage ou une valeur
+  arrondie à sa place.
+
 FIDÉLITÉ NUMÉRIQUE ET UNITÉS :
 - Reproduire exactement les valeurs numériques présentes
   dans les résultats EMIDAF.
