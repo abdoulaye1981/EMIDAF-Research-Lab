@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import copy
+
 import json
 
 from dash import (
@@ -2570,10 +2572,90 @@ def generate_report(
     report = engine.build()
 
     # Source scientifique textuelle dédiée au ReportWriter.
-    # Elle est indépendante du format d'export choisi
-    # pour le rapport standard.
+    #
+    # Le rapport standard reste complet pour l'utilisateur.
+    # La copie destinée à l'IA générative exclut les données
+    # observationnelles volumineuses ou identifiantes.
+    ai_report = copy.deepcopy(report)
+
+    ai_sections = ai_report.metadata.get(
+        "structured_sections",
+        [],
+    )
+
+    for ai_section in ai_sections:
+
+        ai_data = ai_section.get("data")
+
+        if not isinstance(ai_data, dict):
+            continue
+
+        # EDSE : conserver uniquement les résultats agrégés.
+        ai_data.pop(
+            "profiles",
+            None,
+        )
+
+        scenario = ai_data.get(
+            "scenario"
+        )
+
+        if isinstance(
+            scenario,
+            dict,
+        ):
+            scenario = copy.deepcopy(
+                scenario
+            )
+
+            # Ne pas transmettre les prédictions individuelles.
+            scenario.pop(
+                "table",
+                None,
+            )
+
+            ai_data[
+                "scenario"
+            ] = scenario
+
+        # Sécurité supplémentaire :
+        # supprimer les collections observationnelles directes.
+        for raw_key in (
+            "rows",
+            "records",
+            "observation_ids",
+            "student_ids",
+            "predictions",
+            "probabilities",
+        ):
+            value = ai_data.get(
+                raw_key
+            )
+
+            if isinstance(
+                value,
+                (list, tuple),
+            ):
+                ai_data.pop(
+                    raw_key,
+                    None,
+                )
+
     ai_source_content = ReportRenderer.markdown(
-        report
+        ai_report
+    )
+
+    print(
+        "[REPORT AI SOURCE]",
+        "chars=",
+        len(ai_source_content),
+        "kb=",
+        round(
+            len(
+                ai_source_content.encode("utf-8")
+            ) / 1024,
+            2,
+        ),
     )
 
     if export_format == "markdown":
