@@ -34,7 +34,7 @@ class ReportWriter:
         "complete",
     }
 
-    MAX_SOURCE_TEXT_LENGTH = 120_000
+    MAX_SOURCE_TEXT_LENGTH = 250_000
 
     def __init__(
         self,
