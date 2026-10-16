@@ -1486,6 +1486,10 @@ def _compact_emix_for_report(
         "data",
     ),
     Output(
+        "reports-ai-source-content",
+        "data",
+    ),
+    Output(
         "reports-download-button",
         "disabled",
     ),
@@ -1531,6 +1535,7 @@ def generate_report(
             no_update,
             no_update,
             no_update,
+            no_update,
         )
 
     if not selected_sections:
@@ -1543,6 +1548,7 @@ def generate_report(
                 color="warning",
             ),
             "",
+            None,
             None,
             None,
             True,
@@ -1560,6 +1566,7 @@ def generate_report(
                 color="danger",
             ),
             "",
+            None,
             None,
             None,
             True,
@@ -2562,6 +2569,13 @@ def generate_report(
 
     report = engine.build()
 
+    # Source scientifique textuelle dédiée au ReportWriter.
+    # Elle est indépendante du format d'export choisi
+    # pour le rapport standard.
+    ai_source_content = ReportRenderer.markdown(
+        report
+    )
+
     if export_format == "markdown":
 
         content = ReportRenderer.markdown(
@@ -2905,6 +2919,7 @@ def generate_report(
         preview_items,
         content,
         filename,
+        ai_source_content,
         False,
     )
 
@@ -2997,7 +3012,7 @@ def download_report(
         "value",
     ),
     State(
-        "reports-generated-content",
+        "reports-ai-source-content",
         "data",
     ),
     State(

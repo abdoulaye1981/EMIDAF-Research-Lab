@@ -1227,6 +1227,10 @@ def reports_layout(project_id, dataset_id):
                 id="reports-generated-filename",
             ),
 
+            dcc.Store(
+                id="reports-ai-source-content",
+            ),
+
             dcc.Download(
                 id="reports-download",
             ),
