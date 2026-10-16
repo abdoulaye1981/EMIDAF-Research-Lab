@@ -307,7 +307,8 @@ class ConsistencyChecker:
         generated_text: str,
         source_context: dict[str, Any],
         numeric_source_context: dict[str, Any] | None = None,
-    ) -> dict[str, Any]:
+
+        numeric_source_text: str | None = None,) -> dict[str, Any]:
 
         source_text = json.dumps(
             source_context,
@@ -315,7 +316,7 @@ class ConsistencyChecker:
             default=str,
         )
 
-        numeric_source_text = json.dumps(
+        numeric_context_text = json.dumps(
             (
                 numeric_source_context
                 if numeric_source_context is not None
@@ -347,8 +348,29 @@ class ConsistencyChecker:
             generated_for_numbers,
         )
 
-        source_for_numbers = cls._clean_text_for_numbers(
-            numeric_source_text
+        # -------------------------------------------------
+        # Référence numérique autorisée
+        # -------------------------------------------------
+        # 1. valeurs structurées canoniques d'EMIDAF ;
+        # 2. représentations numériques explicitement
+        #    présentes dans le rapport standard compact.
+        #
+        # Cela permet de reprendre une valeur arrondie ou un
+        # pourcentage uniquement lorsqu'EMIDAF l'a lui-même
+        # produit dans sa restitution scientifique.
+        numeric_reference_text = numeric_context_text
+
+        if numeric_source_text:
+            numeric_reference_text += (
+                "\n\n"
+                "RAPPORT EMIDAF DE RÉFÉRENCE :\n"
+                + numeric_source_text
+            )
+
+        source_for_numbers = (
+            cls._clean_text_for_numbers(
+                numeric_reference_text
+            )
         )
 
         generated_numbers = {
