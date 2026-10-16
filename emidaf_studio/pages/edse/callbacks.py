@@ -2328,6 +2328,7 @@ def run_contextual_assistant(
     provider = OpenRouterProvider(
         models=[
             "nvidia/nemotron-3-nano-omni-30b-a3b-reasoning:free",
+            "openrouter/free",
         ]
     )
 
