@@ -117,10 +117,31 @@ class ReportContextBuilder:
         if isinstance(exaie, dict):
             exaie = dict(exaie)
 
+            # Explication locale stockée directement
+            # dans EXAIE.
             exaie.pop(
                 "local_explanation",
                 None,
             )
+
+            # Certaines persistances EXAIE contiennent
+            # également une explication locale imbriquée
+            # dans le bloc SHAP.
+            shap = exaie.get(
+                "shap"
+            )
+
+            if isinstance(shap, dict):
+                shap = dict(shap)
+
+                shap.pop(
+                    "local_explanation",
+                    None,
+                )
+
+                exaie[
+                    "shap"
+                ] = shap
 
             compact["exaie"] = exaie
 

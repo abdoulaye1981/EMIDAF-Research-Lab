@@ -2590,11 +2590,44 @@ def generate_report(
         if not isinstance(ai_data, dict):
             continue
 
-        # EDSE : conserver uniquement les résultats agrégés.
+        # Données observationnelles à ne pas transmettre
+        # au fournisseur génératif externe.
         ai_data.pop(
             "profiles",
             None,
         )
+
+        # EXAIE : l'explication locale est liée à une
+        # observation particulière. Elle reste disponible
+        # dans le rapport standard EMIDAF mais n'est pas
+        # transmise au ReportWriter.
+        ai_data.pop(
+            "local_explanation",
+            None,
+        )
+
+        # EXAIE peut aussi contenir une explication locale
+        # imbriquée dans le bloc SHAP.
+        shap_data = ai_data.get(
+            "shap"
+        )
+
+        if isinstance(
+            shap_data,
+            dict,
+        ):
+            shap_data = copy.deepcopy(
+                shap_data
+            )
+
+            shap_data.pop(
+                "local_explanation",
+                None,
+            )
+
+            ai_data[
+                "shap"
+            ] = shap_data
 
         scenario = ai_data.get(
             "scenario"
