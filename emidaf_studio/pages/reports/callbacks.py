@@ -3329,6 +3329,39 @@ def generate_ai_enriched_report(
             color="warning",
         )
 
+    ai_validated = bool(
+        result.get(
+            "ai_validated",
+            consistency.get(
+                "valid",
+                False,
+            ),
+        )
+    )
+
+    if not ai_validated:
+        blocked_message = (
+            "La version enrichie par IA n'a pas été "
+            "validée par les contrôles de cohérence "
+            "scientifique et numérique d'EMIDAF. "
+            "Le rapport standard demeure la source "
+            "scientifique de référence."
+        )
+
+        status = dbc.Alert(
+            blocked_message,
+            color="warning",
+        )
+
+        return (
+            status,
+            consistency_view,
+            blocked_message,
+            None,
+            None,
+            True,
+        )
+
     if result.get(
         "source_truncated",
         False,
