@@ -49,6 +49,7 @@ class ReportWriter:
         analyses: dict[str, Any],
         mode: str = "complete",
         source_text: str | None = None,
+        validation_source_text: str | None = None,
     ) -> dict[str, Any]:
 
         mode = str(

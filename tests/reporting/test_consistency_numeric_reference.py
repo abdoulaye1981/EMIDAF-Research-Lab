@@ -159,3 +159,63 @@ def test_llm_created_rounding_remains_forbidden():
 
     assert result["valid"] is False
     assert "0.24" in result["suspicious_numbers"]
+
+
+def test_value_from_standard_emidaf_report_is_allowed():
+    source_context = {
+        "analyses": {}
+    }
+
+    numeric_context = {
+        "analyses": {
+            "ekde": {}
+        }
+    }
+
+    standard_report = (
+        "Cluster 1 : 1255 observations (50.2 %)\\n"
+        "Cluster 2 : 1245 observations (49.8 %)\\n"
+        "Intervalle de confiance à 95 %."
+    )
+
+    result = ConsistencyChecker.check(
+        (
+            "Les groupes représentent respectivement "
+            "50.2 % et 49.8 %. "
+            "L'intervalle de confiance est à 95 %."
+        ),
+        source_context,
+        numeric_source_context=numeric_context,
+        numeric_source_text=standard_report,
+    )
+
+    assert result["valid"] is True
+    assert result["suspicious_numbers"] == []
+
+
+def test_value_not_in_standard_report_remains_forbidden():
+    source_context = {
+        "analyses": {}
+    }
+
+    numeric_context = {
+        "analyses": {
+            "eaie": {
+                "cv_mean": 0.4074794901883356,
+            }
+        }
+    }
+
+    standard_report = (
+        "Score R² moyen : 0.4074794901883356"
+    )
+
+    result = ConsistencyChecker.check(
+        "Le modèle explique 40.75 % de la variance.",
+        source_context,
+        numeric_source_context=numeric_context,
+        numeric_source_text=standard_report,
+    )
+
+    assert result["valid"] is False
+    assert "40.75%" in result["suspicious_numbers"]

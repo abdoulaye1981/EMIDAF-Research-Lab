@@ -3131,6 +3131,10 @@ def download_report(
         "data",
     ),
     State(
+        "reports-generated-content",
+        "data",
+    ),
+    State(
         "reports-generated-filename",
         "data",
     ),
@@ -3152,6 +3156,7 @@ def generate_ai_enriched_report(
     n_clicks,
     mode,
     source_content,
+    validation_source_content,
     source_filename,
     title,
     project_id,
@@ -3245,6 +3250,9 @@ def generate_ai_enriched_report(
             analyses=analyses,
             mode=mode or "scientific",
             source_text=source_content,
+            validation_source_text=(
+                validation_source_content
+            ),
         )
 
     except Exception as exc:
