@@ -245,6 +245,29 @@ class ReportWriter:
                     default=str,
                 )
                 + "\n\n"
+                + "VALEURS NUMÉRIQUES INTERDITES DANS LA "
+                  "PROCHAINE VERSION :\n"
+                + ", ".join(
+                    consistency.get(
+                        "suspicious_numbers",
+                        [],
+                    )
+                )
+                + "\n\n"
+                + (
+                    "Pour chacune de ces valeurs :\n"
+                    "- ne la reproduis pas telle quelle ;\n"
+                    "- ne l'arrondis pas davantage ;\n"
+                    "- ne la convertis pas en pourcentage ;\n"
+                    "- ne tente pas de la recalculer ;\n"
+                    "- si la phrase n'est pas indispensable, "
+                    "supprime simplement la valeur ou la phrase ;\n"
+                    "- si le rapport source EMIDAF contient une "
+                    "représentation numérique explicitement autorisée, "
+                    "recopie exactement cette représentation "
+                    "et aucune autre.\n"
+                )
+                + "\n"
 
                 "RAPPORT À CORRIGER :\n"
                 + generated
