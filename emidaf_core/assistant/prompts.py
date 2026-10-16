@@ -504,6 +504,13 @@ RÈGLES DE SYNTHÈSE SCIENTIFIQUE :
   sont disponibles.
 - Ne jamais qualifier une association de "forte", "faible",
   "modérée" ou équivalent sans critère explicite fourni.
+- Ne jamais employer "fortement associé", "amélioration
+  substantielle", "part significative", "performance élevée"
+  ou équivalent sans critère explicite produit par EMIDAF.
+- Dans les recommandations, reprendre uniquement les
+  validations, précautions ou actions explicitement présentes
+  dans les résultats EMIDAF. Ne jamais proposer une analyse,
+  méthode ou exploration supplémentaire absente des résultats.
 
 FIDÉLITÉ NUMÉRIQUE ET UNITÉS :
 - Reproduire exactement les valeurs numériques présentes
