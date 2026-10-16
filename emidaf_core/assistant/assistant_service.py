@@ -61,7 +61,7 @@ class AssistantService:
             prompt,
             system_instruction=ASSISTANT_SYSTEM_PROMPT,
             temperature=0.1,
-            max_output_tokens=6000,
+            max_output_tokens=2500,
         )
 
         consistency = ConsistencyChecker.check(
@@ -119,7 +119,7 @@ class AssistantService:
                 correction_prompt,
                 system_instruction=ASSISTANT_SYSTEM_PROMPT,
                 temperature=0.0,
-                max_output_tokens=6000,
+                max_output_tokens=2500,
             )
 
             consistency = ConsistencyChecker.check(

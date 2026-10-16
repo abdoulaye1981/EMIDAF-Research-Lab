@@ -2190,6 +2190,24 @@ def update_teacher_agreement_dashboard(
         "edse-dataset-id",
         "data",
     ),
+    running=[
+        (
+            Output(
+                "edse-assistant-run",
+                "disabled",
+            ),
+            True,
+            False,
+        ),
+        (
+            Output(
+                "edse-assistant-run",
+                "children",
+            ),
+            "Génération en cours…",
+            "Observer, expliquer et interpréter",
+        ),
+    ],
     prevent_initial_call=True,
 )
 def run_contextual_assistant(

@@ -18,10 +18,9 @@ class OpenRouterProvider(AIProvider):
     """
 
     DEFAULT_MODELS = (
-        "nvidia/nemotron-3-super-120b-a12b:free",
-        "nvidia/nemotron-3.5-lightning:free",
-        "thinkingmachines/inkling-small:free",
+        "nvidia/nemotron-3-nano-omni-30b-a3b-reasoning:free",
         "poolside/laguna-s-2.1:free",
+        "nvidia/nemotron-3.5-lightning:free",
     )
 
     def __init__(
