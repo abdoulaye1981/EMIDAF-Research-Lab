@@ -20,7 +20,6 @@ class OpenRouterProvider(AIProvider):
     DEFAULT_MODELS = (
         "nvidia/nemotron-3-nano-omni-30b-a3b-reasoning:free",
         "poolside/laguna-s-2.1:free",
-        "nvidia/nemotron-3.5-lightning:free",
     )
 
     def __init__(
@@ -88,6 +87,8 @@ class OpenRouterProvider(AIProvider):
         client = OpenAI(
             base_url="https://openrouter.ai/api/v1",
             api_key=self.api_key,
+            timeout=25.0,
+            max_retries=0,
         )
 
         messages: list[dict[str, str]] = []
