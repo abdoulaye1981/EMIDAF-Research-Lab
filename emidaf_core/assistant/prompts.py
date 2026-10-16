@@ -499,6 +499,11 @@ RÈGLES DE SYNTHÈSE SCIENTIFIQUE :
 - Lorsqu'une valeur exacte est disponible, ne jamais employer
   "environ", "approximativement", une plage ou une valeur
   arrondie à sa place.
+- Ne jamais utiliser "autour de", "environ" ou une
+  approximation lorsqu'une ou plusieurs valeurs exactes
+  sont disponibles.
+- Ne jamais qualifier une association de "forte", "faible",
+  "modérée" ou équivalent sans critère explicite fourni.
 
 FIDÉLITÉ NUMÉRIQUE ET UNITÉS :
 - Reproduire exactement les valeurs numériques présentes
