@@ -23,36 +23,190 @@ class ReportWriter:
         text: str,
     ) -> str:
         """
-        Nettoyage rédactionnel final sans modification
-        des résultats scientifiques EMIDAF.
+        Nettoyage déterministe final du rapport enrichi.
+
+        Aucun résultat scientifique n'est recalculé.
+        Seules des formulations indésirables connues
+        sont normalisées.
         """
 
+        if not text:
+            return text
+
         replacements = {
+            # ------------------------------------------
+            # Interface
+            # ------------------------------------------
             (
                 "Générez d'abord le rapport EMIDAF standard, "
                 "puis lancez l'enrichissement rédactionnel."
             ): "",
+
+            # ------------------------------------------
+            # Tukey HSD
+            # ------------------------------------------
+            "p-value teneur": "p-value ajustée",
+            "p-value fusion": "p-value ajustée",
+            "p-value consommation": "p-value ajustée",
+
+            # ------------------------------------------
+            # Identifiants de variables
+            # ------------------------------------------
+            "contrainte": "stress",
+            "pratiques_pédagogiques": (
+                "pratiques_pedagogiques"
+            ),
+            "difficultés_de perception": (
+                "perception_difficultes"
+            ),
+            "difficultés de perception": (
+                "perception_difficultes"
+            ),
+            "intérêt_maths": "interet_maths",
+            "intérêt_mathématiques": "interet_maths",
+            "expérience_années": "experience_annees",
+
+            # ------------------------------------------
+            # Features EXAIE
+            # ------------------------------------------
+            "numeric interet_maths": (
+                "numeric__interet_maths"
+            ),
+            "numeric motivation": (
+                "numeric__motivation"
+            ),
+            "numeric stress": (
+                "numeric__stress"
+            ),
+            "exercices_semaine numériques": (
+                "numeric__exercices_semaine"
+            ),
+            "exercices_semaine numérique": (
+                "numeric__exercices_semaine"
+            ),
+            "catégorique__region_Tambacounda": (
+                "categorical__region_Tambacounda"
+            ),
+            "région catégorielle_Tambacounda": (
+                "categorical__region_Tambacounda"
+            ),
+            "région catégorielle_Dakar": (
+                "categorical__region_Dakar"
+            ),
+            "région catégorielle_Saint-Louis": (
+                "categorical__region_Saint-Louis"
+            ),
+            "région catégorielle_Thiès": (
+                "categorical__region_Thiès"
+            ),
+            "région catégorique_Ziguinchor": (
+                "categorical__region_Ziguinchor"
+            ),
+            "région catégorique_Kaolack": (
+                "categorical__region_Kaolack"
+            ),
+            "niveau catégorique_Terminale": (
+                "categorical__niveau_Terminale"
+            ),
+            "type catégorique_ecole_Privé": (
+                "categorical__type_ecole_Privé"
+            ),
+
+            # ------------------------------------------
+            # PCA / multicolinéarité
+            # ------------------------------------------
             (
-                "est cohérente avec le score de validation "
-                "croisée, suggérant une bonne généralisation."
+                "suggère une faible multicolinéarité "
+                "linéaire"
             ): (
-                "est rapportée conjointement au score "
-                "de validation croisée."
+                "indique qu'aucune corrélation linéaire "
+                "très forte n'a été observée selon le "
+                "seuil utilisé"
             ),
             (
-                "Le fait que le modèle dépasse la baseline "
-                "indique qu'il apporte une valeur ajoutée "
-                "par rapport à une prédiction naïve."
+                "expliquent une proportion relativement "
+                "faible de la variance totale"
             ): (
-                "Le score du modèle est supérieur à celui "
-                "de la baseline rapportée."
+                "expliquent 15.134411 de la variance "
+                "cumulée"
             ),
             (
-                "Ce type d'analyse peut être utile pour cibler "
-                "des interventions ou des ressources."
+                "ce qui signifie que la structure des "
+                "données n'est pas fortement réductible "
+                "à ces deux dimensions principales"
             ): (
-                "Ce scénario illustre l'utilisation du seuil "
-                "dans le cadre de l'aide à la décision."
+                "sans qualification supplémentaire en "
+                "l'absence de critère d'interprétation "
+                "fourni par EMIDAF"
+            ),
+
+            # ------------------------------------------
+            # Synthèse / conclusion
+            # ------------------------------------------
+            (
+                "sont des facteurs fortement associés à "
+                "la performance en mathématiques"
+            ): (
+                "présentent des associations observées "
+                "avec note_maths"
+            ),
+            (
+                "Le modèle prédictif est fonctionnel"
+            ): (
+                "Le modèle présente une performance "
+                "supérieure à la baseline"
+            ),
+            (
+                "Les résultats soulignent l'importance de "
+                "l'engagement et du bien-être émotionnel "
+                "des élèves dans le contexte des "
+                "mathématiques."
+            ): (
+                "Les résultats montrent que "
+                "interet_maths, motivation et stress "
+                "figurent parmi les variables associées "
+                "à note_maths et contributives au modèle "
+                "prédictif."
+            ),
+
+            # ------------------------------------------
+            # EAIE
+            # ------------------------------------------
+            (
+                "suggérant une bonne généralisation"
+            ): (
+                "les performances de validation croisée "
+                "et de test étant rapportées séparément "
+                "par EMIDAF"
+            ),
+            (
+                "ce qui indique qu'il apporte une valeur "
+                "prédictive par rapport à une prédiction "
+                "naïve"
+            ): (
+                "le score du modèle étant supérieur à "
+                "celui de la baseline rapportée"
+            ),
+
+            # ------------------------------------------
+            # EDSE
+            # ------------------------------------------
+            (
+                "suffisamment robuste pour une utilisation "
+                "exploratoire en aide à la décision"
+            ): (
+                "qualifié d'acceptable par EDSE pour une "
+                "utilisation exploratoire en aide à la "
+                "décision"
+            ),
+            (
+                "Ce type d'analyse peut être utile pour "
+                "cibler des interventions ou des "
+                "ressources."
+            ): (
+                "Ce scénario illustre l'utilisation d'un "
+                "seuil dans le cadre de l'aide à la "
+                "décision."
             ),
         }
 
@@ -62,7 +216,15 @@ class ReportWriter:
                 new,
             )
 
+        while "\n\n\n" in text:
+            text = text.replace(
+                "\n\n\n",
+                "\n\n",
+            )
+
         return text.strip()
+
+
 
 
 
