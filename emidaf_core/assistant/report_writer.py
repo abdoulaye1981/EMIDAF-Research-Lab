@@ -222,6 +222,63 @@ class ReportWriter:
                 "\n\n",
             )
 
+
+        # ----------------------------------------------
+        # Normalisations scientifiques finales
+        # PCA / EDSE
+        # ----------------------------------------------
+
+        final_replacements = {
+            (
+                "capturent une proportion relativement "
+                "faible de la variance totale "
+                "(15,134411 %)"
+            ): (
+                "expliquent 15,134411 % de la variance "
+                "cumulée"
+            ),
+
+            (
+                "suggérant que la structure des données "
+                "est complexe et ne peut pas être réduite "
+                "efficacement à deux dimensions sans "
+                "perte d'information significative"
+            ): (
+                "sans qualification supplémentaire de "
+                "la structure des données en l'absence "
+                "de critère d'interprétation explicite "
+                "fourni par EMIDAF"
+            ),
+
+            (
+                "suggérant une structure "
+                "multidimensionnelle complexe"
+            ): (
+                "sans qualification supplémentaire de "
+                "la structure des données"
+            ),
+
+            (
+                "Ce type d'analyse permet d'identifier "
+                "des groupes d'observations répondant à "
+                "des critères spécifiques, ce qui peut "
+                "être utile pour des interventions "
+                "ciblées ou des analyses plus "
+                "approfondies."
+            ): (
+                "Ce type d'analyse permet d'identifier "
+                "les observations répondant au seuil "
+                "défini. Toute utilisation pratique "
+                "nécessite une validation métier et "
+                "contextuelle."
+            ),
+        }
+
+        for old, new in final_replacements.items():
+            text = text.replace(
+                old,
+                new,
+            )
         return text.strip()
 
 
