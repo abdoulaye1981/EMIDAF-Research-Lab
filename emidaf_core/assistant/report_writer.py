@@ -279,38 +279,16 @@ class ReportWriter:
         )
 
         # ==================================================
-        # Protection numérique avant transmission au LLM
+        # Source rédactionnelle du rapport enrichi
         # ==================================================
+        # Les valeurs numériques restent sous leur forme
+        # originale. Le ConsistencyChecker assure ensuite
+        # le contrôle numérique local.
         numeric_token_map = {}
         numeric_token_index = 1
 
-        (
-            protected_context_json,
-            context_numeric_map,
-            numeric_token_index,
-        ) = self._protect_numeric_literals(
-            context_json,
-            prefix="EMIDAFNUM",
-            start_index=numeric_token_index,
-        )
-
-        numeric_token_map.update(
-            context_numeric_map
-        )
-
-        (
-            protected_source_text,
-            source_numeric_map,
-            numeric_token_index,
-        ) = self._protect_numeric_literals(
-            source_text or "",
-            prefix="EMIDAFNUM",
-            start_index=numeric_token_index,
-        )
-
-        numeric_token_map.update(
-            source_numeric_map
-        )
+        protected_context_json = context_json
+        protected_source_text = source_text or ""
 
         prompt = (
             f"MODE DU RAPPORT : {mode}\n\n"
@@ -406,6 +384,44 @@ class ReportWriter:
             "des résultats et la présentation des limites. "
             "Il ne doit jamais produire de science nouvelle.\n\n"
 
+            "STRUCTURE OBLIGATOIRE DU RAPPORT FINAL :\n"
+            "Résumé exécutif\n"
+            "1. Présentation du projet et des données\n"
+            "2. Qualité et préparation des données\n"
+            "3. Analyse descriptive et exploratoire (ELAE)\n"
+            "4. Analyse textuelle et qualitative (ETAE / EQAE)\n"
+            "5. Découverte de connaissances (EKDE)\n"
+            "6. Modélisation prédictive (EAIE)\n"
+            "7. Explicabilité des modèles (EXAIE)\n"
+            "8. Aide à la décision (EDSE)\n"
+            "9. Synthèse intégrée\n"
+            "10. Limites méthodologiques générales\n"
+            "11. Conclusion générale\n\n"
+
+            "Pour chaque module pertinent, distingue clairement :\n"
+            "- les résultats ;\n"
+            "- leur interprétation ;\n"
+            "- les liens descriptifs avec les autres modules ;\n"
+            "- les limites méthodologiques.\n\n"
+
+            "IMPORTANT : le rapport doit aller jusqu'à la "
+            "Conclusion générale. Ne termine jamais la réponse "
+            "au milieu d'une section ou d'un tableau.\n\n"
+
+            "Les noms techniques des variables, modèles, modules "
+            "et indicateurs doivent être reproduits exactement "
+            "comme dans EMIDAF. Ne les traduis pas et ne les "
+            "renomme pas.\n\n"
+
+            "GESTION DES TABLEAUX ET SORTIES TECHNIQUES :\n"
+            "Ne recopie pas intégralement les matrices, "
+            "DataFrames, dictionnaires Python, listes massives "
+            "ou tableaux de centaines de lignes. "
+            "Présente les résultats scientifiques pertinents "
+            "et les principales valeurs nécessaires à leur "
+            "interprétation. Le rapport standard EMIDAF conserve "
+            "les sorties techniques détaillées.\n\n"
+
             "RAPPORT EMIDAF À ENRICHIR :\n"
             + protected_source_text
             + "\n\n"
@@ -425,7 +441,7 @@ class ReportWriter:
                 REPORT_SYSTEM_PROMPT
             ),
             temperature=0.10,
-            max_output_tokens=8192,
+            max_output_tokens=16384,
         )
 
         placeholder_audit = (
@@ -468,20 +484,8 @@ class ReportWriter:
             regenerated = True
             regeneration_count += 1
 
-            (
-                protected_generated,
-                regenerated_numeric_map,
-                numeric_token_index,
-            ) = self._protect_numeric_literals(
-                generated,
-                prefix="EMIDAFCORR",
-                start_index=numeric_token_index,
-            )
-
-            correction_numeric_map = {
-                **numeric_token_map,
-                **regenerated_numeric_map,
-            }
+            protected_generated = generated
+            correction_numeric_map = {}
 
             correction_prompt = (
                 "Le rapport précédent contient encore des "
@@ -595,7 +599,7 @@ class ReportWriter:
                     REPORT_SYSTEM_PROMPT
                 ),
                 temperature=0.0,
-                max_output_tokens=8192,
+                max_output_tokens=16384,
             )
 
             placeholder_audit = (
