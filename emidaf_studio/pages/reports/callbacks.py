@@ -1,4 +1,5 @@
 from __future__ import annotations
+from emidaf_core.assistant.report_writer import finalize_emidaf_ai_report_text
 
 import copy
 

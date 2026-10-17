@@ -1,16 +1,16 @@
 (function () {
-    function protectEmidafReports() {
-        const path = window.location.pathname || "";
+    function lockTranslation() {
+        const pathname = window.location.pathname || "";
 
-        if (!path.includes("/reports")) {
+        if (!pathname.includes("/reports")) {
             return;
         }
 
+        document.documentElement.lang = "fr";
         document.documentElement.setAttribute(
             "translate",
             "no"
         );
-
         document.documentElement.classList.add(
             "notranslate"
         );
@@ -20,11 +20,19 @@
                 "translate",
                 "no"
             );
-
             document.body.classList.add(
                 "notranslate"
             );
         }
+
+        document
+            .querySelectorAll("*")
+            .forEach(function (element) {
+                element.setAttribute(
+                    "translate",
+                    "no"
+                );
+            });
 
         let meta = document.querySelector(
             'meta[name="google"]'
@@ -34,37 +42,24 @@
             meta = document.createElement(
                 "meta"
             );
-
-            meta.setAttribute(
-                "name",
-                "google"
-            );
-
+            meta.name = "google";
             document.head.appendChild(
                 meta
             );
         }
 
-        meta.setAttribute(
-            "content",
-            "notranslate"
-        );
+        meta.content = "notranslate";
     }
 
-    protectEmidafReports();
+    lockTranslation();
 
     document.addEventListener(
         "DOMContentLoaded",
-        protectEmidafReports
-    );
-
-    window.addEventListener(
-        "popstate",
-        protectEmidafReports
+        lockTranslation
     );
 
     const observer = new MutationObserver(
-        protectEmidafReports
+        lockTranslation
     );
 
     observer.observe(

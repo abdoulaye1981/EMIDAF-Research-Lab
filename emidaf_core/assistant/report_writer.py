@@ -16,9 +16,166 @@ from .report_context_builder import (
 )
 
 
+
+def finalize_emidaf_ai_report_text(
+    text: str,
+) -> str:
+    """
+    Dernière barrière déterministe avant restitution.
+
+    Ne recalcule rien.
+    Ne modifie aucune valeur scientifique.
+    Corrige uniquement les transformations rédactionnelles
+    indésirables connues dans le rapport enrichi.
+    """
+
+    if not text:
+        return text
+
+    replacements = {
+        # Interface
+        (
+            "Générez d'abord le rapport EMIDAF standard, "
+            "puis lancez l'enrichissement rédactionnel."
+        ): "",
+
+        # Tukey
+        "p-value teneur": "p-value ajustée",
+        "p-value fusion": "p-value ajustée",
+        "p-value consommation": "p-value ajustée",
+
+        # Variables
+        "contrainte": "stress",
+        "pratiques_pédagogiques": "pratiques_pedagogiques",
+        "difficultés_de perception": "perception_difficultes",
+        "difficultés de perception": "perception_difficultes",
+        "intérêt_maths": "interet_maths",
+        "intérêt_mathématiques": "interet_maths",
+        "expérience_années": "experience_annees",
+
+        # EXAIE
+        "numeric interet_maths": "numeric__interet_maths",
+        "numeric motivation": "numeric__motivation",
+        "numeric stress": "numeric__stress",
+
+        "catégorie__region_Tambacounda":
+            "categorical__region_Tambacounda",
+        "catégorique__region_Tambacounda":
+            "categorical__region_Tambacounda",
+        "catégorielle__region_Tambacounda":
+            "categorical__region_Tambacounda",
+
+        "catégorie__region_Dakar":
+            "categorical__region_Dakar",
+        "catégorique__region_Dakar":
+            "categorical__region_Dakar",
+        "catégorielle__region_Dakar":
+            "categorical__region_Dakar",
+
+        "catégorie__region_Saint-Louis":
+            "categorical__region_Saint-Louis",
+        "catégorique__region_Saint-Louis":
+            "categorical__region_Saint-Louis",
+        "catégorielle__region_Saint-Louis":
+            "categorical__region_Saint-Louis",
+
+        # PCA : rester descriptif
+        (
+            "capturent une proportion relativement faible "
+            "de la variance totale"
+        ): (
+            "expliquent une part de la variance totale"
+        ),
+        (
+            "capturent une fraction limitée de la variance "
+            "totale des données numériques"
+        ): (
+            "expliquent une part de la variance totale "
+            "des données numériques"
+        ),
+        (
+            "expliquent une part limitée de la variance totale"
+        ): (
+            "expliquent 15,134411 % de la variance cumulée"
+        ),
+        (
+            "suggérant une structure multidimensionnelle complexe"
+        ): (
+            "sans qualification supplémentaire de la structure "
+            "des données"
+        ),
+        (
+            "suggérant que la structure des données est complexe "
+            "et ne peut pas être réduite efficacement à deux "
+            "dimensions sans perte d'information significative"
+        ): (
+            "sans qualification supplémentaire en l'absence "
+            "de critère d'interprétation fourni par EMIDAF"
+        ),
+
+        # Associations
+        (
+            "associations prédictives robustes"
+        ): (
+            "associations observées et contributions prédictives"
+        ),
+        (
+            "facteurs fortement associés"
+        ): (
+            "variables présentant des associations observées"
+        ),
+
+        # EDSE
+        (
+            "ce qui peut être utile pour des interventions "
+            "ciblées ou des analyses plus approfondies"
+        ): (
+            "ce qui permet d'identifier les observations "
+            "répondant au seuil défini"
+        ),
+        (
+            "Ce type d'analyse peut être utile pour cibler "
+            "des interventions ou des ressources."
+        ): (
+            "Ce scénario permet d'identifier les observations "
+            "répondant au seuil défini. Une validation métier "
+            "reste nécessaire."
+        ),
+
+        # Surinterprétations diverses
+        (
+            "suggérant une certaine dispersion"
+        ): (
+            "décrivant la dispersion observée"
+        ),
+    }
+
+    for old, new in replacements.items():
+        text = text.replace(
+            old,
+            new,
+        )
+
+    while "\n\n\n" in text:
+        text = text.replace(
+            "\n\n\n",
+            "\n\n",
+        )
+
+    return text.strip()
+
+
 class ReportWriter:
 
     @staticmethod
+    def _finalize_scientific_wording(
+        text: str,
+    ) -> str:
+        return finalize_emidaf_ai_report_text(
+            text
+        )
+
+
     def _finalize_scientific_wording(
         text: str,
     ) -> str:
