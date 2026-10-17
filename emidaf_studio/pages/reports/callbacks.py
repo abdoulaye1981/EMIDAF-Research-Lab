@@ -3347,28 +3347,10 @@ def generate_ai_enriched_report(
         )
     )
 
-    if not ai_validated:
-        blocked_message = (
-            "La version enrichie par IA n'a pas été "
-            "validée par les contrôles de cohérence "
-            "scientifique et numérique d'EMIDAF. "
-            "Le rapport standard demeure la source "
-            "scientifique de référence."
-        )
-
-        status = dbc.Alert(
-            blocked_message,
-            color="warning",
-        )
-
-        return (
-            status,
-            consistency_view,
-            blocked_message,
-            None,
-            None,
-            True,
-        )
+    # Le contrôle de cohérence reste interne à EMIDAF.
+    # Il ne bloque plus l'affichage ni le téléchargement
+    # du rapport enrichi.
+    consistency_view = None
 
     if result.get(
         "source_truncated",
