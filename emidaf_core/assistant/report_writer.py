@@ -422,6 +422,56 @@ class ReportWriter:
             "interprétation. Le rapport standard EMIDAF conserve "
             "les sorties techniques détaillées.\n\n"
 
+            "FIDÉLITÉ SCIENTIFIQUE OBLIGATOIRE :\n"
+            "1. Commence toujours le rapport par un véritable "
+            "Résumé exécutif scientifique. Ne recopie jamais "
+            "une instruction d'interface telle que 'Générez "
+            "d'abord le rapport EMIDAF standard'.\n"
+
+            "2. Les noms techniques des variables doivent être "
+            "reproduits exactement comme dans EMIDAF. "
+            "Ne les traduis pas, ne les francise pas, ne les "
+            "corrige pas et ne les renomme pas. "
+            "Par exemple, conserve exactement 'stress', "
+            "'perception_difficultes', 'interet_maths', "
+            "'feedback_prof', etc.\n"
+
+            "3. Pour les résultats post-hoc ou toute liste de "
+            "comparaisons, examine l'ensemble des résultats "
+            "disponibles. Toute comparaison avec reject=True "
+            "doit être rapportée. Ne dis jamais qu'il existe "
+            "une seule comparaison significative sans avoir "
+            "pris en compte toutes les comparaisons persistées "
+            "par EMIDAF.\n"
+
+            "4. Les expressions 'statistiquement significatif' "
+            "ou 'statistiquement significative' sont réservées "
+            "aux résultats pour lesquels EMIDAF fournit "
+            "explicitement un test statistique avec décision "
+            "ou p-value correspondante.\n"
+
+            "5. Une corrélation numérique seule doit être "
+            "décrite comme une association observée. "
+            "Ne la qualifie jamais de statistiquement "
+            "significative sans test explicite.\n"
+
+            "6. Ne qualifie jamais une valeur, une performance, "
+            "une association, un effet, un clustering ou une "
+            "importance comme faible, modéré, fort, élevé, "
+            "important, substantiel, satisfaisant, pertinent "
+            "ou équivalent, sauf si cette qualification est "
+            "explicitement fournie par EMIDAF.\n"
+
+            "7. Lorsqu'EMIDAF fournit une qualification "
+            "explicite, par exemple 'négligeable' pour une "
+            "taille d'effet ou 'acceptable' pour une "
+            "évaluation EDSE, tu peux la reprendre en "
+            "l'attribuant clairement au module concerné.\n"
+
+            "8. Ne transforme jamais une association en "
+            "relation causale et ne présente jamais une "
+            "importance prédictive comme une preuve de cause.\n\n"
+
             "RAPPORT EMIDAF À ENRICHIR :\n"
             + protected_source_text
             + "\n\n"
