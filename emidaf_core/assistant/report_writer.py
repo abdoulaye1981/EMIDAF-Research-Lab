@@ -1206,7 +1206,7 @@ class ReportWriter:
             )
 
         generated = (
-            self._finalize_scientific_wording(
+            finalize_emidaf_ai_report_text(
                 generated
             )
         )
