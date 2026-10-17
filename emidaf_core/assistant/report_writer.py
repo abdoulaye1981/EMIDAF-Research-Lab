@@ -410,10 +410,6 @@ class ReportWriter:
             + protected_source_text
             + "\n\n"
 
-            "CONTEXTE STRUCTURÉ EMIDAF :\n"
-            + protected_context_json
-            + "\n\n"
-
             "RÈGLE SUR LES MARQUEURS :\n"
             "Les chaînes de la forme [[EMIDAFNUM_*]] "
             "représentent des valeurs numériques produites "
@@ -463,7 +459,7 @@ class ReportWriter:
 
         regenerated = False
         regeneration_count = 0
-        max_regenerations = 2
+        max_regenerations = 1
 
         while (
             not consistency.get("valid", False)
@@ -583,10 +579,6 @@ class ReportWriter:
                 + protected_source_text
                 + "\n\n"
 
-                "CONTEXTE STRUCTURÉ EMIDAF :\n"
-                + protected_context_json
-                + "\n\n"
-
                 "RÈGLE SUR LES MARQUEURS :\n"
                 "Ne modifie jamais un marqueur de la forme "
                 "[[EMIDAFNUM_*]] ou [[EMIDAFCORR_*]]. "
@@ -641,15 +633,6 @@ class ReportWriter:
                 False,
             )
         )
-
-        if not ai_validated:
-            generated = (
-                "La version enrichie par IA n'a pas été "
-                "validée par les contrôles de cohérence "
-                "scientifique et numérique d'EMIDAF. "
-                "Le rapport standard demeure la source "
-                "scientifique de référence."
-            )
 
         model = getattr(
             self.provider,
