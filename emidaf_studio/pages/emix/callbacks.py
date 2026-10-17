@@ -839,6 +839,597 @@ def _extract_eaie_elements(
     return elements
 
 
+
+# ==========================================================
+# Candidats quantitatifs EMIX
+# ==========================================================
+
+
+def _safe_float(value):
+    """
+    Convertit une valeur numérique si possible.
+    Retourne None sinon.
+    """
+    try:
+        return float(value)
+    except (TypeError, ValueError):
+        return None
+
+
+def _extract_target_correlations(
+    payload,
+    *,
+    target,
+    matrix_path,
+):
+    """
+    Extrait uniquement les associations entre une cible
+    et les autres variables d'une matrice de corrélation.
+
+    Aucun seuil qualitatif n'est appliqué.
+    """
+    if not isinstance(payload, dict):
+        return []
+
+    current = payload
+
+    for key in matrix_path:
+        if not isinstance(current, dict):
+            return []
+
+        current = current.get(
+            key,
+            {},
+        )
+
+    matrix = current
+
+    if not isinstance(matrix, dict):
+        return []
+
+    if not target:
+        return []
+
+    target_row = matrix.get(
+        target,
+        {},
+    )
+
+    if not isinstance(target_row, dict):
+        return []
+
+    elements = []
+
+    for variable, value in target_row.items():
+
+        if variable == target:
+            continue
+
+        correlation = _safe_float(
+            value
+        )
+
+        if correlation is None:
+            continue
+
+        elements.append(
+            {
+                "variable": str(variable),
+                "target": str(target),
+                "correlation": correlation,
+            }
+        )
+
+    return elements
+
+
+def _extract_eaie_feature_names(
+    payload,
+):
+    """
+    Extrait les prédicteurs EAIE tels qu'ils sont
+    persistés par le moteur.
+    """
+    if not isinstance(payload, dict):
+        return []
+
+    features = payload.get(
+        "features",
+        [],
+    )
+
+    if not isinstance(features, list):
+        return []
+
+    result = []
+
+    for feature in features:
+        value = str(feature).strip()
+
+        if value:
+            result.append(value)
+
+    return result
+
+
+def _extract_global_shap_importance(
+    exaie_payload,
+):
+    """
+    Extrait uniquement les importances SHAP globales.
+
+    Les explications locales EXAIE sont volontairement
+    ignorées.
+    """
+    if not isinstance(
+        exaie_payload,
+        dict,
+    ):
+        return {}
+
+    shap_section = exaie_payload.get(
+        "shap",
+        {},
+    )
+
+    if not isinstance(
+        shap_section,
+        dict,
+    ):
+        return {}
+
+    if not shap_section.get(
+        "available",
+        False,
+    ):
+        return {}
+
+    feature_importance = (
+        shap_section.get(
+            "feature_importance",
+            {},
+        )
+    )
+
+    if not isinstance(
+        feature_importance,
+        dict,
+    ):
+        return {}
+
+    result = {}
+
+    for name, value in (
+        feature_importance.items()
+    ):
+        number = _safe_float(
+            value
+        )
+
+        if number is not None:
+            result[
+                str(name)
+            ] = number
+
+    return result
+
+
+def _eaie_feature_shap_value(
+    feature,
+    shap_importance,
+):
+    """
+    Recherche une importance SHAP globale associée
+    directement à un prédicteur EAIE.
+
+    Pour les variables numériques, le pipeline utilise
+    typiquement la forme numeric__nom_variable.
+
+    Aucun regroupement automatique des modalités
+    catégorielles n'est effectué ici.
+    """
+    if not isinstance(
+        shap_importance,
+        dict,
+    ):
+        return None
+
+    direct_candidates = (
+        str(feature),
+        f"numeric__{feature}",
+    )
+
+    for candidate in direct_candidates:
+        if candidate in shap_importance:
+            return shap_importance[
+                candidate
+            ]
+
+    return None
+
+
+def _generate_correlation_eaie_candidates(
+    *,
+    source_stage,
+    correlations,
+    eaie_payload,
+    exaie_payload=None,
+):
+    """
+    Génère des rapprochements potentiels entre
+    des associations descriptives/corrélationnelles
+    et les prédicteurs EAIE.
+
+    La présence dans plusieurs modules ne constitue
+    ni une convergence scientifique validée,
+    ni une relation causale.
+    """
+    if not isinstance(
+        eaie_payload,
+        dict,
+    ):
+        return []
+
+    target = str(
+        eaie_payload.get(
+            "target",
+            "",
+        )
+    ).strip()
+
+    if not target:
+        return []
+
+    features = set(
+        _extract_eaie_feature_names(
+            eaie_payload
+        )
+    )
+
+    if not features:
+        return []
+
+    shap_importance = (
+        _extract_global_shap_importance(
+            exaie_payload
+        )
+    )
+
+    candidates = []
+
+    for item in correlations:
+
+        variable = item[
+            "variable"
+        ]
+
+        if variable not in features:
+            continue
+
+        correlation = item[
+            "correlation"
+        ]
+
+        shap_value = (
+            _eaie_feature_shap_value(
+                variable,
+                shap_importance,
+            )
+        )
+
+        source_id = (
+            f"{source_stage}-source"
+        )
+
+        element_1 = (
+            f"{source_stage.upper()} : "
+            f"association observée entre "
+            f"{variable} et {target} "
+            f"(corrélation = {correlation})."
+        )
+
+        element_2 = (
+            f"EAIE : {variable} est utilisé "
+            f"comme prédicteur de {target}."
+        )
+
+        if shap_value is not None:
+            element_2 += (
+                " EXAIE fournit également "
+                "une importance SHAP globale "
+                f"pour numeric__{variable} "
+                f"de {shap_value}."
+            )
+
+        candidate_id = _candidate_id(
+            (
+                f"{source_stage}:"
+                f"{variable}:{target}"
+            ),
+            (
+                f"eaie:"
+                f"{variable}:{target}"
+            ),
+        )
+
+        metadata = {
+            "integration_family": (
+                f"{source_stage}_eaie"
+            ),
+            "variable": variable,
+            "target": target,
+            "correlation": correlation,
+        }
+
+        if shap_value is not None:
+            metadata[
+                "global_shap_importance"
+            ] = shap_value
+
+        candidates.append(
+            {
+                "candidate_id": (
+                    candidate_id
+                ),
+                "source_id_1": (
+                    source_id
+                ),
+                "source_id_2": (
+                    "eaie-source"
+                ),
+                "element_1": (
+                    element_1
+                ),
+                "element_2": (
+                    element_2
+                ),
+                "rationale": (
+                    "La même variable apparaît "
+                    "dans deux cadres analytiques "
+                    "distincts. Ce rapprochement "
+                    "doit être examiné par le "
+                    "chercheur avant toute "
+                    "qualification scientifique."
+                ),
+                "status": "pending",
+                "metadata": metadata,
+            }
+        )
+
+    candidates.sort(
+        key=lambda item: abs(
+            item[
+                "metadata"
+            ][
+                "correlation"
+            ]
+        ),
+        reverse=True,
+    )
+
+    return candidates
+
+
+def _generate_elae_eaie_candidates(
+    elae_payload,
+    eaie_payload,
+    exaie_payload=None,
+):
+    """
+    Candidats ELAE ↔ EAIE autour de la cible EAIE.
+    """
+    target = (
+        eaie_payload.get(
+            "target"
+        )
+        if isinstance(
+            eaie_payload,
+            dict,
+        )
+        else None
+    )
+
+    correlations = (
+        _extract_target_correlations(
+            elae_payload,
+            target=target,
+            matrix_path=(
+                "correlations",
+                "matrix",
+            ),
+        )
+    )
+
+    return (
+        _generate_correlation_eaie_candidates(
+            source_stage="elae",
+            correlations=correlations,
+            eaie_payload=eaie_payload,
+            exaie_payload=exaie_payload,
+        )
+    )
+
+
+def _generate_ekde_eaie_candidates(
+    ekde_payload,
+    eaie_payload,
+    exaie_payload=None,
+):
+    """
+    Candidats EKDE ↔ EAIE autour de la cible EAIE.
+    """
+    target = (
+        eaie_payload.get(
+            "target"
+        )
+        if isinstance(
+            eaie_payload,
+            dict,
+        )
+        else None
+    )
+
+    correlations = (
+        _extract_target_correlations(
+            ekde_payload,
+            target=target,
+            matrix_path=(
+                "structure",
+                "correlation_matrix",
+            ),
+        )
+    )
+
+    return (
+        _generate_correlation_eaie_candidates(
+            source_stage="ekde",
+            correlations=correlations,
+            eaie_payload=eaie_payload,
+            exaie_payload=exaie_payload,
+        )
+    )
+
+
+def _generate_eaie_edse_candidates(
+    eaie_payload,
+    edse_payload,
+):
+    """
+    Génère un candidat de niveau modèle lorsque
+    EAIE et EDSE utilisent la même cible.
+
+    Le candidat n'affirme ni accord des résultats,
+    ni convergence, ni validité décisionnelle.
+    """
+    if not isinstance(
+        eaie_payload,
+        dict,
+    ):
+        return []
+
+    if not isinstance(
+        edse_payload,
+        dict,
+    ):
+        return []
+
+    eaie_target = str(
+        eaie_payload.get(
+            "target",
+            "",
+        )
+    ).strip()
+
+    edse_target = str(
+        edse_payload.get(
+            "target",
+            "",
+        )
+    ).strip()
+
+    if (
+        not eaie_target
+        or not edse_target
+        or eaie_target != edse_target
+    ):
+        return []
+
+    eaie_model = str(
+        eaie_payload.get(
+            "model_name",
+            "",
+        )
+    ).strip()
+
+    edse_model = str(
+        edse_payload.get(
+            "model_name",
+            "",
+        )
+    ).strip()
+
+    threshold = _safe_float(
+        edse_payload.get(
+            "threshold"
+        )
+    )
+
+    element_1 = (
+        "EAIE : modèle prédictif "
+        f"portant sur la cible "
+        f"{eaie_target}"
+    )
+
+    if eaie_model:
+        element_1 += (
+            f" ({eaie_model})"
+        )
+
+    element_1 += "."
+
+    element_2 = (
+        "EDSE : aide à la décision "
+        f"construite autour de la même "
+        f"cible {edse_target}"
+    )
+
+    if edse_model:
+        element_2 += (
+            f" ({edse_model})"
+        )
+
+    if threshold is not None:
+        element_2 += (
+            f", avec un seuil de "
+            f"{threshold}"
+        )
+
+    element_2 += "."
+
+    candidate_id = _candidate_id(
+        f"eaie:model:{eaie_target}",
+        f"edse:decision:{edse_target}",
+    )
+
+    return [
+        {
+            "candidate_id": (
+                candidate_id
+            ),
+            "source_id_1": (
+                "eaie-source"
+            ),
+            "source_id_2": (
+                "edse-source"
+            ),
+            "element_1": (
+                element_1
+            ),
+            "element_2": (
+                element_2
+            ),
+            "rationale": (
+                "EAIE et EDSE portent sur "
+                "la même cible. Ce lien "
+                "fonctionnel doit être examiné "
+                "par le chercheur ; il ne "
+                "constitue pas automatiquement "
+                "une convergence scientifique."
+            ),
+            "status": "pending",
+            "metadata": {
+                "integration_family": (
+                    "eaie_edse"
+                ),
+                "target": eaie_target,
+                "eaie_model": eaie_model,
+                "edse_model": edse_model,
+                "threshold": threshold,
+            },
+        }
+    ]
+
+
 def _extract_eqae_elements(
     payload,
 ):
@@ -5610,6 +6201,53 @@ def generate_emix_candidates(
         },
         flush=True,
     )
+
+    if (
+        "elae" in selected
+        and "eaie" in selected
+    ):
+        generated.extend(
+            _generate_elae_eaie_candidates(
+                analyses.get("elae"),
+                analyses.get("eaie"),
+                analyses.get("exaie"),
+            )
+        )
+
+        generators_used.append(
+            "elae_eaie_target_v1"
+        )
+
+    if (
+        "ekde" in selected
+        and "eaie" in selected
+    ):
+        generated.extend(
+            _generate_ekde_eaie_candidates(
+                analyses.get("ekde"),
+                analyses.get("eaie"),
+                analyses.get("exaie"),
+            )
+        )
+
+        generators_used.append(
+            "ekde_eaie_target_v1"
+        )
+
+    if (
+        "eaie" in selected
+        and "edse" in selected
+    ):
+        generated.extend(
+            _generate_eaie_edse_candidates(
+                analyses.get("eaie"),
+                analyses.get("edse"),
+            )
+        )
+
+        generators_used.append(
+            "eaie_edse_target_v1"
+        )
 
     if (
         "eaie" in selected
