@@ -162,6 +162,17 @@ def finalize_emidaf_ai_report_text(
             "\n\n",
         )
 
+
+    # Sécurité finale : aucun marqueur interne EMIDAFNUM
+    # ne doit être visible dans un rapport utilisateur.
+    text = re.sub(
+        r"\[{1,2}EMIDAFNUM_?"
+        r"([+-]?(?:\d+(?:[.,]\d+)?|[.,]\d+)"
+        r"(?:[eE][+-]?\d+)?)"
+        r"\]{1,2}",
+        r"\1",
+        text,
+    )
     return text.strip()
 
 
@@ -471,71 +482,16 @@ class ReportWriter:
         start_index: int = 1,
     ) -> tuple[str, dict[str, str], int]:
         """
-        Remplace chaque représentation numérique visible
-        par un marqueur opaque avant transmission au LLM.
+        Compatibilité historique.
 
-        Exemple :
-            0.4074794901883356
-        devient :
-            [[EMIDAFNUM_AAAA]]
-
-        Les marqueurs ne contiennent volontairement aucun
-        chiffre afin de ne pas être interprétés comme des
-        valeurs numériques par les contrôles ultérieurs.
+        La protection numérique par placeholders est
+        désactivée. Les valeurs numériques originales
+        sont transmises telles quelles.
         """
-
-        if not text:
-            return text, {}, start_index
-
-        mapping: dict[str, str] = {}
-        counter = start_index
-
-        def encode_index(value: int) -> str:
-            letters = []
-
-            while value > 0:
-                value -= 1
-                letters.append(
-                    chr(
-                        ord("A")
-                        + (value % 26)
-                    )
-                )
-                value //= 26
-
-            return "".join(
-                reversed(letters)
-            ) or "A"
-
-        def replace(match):
-            nonlocal counter
-
-            literal = match.group(0)
-
-            token = (
-                "[["
-                + prefix
-                + "_"
-                + encode_index(counter)
-                + "]]"
-            )
-
-            mapping[token] = literal
-            counter += 1
-
-            return token
-
-        protected = (
-            cls._NUMERIC_LITERAL_PATTERN.sub(
-                replace,
-                text,
-            )
-        )
-
         return (
-            protected,
-            mapping,
-            counter,
+            text,
+            {},
+            start_index,
         )
 
     @staticmethod
