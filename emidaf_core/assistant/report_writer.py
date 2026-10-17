@@ -173,6 +173,197 @@ def finalize_emidaf_ai_report_text(
         r"\1",
         text,
     )
+
+    # ======================================================
+    # NORMALISATION SCIENTIFIQUE FINALE
+    # ======================================================
+
+    final_scientific_replacements = {
+
+        # --------------------------------------------------
+        # EXAIE : identifiants techniques immuables
+        # --------------------------------------------------
+        "numericinteret_maths":
+            "numeric__interet_maths",
+
+        "numericmotivation":
+            "numeric__motivation",
+
+        "numericstress":
+            "numeric__stress",
+
+        "numericexercices_semaine":
+            "numeric__exercices_semaine",
+
+        "categoricalregion_Tambacounda":
+            "categorical__region_Tambacounda",
+
+        "categoricalregion_Dakar":
+            "categorical__region_Dakar",
+
+        "categoricalregion_Saint-Louis":
+            "categorical__region_Saint-Louis",
+
+        # --------------------------------------------------
+        # PCA : rester strictement descriptif
+        # --------------------------------------------------
+        (
+            "Cela suggère que la structure sous-jacente "
+            "des données n'est pas fortement réductible "
+            "à deux dimensions principales, ou que les "
+            "variables sont relativement indépendantes "
+            "dans l'espace des composantes principales. "
+            "Il est possible que plus de composantes "
+            "soient nécessaires pour capturer une part "
+            "significative de la variance."
+        ): (
+            "Cette valeur est rapportée de manière "
+            "descriptive. Aucune qualification "
+            "supplémentaire de la structure des données "
+            "n'est retenue en l'absence de critère "
+            "d'interprétation explicite fourni par EMIDAF."
+        ),
+
+        (
+            "un score de silhouette de "
+            "0.05674390559442719 peut indiquer un "
+            "chevauchement important entre les clusters "
+            "ou une absence de structure de cluster "
+            "bien définie"
+        ): (
+            "le score de silhouette est de "
+            "0.05674390559442719, sans qualification "
+            "supplémentaire en l'absence de critère "
+            "d'interprétation explicite fourni par EMIDAF"
+        ),
+
+        (
+            "La PCA avec seulement deux composantes "
+            "peut ne pas capturer la complexité totale "
+            "des relations entre les variables."
+        ): (
+            "La PCA présentée utilise deux composantes "
+            "et explique 15.134411 % de la variance "
+            "cumulée."
+        ),
+
+        # --------------------------------------------------
+        # Corrélations / multicolinéarité
+        # --------------------------------------------------
+        (
+            "confirme l'absence de multicolinéarité forte "
+            "entre les variables numériques, car aucune "
+            "paire n'atteint le seuil de 0.9"
+        ): (
+            "montre qu'aucune paire de variables "
+            "numériques n'atteint le seuil de corrélation "
+            "de 0.9"
+        ),
+
+        # --------------------------------------------------
+        # EAIE : éviter les extrapolations
+        # --------------------------------------------------
+        (
+            "L'écart-type en validation croisée "
+            "(0.0394846908837022) suggère une certaine "
+            "stabilité de la performance du modèle à "
+            "travers les différents plis de la validation "
+            "croisée."
+        ): (
+            "L'écart-type en validation croisée est de "
+            "0.0394846908837022."
+        ),
+
+        (
+            "ce qui est un indicateur positif de sa "
+            "capacité prédictive"
+        ): (
+            "ce qui constitue le constat que le score du "
+            "modèle est supérieur à celui de la baseline"
+        ),
+
+        (
+            "bien que supérieur à la baseline, indique "
+            "qu'une part significative de la variance de "
+            "la \"note_maths\" n'est pas expliquée par "
+            "le modèle. Cela peut être dû à des variables "
+            "non incluses, à des relations non linéaires "
+            "non capturées par la régression linéaire, "
+            "ou à une variabilité intrinsèque des données."
+        ): (
+            "est supérieur à la baseline. Aucune "
+            "explication supplémentaire des performances "
+            "n'est déduite sans analyse dédiée."
+        ),
+
+        # --------------------------------------------------
+        # EDSE : conserver la qualification du module
+        # --------------------------------------------------
+        (
+            "ce qui suggère que ses performances "
+            "(score R² d'environ 0.4074794901883356) "
+            "sont suffisantes pour une utilisation "
+            "exploratoire."
+        ): (
+            "EDSE qualifie le niveau d'évaluation "
+            "d'\"acceptable\" pour une utilisation "
+            "exploratoire."
+        ),
+
+        # --------------------------------------------------
+        # ELAE / conclusion : association != significativité
+        # --------------------------------------------------
+        (
+            "associations observées significatives"
+        ): (
+            "associations observées"
+        ),
+
+        (
+            "Ces associations, bien que non causales, "
+            "sont cohérentes avec les attentes "
+            "pédagogiques."
+        ): (
+            "Ces associations ne doivent pas être "
+            "interprétées comme des relations causales."
+        ),
+
+        (
+            "D'autres facteurs non inclus dans cette "
+            "analyse pourraient jouer un rôle plus "
+            "important."
+        ): "",
+
+        # --------------------------------------------------
+        # Conclusion : éviter importance/impact causal
+        # --------------------------------------------------
+        (
+            "Les résultats soulignent l'importance de "
+            "l'intérêt et de la motivation, ainsi que "
+            "l'impact du stress, comme facteurs "
+            "prédictifs dans le modèle."
+        ): (
+            "Les résultats montrent que "
+            "\"interet_maths\", \"motivation\" et "
+            "\"stress\" figurent parmi les variables "
+            "les plus contributives aux prédictions "
+            "du modèle."
+        ),
+    }
+
+    for old, new in (
+        final_scientific_replacements.items()
+    ):
+        text = text.replace(
+            old,
+            new,
+        )
+
+    while "\n\n\n" in text:
+        text = text.replace(
+            "\n\n\n",
+            "\n\n",
+        )
     return text.strip()
 
 
