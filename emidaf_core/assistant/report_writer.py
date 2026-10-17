@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import re
 from typing import Any
 
 from emidaf_core.common.results.report_result import (
@@ -16,6 +17,166 @@ from .report_context_builder import (
 
 
 class ReportWriter:
+
+    # ======================================================
+    # Protection des valeurs numériques transmises au LLM
+    # ======================================================
+
+    _NUMERIC_LITERAL_PATTERN = re.compile(
+        r"""
+        (?<![\w])
+        [+-]?
+        (?:
+            \d+(?:[.,]\d+)?
+            |
+            [.,]\d+
+        )
+        (?:[eE][+-]?\d+)?
+        \s*%?
+        (?![\w])
+        """,
+        re.VERBOSE,
+    )
+
+    @classmethod
+    def _protect_numeric_literals(
+        cls,
+        text: str,
+        *,
+        prefix: str = "EMIDAFNUM",
+        start_index: int = 1,
+    ) -> tuple[str, dict[str, str], int]:
+        """
+        Remplace chaque représentation numérique visible
+        par un marqueur opaque avant transmission au LLM.
+
+        Exemple :
+            0.4074794901883356
+        devient :
+            [[EMIDAFNUM_AAAA]]
+
+        Les marqueurs ne contiennent volontairement aucun
+        chiffre afin de ne pas être interprétés comme des
+        valeurs numériques par les contrôles ultérieurs.
+        """
+
+        if not text:
+            return text, {}, start_index
+
+        mapping: dict[str, str] = {}
+        counter = start_index
+
+        def encode_index(value: int) -> str:
+            letters = []
+
+            while value > 0:
+                value -= 1
+                letters.append(
+                    chr(
+                        ord("A")
+                        + (value % 26)
+                    )
+                )
+                value //= 26
+
+            return "".join(
+                reversed(letters)
+            ) or "A"
+
+        def replace(match):
+            nonlocal counter
+
+            literal = match.group(0)
+
+            token = (
+                "[["
+                + prefix
+                + "_"
+                + encode_index(counter)
+                + "]]"
+            )
+
+            mapping[token] = literal
+            counter += 1
+
+            return token
+
+        protected = (
+            cls._NUMERIC_LITERAL_PATTERN.sub(
+                replace,
+                text,
+            )
+        )
+
+        return (
+            protected,
+            mapping,
+            counter,
+        )
+
+    @staticmethod
+    def _restore_numeric_literals(
+        text: str,
+        mapping: dict[str, str],
+    ) -> str:
+        """
+        Restaure exactement les représentations numériques
+        produites par EMIDAF.
+        """
+
+        restored = text
+
+        for token, literal in mapping.items():
+            restored = restored.replace(
+                token,
+                literal,
+            )
+
+        return restored
+
+    @staticmethod
+    def _numeric_placeholder_audit(
+        generated_text: str,
+        mapping: dict[str, str],
+    ) -> dict[str, list[str]]:
+        """
+        Vérifie les marqueurs EMIDAF conservés, omis ou
+        dupliqués par le LLM.
+
+        Une omission n'est pas considérée automatiquement
+        comme une invention scientifique : le rapport
+        enrichi peut reformuler une phrase.
+
+        Une duplication est néanmoins conservée comme
+        information de diagnostic.
+        """
+
+        present = []
+        duplicated = []
+
+        for token in mapping:
+            count = generated_text.count(
+                token
+            )
+
+            if count > 0:
+                present.append(token)
+
+            if count > 1:
+                duplicated.append(token)
+
+        missing = [
+            token
+            for token in mapping
+            if token not in present
+        ]
+
+        return {
+            "missing": missing,
+            "duplicated": duplicated,
+        }
+
+
     """
     Rédacteur assisté du rapport EMIDAF.
 
@@ -117,6 +278,40 @@ class ReportWriter:
             default=str,
         )
 
+        # ==================================================
+        # Protection numérique avant transmission au LLM
+        # ==================================================
+        numeric_token_map = {}
+        numeric_token_index = 1
+
+        (
+            protected_context_json,
+            context_numeric_map,
+            numeric_token_index,
+        ) = self._protect_numeric_literals(
+            context_json,
+            prefix="EMIDAFNUM",
+            start_index=numeric_token_index,
+        )
+
+        numeric_token_map.update(
+            context_numeric_map
+        )
+
+        (
+            protected_source_text,
+            source_numeric_map,
+            numeric_token_index,
+        ) = self._protect_numeric_literals(
+            source_text or "",
+            prefix="EMIDAFNUM",
+            start_index=numeric_token_index,
+        )
+
+        numeric_token_map.update(
+            source_numeric_map
+        )
+
         prompt = (
             f"MODE DU RAPPORT : {mode}\n\n"
 
@@ -211,8 +406,21 @@ class ReportWriter:
             "des résultats et la présentation des limites. "
             "Il ne doit jamais produire de science nouvelle.\n\n"
 
-            "CONTEXTE SOURCE EMIDAF :\n"
-            + context_json
+            "RAPPORT EMIDAF À ENRICHIR :\n"
+            + protected_source_text
+            + "\n\n"
+
+            "CONTEXTE STRUCTURÉ EMIDAF :\n"
+            + protected_context_json
+            + "\n\n"
+
+            "RÈGLE SUR LES MARQUEURS :\n"
+            "Les chaînes de la forme [[EMIDAFNUM_*]] "
+            "représentent des valeurs numériques produites "
+            "par EMIDAF. Elles sont immuables. "
+            "Recopie exactement les marqueurs nécessaires, "
+            "sans les modifier, sans les interpréter comme "
+            "du texte et sans fabriquer de nouveau marqueur.\n"
         )
 
         generated = self.provider.generate(
@@ -224,10 +432,32 @@ class ReportWriter:
             max_output_tokens=8192,
         )
 
+        placeholder_audit = (
+            self._numeric_placeholder_audit(
+                generated,
+                numeric_token_map,
+            )
+        )
+
+        generated = (
+            self._restore_numeric_literals(
+                generated,
+                numeric_token_map,
+            )
+        )
+
         consistency = (
             ConsistencyChecker.check(
                 generated,
                 context,
+                numeric_source_context=(
+                    numeric_source_context
+                ),
+                numeric_source_text=(
+                    validation_source_text
+                    if validation_source_text is not None
+                    else source_text
+                ),
             )
         )
 
@@ -241,6 +471,21 @@ class ReportWriter:
         ):
             regenerated = True
             regeneration_count += 1
+
+            (
+                protected_generated,
+                regenerated_numeric_map,
+                numeric_token_index,
+            ) = self._protect_numeric_literals(
+                generated,
+                prefix="EMIDAFCORR",
+                start_index=numeric_token_index,
+            )
+
+            correction_numeric_map = {
+                **numeric_token_map,
+                **regenerated_numeric_map,
+            }
 
             correction_prompt = (
                 "Le rapport précédent contient encore des "
@@ -331,11 +576,25 @@ class ReportWriter:
                 + "\n"
 
                 "RAPPORT À CORRIGER :\n"
-                + generated
+                + protected_generated
                 + "\n\n"
 
-                "CONTEXTE SOURCE EMIDAF :\n"
-                + context_json
+                "RAPPORT EMIDAF DE RÉFÉRENCE :\n"
+                + protected_source_text
+                + "\n\n"
+
+                "CONTEXTE STRUCTURÉ EMIDAF :\n"
+                + protected_context_json
+                + "\n\n"
+
+                "RÈGLE SUR LES MARQUEURS :\n"
+                "Ne modifie jamais un marqueur de la forme "
+                "[[EMIDAFNUM_*]] ou [[EMIDAFCORR_*]]. "
+                "Ces marqueurs représentent des valeurs "
+                "numériques déjà présentes dans EMIDAF. "
+                "Ne crée aucun nouveau marqueur. "
+                "Recopie uniquement les marqueurs réellement "
+                "présents dans le rapport ou les sources fournis.\n"
             )
 
             generated = self.provider.generate(
@@ -347,11 +606,49 @@ class ReportWriter:
                 max_output_tokens=8192,
             )
 
+            placeholder_audit = (
+                self._numeric_placeholder_audit(
+                    generated,
+                    correction_numeric_map,
+                )
+            )
+
+            generated = (
+                self._restore_numeric_literals(
+                    generated,
+                    correction_numeric_map,
+                )
+            )
+
             consistency = (
                 ConsistencyChecker.check(
                     generated,
                     context,
+                    numeric_source_context=(
+                        numeric_source_context
+                    ),
+                    numeric_source_text=(
+                        validation_source_text
+                        if validation_source_text is not None
+                        else source_text
+                    ),
                 )
+            )
+
+        ai_validated = bool(
+            consistency.get(
+                "valid",
+                False,
+            )
+        )
+
+        if not ai_validated:
+            generated = (
+                "La version enrichie par IA n'a pas été "
+                "validée par les contrôles de cohérence "
+                "scientifique et numérique d'EMIDAF. "
+                "Le rapport standard demeure la source "
+                "scientifique de référence."
             )
 
         model = getattr(
@@ -370,6 +667,10 @@ class ReportWriter:
             ),
             "model": model,
             "consistency": consistency,
+            "ai_validated": ai_validated,
+            "numeric_placeholder_audit": (
+                placeholder_audit
+            ),
             "regenerated_for_consistency": (
                 regenerated
             ),
