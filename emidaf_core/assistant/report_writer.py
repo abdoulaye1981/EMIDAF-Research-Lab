@@ -18,6 +18,54 @@ from .report_context_builder import (
 
 class ReportWriter:
 
+    @staticmethod
+    def _finalize_scientific_wording(
+        text: str,
+    ) -> str:
+        """
+        Nettoyage rédactionnel final sans modification
+        des résultats scientifiques EMIDAF.
+        """
+
+        replacements = {
+            (
+                "Générez d'abord le rapport EMIDAF standard, "
+                "puis lancez l'enrichissement rédactionnel."
+            ): "",
+            (
+                "est cohérente avec le score de validation "
+                "croisée, suggérant une bonne généralisation."
+            ): (
+                "est rapportée conjointement au score "
+                "de validation croisée."
+            ),
+            (
+                "Le fait que le modèle dépasse la baseline "
+                "indique qu'il apporte une valeur ajoutée "
+                "par rapport à une prédiction naïve."
+            ): (
+                "Le score du modèle est supérieur à celui "
+                "de la baseline rapportée."
+            ),
+            (
+                "Ce type d'analyse peut être utile pour cibler "
+                "des interventions ou des ressources."
+            ): (
+                "Ce scénario illustre l'utilisation du seuil "
+                "dans le cadre de l'aide à la décision."
+            ),
+        }
+
+        for old, new in replacements.items():
+            text = text.replace(
+                old,
+                new,
+            )
+
+        return text.strip()
+
+
+
     # ======================================================
     # Protection des valeurs numériques transmises au LLM
     # ======================================================
@@ -780,6 +828,12 @@ class ReportWriter:
                     ),
                 )
             )
+
+        generated = (
+            self._finalize_scientific_wording(
+                generated
+            )
+        )
 
         ai_validated = bool(
             consistency.get(
