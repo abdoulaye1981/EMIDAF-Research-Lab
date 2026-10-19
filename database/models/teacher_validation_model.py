@@ -117,6 +117,64 @@ class TeacherValidationModel(Base):
         nullable=True,
     )
 
+
+    # =====================================================
+    # HUMAN-IN-THE-LOOP
+    # =====================================================
+
+    # Degré de confiance du jugement indépendant :
+    # 1 = très faible ; 5 = très élevé.
+    teacher_confidence: Mapped[int | None] = mapped_column(
+        Integer,
+        nullable=True,
+    )
+
+    # Commentaire produit AVANT révélation du modèle.
+    teacher_initial_comment: Mapped[str | None] = mapped_column(
+        Text,
+        nullable=True,
+    )
+
+    # Commentaire produit APRÈS révélation du modèle.
+    teacher_post_model_comment: Mapped[str | None] = mapped_column(
+        Text,
+        nullable=True,
+    )
+
+    # Raisons structurées d'un désaccord ou d'une réserve.
+    disagreement_reasons: Mapped[list | None] = mapped_column(
+        JSON,
+        nullable=True,
+    )
+
+    # Etats possibles :
+    # locked
+    # model_revealed
+    # completed
+    validation_status: Mapped[str] = mapped_column(
+        String(50),
+        nullable=False,
+        default="completed",
+    )
+
+    # Instant où le jugement humain devient immuable.
+    judgment_locked_at: Mapped[datetime | None] = mapped_column(
+        DateTime,
+        nullable=True,
+    )
+
+    # Instant de première révélation du résultat algorithmique.
+    model_revealed_at: Mapped[datetime | None] = mapped_column(
+        DateTime,
+        nullable=True,
+    )
+
+    # Fin de la procédure de validation.
+    completed_at: Mapped[datetime | None] = mapped_column(
+        DateTime,
+        nullable=True,
+    )
+
     detection_validation: Mapped[str] = mapped_column(
         String(50),
         nullable=False,

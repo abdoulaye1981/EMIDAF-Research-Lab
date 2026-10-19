@@ -131,6 +131,48 @@ class TeacherValidationController:
         )
 
     # =====================================================
+    # HUMAN-IN-THE-LOOP
+    # =====================================================
+
+    def create_locked_judgment(
+        self,
+        **kwargs,
+    ) -> TeacherValidationModel:
+
+        return (
+            self._service
+            .create_locked_judgment(
+                **kwargs
+            )
+        )
+
+    def reveal_model(
+        self,
+        validation_id: int,
+    ) -> TeacherValidationModel:
+
+        return (
+            self._service
+            .reveal_model(
+                validation_id
+            )
+        )
+
+    def complete_validation(
+        self,
+        validation_id: int,
+        **kwargs,
+    ) -> TeacherValidationModel:
+
+        return (
+            self._service
+            .complete_validation(
+                validation_id,
+                **kwargs,
+            )
+        )
+
+    # =====================================================
     # UPDATE
     # =====================================================
 

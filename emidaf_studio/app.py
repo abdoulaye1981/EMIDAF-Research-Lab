@@ -175,6 +175,7 @@ import emidaf_studio.pages.eqae.callbacks  # noqa: E402,F401
 import emidaf_studio.pages.emix.callbacks  # noqa: E402,F401
 import emidaf_studio.pages.exaie.callbacks  # noqa: E402,F401
 import emidaf_studio.pages.edse.callbacks  # noqa: E402,F401
+import emidaf_studio.pages.edse.teacher_validation_callbacks  # noqa: E402,F401
 import emidaf_studio.pages.reports.callbacks  # noqa: E402,F401
 
 # Composants.
