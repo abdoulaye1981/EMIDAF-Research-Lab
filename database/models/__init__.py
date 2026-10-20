@@ -12,6 +12,10 @@ from .workspace_model import WorkspaceModel
 from .user_model import UserModel
 from .teacher_validation_model import TeacherValidationModel
 
+from .teacher_validation_study_model import TeacherValidationStudyModel
+from .teacher_validation_case_model import TeacherValidationCaseModel
+from .teacher_validation_assignment_model import TeacherValidationAssignmentModel
+
 
 __all__ = [
     "AnalysisResultModel",
@@ -20,4 +24,7 @@ __all__ = [
     "WorkspaceModel",
     "UserModel",
     "TeacherValidationModel",
+    "TeacherValidationStudyModel",
+    "TeacherValidationCaseModel",
+    "TeacherValidationAssignmentModel",
 ]

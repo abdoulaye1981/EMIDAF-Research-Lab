@@ -139,6 +139,9 @@ class Bootstrap:
         from emidaf_core.repositories.teacher_validation_repository import (
             TeacherValidationRepository,
         )
+        from emidaf_core.repositories.teacher_validation_study_repository import (
+            TeacherValidationStudyRepository,
+        )
 
         self.workspace_repository = WorkspaceRepository(
              self.database_manager
@@ -165,6 +168,12 @@ class Bootstrap:
             )
         )
 
+        self.teacher_validation_study_repository = (
+            TeacherValidationStudyRepository(
+                self.database_manager
+            )
+        )
+
     def _create_services(self):
         from emidaf_core.services.workspace_service import WorkspaceService
         from emidaf_core.services.project_service import ProjectService
@@ -173,6 +182,12 @@ class Bootstrap:
         from emidaf_core.services.user_service import UserService
         from emidaf_core.services.teacher_validation_service import (
             TeacherValidationService,
+        )
+        from emidaf_core.services.teacher_validation_study_service import (
+            TeacherValidationStudyService,
+        )
+        from emidaf_core.services.teacher_validation_assignment_service import (
+            TeacherValidationAssignmentService,
         )
 
         self.workspace_service = WorkspaceService(
@@ -198,6 +213,18 @@ class Bootstrap:
         self.teacher_validation_service = (
             TeacherValidationService(
                 self.teacher_validation_repository
+            )
+        )
+
+        self.teacher_validation_study_service = (
+            TeacherValidationStudyService(
+                self.teacher_validation_study_repository
+            )
+        )
+
+        self.teacher_validation_assignment_service = (
+            TeacherValidationAssignmentService(
+                self.teacher_validation_study_repository
             )
         )
 
@@ -279,6 +306,7 @@ class Bootstrap:
         self.analysis_result_repository,
             self.user_repository,
         self.teacher_validation_repository,
+        self.teacher_validation_study_repository,
 
         self.workspace_service,
         self.project_service,
@@ -286,6 +314,8 @@ class Bootstrap:
             self.auth_service,
             self.user_service,
         self.teacher_validation_service,
+        self.teacher_validation_study_service,
+        self.teacher_validation_assignment_service,
 
         self.gemini_provider,
         self.assistant_service,

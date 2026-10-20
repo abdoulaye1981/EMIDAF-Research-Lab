@@ -14,6 +14,10 @@ from sqlalchemy.orm import Session
 from sqlalchemy.orm import sessionmaker
 
 from database.base import Base
+
+# Charge tous les modèles ORM avant Base.metadata.create_all().
+# Nécessaire notamment pour les tables HITL quantitatives.
+import database.models  # noqa: F401
 from database.models.dataset_model import DatasetModel
 from database.models.analysis_result_model import AnalysisResultModel
 from database.models.project_model import ProjectModel
