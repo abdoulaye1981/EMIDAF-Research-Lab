@@ -12,6 +12,7 @@ def edse_layout(project_id, dataset_id):
     project, dataset, result = load_dataset(
         project_id,
         dataset_id,
+        allow_h7_access=True,
     )
 
     # ======================================================

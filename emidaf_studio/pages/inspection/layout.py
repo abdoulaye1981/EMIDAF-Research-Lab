@@ -41,7 +41,11 @@ def _current_user_id():
     return int(value)
 
 
-def load_dataset(project_id, dataset_id):
+def load_dataset(
+    project_id,
+    dataset_id,
+    allow_h7_access=False,
+):
     """
     Charge un dataset uniquement si :
 
@@ -75,6 +79,78 @@ def load_dataset(project_id, dataset_id):
         project_id,
         user_id,
     )
+
+    # =====================================================
+    # ACCES H7 EXPLICITE POUR EDSE
+    # =====================================================
+    #
+    # Le contrôle de propriété reste la règle générale.
+    # Une exception est permise uniquement lorsqu'un
+    # appelant explicite allow_h7_access=True ET que
+    # l'utilisateur possède réellement une affectation H7
+    # pour l'étude rattachée exactement à ce projet/dataset.
+    #
+    if (
+        project is None
+        and allow_h7_access
+    ):
+        try:
+            from sqlalchemy import select
+
+            from database.models.teacher_validation_study_model import (
+                TeacherValidationStudyModel,
+            )
+            from database.models.teacher_validation_assignment_model import (
+                TeacherValidationAssignmentModel,
+            )
+
+            with (
+                bootstrap.database_manager
+                .session_scope()
+            ) as db_session:
+
+                statement = (
+                    select(
+                        TeacherValidationAssignmentModel.id
+                    )
+                    .join(
+                        TeacherValidationStudyModel,
+                        (
+                            TeacherValidationAssignmentModel.study_id
+                            == TeacherValidationStudyModel.id
+                        ),
+                    )
+                    .where(
+                        TeacherValidationStudyModel.project_id
+                        == project_id,
+                        TeacherValidationStudyModel.dataset_id
+                        == dataset_id,
+                        TeacherValidationAssignmentModel.teacher_user_id
+                        == user_id,
+                    )
+                    .limit(1)
+                )
+
+                h7_assignment_id = (
+                    db_session.scalar(
+                        statement
+                    )
+                )
+
+            if h7_assignment_id is not None:
+                project = (
+                    project_controller.get(
+                        project_id
+                    )
+                )
+
+        except Exception as exc:
+            print(
+                "[H7 DATASET ACCESS] "
+                "verification impossible:",
+                repr(exc),
+                flush=True,
+            )
 
     if project is None:
         return (
