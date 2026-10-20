@@ -488,7 +488,97 @@ def get_page_layout(pathname):
             )
         )
 
+        # ==================================================
+        # ACCES EXPERT H7 AU SEUL EDSE DE L'ETUDE
+        # ==================================================
+        #
+        # Un enseignant évaluateur H7 peut accéder au
+        # projet scientifique central sans en devenir
+        # propriétaire, mais uniquement :
+        #
+        # - à une route /projects/P/datasets/D/edse ;
+        # - si une étude H7 existe exactement pour P/D ;
+        # - s'il possède au moins une affectation dans
+        #   cette étude.
+        #
+        # Aucun accès supplémentaire n'est accordé aux
+        # autres modules ou datasets du projet.
+        #
+        h7_edse_access = False
+
         if not owns_project:
+            h7_match = re.match(
+                (
+                    r"^/projects/(\\d+)/datasets/"
+                    r"(\\d+)/edse/?$"
+                ),
+                pathname,
+            )
+
+            if h7_match:
+                h7_project_id = int(
+                    h7_match.group(1)
+                )
+                h7_dataset_id = int(
+                    h7_match.group(2)
+                )
+
+                if h7_project_id == project_id:
+                    try:
+                        from sqlalchemy import (
+                            select,
+                        )
+
+                        from database.models.teacher_validation_study_model import (
+                            TeacherValidationStudyModel,
+                        )
+                        from database.models.teacher_validation_assignment_model import (
+                            TeacherValidationAssignmentModel,
+                        )
+
+                        with (
+                            bootstrap.database_manager
+                            .session_scope()
+                        ) as db_session:
+
+                            statement = (
+                                select(
+                                    TeacherValidationAssignmentModel.id
+                                )
+                                .join(
+                                    TeacherValidationStudyModel,
+                                    (
+                                        TeacherValidationAssignmentModel.study_id
+                                        == TeacherValidationStudyModel.id
+                                    ),
+                                )
+                                .where(
+                                    TeacherValidationStudyModel.project_id
+                                    == h7_project_id,
+                                    TeacherValidationStudyModel.dataset_id
+                                    == h7_dataset_id,
+                                    TeacherValidationAssignmentModel.teacher_user_id
+                                    == int(user.id),
+                                )
+                                .limit(1)
+                            )
+
+                            h7_edse_access = (
+                                db_session.scalar(
+                                    statement
+                                )
+                                is not None
+                            )
+
+                    except Exception as exc:
+                        print(
+                            "[H7 ACCESS] verification impossible:",
+                            repr(exc),
+                            flush=True,
+                        )
+                        h7_edse_access = False
+
+        if not owns_project and not h7_edse_access:
             return dbc.Container(
                 dbc.Alert(
                     [
