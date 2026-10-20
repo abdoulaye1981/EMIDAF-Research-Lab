@@ -632,6 +632,68 @@ def update_teacher_agreement_dashboard(
         bootstrap = Bootstrap()
         bootstrap.initialize()
 
+        # -------------------------------------------------
+        # AVEUGLEMENT EXPERIMENTAL H7
+        # -------------------------------------------------
+        # Un expert de rôle "user" ne doit pas voir
+        # l'accord global, le kappa ou la matrice de
+        # confusion pendant la campagne H7.
+        #
+        # Les administrateurs conservent ces indicateurs
+        # pour le suivi scientifique de l'étude.
+        user_id = _current_user_id()
+
+        if user_id is not None:
+            current_user = (
+                bootstrap
+                .user_repository
+                .get_by_id(
+                    int(user_id)
+                )
+            )
+
+            if (
+                current_user is not None
+                and str(
+                    current_user.role
+                ).strip()
+                == "user"
+                and hasattr(
+                    bootstrap,
+                    "teacher_validation_study_repository",
+                )
+            ):
+                studies = (
+                    bootstrap
+                    .teacher_validation_study_repository
+                    .get_studies_for_dataset(
+                        int(project_id),
+                        int(dataset_id),
+                    )
+                )
+
+                is_h7 = any(
+                    "h7" in str(
+                        getattr(
+                            study,
+                            "name",
+                            "",
+                        )
+                        or ""
+                    ).lower()
+                    for study in studies
+                )
+
+                if is_h7:
+                    return dbc.Alert(
+                        (
+                            "Les indicateurs d'accord "
+                            "agrégés sont masqués pendant "
+                            "la validation indépendante H7."
+                        ),
+                        color="secondary",
+                    )
+
         validations = (
             bootstrap
             .teacher_validation_controller
