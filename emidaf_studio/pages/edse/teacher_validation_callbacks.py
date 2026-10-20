@@ -225,32 +225,90 @@ def _load_h7_student_row(
     student_id,
     observation_id=None,
 ):
+    """
+    Charge les caractéristiques descriptives d'un cas H7
+    directement depuis le dataset opérationnel figé.
+
+    Les prédictions H7 ne sont jamais recalculées ici :
+    elles restent celles enregistrées dans
+    teacher_validation_cases.
+
+    Cette fonction ne dépend donc plus de X_test ni de
+    l'état courant du registre EAIE.
+    """
     _verify_h7_dataset(
         study
     )
 
-    context = get_eaie_run(
-        int(
-            study.project_id
-        ),
-        int(
-            study.dataset_id
-        ),
+    bootstrap = _bootstrap()
+
+    dataset = (
+        bootstrap
+        .dataset_controller
+        .get(
+            int(study.dataset_id)
+        )
     )
 
-    if context is None:
+    if dataset is None:
         raise RuntimeError(
-            "Contexte EAIE indisponible "
-            "pour l'étude H7."
+            "Dataset H7 introuvable."
         )
 
-    X_test = context.get(
-        "X_test"
+    project = (
+        bootstrap
+        .project_controller
+        .get(
+            int(study.project_id)
+        )
     )
 
-    if X_test is None:
+    if project is None:
         raise RuntimeError(
-            "X_test indisponible pour H7."
+            "Projet H7 introuvable."
+        )
+
+    dataset_path = (
+        bootstrap
+        .workspace_manager
+        .get_project_path(
+            project.name
+        )
+        / "datasets"
+        / dataset.stored_filename
+    )
+
+    if not dataset_path.exists():
+        raise RuntimeError(
+            "Fichier physique du dataset H7 "
+            f"introuvable : {dataset_path}"
+        )
+
+    import pandas as pd
+
+    extension = str(
+        dataset.extension or ""
+    ).lower()
+
+    if extension == ".csv":
+        dataframe = pd.read_csv(
+            dataset_path,
+            sep=dataset.separator,
+            encoding=dataset.encoding,
+        )
+
+    elif extension in {
+        ".xlsx",
+        ".xls",
+    }:
+        dataframe = pd.read_excel(
+            dataset_path
+        )
+
+    else:
+        raise RuntimeError(
+            "Format du dataset H7 "
+            f"non supporté : {extension}"
         )
 
     expected_student_id = (
@@ -264,105 +322,57 @@ def _load_h7_student_row(
             "Identifiant élève H7 invalide."
         )
 
-    student_ids = context.get(
-        "test_student_ids"
+    candidate_columns = [
+        "id_eleve",
+        "student_id",
+        "observation_id",
+    ]
+
+    identifier_column = next(
+        (
+            column
+            for column in candidate_columns
+            if column in dataframe.columns
+        ),
+        None,
     )
 
-    position = None
-
-    if (
-        student_ids is not None
-        and len(student_ids)
-        == len(X_test)
-    ):
-
-        normalized_ids = [
-            _normalize_h7_student_id(
-                value
-            )
-            for value
-            in student_ids
-        ]
-
-        matches = [
-            index
-            for index, value
-            in enumerate(
-                normalized_ids
-            )
-            if value
-            == expected_student_id
-        ]
-
-        if len(matches) == 1:
-            position = matches[0]
-
-        elif len(matches) > 1:
-            raise RuntimeError(
-                "Identifiant élève H7 "
-                "dupliqué dans le jeu "
-                "de test EAIE."
-            )
-
-    if position is None:
-
-        observation_ids = context.get(
-            "test_observation_ids"
+    if identifier_column is None:
+        raise RuntimeError(
+            "Aucune colonne identifiant élève "
+            "n'est disponible dans le dataset H7."
         )
 
-        if (
-            observation_ids is not None
-            and len(observation_ids)
-            == len(X_test)
-            and observation_id
-            is not None
-        ):
+    normalized_ids = (
+        dataframe[
+            identifier_column
+        ]
+        .map(
+            _normalize_h7_student_id
+        )
+    )
 
-            expected_observation_id = (
-                _normalize_h7_student_id(
-                    observation_id
-                )
-            )
+    matches = dataframe.loc[
+        normalized_ids
+        == expected_student_id
+    ]
 
-            normalized_observations = [
-                _normalize_h7_student_id(
-                    value
-                )
-                for value
-                in observation_ids
-            ]
-
-            matches = [
-                index
-                for index, value
-                in enumerate(
-                    normalized_observations
-                )
-                if value
-                == expected_observation_id
-            ]
-
-            if len(matches) == 1:
-                position = matches[0]
-
-            elif len(matches) > 1:
-                raise RuntimeError(
-                    "Identifiant observation H7 "
-                    "dupliqué dans le jeu "
-                    "de test EAIE."
-                )
-
-    if position is None:
+    if len(matches) == 0:
         raise RuntimeError(
             "Impossible de retrouver "
             f"l'élève {student_id} "
-            "dans le jeu de test EAIE."
+            "dans le dataset H7."
         )
 
-    return X_test.iloc[
-        int(position)
-    ]
+    if len(matches) > 1:
+        raise RuntimeError(
+            "Identifiant élève H7 "
+            f"dupliqué : {student_id}."
+        )
 
+    row = matches.iloc[0]
+
+    return row
 
 
 def _get_h7_bundle(
