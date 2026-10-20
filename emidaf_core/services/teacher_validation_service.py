@@ -544,6 +544,14 @@ class TeacherValidationService:
             else None
         )
 
+        # Le commentaire initial constitue la justification
+        # indépendante de l'enseignant avant révélation du modèle.
+        if not initial_comment:
+            raise ValueError(
+                "Le commentaire initial de l'enseignant "
+                "est obligatoire avant le verrouillage."
+            )
+
         validation = self.create(
             project_id=project_id,
             dataset_id=dataset_id,
@@ -748,6 +756,28 @@ class TeacherValidationService:
             if post_model_comment
             else None
         )
+
+        disagreement = (
+            detection_validation in {
+                "not_confirmed",
+                "partially_confirmed",
+            }
+            or diagnosis_validation in {
+                "not_confirmed",
+                "partially_confirmed",
+            }
+        )
+
+        # En cas de désaccord ou d'accord partiel, une
+        # justification narrative post-modèle est obligatoire.
+        if (
+            disagreement
+            and not validation.teacher_post_model_comment
+        ):
+            raise ValueError(
+                "Le commentaire post-modèle est obligatoire "
+                "en cas de désaccord ou d'accord partiel."
+            )
 
         validation.disagreement_reasons = [
             str(

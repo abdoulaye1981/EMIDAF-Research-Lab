@@ -1520,13 +1520,10 @@ def finalize_validation(
     if (
         disagreement
         and not (
-            disagreement_reasons
-            or (
+            post_model_comment
+            and str(
                 post_model_comment
-                and str(
-                    post_model_comment
-                ).strip()
-            )
+            ).strip()
         )
     ):
 
@@ -1534,8 +1531,9 @@ def finalize_validation(
             dbc.Alert(
                 (
                     "En cas de désaccord ou d'accord "
-                    "partiel, indiquez au moins une "
-                    "raison ou un commentaire."
+                    "partiel, le commentaire post-modèle "
+                    "est obligatoire afin de justifier "
+                    "la décision de l'enseignant."
                 ),
                 color="warning",
             ),
