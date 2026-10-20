@@ -43,14 +43,88 @@ TEACHER_VISIBLE_FEATURES = [
 
 
 
-H7_STUDY_ID = 1
-H7_PROJECT_ID = 2
-H7_DATASET_ID = 7
 
-H7_DATASET_PATH = Path(
-    "workspace/projects/EDUCATION/datasets/"
-    "dataset_senegal_2500.csv"
+H7_STUDY_NAME_TOKEN = "h7"
+H7_STUDY_NAME_PREFIX = (
+    "validation enseignante emidaf"
 )
+
+
+
+def _get_h7_study(
+    project_id,
+    dataset_id,
+):
+    try:
+        project_id = int(
+            project_id
+        )
+        dataset_id = int(
+            dataset_id
+        )
+    except (TypeError, ValueError):
+        return None
+
+    bootstrap = _bootstrap()
+
+    studies = (
+        bootstrap
+        .teacher_validation_study_repository
+        .get_studies_for_dataset(
+            project_id,
+            dataset_id,
+        )
+    )
+
+    for study in studies:
+
+        name = str(
+            study.name or ""
+        ).strip().lower()
+
+        if (
+            H7_STUDY_NAME_TOKEN
+            in name
+            and H7_STUDY_NAME_PREFIX
+            in name
+        ):
+            return study
+
+        config = (
+            study.sampling_config
+            if isinstance(
+                study.sampling_config,
+                dict,
+            )
+            else {}
+        )
+
+        provenance = config.get(
+            "provenance",
+            {}
+        )
+
+        hypothesis = str(
+            provenance.get(
+                "hypothesis",
+                "",
+            )
+        ).strip().lower()
+
+        protocol = str(
+            provenance.get(
+                "protocol",
+                "",
+            )
+        ).strip().lower()
+
+        if (
+            hypothesis == "h7"
+            or "h7" in protocol
+        ):
+            return study
+
+    return None
 
 
 def _is_h7_context(
@@ -59,100 +133,157 @@ def _is_h7_context(
 ):
     try:
         return (
-            int(project_id) == H7_PROJECT_ID
-            and int(dataset_id) == H7_DATASET_ID
+            _get_h7_study(
+                project_id,
+                dataset_id,
+            )
+            is not None
         )
-    except (TypeError, ValueError):
+    except Exception:
+        logger.exception(
+            "Détection du contexte H7 impossible."
+        )
         return False
+
 
 
 def _verify_h7_dataset(
     study,
 ):
-    if not H7_DATASET_PATH.exists():
-        raise FileNotFoundError(
-            "Dataset doctoral H7 introuvable : "
-            f"{H7_DATASET_PATH}"
-        )
-
-    config = (
-        study.sampling_config
-        if isinstance(
-            study.sampling_config,
-            dict,
-        )
-        else {}
-    )
-
-    provenance = config.get(
-        "provenance",
-        {}
-    )
-
-    expected_hash = provenance.get(
-        "source_dataset_sha256"
-    )
-
-    if not expected_hash:
-        return
-
-    digest = hashlib.sha256(
-        H7_DATASET_PATH.read_bytes()
-    ).hexdigest()
-
-    if digest != expected_hash:
+    if study is None:
         raise RuntimeError(
-            "Le fichier dataset H7 ne correspond "
-            "plus à la version scientifique figée. "
-            "Validation interrompue."
+            "Étude H7 introuvable."
         )
+
+    if study.project_id is None:
+        raise RuntimeError(
+            "project_id H7 absent."
+        )
+
+    if study.dataset_id is None:
+        raise RuntimeError(
+            "dataset_id H7 absent."
+        )
+
+    if str(
+        study.status or ""
+    ) not in {
+        "sampled",
+        "assigned",
+        "active",
+        "completed",
+    }:
+        raise RuntimeError(
+            "Statut de l'étude H7 "
+            f"inattendu : {study.status}"
+        )
+
 
 
 def _load_h7_student_row(
     study,
     student_id,
+    observation_id=None,
 ):
     _verify_h7_dataset(
         study
     )
 
-    dataframe = pd.read_csv(
-        H7_DATASET_PATH,
-        sep=",",
-        encoding="utf-8",
+    context = get_eaie_run(
+        int(
+            study.project_id
+        ),
+        int(
+            study.dataset_id
+        ),
     )
 
-    if "id_eleve" not in dataframe.columns:
+    if context is None:
         raise RuntimeError(
-            "La colonne id_eleve est absente "
-            "du dataset doctoral."
+            "Contexte EAIE indisponible "
+            "pour l'étude H7."
         )
 
-    identifier = str(
-        student_id
-    ).strip()
-
-    mask = (
-        dataframe[
-            "id_eleve"
-        ]
-        .astype(str)
-        .str.strip()
-        == identifier
+    X_test = context.get(
+        "X_test"
     )
 
-    rows = dataframe.loc[
-        mask
+    if X_test is None:
+        raise RuntimeError(
+            "X_test indisponible pour H7."
+        )
+
+    student_ids = context.get(
+        "test_student_ids"
+    )
+
+    position = None
+
+    if (
+        student_ids is not None
+        and len(student_ids)
+        == len(X_test)
+    ):
+        values = [
+            str(value).strip()
+            for value
+            in student_ids
+        ]
+
+        identifier = str(
+            student_id
+        ).strip()
+
+        try:
+            position = values.index(
+                identifier
+            )
+        except ValueError:
+            position = None
+
+    if position is None:
+
+        observation_ids = context.get(
+            "test_observation_ids"
+        )
+
+        if (
+            observation_ids is not None
+            and len(observation_ids)
+            == len(X_test)
+            and observation_id
+            is not None
+        ):
+            values = [
+                str(value).strip()
+                for value
+                in observation_ids
+            ]
+
+            identifier = str(
+                observation_id
+            ).strip()
+
+            try:
+                position = values.index(
+                    identifier
+                )
+            except ValueError:
+                position = None
+
+    if position is None:
+        raise RuntimeError(
+            "Impossible de retrouver "
+            f"l'élève {student_id} "
+            "dans le jeu de test EAIE."
+        )
+
+    row = X_test.iloc[
+        int(position)
     ]
 
-    if len(rows) != 1:
-        raise RuntimeError(
-            "Impossible d'identifier "
-            "de manière unique l'élève "
-            f"{identifier} dans le dataset H7."
-        )
+    return row
 
-    return rows.iloc[0]
 
 
 def _get_h7_bundle(
@@ -184,18 +315,77 @@ def _get_h7_bundle(
             "à l'enseignant connecté."
         )
 
-    if int(
-        assignment.study_id
-    ) != H7_STUDY_ID:
+    study = (
+        bootstrap
+        .teacher_validation_study_repository
+        .get_study(
+            int(
+                assignment.study_id
+            )
+        )
+    )
+
+    if study is None:
+        raise RuntimeError(
+            "Étude liée à l'affectation "
+            "introuvable."
+        )
+
+    name = str(
+        study.name or ""
+    ).strip().lower()
+
+    config = (
+        study.sampling_config
+        if isinstance(
+            study.sampling_config,
+            dict,
+        )
+        else {}
+    )
+
+    provenance = config.get(
+        "provenance",
+        {}
+    )
+
+    hypothesis = str(
+        provenance.get(
+            "hypothesis",
+            "",
+        )
+    ).strip().lower()
+
+    protocol = str(
+        provenance.get(
+            "protocol",
+            "",
+        )
+    ).strip().lower()
+
+    valid_h7 = (
+        (
+            H7_STUDY_NAME_TOKEN
+            in name
+            and H7_STUDY_NAME_PREFIX
+            in name
+        )
+        or hypothesis == "h7"
+        or "h7" in protocol
+    )
+
+    if not valid_h7:
         raise PermissionError(
-            "Cette affectation n'appartient pas "
-            "à l'étude doctorale H7."
+            "Cette affectation ne correspond "
+            "pas à l'étude doctorale H7."
         )
 
     case = (
         assignment_service
         .get_case(
-            assignment.case_id
+            int(
+                assignment.case_id
+            )
         )
     )
 
@@ -206,38 +396,18 @@ def _get_h7_bundle(
 
     if int(
         case.study_id
-    ) != H7_STUDY_ID:
-        raise RuntimeError(
-            "Incohérence étude/cas H7."
-        )
-
-    study = (
-        bootstrap
-        .teacher_validation_study_repository
-        .get_study(
-            H7_STUDY_ID
-        )
-    )
-
-    if study is None:
-        raise RuntimeError(
-            "Étude H7 introuvable."
-        )
-
-    if (
-        int(study.project_id)
-        != H7_PROJECT_ID
-        or int(study.dataset_id)
-        != H7_DATASET_ID
+    ) != int(
+        study.id
     ):
         raise RuntimeError(
-            "Métadonnées de l'étude H7 "
-            "incohérentes."
+            "Incohérence entre le cas "
+            "et l'étude H7."
         )
 
     row = _load_h7_student_row(
         study,
         case.student_id,
+        case.observation_id,
     )
 
     return {
@@ -907,16 +1077,19 @@ def _history(
 
     prevent_initial_call=True,
 )
+
 def load_observations(
     _profiles,
     project_id,
     dataset_id,
 ):
-
-    if _is_h7_context(
+    study = _get_h7_study(
         project_id,
         dataset_id,
-    ):
+    )
+
+    if study is not None:
+
         user_id = _current_user_id()
 
         if user_id is None:
@@ -933,16 +1106,23 @@ def load_observations(
             assignments = (
                 service
                 .get_assignments_for_teacher(
-                    study_id=H7_STUDY_ID,
-                    teacher_user_id=user_id,
+                    study_id=int(
+                        study.id
+                    ),
+                    teacher_user_id=
+                        int(user_id),
                 )
             )
 
             items = []
 
             for assignment in assignments:
-                case = service.get_case(
-                    assignment.case_id
+
+                case = (
+                    service
+                    .get_case(
+                        assignment.case_id
+                    )
                 )
 
                 if case is None:
@@ -953,7 +1133,7 @@ def load_observations(
                     or "pending"
                 )
 
-                status_labels = {
+                labels = {
                     "pending":
                         "À évaluer",
                     "started":
@@ -966,24 +1146,32 @@ def load_observations(
                         "Terminé",
                 }
 
-                label = (
-                    f"Cas H7 "
-                    f"{int(case.sampling_rank):03d}"
-                    f" — "
-                    f"{status_labels.get(status, status)}"
+                rank = (
+                    int(
+                        case.sampling_rank
+                    )
+                    if case.sampling_rank
+                    is not None
+                    else int(case.id)
                 )
 
                 items.append(
                     (
-                        status == "completed",
-                        int(
-                            case.sampling_rank
-                        ),
+                        status
+                        == "completed",
+                        rank,
                         {
-                            "label": label,
-                            "value": str(
-                                assignment.id
-                            ),
+                            "label":
+                                (
+                                    f"Cas H7 "
+                                    f"{rank:03d}"
+                                    f" — "
+                                    f"{labels.get(status, status)}"
+                                ),
+                            "value":
+                                str(
+                                    assignment.id
+                                ),
                         },
                     )
                 )
@@ -1000,15 +1188,13 @@ def load_observations(
                 for item in items
             ]
 
-            first_value = (
-                options[0]["value"]
-                if options
-                else None
-            )
-
             return (
                 options,
-                first_value,
+                (
+                    options[0]["value"]
+                    if options
+                    else None
+                ),
             )
 
         except Exception:
@@ -1052,6 +1238,7 @@ def load_observations(
     for position, observation_id in enumerate(
         observation_ids
     ):
+
         student_id = None
 
         if (
@@ -1084,9 +1271,11 @@ def load_observations(
 
     return (
         options,
-        options[0]["value"]
-        if options
-        else None,
+        (
+            options[0]["value"]
+            if options
+            else None
+        ),
     )
 
 
@@ -1930,9 +2119,13 @@ def lock_judgment(
                 .teacher_validation_controller
                 .create_locked_judgment(
                     project_id=
-                        H7_PROJECT_ID,
+                        int(
+                            study.project_id
+                        ),
                     dataset_id=
-                        H7_DATASET_ID,
+                        int(
+                            study.dataset_id
+                        ),
                     observation_id=
                         str(
                             case.observation_id
@@ -2479,6 +2672,10 @@ def finalize_validation(
                 "assignment"
             ]
 
+            study = bundle[
+                "study"
+            ]
+
             if (
                 assignment.validation_id
                 is None
@@ -2539,12 +2736,12 @@ def finalize_validation(
 
             try:
                 register_analysis(
-                    H7_PROJECT_ID,
-                    H7_DATASET_ID,
+                    int(study.project_id),
+                    int(study.dataset_id),
                     "teacher_validation",
                     {
                         "study_id":
-                            H7_STUDY_ID,
+                            int(study.id),
                         "assignment_id":
                             assignment.id,
                         "validation_id":
