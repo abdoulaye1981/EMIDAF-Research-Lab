@@ -51,6 +51,45 @@ H7_STUDY_NAME_PREFIX = (
 
 
 
+
+def _normalize_h7_student_id(
+    value,
+):
+    if value is None:
+        return None
+
+    text = str(
+        value
+    ).strip()
+
+    if not text:
+        return None
+
+    upper = text.upper()
+
+    if upper.startswith(
+        "ELEVE_"
+    ):
+        text = text[
+            len("ELEVE_"):
+        ].strip()
+
+    try:
+        numeric = int(
+            float(text)
+        )
+
+        return str(
+            numeric
+        )
+
+    except (
+        TypeError,
+        ValueError,
+    ):
+        return text
+
+
 def _get_h7_study(
     project_id,
     dataset_id,
@@ -180,6 +219,7 @@ def _verify_h7_dataset(
 
 
 
+
 def _load_h7_student_row(
     study,
     student_id,
@@ -213,6 +253,17 @@ def _load_h7_student_row(
             "X_test indisponible pour H7."
         )
 
+    expected_student_id = (
+        _normalize_h7_student_id(
+            student_id
+        )
+    )
+
+    if expected_student_id is None:
+        raise RuntimeError(
+            "Identifiant élève H7 invalide."
+        )
+
     student_ids = context.get(
         "test_student_ids"
     )
@@ -224,22 +275,34 @@ def _load_h7_student_row(
         and len(student_ids)
         == len(X_test)
     ):
-        values = [
-            str(value).strip()
+
+        normalized_ids = [
+            _normalize_h7_student_id(
+                value
+            )
             for value
             in student_ids
         ]
 
-        identifier = str(
-            student_id
-        ).strip()
-
-        try:
-            position = values.index(
-                identifier
+        matches = [
+            index
+            for index, value
+            in enumerate(
+                normalized_ids
             )
-        except ValueError:
-            position = None
+            if value
+            == expected_student_id
+        ]
+
+        if len(matches) == 1:
+            position = matches[0]
+
+        elif len(matches) > 1:
+            raise RuntimeError(
+                "Identifiant élève H7 "
+                "dupliqué dans le jeu "
+                "de test EAIE."
+            )
 
     if position is None:
 
@@ -254,22 +317,40 @@ def _load_h7_student_row(
             and observation_id
             is not None
         ):
-            values = [
-                str(value).strip()
+
+            expected_observation_id = (
+                _normalize_h7_student_id(
+                    observation_id
+                )
+            )
+
+            normalized_observations = [
+                _normalize_h7_student_id(
+                    value
+                )
                 for value
                 in observation_ids
             ]
 
-            identifier = str(
-                observation_id
-            ).strip()
-
-            try:
-                position = values.index(
-                    identifier
+            matches = [
+                index
+                for index, value
+                in enumerate(
+                    normalized_observations
                 )
-            except ValueError:
-                position = None
+                if value
+                == expected_observation_id
+            ]
+
+            if len(matches) == 1:
+                position = matches[0]
+
+            elif len(matches) > 1:
+                raise RuntimeError(
+                    "Identifiant observation H7 "
+                    "dupliqué dans le jeu "
+                    "de test EAIE."
+                )
 
     if position is None:
         raise RuntimeError(
@@ -278,11 +359,9 @@ def _load_h7_student_row(
             "dans le jeu de test EAIE."
         )
 
-    row = X_test.iloc[
+    return X_test.iloc[
         int(position)
     ]
-
-    return row
 
 
 
