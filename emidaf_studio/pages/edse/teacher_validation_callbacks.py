@@ -1269,11 +1269,7 @@ def load_observations(
 
             return (
                 options,
-                (
-                    options[0]["value"]
-                    if options
-                    else None
-                ),
+                None,
             )
 
         except Exception:
