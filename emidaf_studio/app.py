@@ -174,6 +174,57 @@ import emidaf_studio.pages.etae.callbacks  # noqa: E402,F401
 import emidaf_studio.pages.eqae.callbacks  # noqa: E402,F401
 import emidaf_studio.pages.emix.callbacks  # noqa: E402,F401
 import emidaf_studio.pages.exaie.callbacks  # noqa: E402,F401
+
+# =========================================================
+# MIGRATIONS RUNTIME EMIDAF
+# =========================================================
+
+def _run_runtime_migrations():
+    """
+    Exécute les migrations SQLite idempotentes nécessaires
+    avant le démarrage de l'application.
+
+    Utile notamment sur Render, où la base distante peut
+    avoir un schéma plus ancien que le code déployé.
+    """
+    from pathlib import Path
+    import subprocess
+    import sys
+
+    migration_script = Path(
+        "migrate_teacher_validation_hitl.py"
+    )
+
+    if not migration_script.exists():
+        print(
+            "[EMIDAF] Migration HITL absente : "
+            "aucune migration exécutée."
+        )
+        return
+
+    try:
+        subprocess.run(
+            [
+                sys.executable,
+                str(migration_script),
+            ],
+            check=True,
+        )
+
+        print(
+            "[EMIDAF] Migration HITL vérifiée."
+        )
+
+    except Exception as exc:
+        print(
+            "[EMIDAF] Migration HITL impossible :",
+            exc,
+        )
+        raise
+
+
+_run_runtime_migrations()
+
 import emidaf_studio.pages.edse.callbacks  # noqa: E402,F401
 import emidaf_studio.pages.edse.teacher_validation_callbacks  # noqa: E402,F401
 import emidaf_studio.pages.reports.callbacks  # noqa: E402,F401
