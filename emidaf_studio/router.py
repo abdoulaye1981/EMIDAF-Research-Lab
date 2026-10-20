@@ -509,8 +509,8 @@ def get_page_layout(pathname):
         if not owns_project:
             h7_match = re.match(
                 (
-                    r"^/projects/(\\d+)/datasets/"
-                    r"(\\d+)/edse/?$"
+                    r"^/projects/(\d+)/datasets/"
+                    r"(\d+)/edse/?$"
                 ),
                 pathname,
             )
