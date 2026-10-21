@@ -462,8 +462,8 @@ def teacher_validation_tab():
                                     [
                                         dbc.Label(
                                             (
-                                                "Validation du "
-                                                "diagnostic"
+                                                "Validation de la "
+                                                "caractérisation explicative"
                                             ),
                                             className=(
                                                 "edse-v2-label"

@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import json
+
 import logging
 import hashlib
 from pathlib import Path
@@ -932,30 +934,292 @@ def _student_context_card(
     )
 
 
+_H7_EXPLANATION_PATH = (
+    Path("workspace/validation_doctorale_2026_10_14")
+    / "h7_explanation_snapshots.json"
+)
+
+
+def _load_h7_explanation_snapshot(
+    *,
+    case_id=None,
+    student_id=None,
+):
+    """
+    Charge l'explication locale figée du protocole H7.
+
+    Le snapshot est indépendant de la validation de l'enseignant
+    et provient du même modèle que les prédictions H7 figées.
+    """
+
+    if not _H7_EXPLANATION_PATH.exists():
+        return None
+
+    try:
+        data = json.loads(
+            _H7_EXPLANATION_PATH.read_text(
+                encoding="utf-8"
+            )
+        )
+    except Exception:
+        logger.exception(
+            "Lecture des snapshots explicatifs H7 impossible."
+        )
+        return None
+
+    normalized_student = (
+        _normalize_h7_student_id(
+            student_id
+        )
+        if student_id is not None
+        else None
+    )
+
+    for item in data:
+
+        if (
+            case_id is not None
+            and str(
+                item.get("case_id")
+            )
+            == str(case_id)
+        ):
+            return item
+
+        if (
+            normalized_student is not None
+            and _normalize_h7_student_id(
+                item.get("student_id")
+            )
+            == normalized_student
+        ):
+            return item
+
+    return None
+
+
+def _human_feature_label(
+    feature,
+):
+    labels = {
+        "cycle": "Cycle",
+        "niveau": "Niveau",
+        "interet_maths": "Intérêt pour les mathématiques",
+        "stress": "Stress",
+        "exercices_semaine": "Exercices par semaine",
+        "eval_formatives_prevues": "Évaluations formatives prévues",
+        "ressources_educatives": "Ressources éducatives",
+        "usage_tice_maison": "Usage des TICE à la maison",
+        "motivation": "Motivation",
+        "niveau_etude": "Niveau d'étude",
+        "implication": "Implication",
+        "temps_aide_hebdo": "Temps d'aide hebdomadaire",
+        "formation_continue": "Formation continue",
+        "pratiques_pedagogiques": "Pratiques pédagogiques",
+        "heures_par_semaine": "Heures par semaine",
+        "region": "Région",
+        "type_ecole": "Type d'école",
+        "genre": "Genre",
+    }
+
+    return labels.get(
+        str(feature),
+        str(feature)
+        .replace("_", " ")
+        .capitalize(),
+    )
+
+
 def _algorithmic_card(
     validation,
 ):
+    """
+    Résultat révélé après verrouillage du jugement indépendant.
+
+    La détection et la caractérisation explicative sont
+    volontairement distinguées.
+    """
 
     probability = (
-        f"{validation.predicted_probability:.4f}"
-        if (
+        float(
             validation.predicted_probability
-            is not None
         )
-        else "Non disponible"
+        if validation.predicted_probability
+        is not None
+        else None
     )
 
     threshold = (
-        f"{validation.threshold:.2f}"
-        if validation.threshold is not None
-        else "Non disponible"
+        float(
+            validation.threshold
+        )
+        if validation.threshold
+        is not None
+        else None
+    )
+
+    predicted = str(
+        validation.predicted_class
+    )
+
+    if predicted == "1":
+        class_label = (
+            "1 — Difficulté en mathématiques détectée"
+        )
+        decision_text = (
+            "EMIDAF classe cet élève dans la catégorie "
+            "« difficulté en mathématiques »."
+        )
+        decision_color = "warning"
+    else:
+        class_label = (
+            "0 — Difficulté en mathématiques non détectée"
+        )
+        decision_text = (
+            "EMIDAF ne classe pas cet élève dans la catégorie "
+            "« difficulté en mathématiques »."
+        )
+        decision_color = "success"
+
+    diagnosis = (
+        validation.algorithmic_diagnosis
+        if isinstance(
+            validation.algorithmic_diagnosis,
+            dict,
+        )
+        else {}
+    )
+
+    explanation = diagnosis.get(
+        "explanation_snapshot"
+    )
+
+    if not isinstance(
+        explanation,
+        dict,
+    ):
+        explanation = _load_h7_explanation_snapshot(
+            student_id=validation.student_id,
+        )
+
+    factor_rows = []
+
+    if isinstance(
+        explanation,
+        dict,
+    ):
+
+        for factor in (
+            explanation.get(
+                "top_factors"
+            )
+            or []
+        ):
+
+            contribution = float(
+                factor.get(
+                    "contribution_log_odds",
+                    0.0,
+                )
+            )
+
+            if contribution > 0:
+                direction = (
+                    "Vers la classe 1 — difficulté"
+                )
+            elif contribution < 0:
+                direction = (
+                    "Vers la classe 0 — absence de difficulté"
+                )
+            else:
+                direction = "Contribution neutre"
+
+            raw_value = factor.get(
+                "raw_value"
+            )
+
+            if raw_value is None:
+                raw_value = "Non disponible"
+
+            factor_rows.append(
+                html.Tr(
+                    [
+                        html.Td(
+                            _human_feature_label(
+                                factor.get(
+                                    "feature"
+                                )
+                            )
+                        ),
+                        html.Td(
+                            str(
+                                raw_value
+                            )
+                        ),
+                        html.Td(
+                            f"{contribution:+.4f}"
+                        ),
+                        html.Td(
+                            direction
+                        ),
+                    ]
+                )
+            )
+
+    characterization = (
+        dbc.Table(
+            [
+                html.Thead(
+                    html.Tr(
+                        [
+                            html.Th("Facteur"),
+                            html.Th("Valeur"),
+                            html.Th(
+                                "Contribution locale"
+                            ),
+                            html.Th("Sens"),
+                        ]
+                    )
+                ),
+                html.Tbody(
+                    factor_rows
+                ),
+            ],
+            bordered=True,
+            striped=True,
+            responsive=True,
+            size="sm",
+        )
+        if factor_rows
+        else dbc.Alert(
+            (
+                "La caractérisation explicative locale "
+                "n'est pas disponible pour ce cas."
+            ),
+            color="secondary",
+        )
     )
 
     return dbc.Card(
         dbc.CardBody(
             [
                 html.H5(
-                    "Résultat algorithmique"
+                    "Résultat EMIDAF"
+                ),
+
+                dbc.Alert(
+                    [
+                        html.Strong(
+                            "Définition de la cible : "
+                        ),
+                        (
+                            "classe 1 = difficulté en mathématiques "
+                            "avec note_maths < 10/20 ; "
+                            "classe 0 = absence de difficulté selon "
+                            "ce critère, avec note_maths ≥ 10/20."
+                        ),
+                    ],
+                    color="light",
                 ),
 
                 html.P(
@@ -983,11 +1247,22 @@ def _algorithmic_card(
                 html.P(
                     [
                         html.Strong(
-                            "Cible : "
+                            "Décision : "
                         ),
-                        str(
-                            validation.target
-                            or "Non disponible"
+                        class_label,
+                    ]
+                ),
+
+                html.P(
+                    [
+                        html.Strong(
+                            "Probabilité estimée de difficulté : "
+                        ),
+                        (
+                            f"{probability:.4f}"
+                            if probability
+                            is not None
+                            else "Non disponible"
                         ),
                     ]
                 ),
@@ -995,39 +1270,56 @@ def _algorithmic_card(
                 html.P(
                     [
                         html.Strong(
-                            "Prédiction : "
+                            "Seuil de décision du modèle : "
                         ),
-                        str(
-                            validation.predicted_class
+                        (
+                            f"{threshold:.4f}"
+                            if threshold
+                            is not None
+                            else "Non disponible"
                         ),
-                    ]
-                ),
-
-                html.P(
-                    [
-                        html.Strong(
-                            "Probabilité : "
-                        ),
-                        probability,
-                    ]
-                ),
-
-                html.P(
-                    [
-                        html.Strong(
-                            "Seuil EDSE : "
-                        ),
-                        threshold,
                     ]
                 ),
 
                 dbc.Alert(
+                    decision_text,
+                    color=decision_color,
+                ),
+
+                html.Hr(),
+
+                html.H5(
+                    "Caractérisation explicative EMIDAF"
+                ),
+
+                html.P(
                     (
-                        "Le jugement indépendant de "
-                        "l'enseignant a été verrouillé avant "
-                        "la révélation de ces informations."
+                        "Les facteurs ci-dessous sont ceux qui "
+                        "contribuent le plus à la décision locale "
+                        "du modèle pour cet élève."
+                    )
+                ),
+
+                characterization,
+
+                dbc.Alert(
+                    (
+                        "Une contribution positive pousse la décision "
+                        "vers la classe 1 (difficulté). Une contribution "
+                        "négative pousse la décision vers la classe 0. "
+                        "Ces contributions expliquent la décision du "
+                        "modèle ; elles ne démontrent pas une relation "
+                        "causale."
                     ),
                     color="info",
+                ),
+
+                dbc.Alert(
+                    (
+                        "Votre jugement indépendant a été verrouillé "
+                        "avant la révélation de ces informations."
+                    ),
+                    color="secondary",
                 ),
             ]
         )
@@ -2193,6 +2485,23 @@ def lock_judgment(
                     study.model_name,
                 "target":
                     study.target,
+
+                "target_definition": {
+                    "class_1": (
+                        "Difficulté en mathématiques : "
+                        "note_maths < 10/20"
+                    ),
+                    "class_0": (
+                        "Absence de difficulté selon le critère : "
+                        "note_maths >= 10/20"
+                    ),
+                },
+
+                "explanation_snapshot":
+                    _load_h7_explanation_snapshot(
+                        case_id=case.id,
+                        student_id=case.student_id,
+                    ),
                 "source":
                     "teacher_validation_cases",
                 "frozen":
