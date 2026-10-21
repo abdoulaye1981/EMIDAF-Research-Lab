@@ -1304,12 +1304,14 @@ def _algorithmic_card(
 
                 dbc.Alert(
                     (
-                        "Une contribution positive pousse la décision "
-                        "vers la classe 1 (difficulté). Une contribution "
-                        "négative pousse la décision vers la classe 0. "
-                        "Ces contributions expliquent la décision du "
-                        "modèle ; elles ne démontrent pas une relation "
-                        "causale."
+                        "Le signe de la contribution indique son sens : "
+                        "une contribution positive pousse la décision "
+                        "vers la classe 1 (difficulté), tandis qu'une "
+                        "contribution négative pousse vers la classe 0. "
+                        "La valeur numérique mesure l'influence locale "
+                        "de la variable dans la décision du modèle. "
+                        "Elle ne représente ni un niveau de gravité ni "
+                        "une relation causale."
                     ),
                     color="info",
                 ),
@@ -1378,7 +1380,7 @@ def _history(
                     else ""
                 ),
 
-                "Diagnostic": (
+                "Caractérisation explicative": (
                     validation.diagnosis_validation
                     if status == "completed"
                     else ""
